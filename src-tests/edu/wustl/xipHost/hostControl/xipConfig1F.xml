@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<host>
+	<tmpDir>./src-tests/edu/wustl/xipHost/hostControl/TmpXIPNonExisting</tmpDir>
+	<outputDir>./src-tests/edu/wustl/xipHost/hostControl/OutXIPNonExisting</outputDir>
+	<displayStartup>false</displayStartup>
+</host>

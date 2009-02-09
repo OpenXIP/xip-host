@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<host>
+	<tmpDir>./test-content/TmpXIP</tmpDir>
+	<outputDir>./test-content/TmpXIP</outputDir>
+	<displayStartup>false</displayStartup>
+</host>
