@@ -4,6 +4,9 @@
 package edu.wustl.xipHost.wg23;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -11,6 +14,8 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
+
+import com.pixelmed.dicom.DicomInputStream;
 
 import edu.wustl.xipHost.application.Application;
 
@@ -20,24 +25,18 @@ import junit.framework.TestCase;
  * @author Jaroslaw Krych
  *
  */
-public class MakeNativeModelTest extends TestCase {
+public class MakeNativeModelTest extends TestCase implements NativeModelListener{
 	NativeModelRunner nmRunner;
 	File file;
-	String strFileURL;
+	
+	
+	DicomInputStream dicomInputStream;
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();		
-		ObjectLocator objLoc = new ObjectLocator();
-		Uuid uuid = new Uuid();
-		uuid.setUuid("1");
-		objLoc.setUuid(uuid);
-		//file = new File("./test-content/WorlistDataset/1.3.6.1.4.1.9328.50.1.20034.dcm");
-		file = new File("./src-tests/edu/wustl/xipHost/wg23/dcm_with_SQ.dcm");
-		strFileURL = file.toURI().toURL().toExternalForm();
-		objLoc.setUri(strFileURL);		
-		nmRunner = new NativeModelRunner(objLoc);
+		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");
 	}
 
 	/* (non-Javadoc)
@@ -47,50 +46,119 @@ public class MakeNativeModelTest extends TestCase {
 		super.tearDown();
 	}
 
-	//NativeModelRunner 1A - basic flow. strFileURL is valid and points to existing dcm file
+	//NativeModelRunner 1A - basic flow. Constructor accepting ObjectLocator is used.
+	//ObjectLocator is valid and points to existing dcm file
 	//Result: JDOM Document
-	public void testMakeNativeModel1A() {
-		Document doc = nmRunner.makeNativeModel(strFileURL);		
-		assertNotNull("Perfect conditions but system unable to create NativeModel", doc);
-		String str = new XMLOutputter().outputString(doc);
-		System.out.println(str);
+	public void testMakeNativeModel1A()throws Exception {
+		ObjectLocator objLoc = new ObjectLocator();
+		Uuid uuid = new Uuid();
+		uuid.setUuid("1");
+		objLoc.setUuid(uuid);
+		file = new File("./src-tests/edu/wustl/xipHost/wg23/dcm_with_SQ.dcm");
+		String strFileURL = file.toURI().toURL().toExternalForm();
+		objLoc.setUri(strFileURL);		
+		nmRunner = new NativeModelRunner(objLoc);		
+		nmRunner.addNativeModelListener(this);
+		nmRunner.run();			
+		assertNotNull("Perfect conditions but system unable to create NativeModel", doc);				
 	}
 	
-	//NativeModelRunner 1Ba - alternative flow. strFileURL is null
-	//Result: JDOM Document = null
-	public void testMakeNativeModelBa() {
-		Document doc = nmRunner.makeNativeModel(null);		
-		assertNull("strFileURL is null but system did not catch the error", doc);		
+	//NativeModelRunner 1B - basic flow. Constructor accepting InputStream is used.
+	//InputStream is valid.
+	//Result: String XML
+	public void testMakeNativeModel1B()throws Exception {
+		file = new File("src-tests/edu/wustl/xipHost/wg23/dcm_with_SQ.dcm");
+		String strFileURL = file.toURI().toURL().toExternalForm();
+		strFileURL = file.getAbsolutePath();
+		InputStream inputStream = new FileInputStream(strFileURL);		
+		nmRunner = new NativeModelRunner(inputStream);
+		nmRunner.addNativeModelListener(this);
+		nmRunner.run();
+		assertTrue("Perfect conditions but system unable to create NativeModel - empty String", !xml.isEmpty());
+		assertNotNull("Perfect conditions but system unable to create NativeModel", xml);
+	}
+	
+	//NativeModelRunner 1Ba - alternative flow. ObjectLocator is null
+	//Result: IllegalArgumentException
+	public void testMakeNativeModelAa() throws IOException {
+		ObjectLocator objLoc = null;
+		try{
+			nmRunner = new NativeModelRunner(objLoc);
+			fail("ObjectLocator == null supplied to the constructor.");
+		}catch (IllegalArgumentException e){
+			assertTrue(true);
+		}
 	}	
 	
-	//NativeModelRunner 1Bb - alternative flow. strFileURL is an empty string
-	//Result: JDOM Document = null
-	public void testMakeNativeModelBb() {
-		Document doc = nmRunner.makeNativeModel("  ");		
-		assertNull("strFileURL is an empty string but system did not catch the error", doc);		
+	//NativeModelRunner 1Ab - alternative flow. ObjectLocator's URI is an empty string
+	//Result: IllegalArgumentException
+	public void testMakeNativeModelBb() throws IOException {
+		ObjectLocator objLoc = new ObjectLocator();
+		Uuid uuid = new Uuid();
+		uuid.setUuid("1");
+		objLoc.setUuid(uuid);		
+		objLoc.setUri("");		
+		try{
+			nmRunner = new NativeModelRunner(objLoc);
+			fail("ObjectLocator's URI was empty.");
+		}catch (IllegalArgumentException e){
+			assertTrue(true);
+		}				
 	}
 	
-	//NativeModelRunner 1Bc - alternative flow. strFileURL is not valid
-	//Result: JDOM Document = null
-	public void testMakeNativeModelBc() {		
-		Document doc = nmRunner.makeNativeModel("  file:/");		
-		assertNull("strFileURL is is not valid but system did not catch the error", doc);		
+	//NativeModelRunner 1Ac - alternative flow. ObjectLocator's URI points to nonexisting file
+	//Result: IllegalArgumentException
+	public void testMakeNativeModelBc() throws IOException {		
+		ObjectLocator objLoc = new ObjectLocator();
+		Uuid uuid = new Uuid();
+		uuid.setUuid("1");
+		objLoc.setUuid(uuid);		
+		objLoc.setUri("./src-tests/edu/wustl/xipHost/wg23/nonexistingFile.txt");	
+		try{
+			nmRunner = new NativeModelRunner(objLoc);
+			fail("ObjectLocator's URI points to nonexisting file.");
+		}catch (IllegalArgumentException e){
+			assertTrue(true);
+		}					
 	}
 	
-	//NativeModelRunner 1C - alternative flow. strFileURL is valid but point to nonexisting file
-	//Result: JDOM Document = null
-	public void testMakeNativeModelC() {		
-		Document doc = nmRunner.makeNativeModel("./src-tests/edu/wustl/xipHost/wg23/nonexistingFile.txt");		
-		assertNull("strFileURL points to nonexisting file but system did not catch the error", doc);		
+	//NativeModelRunner 1Ad - alternative flow. ObjectLocator's URI is valid but points to non dcm file
+	//Result: IllegalArgumentException
+	public void testMakeNativeModelD() throws IOException {
+		ObjectLocator objLoc = new ObjectLocator();
+		Uuid uuid = new Uuid();
+		uuid.setUuid("1");
+		objLoc.setUuid(uuid);		
+		objLoc.setUri("./src-tests/edu/wustl/xipHost/wg23/nondcm.txt");			
+		try{
+			nmRunner = new NativeModelRunner(objLoc);
+			fail("ObjectLocator points to non DCM.");
+		}catch (IllegalArgumentException e){
+			assertTrue(true);
+		}			
 	}
 	
-	//NativeModelRunner 1D - alternative flow. strFileURL is valid but point to non dcm file
-	//Result: JDOM Document = null
-	public void testMakeNativeModelD() throws MalformedURLException {
-		file = new File("./src-tests/edu/wustl/xipHost/wg23/nondcm.txt");
-		strFileURL = file.toURI().toURL().toExternalForm();
-		Document doc = nmRunner.makeNativeModel(strFileURL);		
-		assertNull("strFileURL points to nonexisting file but system did not catch the error", doc);		
+	//NativeModelRunner 1Ba - alternative flow. InputStream supplied to the constructor is null 
+	//Result: IllegalArgumentException
+	public void testMakeNativeModelBa() throws IOException {
+		InputStream inputStream = null;					
+		try{
+			nmRunner = new NativeModelRunner(inputStream);
+			fail("InputStream is null.");
+		}catch (IllegalArgumentException e){
+			assertTrue(true);
+		}			
+	}
+	
+	Document doc;
+	public void nativeModelAvailable(Document doc, Uuid objUUID) {
+		this.doc = doc;			
+	}
+
+	String xml;	
+	public void nativeModelAvailable(String xmlNativeModel) {
+		xml = xmlNativeModel;
+		System.out.println(xml);		
 	}
 	
 }
