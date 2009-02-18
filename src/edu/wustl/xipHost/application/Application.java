@@ -6,6 +6,7 @@ package edu.wustl.xipHost.application;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,6 +24,8 @@ import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
+
+import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.hostControl.Util;
 import edu.wustl.xipHost.hostControl.XindiceManager;
@@ -387,11 +390,21 @@ public class Application implements NativeModelListener {
 	void createNativeModels(WG23DataModel wg23dm){
 		if(XindiceManagerFactory.getInstance().createCollection(getID().toString())){
 			ObjectLocator[] objLocs = wg23dm.getObjectLocators();
-			for (int i = 0; i < objLocs.length; i++){						
-				NativeModelRunner nmRunner = new NativeModelRunner(objLocs[i]);
-				nmRunner.addNativeModelListener(this);
-				Thread t = new Thread(nmRunner);
-				t.start();
+			for (int i = 0; i < objLocs.length; i++){										
+				boolean isDICOM = false;
+				try {
+					isDICOM = DicomUtil.isDICOM(new File(new URI(objLocs[i].getUri())));
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(isDICOM){
+					NativeModelRunner nmRunner;
+					nmRunner = new NativeModelRunner(objLocs[i]);
+					nmRunner.addNativeModelListener(this);
+					Thread t = new Thread(nmRunner);
+					t.start();
+				}								
 			}
 		}else{
 			//TODO
@@ -409,6 +422,11 @@ public class Application implements NativeModelListener {
 	public void nativeModelAvailable(Document doc, Uuid objUUID) {				
 		XindiceManagerFactory.getInstance().addDocument(doc, getID().toString(), objUUID);		
 	}
+		
+	public void nativeModelAvailable(String xmlNativeModel) {
+		// Ignore in XIP Host. 
+		// Used by AVT AD		
+	}	
 
 	/**
 	 * Method returns ModelSetDescriptor containing UUID of native models
