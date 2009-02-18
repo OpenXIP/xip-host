@@ -53,7 +53,7 @@ public class HostConfigurator {
 	public static final String OS = System.getProperty("os.name");
 	String userName;	 	
 	
-	public boolean runHostStartupSequence(){
+	public boolean runHostStartupSequence(){		
 		//DisplayLoginDialog
 		LoginDialog loginDialog = new LoginDialog();
 		loginDialog.setLogin(login);
@@ -355,6 +355,8 @@ public class HostConfigurator {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}		        				
+		//Turn off commons loggin for better performance
+		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");
 		hostConfigurator = new HostConfigurator();
 		boolean startupOK = hostConfigurator.runHostStartupSequence();
 		if(startupOK == false){			
