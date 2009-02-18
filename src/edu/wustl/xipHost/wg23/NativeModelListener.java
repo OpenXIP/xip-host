@@ -14,4 +14,5 @@ import org.nema.dicom.wg23.Uuid;
  */
 public interface NativeModelListener extends EventListener {
 	public void nativeModelAvailable(Document doc, Uuid objUUID);
+	public void nativeModelAvailable(String xmlNativeModel);
 }

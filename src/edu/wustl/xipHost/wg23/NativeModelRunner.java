@@ -4,13 +4,17 @@
 package edu.wustl.xipHost.wg23;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -42,11 +46,35 @@ import com.pixelmed.utils.HexDump;
  * @author Jaroslaw Krych
  *
  */
-public class NativeModelRunner implements Runnable 
-{	
+public class NativeModelRunner implements Runnable {	
+	InputStream inputStream;
+	DicomInputStream dicomInputStream;	
 	ObjectLocator objLoc;
-	public NativeModelRunner(ObjectLocator objLocator){
-		this.objLoc = objLocator;
+	
+	public NativeModelRunner(ObjectLocator objLocator) {
+		if(objLocator == null){throw new IllegalArgumentException("Null ObjectLocator.");}
+		this.objLoc = objLocator;		
+		try {
+			File file = new File(new URI(objLoc.getUri()));			
+			inputStream = new FileInputStream(file);
+			dicomInputStream = new DicomInputStream(inputStream);
+		} catch (FileNotFoundException e) {
+			throw new IllegalArgumentException("Invalid ObjectLocator.");
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Invalid ObjectLocator.");
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Invalid ObjectLocator.");
+		}											
+	}
+		
+	public NativeModelRunner(InputStream inputStream) {
+		if(inputStream == null){throw new IllegalArgumentException("Null InputStream.");}
+		this.inputStream = inputStream;						
+		try {
+			dicomInputStream = new DicomInputStream(inputStream);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Invalid InputStream.");
+		}										 
 	}
 	
 	NativeModelListener listener;
@@ -57,39 +85,31 @@ public class NativeModelRunner implements Runnable
 	void notifyNativeModelAvailable(Document doc, Uuid objUUID){		
 		listener.nativeModelAvailable(doc, objUUID);		
 	}
-		
-	String dicomFile;
+	
+	void notifyNativeModelAvailable(String xmlNativeModel){
+		listener.nativeModelAvailable(xmlNativeModel);
+	}
+	
+	
 	/**
-	 * 
-	 * @param dcmFile
 	 * @return
 	 * @throws MalformedURLException 
 	 * @throws JAXBException
 	 */
-	public Document makeNativeModel(String strFileURL) {				
-		try {
-			if(strFileURL == null || strFileURL.trim().isEmpty()){return null;}			
-			File dcmFile = new File(new URL(strFileURL).getFile());					
-			dicomFile = dcmFile.getCanonicalPath();							
+	public Document makeDOMNativeModel(DicomInputStream dicomInputStream) {				
+		try {							
 			JAXBContext jaxbContext = JAXBContext.newInstance("com.mycompany.dicom.metadata");
 			Marshaller marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			AttributeList list = new AttributeList();
-		    list.read(dicomFile, null,true,true);
+		    list.read(dicomInputStream);
 			DicomDataSet obj = createDicomDataSetXML(list);
 			StringWriter sw = new StringWriter();
 			marshaller.marshal(obj, sw);
-			String xmlString = sw.toString();
-			//SAXBuilder saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+			String xmlString = sw.toString();		
 			SAXBuilder saxBuilder = new SAXBuilder();
 			Reader stringReader = new StringReader(xmlString);
 			Document jdomDoc = saxBuilder.build(stringReader);
-			//marshaller.marshal(obj, new FileOutputStream("./src/com/mycompany/testNM2.xml"));
-			/*DocumentResult docResult = new DocumentResult();
-			marshaller.marshal(obj, docResult);
-			org.dom4j.Document doc = docResult.getDocument();
-			Document document = (Document) doc;
-			System.out.println(document.toString());*/
 			return jdomDoc;
 		} catch (JAXBException e) {			
 			return null;		
@@ -102,6 +122,27 @@ public class NativeModelRunner implements Runnable
 		}			
 	}
 	
+	public String makeXMLNativeModel(DicomInputStream dicomInputStream) {
+		try {
+			if(dicomInputStream == null){return null;}															
+			JAXBContext jaxbContext = JAXBContext.newInstance("com.mycompany.dicom.metadata");
+			Marshaller marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			AttributeList list = new AttributeList();		    
+			list.read(dicomInputStream);
+			DicomDataSet obj = createDicomDataSetXML(list);
+			StringWriter sw = new StringWriter();
+			marshaller.marshal(obj, sw);
+			String xmlString = sw.toString();			
+			return xmlString;
+		} catch (JAXBException e) {			
+			return null;		
+		} catch (IOException e) {
+			return null;
+		} catch (DicomException e) {
+			return null;
+		}			
+	}
 	
 	String makeElementNameFromHexadecimalGroupElementValues(AttributeTag tag) {
 		StringBuffer str = new StringBuffer();
@@ -116,24 +157,14 @@ public class NativeModelRunner implements Runnable
 	}
 	
 	public void run() {		
-		String strFileURL = objLoc.getUri();
-		Document doc = makeNativeModel(strFileURL);
-		notifyNativeModelAvailable(doc, objLoc.getUuid());
-	}
-
-	public static void main(String args[]) throws MalformedURLException{
-		ObjectLocator objLoc = new ObjectLocator();
-		Uuid uuid = new Uuid();
-		uuid.setUuid("1");
-		objLoc.setUuid(uuid);
-		File file = new File("./src/com/mycompany/dcm_with_SQ.dcm");
-		String str = file.toURI().toURL().toExternalForm();
-		objLoc.setUri(str);
-		NativeModelRunner nmRunner = new NativeModelRunner(objLoc);
-		Thread t = new Thread(nmRunner);
-		t.start();
-		
-	}
+		if(objLoc != null){			
+			Document doc = makeDOMNativeModel(dicomInputStream);
+			notifyNativeModelAvailable(doc, objLoc.getUuid());
+		}else if (objLoc == null){
+			String xml = makeXMLNativeModel(dicomInputStream);
+			notifyNativeModelAvailable(xml);
+		}		
+	}	
 	
 	ObjectFactory factory = new ObjectFactory();
 	DicomDictionary dictionary = AttributeList.getDictionary();
@@ -161,7 +192,7 @@ public class NativeModelRunner implements Runnable
 			}
 			att.setKeyword(attName);
 			att.setTag(HexBinary.decode(strTag));
-			String vr = attribute.getVRAsString();
+			String vr = attribute.getVRAsString();			
 			att.setVr(vr);
 			att.setPrivateCreator("");					
 			List<Value> values = att.getValue();
@@ -198,19 +229,14 @@ public class NativeModelRunner implements Runnable
 			}																
 			if(strTag.equalsIgnoreCase("7fe00010")){					
 				Long offset = null;
-				try {
-					DicomInputStream dis = new DicomInputStream(new File(getDicomFile()));
-					offset = dis.getByteOffsetOfStartOfData();
-					
-				} catch (IOException e1) {
-					return null;
-				}							
+				offset = dicomInputStream.getByteOffsetOfStartOfData();							
 				bulkData.setOffset(offset);
-				bulkData.setLength(new File(getDicomFile()).length() - offset);				
-				try {
-					bulkData.setPath(new File(getDicomFile()).toURI().toURL().toExternalForm());
-				} catch (MalformedURLException e) {
-					return null;
+				Long length = attribute.getVL();							
+				bulkData.setLength(length);
+				if(objLoc != null){
+					bulkData.setPath(objLoc.getUri());
+				}else{
+					bulkData.setPath("");
 				}
 				att.setBulkData(bulkData);
 			}								
@@ -218,8 +244,4 @@ public class NativeModelRunner implements Runnable
 		}		    					
 		return obj;
 	}
-	
-	public String getDicomFile(){
-		return dicomFile;
-	}	
 }
