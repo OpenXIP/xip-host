@@ -5,8 +5,10 @@ package edu.wustl.xipHost.xds;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import org.openhealthtools.ihe.pdq.consumer.PdqConsumerDemographicQuery;
 import org.openhealthtools.ihe.pdq.consumer.PdqConsumerException;
 import org.openhealthtools.ihe.pdq.consumer.PdqConsumerResponse;
 import org.openhealthtools.ihe.xds.consumer.B_Consumer;
+import org.openhealthtools.ihe.xds.consumer.Consumer;
 import org.openhealthtools.ihe.xds.consumer.query.DateTimeRange;
 import org.openhealthtools.ihe.xds.consumer.query.MalformedQueryException;
 import org.openhealthtools.ihe.xds.consumer.retrieve.DocumentRequestType;
@@ -129,8 +132,8 @@ public class XDSManagerImpl implements XDSManager{
 		    // URI pdqSupplier = new URI("mllp", null, "67.155.0.245", 3600, null, null, null); 	// Initiate - success
 		    // URI pdqSupplier = new URI("mllp", null, "75.101.154.211", 3600, null, null, null); 	// ICW
 		    // URI pdqSupplier = new URI("mllp", null, "195.23.85.214", 3600, null, null, null); 	// Alert 
-		    URI pdqSupplier = new URI("mllp", null, "72.214.26.5", 2200, null, null, null); 		// SW Parters - success
-		    // URI pdqSupplier = new URI("mllp", null, "office.tiani-spirit.com", 6667, null, null, null); // Tiani-Spirit - success
+		    // URI pdqSupplier = new URI("mllp", null, "72.214.26.5", 2200, null, null, null); 		// SW Parters - success
+		    URI pdqSupplier = new URI("mllp", null, "office.tiani-spirit.com", 6667, null, null, null); // Tiani-Spirit - success
 		    // URI pdqSupplier = new URI("mllp", null, "24.153.226.221", 5950, null, null, null); 		// EMDS
 		    // URI pdqSupplier = new URI("mllp", null, "198.160.211.53", 3601, null, null, null); 	// MISYSPLC - success
 		    //              For MESA testing
@@ -327,10 +330,10 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "http://hxti1:8080/ihe/registry";
 		//String registryURL = "http://hcxw2k1.nist.gov:8080/xdsServices2/registry/soap/portals/yr3a/storedquery";
 		//String registryURL = "http://129.6.24.109:9080/axis2/services/xdsregistrya";
-		//String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistrya"; // 9085 for tls, swap a for b for XDS.b
+		String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistrya"; // 9085 for tls, swap a for b for XDS.b
 		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistrya";
 		//String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistryb";
-		String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistryb";
+		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistryb";
 		//String registryURL = "https://127.0.0.1:4100/test";
 		// TODO Get URI from a config file
 		URI registryURI = null;
@@ -342,9 +345,10 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		System.out.println("URI of the XDS Registry - " + registryURI.toString());
 		
-		//Consumer c = new Consumer(registryURI);
+		// for XDS.a
+		Consumer c = new Consumer(registryURI);
 		// for XDS.b
-		///*
+		/*
 		B_Consumer c = new B_Consumer(registryURI);
 		String NIST_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5";
 		String XDS_B_REPOSITORY_UNIQUE_ID = NIST_B_REPOSITORY_UNIQUE_ID;
@@ -357,7 +361,7 @@ public class XDSManagerImpl implements XDSManager{
 			e4.printStackTrace();
 		}
 		c.getRepositoryMap().put(XDS_B_REPOSITORY_UNIQUE_ID, XDS_B_REPOSITORY_URI); // For XDS.b
-		//*/
+		*/
 		
 		//AtnaAgentFactory.getAtnaAgent().setDoAudit(false);
 		//AtnaAgentFactory.getAtnaAgent().setAuditRepository(new URI(auditURL));
@@ -516,7 +520,7 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		System.out.println("Getting document with URI: " + docEntryDetails.getUri());
 
-		/* 
+		///* 
 		// for XDS.a
 		InputStream document = null;
 		try {
@@ -555,8 +559,8 @@ public class XDSManagerImpl implements XDSManager{
 			e.printStackTrace();
 		}
 
-		*/ // end for XDS.a
-		///*
+		//*/ // end for XDS.a
+		/*
 		// for XDS.b
 		// build the document request
         RetrieveDocumentSetRequestType retrieveRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createRetrieveDocumentSetRequestType();
@@ -583,7 +587,7 @@ public class XDSManagerImpl implements XDSManager{
 			Document document = (Document)documents.get(0);
 			System.out.println("First document returned: " + document.toString());
 		}
-		//*/ // end for XDS.b
+		*/ // end for XDS.b
  		
 		// TODO Track the paging - we have two responses - one with all UUIDs, and one with just the info on the first 10.
 		
