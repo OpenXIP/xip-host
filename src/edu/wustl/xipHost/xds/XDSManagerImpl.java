@@ -3,6 +3,7 @@
  */
 package edu.wustl.xipHost.xds;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -50,6 +51,13 @@ import org.openhealthtools.ihe.xds.response.XDSResponseType;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.PersonNameAttribute;
 import com.pixelmed.dicom.TagFromName;
+
+import edu.wustl.xipHost.caGrid.GridManager;
+import edu.wustl.xipHost.caGrid.GridManagerFactory;
+import edu.wustl.xipHost.dataModel.Item;
+import edu.wustl.xipHost.dataModel.Patient;
+import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 
 /**
  * @author Jaroslaw Krych (stubs), Lawrence Tarbox (OHT implementation)
@@ -99,7 +107,7 @@ public class XDSManagerImpl implements XDSManager{
 		/*
 		// Alternative of setting up a secure connection
 		Properties props = new Properties();
-		props.setProperty(SecurityDomain.JAVAX_NET_SSL_KEYSTORE, "/x.jks”);
+		props.setProperty(SecurityDomain.JAVAX_NET_SSL_KEYSTORE, "/x.jksï¿½);
 		props.setProperty(SecurityDomain.JAVAX_NET_SSL_KEYSTORE_PASSWORD, "pswd");
 		props.setProperty(SecurityDomain.JAVAX_NET_SSL_TRUSTSTORE, "/y.jks");
 		props.setProperty(SecurityDomain.JAVAX_NET_SSL_TRUSTSTORE_PASSWORD, "pswd");
@@ -315,8 +323,10 @@ public class XDSManagerImpl implements XDSManager{
 	    
 	}
 	
-	public XDSQueryResponseType queryDocuments(String [] patientIDin) {		
-    	String patIDString = "ID passed into query: " + patientIDin[0];
+	Consumer c;
+	//public XDSQueryResponseType queryDocuments(String [] patientIDin) {		
+	public	SearchResult queryDocuments(String [] patientIDin) {
+		String patIDString = "ID passed into query: " + patientIDin[0];
     	for (int i=1; i < patientIDin.length; i++) {
     		if (patientIDin [i] != "") {
     			patIDString = patIDString + " " + patientIDin[i];
@@ -351,7 +361,7 @@ public class XDSManagerImpl implements XDSManager{
 		System.out.println("URI of the XDS Registry - " + registryURI.toString());
 		
 		// for XDS.a
-		Consumer c = new Consumer(registryURI);
+		c = new Consumer(registryURI);
 		// for XDS.b
 		/*
 		B_Consumer c = new B_Consumer(registryURI);
@@ -384,7 +394,7 @@ public class XDSManagerImpl implements XDSManager{
 		//Construct the parameters to our FindDocumentsQuery
 		////////////////////////////////////////////////////////////////////////////////
 		
-		// Set up the patient ID: “JM19400814^^^&1.3.6.1.4.1.21367.2005.1.1&ISO”
+		// Set up the patient ID: ï¿½JM19400814^^^&1.3.6.1.4.1.21367.2005.1.1&ISOï¿½
 		CX patientId = Hl7v2Factory.eINSTANCE.createCX();
 		//patientId.setIdNumber("223344");
 		//patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2007.1.2.200");
@@ -426,12 +436,12 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		//soecifying type of the document
 		//Create a list of healthcare facility codes we want to search on. In this
-		//example we only want documents where the healthcare facility is “Outpatient”
+		//example we only want documents where the healthcare facility is ï¿½Outpatientï¿½
 		CodedMetadataType[] hcfc1 = {MetadataFactory.eINSTANCE.createCodedMetadataType()};
 		hcfc1[0].setCode("Outpatient");
 		
 		//Create a list of document status types we want to search on. In this example,
-		//we only want “Approved” documents.
+		//we only want ï¿½Approvedï¿½ documents.
 		AvailabilityStatusType[] status = {AvailabilityStatusType.APPROVED_LITERAL};
 		
 		////////////////////////////////////////////////////////////////////////////////
@@ -461,8 +471,8 @@ public class XDSManagerImpl implements XDSManager{
 		
 
 		////////////////////////////////////////////////////////////////////////////////
-		//Construct our GetDocumentQuery for document with uniqueID “1144362162012”;
-		//thus, the argument for the “isUUID” parameter is ‘false’.
+		//Construct our GetDocumentQuery for document with uniqueID ï¿½1144362162012ï¿½;
+		//thus, the argument for the ï¿½isUUIDï¿½ parameter is ï¿½falseï¿½.
 		////////////////////////////////////////////////////////////////////////////////
 		//GetDocumentsQuery query = new GetDocumentsQuery(new String[]{"129.6.58.91.12407"},
 		//false);
@@ -487,6 +497,7 @@ public class XDSManagerImpl implements XDSManager{
 		// Now fetch details on the first n documents in the list
 		// TODO fetch say 10 instead of 1
 		//DocumentEntryType docEntrySimple = ((DocumentEntryResponseType)responseList.getDocumentEntryResponses().get(0)).getDocumentEntry();
+		/*
 		int docIndex = 0; //responseList.getReferences().size() - 1;
 		ObjectRefType docRef = (ObjectRefType)responseList.getReferences().get(docIndex);
 		//GetDocumentQuery accepts as an argument String[] with up to 10 elements (or n depends on the registry)
@@ -524,8 +535,46 @@ public class XDSManagerImpl implements XDSManager{
 			return null;
 		}
 		System.out.println("Getting document with URI: " + docEntryDetails.getUri());
-
-		///* 
+		*/
+		//JK
+		int numOfDocs = responseList.getReferences().size();
+		String[] docReferences = new String[numOfDocs];
+		for(int i = 0; i < numOfDocs; i++){
+			ObjectRefType docReference = (ObjectRefType)responseList.getReferences().get(i);
+			
+			docReferences[i] = docReference.getId();
+		}
+		XDSQueryResponseType response;
+		try {
+			GetDocumentsQuery docsQuery = new GetDocumentsQuery(docReferences, true);				
+			response = c.invokeStoredQuery(docsQuery, false);
+		} 	catch (MalformedStoredQueryException e1) {				
+			e1.printStackTrace();				
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		int numOfResponses = response.getDocumentEntryResponses().size();
+		SearchResult searchResult = new SearchResult("XDS Repository: " + registryURI.toString());
+		Patient patient = new Patient("", patIDString, "");
+		searchResult.addPatient(patient);		
+		for(int i = 0; i < numOfResponses; i++){
+			DocumentEntryType docDetails = ((DocumentEntryResponseType)response.getDocumentEntryResponses().get(0)).getDocumentEntry();
+			String id = docDetails.getUniqueId();
+			String availability = docDetails.getAvailabilityStatus().getLiteral();
+			String language = docDetails.getLanguageCode();
+			String mime = docDetails.getMimeType();
+			String docDesc = id + " / " + availability + " / " + language + " / " + mime;
+			System.out.println(docDesc);
+			Item item = new XDSDocumentItem(id, availability, language, mime, docDetails, patientId);
+			//searchResult.addItem(item);
+			patient.addItem(item);
+		}
+			
+		return searchResult;
+		
+		/* 
 		// for XDS.a
 		InputStream document = null;
 		try {
@@ -564,7 +613,7 @@ public class XDSManagerImpl implements XDSManager{
 			e.printStackTrace();
 		}
 
-		//*/ // end for XDS.a
+		/*/ // end for XDS.a
 		/*
 		// for XDS.b
 		// build the document request
@@ -596,9 +645,55 @@ public class XDSManagerImpl implements XDSManager{
  		
 		// TODO Track the paging - we have two responses - one with all UUIDs, and one with just the info on the first 10.
 		
-		return responseDetails;		
+		//return responseDetails;				
 	}
 
+	
+	//XDS.a
+	public File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId){
+		InputStream document = null;
+		try {
+			document = c.retrieveDocument(docEntryDetails.getUri(), patientId, docEntryDetails.getUniqueId());
+		} catch (Exception e) {
+			e.printStackTrace();			
+			return null;
+		}
+		if(document == null){
+			return null;
+		}
+		System.out.println("Document Stream: " + '\n' + document.toString());
+		File destFile = null;
+		try {
+			// TODO generate file name from the document UID and mime type.
+			System.out.println("Mime type:  " + docEntryDetails.getMimeType());
+			//GridManagaer is used only to get Tmp directory
+			GridManager gridMgr = GridManagerFactory.getInstance();
+			File importDir = gridMgr.getImportDirectory();
+			File inputDir = File.createTempFile("XDS-XIPHOST", "pdf", importDir);			
+			importDir = inputDir;		
+			inputDir.delete();			
+			destFile = importDir;
+	        OutputStream out;
+				out = new FileOutputStream(destFile);		    
+	        // Transfer bytes from document to out
+	        byte[] buf = new byte[1024];
+	        int len;
+	        while ((len = document.read(buf)) > 0) {
+	            out.write(buf, 0, len);
+	        }
+	        document.close();
+	        out.close();	        
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return destFile;
+	}
+	
+	
 	public boolean retrieveDocuemnts() {
 		// TODO Retrieve docuemnts logic goes here
 /*		

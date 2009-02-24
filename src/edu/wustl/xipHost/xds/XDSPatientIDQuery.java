@@ -32,6 +32,6 @@ public class XDSPatientIDQuery implements Runnable{
     }
 	
     void notifyPatientIDs(List<XDSPatientIDResponse> patientIDs2){
-    	listener.patientIDs(patientIDs2);
+    	listener.patientIDsAvailable(patientIDs2);
     }
 }

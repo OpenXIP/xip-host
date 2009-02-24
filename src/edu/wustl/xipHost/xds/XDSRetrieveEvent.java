@@ -3,10 +3,14 @@
  */
 package edu.wustl.xipHost.xds;
 
+import java.util.EventObject;
+
 /**
  * @author Jaroslaw Krych
  *
  */
-public class XDSRetrieveEvent {
-
+public class XDSRetrieveEvent extends EventObject {
+	public XDSRetrieveEvent(XDSDocumentRetrieve source){
+		super(source);
+	}
 }

@@ -5,6 +5,8 @@ package edu.wustl.xipHost.xds;
 
 import org.openhealthtools.ihe.xds.response.XDSQueryResponseType;
 
+import edu.wustl.xipHost.dataModel.SearchResult;
+
 /**
  * @author Jaroslaw Krych
  *
@@ -18,13 +20,18 @@ public class XDSDocumentQuery implements Runnable{
 		xdsMgr = XDSManagerFactory.getInstance();
 	}
 	
-	XDSQueryResponseType xsdQueryResponse;
+	//XDSQueryResponseType xsdQueryResponse;
+	SearchResult xsdQueryResponse;
 	public void run() {			
 		xsdQueryResponse = xdsMgr.queryDocuments(patientID);				
 		fireUpdateUI();
 	}
 
-	public XDSQueryResponseType getxsdQueryResponse(){
+	/*public XDSQueryResponseType getxsdQueryResponse(){
+		return xsdQueryResponse;
+	}*/
+	
+	public SearchResult getxsdQueryResponse(){
 		return xsdQueryResponse;
 	}
 	
@@ -35,6 +42,6 @@ public class XDSDocumentQuery implements Runnable{
 	    
     void fireUpdateUI(){
 		XDSSearchEvent event = new XDSSearchEvent(this);         		
-        listener.searchResultAvailable(event);
+        listener.documentsAvailable(event);
 	}		
 }

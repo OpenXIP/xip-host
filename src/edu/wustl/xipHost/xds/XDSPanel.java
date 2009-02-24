@@ -10,6 +10,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,18 +26,25 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+
+import org.openhealthtools.ihe.common.hl7v2.CX;
+import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
+
 import com.pixelmed.dicom.AttributeList;
 
-import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.dataModel.Item;
+import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
+import edu.wustl.xipHost.localFileSystem.FileManager;
+import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
+import edu.wustl.xipHost.xds.CheckBoxTree.SearchResultTree;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class XDSPanel extends JPanel implements ActionListener, TreeSelectionListener, XDSSearchListener, ListSelectionListener {
+public class XDSPanel extends JPanel implements ActionListener, XDSSearchListener, XDSRetrieveListener, ListSelectionListener {
 	XDSSearchCriteriaPanel criteriaPanel = new XDSSearchCriteriaPanel();	
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);
@@ -53,7 +65,7 @@ public class XDSPanel extends JPanel implements ActionListener, TreeSelectionLis
 		criteriaPanel.setQueryButtonText("Search XDS");	
 		criteriaPanel.getPatientList().addListSelectionListener(this);
 		leftPanel.add(criteriaPanel);				
-	    resultTree.addTreeSelectionListener(this);
+		resultTree.addMouseListener(ml);
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);	
 		btnRetrieve = new JButton("Retrieve");
@@ -82,6 +94,11 @@ public class XDSPanel extends JPanel implements ActionListener, TreeSelectionLis
 	
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == criteriaPanel.getPatientIDQueryButton()){									
+			criteriaPanel.getListModel().removeAllElements();
+			resultTree.rootNode.removeAllChildren();
+			progressBar.setString("Processing search request ...");
+			progressBar.setIndeterminate(true);
+			progressBar.updateUI();	
 			AttributeList criteria = criteriaPanel.getFilterList();										
 			if(criteriaPanel.verifyCriteria(criteria)){																													
 				XDSPatientIDQuery xsdQueryPatientID = new XDSPatientIDQuery(criteria);
@@ -92,12 +109,34 @@ public class XDSPanel extends JPanel implements ActionListener, TreeSelectionLis
 				//if no criteria specified do ...				
 			}						
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){			
+			progressBar.setString("Processing search request ...");
+			progressBar.setIndeterminate(true);
+			progressBar.updateUI();	
 			XDSDocumentQuery xsdQuery = new XDSDocumentQuery(selectedID.getPatID());
 			xsdQuery.addXDSSearchListener(this);
 			Thread t = new Thread(xsdQuery);
 			t.start();
-		}		
-	}
+		}else if(e.getSource() == btnRetrieve){			
+			allRetrivedFiles = new ArrayList<File>();
+			numRetrieveThreadsStarted = 0;
+			numRetrieveThreadsReturned = 0;
+			progressBar.setString("Processing search request ...");
+			progressBar.setIndeterminate(true);
+			progressBar.updateUI();
+			List<XDSDocumentItem> selectedItems = resultTree.getSelectedItems();
+			for(int i = 0; i < selectedItems.size(); i++){
+				XDSDocumentItem xdsDocItem = selectedItems.get(i);
+				DocumentEntryType docType = xdsDocItem.getDocumentType();
+				CX patientId = xdsDocItem.getPatientId();
+				XDSDocumentRetrieve xdsRetrieve = new XDSDocumentRetrieve(docType, patientId);
+				xdsRetrieve.addXDSRetrieveListener(this);
+				Thread t = new Thread(xdsRetrieve);
+				t.start();
+				numRetrieveThreadsStarted++;
+			}						
+			
+		}
+	}	
 	
 	void buildLayout(){				
 		GridBagLayout layout = new GridBagLayout();
@@ -171,14 +210,24 @@ public class XDSPanel extends JPanel implements ActionListener, TreeSelectionLis
 		frame.setVisible(true);		
 	}
 	
-	public void searchResultAvailable(XDSSearchEvent e) {
-		
+	SearchResult result;
+	public void documentsAvailable(XDSSearchEvent e) {
+		XDSDocumentQuery source = (XDSDocumentQuery) e.getSource();
+		result = source.getxsdQueryResponse();				        
+		if(result == null){			
+			resultTree.updateNodes(result);
+		}else{
+			resultTree.updateNodes(result);				
+		}							
+		progressBar.setString("XDS Search finished");
+		progressBar.setIndeterminate(false);	
 			
 	}
 
-	public void patientIDs(List<XDSPatientIDResponse> patientIDs) {				
+	public void patientIDsAvailable(List<XDSPatientIDResponse> patientIDs) {				
 		if(patientIDs != null && patientIDs.size() != 0){
 			progressBar.setString("Patient ID(s) found");
+			progressBar.setIndeterminate(false);
 			for(int i = 0; i < patientIDs.size(); i++){
 				criteriaPanel.getListModel().addElement(patientIDs.get(i));				
 			}			
@@ -192,11 +241,38 @@ public class XDSPanel extends JPanel implements ActionListener, TreeSelectionLis
 		JList list = ((JList)e.getSource());		
 		selectedID = (XDSPatientIDResponse)list.getSelectedValue();
 		criteriaPanel.getQueryButton().setEnabled(true);
-	}	
+	}
 	
-	public void valueChanged(TreeSelectionEvent e) {
-		// TODO Auto-generated method stub
-		
+	MouseListener ml = new MouseAdapter() {
+	     public void mousePressed(MouseEvent e) {
+	    	 if(resultTree.getSelectedItems().size() > 0){
+	    		 btnRetrieve.setEnabled(true);
+	    	 }else{
+	    		 btnRetrieve.setEnabled(false);
+	    	 }
+	     }
+	};
+
+	List<File> allRetrivedFiles;
+	int numRetrieveThreadsStarted;
+	int numRetrieveThreadsReturned;
+	@Override
+	public boolean documentsAvailable(File xdsRetrievedFile) {
+		allRetrivedFiles.add(xdsRetrievedFile);
+		numRetrieveThreadsReturned++;
+		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
+			progressBar.setString("XDS Retrieve finished");
+			progressBar.setIndeterminate(false);
+			criteriaPanel.getQueryButton().setBackground(xipBtn);
+			criteriaPanel.getQueryButton().setEnabled(true);		
+			btnRetrieve.setEnabled(true);
+			btnRetrieve.setBackground(xipBtn);
+			File[] files = new File[allRetrivedFiles.size()];
+			allRetrivedFiles.toArray(files);		
+			FileManager fileMgr = FileManagerFactory.getInstance();						
+	        fileMgr.run(files);
+		}
+		return true;
 	}
 	
 }
