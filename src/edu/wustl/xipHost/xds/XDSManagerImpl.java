@@ -75,10 +75,15 @@ public class XDSManagerImpl implements XDSManager{
 			e.printStackTrace();
 		    System.out.println("URI to auditor improperly formed");
 		}
-		PDQConsumerAuditor.getAuditor().getConfig().setAuditSourceId(auditUser);
+		PDQConsumerAuditor.getAuditor().getConfig().setAuditSourceId("XIP");
 		PDQConsumerAuditor.getAuditor().getConfig().setAuditorEnabled(true);
+		PDQConsumerAuditor.getAuditor().getConfig().setAuditEnterpriseSiteId("IHE ERL");
+		PDQConsumerAuditor.getAuditor().getConfig().setHumanRequestor("ltarbox");
+		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserId(auditUser);
+		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
+		
 		//TODO Move l. 78 to user login (execute after successful/failed login)
-		PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, auditUser, "192.168.1.10");
+		PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
 
 		
 		//TODO Move to the configuration file
@@ -369,7 +374,7 @@ public class XDSManagerImpl implements XDSManager{
 			XDSConsumerAuditor auditor = XDSConsumerAuditor.getAuditor();
 			auditor.getConfig().setAuditRepositoryUri(new URI(auditURL));
 			auditor.getConfig().setAuditorEnabled(true);
-			auditor.getConfig().setAuditSourceId(auditUser);
+			auditor.getConfig().setAuditSourceId("XIP");
 		} catch (URISyntaxException e3) {
 			// TODO Auto-generated catch block
 			e3.printStackTrace();
