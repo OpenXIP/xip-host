@@ -29,6 +29,7 @@ import org.openhealthtools.ihe.pdq.consumer.PdqConsumer;
 import org.openhealthtools.ihe.pdq.consumer.PdqConsumerDemographicQuery;
 import org.openhealthtools.ihe.pdq.consumer.PdqConsumerException;
 import org.openhealthtools.ihe.pdq.consumer.PdqConsumerResponse;
+import org.openhealthtools.ihe.xds.consumer.AbstractConsumer;
 import org.openhealthtools.ihe.xds.consumer.B_Consumer;
 import org.openhealthtools.ihe.xds.consumer.Consumer;
 import org.openhealthtools.ihe.xds.consumer.query.DateTimeRange;
@@ -47,6 +48,7 @@ import org.openhealthtools.ihe.xds.metadata.constants.DocumentEntryConstants;
 import org.openhealthtools.ihe.xds.response.DocumentEntryResponseType;
 import org.openhealthtools.ihe.xds.response.XDSQueryResponseType;
 import org.openhealthtools.ihe.xds.response.XDSResponseType;
+import org.openhealthtools.ihe.xua.context.XUAModuleContext;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.PersonNameAttribute;
@@ -60,16 +62,17 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 
 /**
- * @author Jaroslaw Krych (stubs), Lawrence Tarbox (OHT implementation)
+ * @author Jaroslaw Krych (stubs, tree display of results), Lawrence Tarbox (OHT implementation)
  *
  */
 public class XDSManagerImpl implements XDSManager{
 
 	//That's where audit is going
 	private String auditUser = "wustl"; // TODO Get user from login info, or better yet, globally configure the audit and security stuff.
-	private String auditURL = "syslog://129.6.24.109:8087";
-	//private String auditURL = "syslog://127.0.0.1:4000";
-
+	private String auditURL = "syslog://129.6.24.109:8087"; // NIST web
+	//private String auditURL = "syslog://127.0.0.1:4000"; // MESA
+	//private String auditURL = "syslog://axolotl1:514"; // axolotl1
+	
 	public List<XDSPatientIDResponse> queryPatientIDs(AttributeList queryKeys) {		
 		System.out.println("Finding Patient IDs.");
 		List<XDSPatientIDResponse> patIDRspListOut = null;
@@ -91,8 +94,26 @@ public class XDSManagerImpl implements XDSManager{
 		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
 		
 		//TODO Move l. 78 to user login (execute after successful/failed login)
-		PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
+		/*
+		XUAModuleContext context = XUAModuleContext.getContext(); 
+		context.setXUAEnabled(true); 
+		String atnaUsername = context.getLoginHandler().login(stsProviderUrl, // stsProviderUrl
+				"http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon", // audience
+				"Xuagood^User", // user
+				"xua"); // password
+		if (atnaUsername != null) { 
+			// XUA request was successful 
+			auditUser = atnaUsername;
+			PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
+		} 
+		else 
+		{ 
+			// XUA request was unsuccessful 
+			PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.MINOR_FAILURE, true, "XIP", "192.168.1.10");
+		}
+*/
 
+		PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
 		
 		//TODO Move to the configuration file
 		System.setProperty("javax.net.ssl.keyStore","/MESA/certificates/WS_XIP.jks");
@@ -323,7 +344,10 @@ public class XDSManagerImpl implements XDSManager{
 	    
 	}
 	
-	Consumer c;
+	private boolean useXdsB = false;
+
+	AbstractConsumer c = null;
+	
 	//public XDSQueryResponseType queryDocuments(String [] patientIDin) {		
 	public	SearchResult queryDocuments(String [] patientIDin) {
 		String patIDString = "ID passed into query: " + patientIDin[0];
@@ -361,22 +385,28 @@ public class XDSManagerImpl implements XDSManager{
 		System.out.println("URI of the XDS Registry - " + registryURI.toString());
 		
 		// for XDS.a
-		c = new Consumer(registryURI);
-		// for XDS.b
-		/*
-		B_Consumer c = new B_Consumer(registryURI);
-		String NIST_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5";
-		String XDS_B_REPOSITORY_UNIQUE_ID = NIST_B_REPOSITORY_UNIQUE_ID;
-		URI XDS_B_REPOSITORY_URI = null;
-		try {
-			String NIST_B_STORED_QUERY_SECURED = "https://ihexds.nist.gov:9085/tf5/services/xdsregistryb";
-			XDS_B_REPOSITORY_URI = new URI(NIST_B_STORED_QUERY_SECURED);
-		} catch (URISyntaxException e4) {
-			// TODO Auto-generated catch block
-			e4.printStackTrace();
+		if (!useXdsB)
+		{
+			c = new Consumer(registryURI);
 		}
-		c.getRepositoryMap().put(XDS_B_REPOSITORY_UNIQUE_ID, XDS_B_REPOSITORY_URI); // For XDS.b
-		*/
+		else
+		{
+		// for XDS.b
+		///*
+			c = new B_Consumer(registryURI);
+			String NIST_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5";
+			String XDS_B_REPOSITORY_UNIQUE_ID = NIST_B_REPOSITORY_UNIQUE_ID;
+			URI XDS_B_REPOSITORY_URI = null;
+			try {
+				String NIST_B_STORED_QUERY_SECURED = "https://ihexds.nist.gov:9085/tf5/services/xdsregistryb";
+				XDS_B_REPOSITORY_URI = new URI(NIST_B_STORED_QUERY_SECURED);
+			} catch (URISyntaxException e4) {
+				// TODO Auto-generated catch block
+				e4.printStackTrace();
+			}
+			((B_Consumer)c).getRepositoryMap().put(XDS_B_REPOSITORY_UNIQUE_ID, XDS_B_REPOSITORY_URI); // For XDS.b
+		//*/
+		}
 		
 		//AtnaAgentFactory.getAtnaAgent().setDoAudit(false);
 		//AtnaAgentFactory.getAtnaAgent().setAuditRepository(new URI(auditURL));
@@ -471,8 +501,8 @@ public class XDSManagerImpl implements XDSManager{
 		
 
 		////////////////////////////////////////////////////////////////////////////////
-		//Construct our GetDocumentQuery for document with uniqueID �1144362162012�;
-		//thus, the argument for the �isUUID� parameter is �false�.
+		//Construct our GetDocumentQuery for document with uniqueID "1144362162012";
+		//thus, the argument for the "isUUID" parameter is "false".
 		////////////////////////////////////////////////////////////////////////////////
 		//GetDocumentsQuery query = new GetDocumentsQuery(new String[]{"129.6.58.91.12407"},
 		//false);
@@ -560,7 +590,7 @@ public class XDSManagerImpl implements XDSManager{
 		Patient patient = new Patient("", patIDString, "");
 		searchResult.addPatient(patient);		
 		for(int i = 0; i < numOfResponses; i++){
-			DocumentEntryType docDetails = ((DocumentEntryResponseType)response.getDocumentEntryResponses().get(0)).getDocumentEntry();
+			DocumentEntryType docDetails = ((DocumentEntryResponseType)response.getDocumentEntryResponses().get(i)).getDocumentEntry();
 			String id = docDetails.getUniqueId();
 			String availability = docDetails.getAvailabilityStatus().getLiteral();
 			String language = docDetails.getLanguageCode();
@@ -616,84 +646,112 @@ public class XDSManagerImpl implements XDSManager{
 		/*/ // end for XDS.a
 		/*
 		// for XDS.b
-		// build the document request
-        RetrieveDocumentSetRequestType retrieveRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createRetrieveDocumentSetRequestType();
-        DocumentRequestType documentRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createDocumentRequestType(); 
-        documentRequest.setRepositoryUniqueId(docEntryDetails.getRepositoryUniqueId());
-        documentRequest.setHomeCommunityId(((DocumentEntryResponseType)responseDetails.getDocumentEntryResponses().get(0)).getHomeCommunityId());
-        documentRequest.setDocumentUniqueId(docEntryDetails.getUniqueId());
-        
-        retrieveRequest.getDocumentRequest().add(documentRequest);
-        
-		// execute retrieve
-        List documents = new ArrayList();
-		XDSResponseType response = null;
-		try {
-			response = c.retrieveDocumentSet(retrieveRequest, documents, docEntryDetails.getPatientId());
-		} catch (Exception e) {
-			System.out.println(e.toString());
-			//throw e;
-			return null;
-		}
-		System.out.println("Response status: " + response.getStatus().getName());
-		System.out.println("Returned " + documents.size() + " documents.");
-		if(documents.size() > 0){
-			Document document = (Document)documents.get(0);
-			System.out.println("First document returned: " + document.toString());
+		public File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId){
+			// build the document request
+		    RetrieveDocumentSetRequestType retrieveRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createRetrieveDocumentSetRequestType();
+		    DocumentRequestType documentRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createDocumentRequestType(); 
+		    documentRequest.setRepositoryUniqueId(docEntryDetails.getRepositoryUniqueId());
+		    documentRequest.setHomeCommunityId(((DocumentEntryResponseType)responseDetails.getDocumentEntryResponses().get(0)).getHomeCommunityId());
+		    documentRequest.setDocumentUniqueId(docEntryDetails.getUniqueId());
+		    
+		    retrieveRequest.getDocumentRequest().add(documentRequest);
+		    
+			// execute retrieve
+		    List documents = new ArrayList();
+			XDSResponseType response = null;
+			try {
+				response = c.retrieveDocumentSet(retrieveRequest, documents, docEntryDetails.getPatientId());
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				//throw e;
+				return null;
+			}
+			System.out.println("Response status: " + response.getStatus().getName());
+			System.out.println("Returned " + documents.size() + " documents.");
+			if(documents.size() > 0){
+				Document document = (Document)documents.get(0);
+				System.out.println("First document returned: " + document.toString());
+			}
 		}
 		*/ // end for XDS.b
- 		
+		
 		// TODO Track the paging - we have two responses - one with all UUIDs, and one with just the info on the first 10.
 		
 		//return responseDetails;				
 	}
 
-	
 	//XDS.a
 	public File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId){
-		InputStream document = null;
-		try {
-			document = c.retrieveDocument(docEntryDetails.getUri(), patientId, docEntryDetails.getUniqueId());
-		} catch (Exception e) {
-			e.printStackTrace();			
-			return null;
-		}
-		if(document == null){
-			return null;
-		}
-		System.out.println("Document Stream: " + '\n' + document.toString());
 		File destFile = null;
-		try {
-			// TODO generate file name from the document UID and mime type.
-			System.out.println("Mime type:  " + docEntryDetails.getMimeType());
-			//GridManagaer is used only to get Tmp directory
-			GridManager gridMgr = GridManagerFactory.getInstance();
-			File importDir = gridMgr.getImportDirectory();
-			File inputDir = File.createTempFile("XDS-XIPHOST", "pdf", importDir);			
-			importDir = inputDir;		
-			inputDir.delete();			
-			destFile = importDir;
-	        OutputStream out;
-				out = new FileOutputStream(destFile);		    
-	        // Transfer bytes from document to out
-	        byte[] buf = new byte[1024];
-	        int len;
-	        while ((len = document.read(buf)) > 0) {
-	            out.write(buf, 0, len);
-	        }
-	        document.close();
-	        out.close();	        
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+		if (!useXdsB) {
+			InputStream document = null;
+			try {
+				document = ((Consumer)c).retrieveDocument(docEntryDetails.getUri(), patientId, docEntryDetails.getUniqueId()); // only XDS.a
+			} catch (Exception e) {
+				e.printStackTrace();			
+				return null;
+			}
+			if(document == null){
+				return null;
+			}
+			System.out.println("Document Stream: " + '\n' + document.toString());
+			try {
+				// TODO generate file name from the document UID and mime type.
+				System.out.println("Mime type:  " + docEntryDetails.getMimeType());
+				//GridManagaer is used only to get Tmp directory
+				GridManager gridMgr = GridManagerFactory.getInstance();
+				File importDir = gridMgr.getImportDirectory();
+				File inputDir = File.createTempFile("XDS-XIPHOST", "pdf", importDir);			
+				importDir = inputDir;		
+				inputDir.delete();			
+				destFile = importDir;
+		        OutputStream out;
+					out = new FileOutputStream(destFile);		    
+		        // Transfer bytes from document to out
+		        byte[] buf = new byte[1024];
+		        int len;
+		        while ((len = document.read(buf)) > 0) {
+		            out.write(buf, 0, len);
+		        }
+		        document.close();
+		        out.close();	        
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return null;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else { /*
+			// build the document request
+		    RetrieveDocumentSetRequestType retrieveRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createRetrieveDocumentSetRequestType();
+		    DocumentRequestType documentRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createDocumentRequestType(); 
+		    documentRequest.setRepositoryUniqueId(docEntryDetails.getRepositoryUniqueId());
+		    documentRequest.setHomeCommunityId(((DocumentEntryResponseType)responseDetails.getDocumentEntryResponses().get(0)).getHomeCommunityId());
+		    documentRequest.setDocumentUniqueId(docEntryDetails.getUniqueId());
+		    
+		    retrieveRequest.getDocumentRequest().add(documentRequest);
+		    
+			// execute retrieve
+		    List documents = new ArrayList();
+			XDSResponseType response = null;
+			try {
+				response = c.retrieveDocumentSet(retrieveRequest, documents, docEntryDetails.getPatientId());
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				//throw e;
+				return null;
+			}
+			System.out.println("Response status: " + response.getStatus().getName());
+			System.out.println("Returned " + documents.size() + " documents.");
+			if(documents.size() > 0){
+				Document document = (Document)documents.get(0);
+				System.out.println("First document returned: " + document.toString());
+			}
+		*/ }
 		return destFile;
 	}
-	
-	
+		
 	public boolean retrieveDocuemnts() {
 		// TODO Retrieve docuemnts logic goes here
 /*		
