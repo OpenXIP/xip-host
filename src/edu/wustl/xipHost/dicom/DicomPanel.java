@@ -498,9 +498,10 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(selectedStudyInstanceUID); retrieveCriteria.put(t,a); }
 				}							
 				if(!selectedSeriesInstanceUID.equalsIgnoreCase("")){ 
-				  AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(selectedSeriesInstanceUID); retrieveCriteria.put(t,a); }
-				{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue("*"); retrieveCriteria.put(t,a); }
-				{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("IMAGE"); retrieveCriteria.put(t,a); }
+				  AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(selectedSeriesInstanceUID); retrieveCriteria.put(t,a);
+				}
+				//{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue("*"); retrieveCriteria.put(t,a); }
+				{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("SERIES"); retrieveCriteria.put(t,a); }
 				/*DicomDictionary dictionary = AttributeList.getDictionary();
 			    Iterator iter = dictionary.getTagIterator();        
 			    String strAtt = null;
