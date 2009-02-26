@@ -16,16 +16,18 @@ public class XDSDocumentRetrieve implements Runnable {
 	XDSManager xdsMgr;
 	DocumentEntryType docEntryDetails;
 	CX patientId;
+	String homeCommunityId = null;
 	
-	public XDSDocumentRetrieve(DocumentEntryType docEntryDetails, CX patientId){
+	public XDSDocumentRetrieve(DocumentEntryType docEntryDetails, CX patientId, String homeCommunityId){
 		this.docEntryDetails = docEntryDetails;
 		this.patientId = patientId;
+		this.homeCommunityId = homeCommunityId;
 		xdsMgr = XDSManagerFactory.getInstance();		
 	}
 	
 	@Override
 	public void run() {
-		File xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId);				
+		File xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId, homeCommunityId);				
 		fireUpdateUI(xdsRetrievedFile);
 		
 	}

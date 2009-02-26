@@ -128,7 +128,8 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 				XDSDocumentItem xdsDocItem = selectedItems.get(i);
 				DocumentEntryType docType = xdsDocItem.getDocumentType();
 				CX patientId = xdsDocItem.getPatientId();
-				XDSDocumentRetrieve xdsRetrieve = new XDSDocumentRetrieve(docType, patientId);
+				String homeCommunityId = xdsDocItem.getHomeCommunityId();
+				XDSDocumentRetrieve xdsRetrieve = new XDSDocumentRetrieve(docType, patientId, homeCommunityId);
 				xdsRetrieve.addXDSRetrieveListener(this);
 				Thread t = new Thread(xdsRetrieve);
 				t.start();

@@ -48,6 +48,7 @@ import org.openhealthtools.ihe.xds.metadata.constants.DocumentEntryConstants;
 import org.openhealthtools.ihe.xds.response.DocumentEntryResponseType;
 import org.openhealthtools.ihe.xds.response.XDSQueryResponseType;
 import org.openhealthtools.ihe.xds.response.XDSResponseType;
+import org.openhealthtools.ihe.xua.XUAAssertion;
 import org.openhealthtools.ihe.xua.context.XUAModuleContext;
 
 import com.pixelmed.dicom.AttributeList;
@@ -70,12 +71,25 @@ public class XDSManagerImpl implements XDSManager{
 	//That's where audit is going
 	private String auditUser = "wustl"; // TODO Get user from login info, or better yet, globally configure the audit and security stuff.
 	private String auditURL = "syslog://129.6.24.109:8087"; // NIST web
+	//private String auditURL = "syslog://nist1.ihe.net:8087"; // NIST Connectathon
 	//private String auditURL = "syslog://127.0.0.1:4000"; // MESA
 	//private String auditURL = "syslog://axolotl1:514"; // axolotl1
 	
 	public List<XDSPatientIDResponse> queryPatientIDs(AttributeList queryKeys) {		
 		System.out.println("Finding Patient IDs.");
 		List<XDSPatientIDResponse> patIDRspListOut = null;
+
+		//TODO Move to the configuration file
+		System.setProperty("javax.net.ssl.keyStore","/MESA/certificates/WS_XIP.jks");
+		System.setProperty("javax.net.ssl.keyStorePassword","caBIG2009");
+		//System.setProperty("javax.net.ssl.trustStore","/MESA/certificates/truststore.jks");
+		//System.setProperty("javax.net.ssl.trustStorePassword","caBIG2009");
+		System.setProperty("javax.net.ssl.trustStore","/XIP/connectathontrusts.na2009.jks");
+		System.setProperty("javax.net.ssl.trustStorePassword","connectathon");
+		//System.setProperty("javax.net.ssl.keyStore","/MESA/mesa_tests/rad/actors/secure_node/test_sys_1.jks");
+		//System.setProperty("javax.net.ssl.keyStorePassword","secret");
+		//System.setProperty("javax.net.ssl.trustStore","/MESA/mesa_tests/rad/actors/secure_node/mesatrusts.2009.jks");
+		//System.setProperty("javax.net.ssl.trustStorePassword","mesa");
 
 		// TODO Should we do all this setup and create pdq once, configure it, and leave it created?
 		try {
@@ -94,37 +108,38 @@ public class XDSManagerImpl implements XDSManager{
 		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
 		
 		//TODO Move l. 78 to user login (execute after successful/failed login)
-		/*
+		
 		XUAModuleContext context = XUAModuleContext.getContext(); 
 		context.setXUAEnabled(true); 
-		String atnaUsername = context.getLoginHandler().login(stsProviderUrl, // stsProviderUrl
-				"http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon", // audience
-				"Xuagood^User", // user
-				"xua"); // password
+		//String atnaUsername = context.getLoginHandler().login("https://ibm2:8443/XUATools/IBM_STS", // stsProviderUrl
+		XUAAssertion atnaUsername = null;
+		try {
+			atnaUsername = context.getLoginHandler().login("https://ibm2:8443/XUATools/IBM_STS", // stsProviderUrl
+			//atnaUsername = context.getLoginHandler().login("https://spirit1:8443/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProvider4Tivoli", // stsProviderUrl
+					"http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon", // audience
+					"user_valid@ihe.net", // user
+					"passw0rd");
+		} catch (Exception e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} // password
 		if (atnaUsername != null) { 
 			// XUA request was successful 
-			auditUser = atnaUsername;
+			auditUser = atnaUsername.getAtnaUsername();
+			PDQConsumerAuditor.getAuditor().getConfig().setSystemUserId(auditUser);
 			PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
 		} 
 		else 
 		{ 
 			// XUA request was unsuccessful 
 			PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.MINOR_FAILURE, true, "XIP", "192.168.1.10");
+			// TODO: notify user of failure
+		    System.out.println("Unable to authenticate user");
+			return null;
 		}
-*/
-
-		PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
+		// If not using XUA, uncomment the following line of code
+		//PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
 		
-		//TODO Move to the configuration file
-		System.setProperty("javax.net.ssl.keyStore","/MESA/certificates/WS_XIP.jks");
-		System.setProperty("javax.net.ssl.keyStorePassword","caBIG2009");
-		System.setProperty("javax.net.ssl.trustStore","/MESA/certificates/truststore.jks");
-		System.setProperty("javax.net.ssl.trustStorePassword","caBIG2009");
-		//System.setProperty("javax.net.ssl.keyStore","/MESA/mesa_tests/rad/actors/secure_node/test_sys_1.jks");
-		//System.setProperty("javax.net.ssl.keyStorePassword","secret");
-		//System.setProperty("javax.net.ssl.trustStore","/MESA/mesa_tests/rad/actors/secure_node/mesatrusts.2009.jks");
-		//System.setProperty("javax.net.ssl.trustStorePassword","mesa");
-
 		/*
 		// Alternative of setting up a secure connection
 		Properties props = new Properties();
@@ -162,7 +177,12 @@ public class XDSManagerImpl implements XDSManager{
 			// Hardcoded URI for PDQ server
 		    // URI pdqSupplier = new URI("mllp", null, "hxti1", 3600, null, null, null);
 		    // URI pdqSupplier = new URI("mllp", null, "initiate1", 3600, null, null, null);
-		    //              For 2009 Internet Testing
+		    //              For 2009 connectathon
+		    //URI pdqSupplier = new URI("mllp", null, "hl7-proxy.ihe.net", 9327, null, null, null); // Allscripts
+		    //URI pdqSupplier = new URI("mllp", null, "allscripts4", 3601, null, null, null); // Allscripts
+		    //URI pdqSupplier = new URI("mllps", null, "allscripts4", 3710, null, null, null); // Allscripts
+		    
+		    //              For 2009 Internet Testing 
 		    // URI pdqSupplier = new URI("mllp", null, "67.155.0.245", 3600, null, null, null); 	// Initiate - success
 		    // URI pdqSupplier = new URI("mllp", null, "75.101.154.211", 3600, null, null, null); 	// ICW
 		    // URI pdqSupplier = new URI("mllp", null, "195.23.85.214", 3600, null, null, null); 	// Alert 
@@ -344,7 +364,7 @@ public class XDSManagerImpl implements XDSManager{
 	    
 	}
 	
-	private boolean useXdsB = false;
+	private boolean useXdsB = true;
 
 	AbstractConsumer c = null;
 	
@@ -369,11 +389,13 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "http://hxti1:8080/ihe/registry";
 		//String registryURL = "http://hcxw2k1.nist.gov:8080/xdsServices2/registry/soap/portals/yr3a/storedquery";
 		//String registryURL = "http://129.6.24.109:9080/axis2/services/xdsregistrya";
-		String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistrya"; // 9085 for tls, swap a for b for XDS.b
+		//String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistrya"; // 9085 for tls, swap a for b for XDS.b
 		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistrya";
 		//String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistryb";
 		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistryb";
+		//String registryURL = "https://nist1.ihe.net:9085/tf5/services/xdsregistryb"; // NIST at connectathon
 		//String registryURL = "https://127.0.0.1:4100/test";
+		String registryURL = "https://spirit1:8443/XDS/registry";
 		// TODO Get URI from a config file
 		URI registryURI = null;
 		try {
@@ -384,28 +406,32 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		System.out.println("URI of the XDS Registry - " + registryURI.toString());
 		
-		// for XDS.a
 		if (!useXdsB)
 		{
+			// for XDS.a
 			c = new Consumer(registryURI);
 		}
 		else
 		{
 		// for XDS.b
-		///*
 			c = new B_Consumer(registryURI);
-			String NIST_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5";
+			//((B_Consumer)c).setPrimaryRepositoryURI(primaryRepositoryURI); //only if repos supports consolidation
+			String NIST_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2008.1.2.701";
 			String XDS_B_REPOSITORY_UNIQUE_ID = NIST_B_REPOSITORY_UNIQUE_ID;
+
+			URI XDS_B_INITIATING_GATEWAY = null;
 			URI XDS_B_REPOSITORY_URI = null;
 			try {
-				String NIST_B_STORED_QUERY_SECURED = "https://ihexds.nist.gov:9085/tf5/services/xdsregistryb";
+				String IBM_INITIATING_GATEWAY = "https://ibm3:9448/XGatewayWS/InitiatingGatewayQuery";
+				XDS_B_INITIATING_GATEWAY = new URI(IBM_INITIATING_GATEWAY);
+				String NIST_B_STORED_QUERY_SECURED = "https://nist1.ihe.net:9085/tf5/services/xdsrepositoryb";
 				XDS_B_REPOSITORY_URI = new URI(NIST_B_STORED_QUERY_SECURED);
 			} catch (URISyntaxException e4) {
 				// TODO Auto-generated catch block
 				e4.printStackTrace();
 			}
+			((B_Consumer)c).setInitiatingGatewayURI(XDS_B_INITIATING_GATEWAY); //needed to resolve home commmunity IDs
 			((B_Consumer)c).getRepositoryMap().put(XDS_B_REPOSITORY_UNIQUE_ID, XDS_B_REPOSITORY_URI); // For XDS.b
-		//*/
 		}
 		
 		//AtnaAgentFactory.getAtnaAgent().setDoAudit(false);
@@ -424,7 +450,7 @@ public class XDSManagerImpl implements XDSManager{
 		//Construct the parameters to our FindDocumentsQuery
 		////////////////////////////////////////////////////////////////////////////////
 		
-		// Set up the patient ID: �JM19400814^^^&1.3.6.1.4.1.21367.2005.1.1&ISO�
+		// Set up the patient ID: "JM19400814^^^&1.3.6.1.4.1.21367.2005.1.1&ISO"
 		CX patientId = Hl7v2Factory.eINSTANCE.createCX();
 		//patientId.setIdNumber("223344");
 		//patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2007.1.2.200");
@@ -432,10 +458,12 @@ public class XDSManagerImpl implements XDSManager{
 		//patientId.setIdNumber("NIST-test-10");
 		//patientId.setIdNumber("89765a87b^^^");
 		//patientId.setIdNumber("270a59d7a8b145b^^^");
-		patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2005.3.7");
+		patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2009.1.2.300");
 		patientId.setAssigningAuthorityUniversalIdType("ISO");
 		//patientId.setIdNumber("d74cde348faf4e3");
-		patientId.setIdNumber("5aaef86586ad4ae");
+		//patientId.setIdNumber("5aaef86586ad4ae");
+		//patientId.setIdNumber("PDQ113XX01");
+		patientId.setIdNumber("felipe_melo");
 		// TODO PIX lookup if assigning authority is not what we expect.  Also, read assigning authority from config file
 		/*
 		//our IDs would be incorporated here
@@ -595,9 +623,10 @@ public class XDSManagerImpl implements XDSManager{
 			String availability = docDetails.getAvailabilityStatus().getLiteral();
 			String language = docDetails.getLanguageCode();
 			String mime = docDetails.getMimeType();
+			String homeCommunity = ((DocumentEntryResponseType)response.getDocumentEntryResponses().get(i)).getHomeCommunityId();
 			String docDesc = id + " / " + availability + " / " + language + " / " + mime;
 			System.out.println(docDesc);
-			Item item = new XDSDocumentItem(id, availability, language, mime, docDetails, patientId);
+			Item item = new XDSDocumentItem(id, availability, language, mime, docDetails, patientId, homeCommunity);
 			//searchResult.addItem(item);
 			patient.addItem(item);
 		}
@@ -681,7 +710,7 @@ public class XDSManagerImpl implements XDSManager{
 	}
 
 	//XDS.a
-	public File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId){
+	public File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId, String homeCommunityId){
 		File destFile = null;
 		if (!useXdsB) {
 			InputStream document = null;
@@ -722,12 +751,12 @@ public class XDSManagerImpl implements XDSManager{
 				e.printStackTrace();
 				return null;
 			}
-		} else { /*
+		} else { 
 			// build the document request
 		    RetrieveDocumentSetRequestType retrieveRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createRetrieveDocumentSetRequestType();
 		    DocumentRequestType documentRequest = org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveFactory.eINSTANCE.createDocumentRequestType(); 
 		    documentRequest.setRepositoryUniqueId(docEntryDetails.getRepositoryUniqueId());
-		    documentRequest.setHomeCommunityId(((DocumentEntryResponseType)responseDetails.getDocumentEntryResponses().get(0)).getHomeCommunityId());
+		    documentRequest.setHomeCommunityId(homeCommunityId);
 		    documentRequest.setDocumentUniqueId(docEntryDetails.getUniqueId());
 		    
 		    retrieveRequest.getDocumentRequest().add(documentRequest);
@@ -736,7 +765,7 @@ public class XDSManagerImpl implements XDSManager{
 		    List documents = new ArrayList();
 			XDSResponseType response = null;
 			try {
-				response = c.retrieveDocumentSet(retrieveRequest, documents, docEntryDetails.getPatientId());
+				response = ((B_Consumer)c).retrieveDocumentSet(retrieveRequest, documents, docEntryDetails.getPatientId());
 			} catch (Exception e) {
 				System.out.println(e.toString());
 				//throw e;
@@ -744,11 +773,51 @@ public class XDSManagerImpl implements XDSManager{
 			}
 			System.out.println("Response status: " + response.getStatus().getName());
 			System.out.println("Returned " + documents.size() + " documents.");
+			Document document = null;
 			if(documents.size() > 0){
-				Document document = (Document)documents.get(0);
+				document = (Document)documents.get(0);
 				System.out.println("First document returned: " + document.toString());
+			} else {
+				return null;
 			}
-		*/ }
+
+			// TODO generate file name from the document UID and mime type.
+			System.out.println("Mime type:  " + docEntryDetails.getMimeType());
+			//GridManagaer is used only to get Tmp directory
+			GridManager gridMgr = GridManagerFactory.getInstance();
+			File importDir = gridMgr.getImportDirectory();
+			File inputDir = null;
+			try {
+				inputDir = File.createTempFile("XDS-XIPHOST", "pdf", importDir);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+			importDir = inputDir;		
+			inputDir.delete();			
+			destFile = importDir;
+	        OutputStream out = null;
+			try {
+				out = new FileOutputStream(destFile);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			InputStream documentStream = document.getDocumentData();
+	        // Transfer bytes from document to out
+	        byte[] buf = new byte[1024];
+	        int len;
+	        try {
+				while ((len = documentStream.read(buf)) > 0) {
+				    out.write(buf, 0, len);
+				}
+		        documentStream.close();
+		        out.close();	        
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return destFile;
 	}
 		

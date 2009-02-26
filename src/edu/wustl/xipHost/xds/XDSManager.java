@@ -22,5 +22,5 @@ public interface XDSManager {
 	//public abstract XDSQueryResponseType queryDocuments(String [] patientID);
 	public abstract SearchResult queryDocuments(String [] patientID);
 	public abstract boolean retrieveDocuemnts();
-	public abstract File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId);
+	public abstract File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId, String homeCommunityId);
 }

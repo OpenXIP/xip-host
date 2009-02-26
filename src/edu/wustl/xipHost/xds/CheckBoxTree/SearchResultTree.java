@@ -146,9 +146,9 @@ public class SearchResultTree extends JTree {
 		SearchResult result = new SearchResult("WashU Test");
 	    Patient patient1 = new Patient("Jaroslaw Krych", "1010101", "19730718");
 	    Patient patient2 = new Patient("Jarek Krych", "2020202", "19730718");
-	    XDSDocumentItem item1 = new XDSDocumentItem("1234", "Available", "US", "PDF", null, null);	    
-	    XDSDocumentItem item2 = new XDSDocumentItem("2345", "Available", "US", "XML", null, null);	
-	    XDSDocumentItem item3 = new XDSDocumentItem("3456", "Available", "US", "TXT", null, null);	
+	    XDSDocumentItem item1 = new XDSDocumentItem("1234", "Available", "US", "PDF", null, null, null);	    
+	    XDSDocumentItem item2 = new XDSDocumentItem("2345", "Available", "US", "XML", null, null, null);	
+	    XDSDocumentItem item3 = new XDSDocumentItem("3456", "Available", "US", "TXT", null, null, null);	
 	    patient1.addItem(item1);
 	    result.addPatient(patient1);
 	    patient2.addItem(item2);
