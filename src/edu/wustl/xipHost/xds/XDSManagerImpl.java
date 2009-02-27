@@ -70,10 +70,10 @@ public class XDSManagerImpl implements XDSManager{
 
 	//That's where audit is going
 	private String auditUser = "wustl"; // TODO Get user from login info, or better yet, globally configure the audit and security stuff.
-	private String auditURL = "syslog://129.6.24.109:8087"; // NIST web
+	//private String auditURL = "syslog://129.6.24.109:8087"; // NIST web
 	//private String auditURL = "syslog://nist1.ihe.net:8087"; // NIST Connectathon
 	//private String auditURL = "syslog://127.0.0.1:4000"; // MESA
-	//private String auditURL = "syslog://axolotl1:514"; // axolotl1
+	private String auditURL = "syslog://axolotl1:514"; // axolotl1
 	
 	public List<XDSPatientIDResponse> queryPatientIDs(AttributeList queryKeys) {		
 		System.out.println("Finding Patient IDs.");
@@ -108,7 +108,7 @@ public class XDSManagerImpl implements XDSManager{
 		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
 		
 		//TODO Move l. 78 to user login (execute after successful/failed login)
-		
+		/*
 		XUAModuleContext context = XUAModuleContext.getContext(); 
 		context.setXUAEnabled(true); 
 		//String atnaUsername = context.getLoginHandler().login("https://ibm2:8443/XUATools/IBM_STS", // stsProviderUrl
@@ -117,7 +117,7 @@ public class XDSManagerImpl implements XDSManager{
 			atnaUsername = context.getLoginHandler().login("https://ibm2:8443/XUATools/IBM_STS", // stsProviderUrl
 			//atnaUsername = context.getLoginHandler().login("https://spirit1:8443/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProvider4Tivoli", // stsProviderUrl
 					"http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon", // audience
-					"user_valid@ihe.net", // user
+					"user_valid@ihe.net", // "user_valid@ihe.net","user_unsigned@ihe.net" // user
 					"passw0rd");
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
@@ -137,8 +137,9 @@ public class XDSManagerImpl implements XDSManager{
 		    System.out.println("Unable to authenticate user");
 			return null;
 		}
+		*/
 		// If not using XUA, uncomment the following line of code
-		//PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
+		PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
 		
 		/*
 		// Alternative of setting up a secure connection
@@ -181,13 +182,18 @@ public class XDSManagerImpl implements XDSManager{
 		    //URI pdqSupplier = new URI("mllp", null, "hl7-proxy.ihe.net", 9327, null, null, null); // Allscripts
 		    //URI pdqSupplier = new URI("mllp", null, "allscripts4", 3601, null, null, null); // Allscripts
 		    //URI pdqSupplier = new URI("mllps", null, "allscripts4", 3710, null, null, null); // Allscripts
+		    //URI pdqSupplier = new URI("mllp", null, "icw2", 3750, null, null, null); // ICW
+		    //URI pdqSupplier = new URI("mllp", null, "initiate1", 3600, null, null, null); // Initiate
+		    //URI pdqSupplier = new URI("mllps", null, "initiate1", 3610, null, null, null); // Initiate
+		    //URI pdqSupplier = new URI("mllps", null, "initiate1", 3610, null, null, null); // Initiate
+		    URI pdqSupplier = new URI("mllps", null, "swpartners1", 3610, null, null, null); // swpartners
 		    
 		    //              For 2009 Internet Testing 
 		    // URI pdqSupplier = new URI("mllp", null, "67.155.0.245", 3600, null, null, null); 	// Initiate - success
 		    // URI pdqSupplier = new URI("mllp", null, "75.101.154.211", 3600, null, null, null); 	// ICW
 		    // URI pdqSupplier = new URI("mllp", null, "195.23.85.214", 3600, null, null, null); 	// Alert 
 		    // URI pdqSupplier = new URI("mllp", null, "72.214.26.5", 2200, null, null, null); 		// SW Parters - success
-		    URI pdqSupplier = new URI("mllp", null, "office.tiani-spirit.com", 6667, null, null, null); // Tiani-Spirit - success
+		    //URI pdqSupplier = new URI("mllp", null, "office.tiani-spirit.com", 6667, null, null, null); // Tiani-Spirit - success
 		    // URI pdqSupplier = new URI("mllp", null, "24.153.226.221", 5950, null, null, null); 		// EMDS
 		    // URI pdqSupplier = new URI("mllp", null, "198.160.211.53", 3601, null, null, null); 	// MISYSPLC - success
 		    //              For MESA testing
@@ -249,7 +255,8 @@ public class XDSManagerImpl implements XDSManager{
 			String patientID = queryKeys.get(TagFromName.PatientID).getSingleStringValueOrNull();
 			if (patientID != null){
 				String assigningAuthority = queryKeys.get(TagFromName.IssuerOfPatientID).getSingleStringValueOrEmptyString();
-				pdqQuery.addQueryPatientID(patientID, assigningAuthority, "", "");
+				//pdqQuery.addQueryPatientID(patientID, assigningAuthority, "", "");
+				pdqQuery.addQueryPatientID(patientID, assigningAuthority, "1.3.6.1.4.1.21367.2009.1.2.300", "ISO");
 			}
 			
 			String birthdate = queryKeys.get(TagFromName.PatientBirthDate).getSingleStringValueOrNull();
@@ -267,6 +274,7 @@ public class XDSManagerImpl implements XDSManager{
 			if (patientAddress != null){
 				pdqQuery.addQueryPatientAddressStreetAddress(patientAddress);
 			}
+			//pdqQuery.addQueryPatientAddressStreetAddress("10 PINETREE");
 
 			String specificCharSet = queryKeys.get(TagFromName.SpecificCharacterSet).getSingleStringValueOrNull();
 			if (specificCharSet != null){
@@ -395,7 +403,9 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistryb";
 		//String registryURL = "https://nist1.ihe.net:9085/tf5/services/xdsregistryb"; // NIST at connectathon
 		//String registryURL = "https://127.0.0.1:4100/test";
-		String registryURL = "https://spirit1:8443/XDS/registry";
+		//String registryURL = "https://spirit1:8443/XDS/registry";
+		//String registryURL = "https://ith-icoserve1:8243/Registry/services/RegistryService";
+		String registryURL = "https://ibm3:9448/IBMXDSRegistry/XDSb/SOAP12/Registry";
 		// TODO Get URI from a config file
 		URI registryURI = null;
 		try {
@@ -416,16 +426,22 @@ public class XDSManagerImpl implements XDSManager{
 		// for XDS.b
 			c = new B_Consumer(registryURI);
 			//((B_Consumer)c).setPrimaryRepositoryURI(primaryRepositoryURI); //only if repos supports consolidation
-			String NIST_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2008.1.2.701";
-			String XDS_B_REPOSITORY_UNIQUE_ID = NIST_B_REPOSITORY_UNIQUE_ID;
+			//String NIST_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2008.1.2.701";
+			//String XDS_B_REPOSITORY_UNIQUE_ID = "2.16.840.1.113662.2.1.53"; // Spirit
+			String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2009.1.2.1030"; // IBM
 
 			URI XDS_B_INITIATING_GATEWAY = null;
 			URI XDS_B_REPOSITORY_URI = null;
 			try {
 				String IBM_INITIATING_GATEWAY = "https://ibm3:9448/XGatewayWS/InitiatingGatewayQuery";
+				//String ITH_INITIATING_GATEWAY = "https://ith-icoserve1:8143/XCommunityBridge/services/InitiatingGatewayService";
+				//String IBM_INITIATING_GATEWAY = "http://ibm3:9085/XGatewayWS/InitiatingGatewayRetrieve";
 				XDS_B_INITIATING_GATEWAY = new URI(IBM_INITIATING_GATEWAY);
 				String NIST_B_STORED_QUERY_SECURED = "https://nist1.ihe.net:9085/tf5/services/xdsrepositoryb";
-				XDS_B_REPOSITORY_URI = new URI(NIST_B_STORED_QUERY_SECURED);
+				//XDS_B_REPOSITORY_URI = new URI(NIST_B_STORED_QUERY_SECURED);
+				//XDS_B_REPOSITORY_URI = new URI("https://spirit1:8443/XDS/repository");
+				//XDS_B_REPOSITORY_URI = new URI("https://ith-icoserve1:8243/Repository/services/RepositoryService");
+				XDS_B_REPOSITORY_URI = new URI("https://ibm3:9448/IBMXDSRepository/XDSb/SOAP12/Repository");
 			} catch (URISyntaxException e4) {
 				// TODO Auto-generated catch block
 				e4.printStackTrace();
@@ -458,27 +474,27 @@ public class XDSManagerImpl implements XDSManager{
 		//patientId.setIdNumber("NIST-test-10");
 		//patientId.setIdNumber("89765a87b^^^");
 		//patientId.setIdNumber("270a59d7a8b145b^^^");
-		patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2009.1.2.300");
+		patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2009.1.2.300"); // for 2009 connectathon 
 		patientId.setAssigningAuthorityUniversalIdType("ISO");
 		//patientId.setIdNumber("d74cde348faf4e3");
 		//patientId.setIdNumber("5aaef86586ad4ae");
 		//patientId.setIdNumber("PDQ113XX01");
-		patientId.setIdNumber("felipe_melo");
+		//patientId.setIdNumber("felipe_melo");
 		// TODO PIX lookup if assigning authority is not what we expect.  Also, read assigning authority from config file
-		/*
+		//*
 		//our IDs would be incorporated here
 		patientId.setIdNumber(patientIDin[0]);
-		if ((patientIDin.length > 2) && (patientIDin[2] != "1.3.6.1.4.1.21367.2005.3.7") ) {
+		if ((patientIDin.length > 2) && (patientIDin[2] != "1.3.6.1.4.1.21367.2009.1.2.300") ) {
 			patientId.setAssigningAuthorityUniversalId(patientIDin[2]);
 		} else {
-			patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2005.3.7");
+			patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2009.1.2.300");
 		}
 		if ((patientIDin.length > 3) && (patientIDin[3] != "ISO") ){
 			patientId.setAssigningAuthorityUniversalIdType(patientIDin[3]);
 		} else {
 			patientId.setAssigningAuthorityUniversalIdType("ISO");
 		}
-		*/
+		//*/
 
 		// Set up the date-time range for creationTime between Dec 25, 2003 and Jan 01,
 		//2006
