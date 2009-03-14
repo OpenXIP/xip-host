@@ -4,14 +4,15 @@
 package edu.wustl.xipHost.avt;
 
 import java.util.EventObject;
-import com.siemens.scr.avt.ad.connector.api.ImageAnnotationDescriptor;
+import edu.wustl.xipHost.dataModel.SearchResult;
+
 
 /**
  * @author Jaroslaw Krych
  *
  */
 public class AVTSearchEvent extends EventObject {
-	public AVTSearchEvent(ImageAnnotationDescriptor[] source){	
+	public AVTSearchEvent(SearchResult source){	
 		super(source);
 	}
 }

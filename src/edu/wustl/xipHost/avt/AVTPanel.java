@@ -30,27 +30,23 @@ import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-import com.siemens.scr.avt.ad.connector.api.ImageAnnotationDescriptor;
+import com.siemens.scr.avt.ad.annotation.ImageAnnotationDescriptor;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
-import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dicom.DicomQuery;
 import edu.wustl.xipHost.dicom.DicomRetrieve;
 import edu.wustl.xipHost.dicom.DicomRetrieveEvent;
 import edu.wustl.xipHost.dicom.DicomRetrieveListener;
 import edu.wustl.xipHost.dicom.PacsLocation;
-import edu.wustl.xipHost.dicom.SearchEvent;
-import edu.wustl.xipHost.dicom.SearchListener;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 
-public class AVTPanel extends JPanel implements ActionListener, AVTListener, SearchListener, DicomRetrieveListener, TreeSelectionListener{
+public class AVTPanel extends JPanel implements ActionListener, AVTListener, DicomRetrieveListener, TreeSelectionListener{
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);
@@ -102,10 +98,10 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Sea
 		this.criteria = criteria;
 	}
 	
-	Thread threadQueryDicom;
+	
 	Thread threadRetrieveDicom;
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == criteriaPanel.getQueryButton()){			
+		if(e.getSource() == criteriaPanel.getQueryButton()){						
 			btnRetrieve.setEnabled(false);			
 			btnRetrieve.setBackground(Color.GRAY);			
 			resultTree.rootNode.removeAllChildren();
@@ -114,13 +110,10 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Sea
 			progressBar.updateUI();
 			setCriteriaList(criteriaPanel.getFilterList());	
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);			
-			if(bln){
-				DicomQuery dicomQuery = new DicomQuery(criteria, loc);
-				dicomQuery.addSearchListener(this);
-				threadQueryDicom = new Thread(dicomQuery);
-				threadQueryDicom.start();
+			if(bln){				
 				String studyUID = criteriaPanel.getFilterList().get(TagFromName.StudyInstanceUID).getDelimitedStringValuesOrEmptyString();
-				String seriesUID = criteriaPanel.getFilterList().get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();
+				String seriesUID = criteriaPanel.getFilterList().get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();				
+				
 				AVTQuery avtQuery = new AVTQuery(studyUID, seriesUID);
 				avtQuery.addAVTListener(this);
 				Thread t = new Thread(avtQuery);
@@ -251,24 +244,28 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Sea
 		frame.setVisible(true);		
 	}
 
-	ImageAnnotationDescriptor[] aimDescs;
+	//List<ImageAnnotationDescriptor> aimDescs;
 	public void searchResultsAvailable(AVTSearchEvent e) {
+		SearchResult result = (SearchResult) e.getSource();
+		/*
 		try {
 			//wait until dicom results arrive
-			if(threadQueryDicom != null)threadQueryDicom.join();
+			//if(threadQueryDicom != null)threadQueryDicom.join();
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		aimDescs = (ImageAnnotationDescriptor[])e.getSource();
-		if(aimDescs.length >= 1 && aimDescs[0] != null){
-			for(int i = 0; i < aimDescs.length; i++){
-				/*System.out.println(i + " " + aimDescs[i].getImageAnnotationType() + " " 
-						+ aimDescs[i].getDateTime() + " Rater " + aimDescs[i].getAuthorName());*/
-				AIMItem aim = new AIMItem(aimDescs[i].getImageAnnotationType(), aimDescs[i].getDateTime(), 
-						aimDescs[i].getAuthorName(), aimDescs[i].getUID());
-				String studyInstanceUID = aimDescs[i].getStudyInstanceUID();
-				String seriesInstanceUID = aimDescs[i].getSeriesInstanceUID();
+		
+		aimDescs = (List<ImageAnnotationDescriptor>)e.getSource();
+		
+		if(aimDescs.size() >= 1 && aimDescs.get(1) != null){
+			for(int i = 0; i < aimDescs.size(); i++){
+				//System.out.println(i + " " + aimDescs[i].getImageAnnotationType() + " " 
+				//		+ aimDescs[i].getDateTime() + " Rater " + aimDescs[i].getAuthorName());
+				AIMItem aim = new AIMItem(aimDescs.get(i).getImageAnnotationType(), aimDescs.get(i).getDateTime().toString(), 
+						aimDescs.get(i).getAuthorName(), aimDescs.get(i).getUID());
+				String studyInstanceUID = aimDescs.get(i).getStudyInstanceUID();
+				String seriesInstanceUID = aimDescs.get(i).getSeriesInstanceUID();
 				for(int j = 0; j < result.getPatients().size(); j++){
 					Patient patient = result.getPatients().get(j);
 					List<Study> studies = patient.getStudies();
@@ -285,12 +282,14 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Sea
 					}
 				}				
 			}	
-		}				
+		}	
+		*/			
 		if(result == null){			
 			resultTree.updateNodes(result);
 		}else{
 			resultTree.updateNodes(result);			
-		}									
+		}	
+										
 		progressBar.setString("ADSearch finished");
 		progressBar.setIndeterminate(false);				
 	}
@@ -302,13 +301,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Sea
 	public void retriveResultsAvailable(AVTRetrieveEvent e) {
 		aimFiles = (List<File>) e.getSource();				
 		finalizeRetrieve();
-	}
-
-	SearchResult result;
-	public void searchResultAvailable(SearchEvent e) {
-		DicomQuery dicomQuery = (DicomQuery)e.getSource();
-		result = dicomQuery.getSearchResult();		        				
-	}
+	}	
 	
 	List<File> dicomFiles;
 	public void retrieveResultAvailable(DicomRetrieveEvent e) {

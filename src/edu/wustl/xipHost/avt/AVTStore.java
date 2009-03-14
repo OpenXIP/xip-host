@@ -12,16 +12,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import org.nema.dicom.wg23.ObjectLocator;
-import com.siemens.scr.avt.ad.connector.api.AIMDataService;
+
+import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
+import com.siemens.scr.avt.ad.api.ADFacade;
 
 /**
  * @author Jaroslaw Krych
  *
  */
 public class AVTStore implements Runnable {
-	AIMDataService aimDataService = AVTFactory.getAIMDataServiceInstance();
+	ADFacade adService = AVTFactory.getADServiceInstance();
 	String[] aimToStore;		
 	
 	public AVTStore(String[] aimToStore){
@@ -61,7 +64,13 @@ public class AVTStore implements Runnable {
 	
 	boolean bln;
 	public void run() {
-		bln = aimDataService.storeImageAnnotations(aimToStore);
+		List<ImageAnnotation> imageAnnotations = new ArrayList<ImageAnnotation>();
+		int i = aimToStore.length;
+		for(int j = 0; j < i; j++){
+			ImageAnnotation imageAnnotation = new ImageAnnotation();			
+			imageAnnotation.setAIM(aimToStore[j]);
+		}
+		bln = adService.saveAnnotations(imageAnnotations, null, null);
 		notifyStoreResult(bln);
 	}
 

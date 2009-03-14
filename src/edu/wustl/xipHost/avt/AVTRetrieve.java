@@ -13,10 +13,12 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import com.siemens.scr.avt.ad.connector.api.AIMDataService;
+
+import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
+import com.siemens.scr.avt.ad.api.ADFacade;
 
 public class AVTRetrieve implements Runnable{
-	AIMDataService aimDataService = AVTFactory.getAIMDataServiceInstance();
+	ADFacade adService = AVTFactory.getADServiceInstance();
 	String studyInstanceUID;
 	String seriesInstanceUID;
 	String aimUID;
@@ -58,14 +60,16 @@ public class AVTRetrieve implements Runnable{
 	SAXBuilder builder = new SAXBuilder();
 	Document document;
 	List<File> retrieve() throws IOException {		
-		String[] retrievedAIM;
+		String[] retrievedAIM = null;
 		List<File> files = new ArrayList<File>();
 		if(aimUID != null){
 			retrievedAIM = new String[1];
-			String strXML = aimDataService.getImageAnnotation(aimUID);
+			ImageAnnotation annotation = adService.getAnnotation(aimUID);
+			String strXML = annotation.getAIM();
 			retrievedAIM[0] = strXML;			
 		}else{
-			retrievedAIM = aimDataService.retrieveImageAnnotations(studyInstanceUID, seriesInstanceUID);						
+			List<ImageAnnotation> retrievedAIMs = adService.retrieveAnnotationsInSeries(seriesInstanceUID);
+			retrievedAIMs.toArray(retrievedAIM);
 		}	
 		File inputDir = File.createTempFile("AIM-XIPHOST", null, importDir);
 		importDir = inputDir;
