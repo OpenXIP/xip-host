@@ -96,7 +96,7 @@ public class NativeModelRunner implements Runnable {
 	 * @throws MalformedURLException 
 	 * @throws JAXBException
 	 */
-	public Document makeDOMNativeModel(DicomInputStream dicomInputStream) {				
+	private Document makeDOMNativeModel(DicomInputStream dicomInputStream) {				
 		try {							
 			JAXBContext jaxbContext = JAXBContext.newInstance("com.mycompany.dicom.metadata");
 			Marshaller marshaller = jaxbContext.createMarshaller();
@@ -122,7 +122,15 @@ public class NativeModelRunner implements Runnable {
 		}			
 	}
 	
-	public String makeXMLNativeModel(DicomInputStream dicomInputStream) {
+	public String makeXMLNativeModel() {
+		return makeXMLNativeModel(dicomInputStream);
+	}
+	
+	public Document makeDOMNativeModel() {
+		return makeDOMNativeModel(dicomInputStream);
+	}
+	
+	private String makeXMLNativeModel(DicomInputStream dicomInputStream) {
 		try {
 			if(dicomInputStream == null){return null;}															
 			JAXBContext jaxbContext = JAXBContext.newInstance("com.mycompany.dicom.metadata");
