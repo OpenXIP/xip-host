@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -22,23 +21,13 @@ import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.AttributeTag;
-import com.pixelmed.dicom.CodeStringAttribute;
-import com.pixelmed.dicom.DicomDictionary;
-import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.TagFromName;
-import com.pixelmed.dicom.UniqueIdentifierAttribute;
-import com.siemens.scr.avt.ad.annotation.ImageAnnotationDescriptor;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dicom.DicomRetrieve;
-import edu.wustl.xipHost.dicom.DicomRetrieveEvent;
-import edu.wustl.xipHost.dicom.DicomRetrieveListener;
 import edu.wustl.xipHost.dicom.PacsLocation;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -46,7 +35,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 
-public class AVTPanel extends JPanel implements ActionListener, AVTListener, DicomRetrieveListener, TreeSelectionListener{
+public class AVTPanel extends JPanel implements ActionListener, AVTListener, TreeSelectionListener{
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);
@@ -98,8 +87,6 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Dic
 		this.criteria = criteria;
 	}
 	
-	
-	Thread threadRetrieveDicom;
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == criteriaPanel.getQueryButton()){						
 			btnRetrieve.setEnabled(false);			
@@ -112,8 +99,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Dic
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);			
 			if(bln){				
 				String studyUID = criteriaPanel.getFilterList().get(TagFromName.StudyInstanceUID).getDelimitedStringValuesOrEmptyString();
-				String seriesUID = criteriaPanel.getFilterList().get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();				
-				
+				String seriesUID = criteriaPanel.getFilterList().get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();								
 				AVTQuery avtQuery = new AVTQuery(studyUID, seriesUID);
 				avtQuery.addAVTListener(this);
 				Thread t = new Thread(avtQuery);
@@ -122,29 +108,22 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Dic
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}																	
-		}else if (e.getSource() == btnRetrieve){
-			Boolean bln = criteriaPanel.verifyCriteria(retrieveCriteria);
-			File importDir = HostConfigurator.getHostConfigurator().getHostTmpDir();
-			numOfLocs = 0;
-			if(bln && singleAimUID == null){
+		}else if (e.getSource() == btnRetrieve){			
+			File importDir = HostConfigurator.getHostConfigurator().getHostTmpDir();			
+			if(singleAimUID == null){
 				progressBar.setString("Processing retrieve request ...");
 				progressBar.setIndeterminate(true);
 				progressBar.updateUI();	
 				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
 				criteriaPanel.getQueryButton().setEnabled(false);
 				btnRetrieve.setBackground(Color.GRAY);
-				btnRetrieve.setEnabled(false);
-				totalNumLocs = 2;
-				DicomRetrieve dicomRetrieve = new DicomRetrieve(retrieveCriteria, loc, loc);
-				dicomRetrieve.addDicomRetrieveListener(this);
-				threadRetrieveDicom = new Thread(dicomRetrieve);
-				threadRetrieveDicom.start();								
+				btnRetrieve.setEnabled(false);												
 				AVTRetrieve avtRetrieve;
 				try {
 					avtRetrieve = new AVTRetrieve(selectedStudyInstanceUID, selectedSeriesInstanceUID, importDir);
 					avtRetrieve.addAVTListener(this);					
-					Thread t2 = new Thread(avtRetrieve);
-					t2.start();
+					Thread t = new Thread(avtRetrieve);
+					t.start();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -157,7 +136,6 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Dic
 				criteriaPanel.getQueryButton().setEnabled(false);
 				btnRetrieve.setBackground(Color.GRAY);
 				btnRetrieve.setEnabled(false);
-				totalNumLocs = 1;
 				AVTRetrieve avtRetrieve;
 				try {
 					avtRetrieve = new AVTRetrieve(singleAimUID, importDir);
@@ -244,100 +222,40 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Dic
 		frame.setVisible(true);		
 	}
 
-	//List<ImageAnnotationDescriptor> aimDescs;
 	public void searchResultsAvailable(AVTSearchEvent e) {
-		SearchResult result = (SearchResult) e.getSource();
-		/*
-		try {
-			//wait until dicom results arrive
-			//if(threadQueryDicom != null)threadQueryDicom.join();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		aimDescs = (List<ImageAnnotationDescriptor>)e.getSource();
-		
-		if(aimDescs.size() >= 1 && aimDescs.get(1) != null){
-			for(int i = 0; i < aimDescs.size(); i++){
-				//System.out.println(i + " " + aimDescs[i].getImageAnnotationType() + " " 
-				//		+ aimDescs[i].getDateTime() + " Rater " + aimDescs[i].getAuthorName());
-				AIMItem aim = new AIMItem(aimDescs.get(i).getImageAnnotationType(), aimDescs.get(i).getDateTime().toString(), 
-						aimDescs.get(i).getAuthorName(), aimDescs.get(i).getUID());
-				String studyInstanceUID = aimDescs.get(i).getStudyInstanceUID();
-				String seriesInstanceUID = aimDescs.get(i).getSeriesInstanceUID();
-				for(int j = 0; j < result.getPatients().size(); j++){
-					Patient patient = result.getPatients().get(j);
-					List<Study> studies = patient.getStudies();
-					for(int k = 0; k < studies.size(); k++){
-						if(studies.get(k).getStudyInstanceUID().equalsIgnoreCase(studyInstanceUID)){
-							List<Series> series = studies.get(k).getSeries();
-							for(int m =0; m < series.size(); m++){
-								if(series.get(m).getSeriesInstanceUID().equalsIgnoreCase(seriesInstanceUID)){
-									Series s = series.get(m);
-									s.addItem(aim);
-								}
-							}
-						}
-					}
-				}				
-			}	
-		}	
-		*/			
+		SearchResult result = (SearchResult) e.getSource();				
 		if(result == null){			
 			resultTree.updateNodes(result);
 		}else{
 			resultTree.updateNodes(result);			
-		}	
-										
-		progressBar.setString("ADSearch finished");
+		}											
+		progressBar.setString("AVT AD Search finished");
 		progressBar.setIndeterminate(false);				
 	}
 
-	List<File> aimFiles;
-	Integer totalNumLocs = 0;
-	int numOfLocs = 0;
+	List<File> retrivedFiles;	
 	@SuppressWarnings("unchecked")
 	public void retriveResultsAvailable(AVTRetrieveEvent e) {
-		aimFiles = (List<File>) e.getSource();				
+		retrivedFiles = (List<File>) e.getSource();				
 		finalizeRetrieve();
 	}	
-	
-	List<File> dicomFiles;
-	public void retrieveResultAvailable(DicomRetrieveEvent e) {
-		DicomRetrieve dicomRetrieve = (DicomRetrieve)e.getSource();
-		dicomFiles = dicomRetrieve.getRetrievedFiles();							
-		finalizeRetrieve();			
-	}
-	
-	
-	synchronized void finalizeRetrieve(){
-		numOfLocs++;
-		if(numOfLocs == totalNumLocs){
-			progressBar.setString("AD Retrieve finished");
-			progressBar.setIndeterminate(false);		
-			int numberOfDicom = 0;
-			int numberOfAim = 0;
-			if(dicomFiles != null) numberOfDicom = dicomFiles.size();
-			if(aimFiles != null) numberOfAim = aimFiles.size();
-			File[] files = new File[numberOfAim + numberOfDicom];
-			List<File> allFiles = new ArrayList<File>();
-			if(aimFiles != null) allFiles.addAll(aimFiles);
-			if(dicomFiles != null) allFiles.addAll(dicomFiles); 
-			allFiles.toArray(files);		
-			FileManager fileMgr = FileManagerFactory.getInstance();						
-	        fileMgr.run(files);	
-	        criteriaPanel.getQueryButton().setBackground(xipBtn);
-			criteriaPanel.getQueryButton().setEnabled(true);		
-			btnRetrieve.setEnabled(true);
-			btnRetrieve.setBackground(xipBtn);	
-		}		
+		
+	synchronized void finalizeRetrieve(){		
+		progressBar.setString("AD Retrieve finished");
+		progressBar.setIndeterminate(false);						
+		File[] files = new File[retrivedFiles.size()];		 
+		retrivedFiles.toArray(files);		
+		FileManager fileMgr = FileManagerFactory.getInstance();						
+        fileMgr.run(files);	
+        criteriaPanel.getQueryButton().setBackground(xipBtn);
+		criteriaPanel.getQueryButton().setEnabled(true);		
+		btnRetrieve.setEnabled(true);
+		btnRetrieve.setBackground(xipBtn);					
 	}
 
 	String selectedSeriesInstanceUID;
 	String selectedStudyInstanceUID;
-	String singleAimUID;	
-	AttributeList retrieveCriteria;
+	String singleAimUID;		
 	public void valueChanged(TreeSelectionEvent e) {				
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		
 		if (node == null) return;				
@@ -374,31 +292,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Dic
 				btnRetrieve.setEnabled(true);
 			}else{
 				btnRetrieve.setEnabled(false);
-			}
-			retrieveCriteria = new AttributeList();			
-			try{				
-				if(!selectedStudyInstanceUID.equalsIgnoreCase("")){
-					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(selectedStudyInstanceUID); retrieveCriteria.put(t,a); }
-				}							
-				if(!selectedSeriesInstanceUID.equalsIgnoreCase("")){ 
-					AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(selectedSeriesInstanceUID); retrieveCriteria.put(t,a); }
-				{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue("*"); retrieveCriteria.put(t,a); }
-				{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("IMAGE"); retrieveCriteria.put(t,a); }
-			} catch (DicomException excep){
-				
-			}
-			DicomDictionary dictionary = AttributeList.getDictionary();
-		    Iterator iter = dictionary.getTagIterator();        
-		    String strAtt = null;
-		    String attValue = null;
-		    while(iter.hasNext()){
-		    	AttributeTag attTag  = (AttributeTag)iter.next();
-				strAtt = attTag.toString();									
-				attValue = Attribute.getSingleStringValueOrEmptyString(retrieveCriteria, attTag);
-				if(!attValue.isEmpty()){
-					//System.out.println(strAtt + " " + attValue);				
-				}
-		    }
+			}			
 			//TODO enable/diable buttons																				
 		} else {
 			btnRetrieve.setEnabled(false);			
