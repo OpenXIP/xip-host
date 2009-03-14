@@ -7,10 +7,17 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -55,7 +62,8 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search AD");
 		leftPanel.add(criteriaPanel);			    
-	    resultTree.addTreeSelectionListener(this);
+	    //resultTree.addTreeSelectionListener(this);
+		resultTree.addMouseListener(ml);
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);	
 		btnRetrieve = new JButton("Retrieve");
@@ -88,9 +96,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == criteriaPanel.getQueryButton()){						
-			btnRetrieve.setEnabled(false);			
-			btnRetrieve.setBackground(Color.GRAY);			
+		if(e.getSource() == criteriaPanel.getQueryButton()){												
 			resultTree.rootNode.removeAllChildren();
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);			
@@ -109,6 +115,9 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 				progressBar.setIndeterminate(false);
 			}																	
 		}else if (e.getSource() == btnRetrieve){			
+			allRetrivedFiles = new ArrayList<File>();
+			numRetrieveThreadsStarted = 0;
+			numRetrieveThreadsReturned = 0;
 			File importDir = HostConfigurator.getHostConfigurator().getHostTmpDir();			
 			if(singleAimUID == null){
 				progressBar.setString("Processing retrieve request ...");
@@ -118,16 +127,24 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 				criteriaPanel.getQueryButton().setEnabled(false);
 				btnRetrieve.setBackground(Color.GRAY);
 				btnRetrieve.setEnabled(false);												
-				AVTRetrieve avtRetrieve;
-				try {
-					avtRetrieve = new AVTRetrieve(selectedStudyInstanceUID, selectedSeriesInstanceUID, importDir);
-					avtRetrieve.addAVTListener(this);					
-					Thread t = new Thread(avtRetrieve);
-					t.start();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}				
+				Map<Series, Study> map = resultTree.getSelectedSeries();
+				Set<Series> seriesSet = map.keySet();
+				Iterator<Series> iter = seriesSet.iterator();
+				while (iter.hasNext()){
+					Series series = iter.next();
+					String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
+					String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();
+					try {
+						AVTRetrieve avtRetrieve = new AVTRetrieve(selectedStudyInstanceUID, selectedSeriesInstanceUID, importDir);
+						avtRetrieve.addAVTListener(this);					
+						Thread t = new Thread(avtRetrieve);
+						t.start();
+						numRetrieveThreadsStarted++;
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}	
+				}								
 			}else if(singleAimUID != null){
 				progressBar.setString("Processing retrieve request ...");
 				progressBar.setIndeterminate(true);
@@ -233,18 +250,27 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 		progressBar.setIndeterminate(false);				
 	}
 
-	List<File> retrivedFiles;	
+	List<File> retrivedFiles;
+	List<File> allRetrivedFiles;
+	int numRetrieveThreadsStarted;
+	int numRetrieveThreadsReturned;
 	@SuppressWarnings("unchecked")
-	public void retriveResultsAvailable(AVTRetrieveEvent e) {
-		retrivedFiles = (List<File>) e.getSource();				
-		finalizeRetrieve();
+	public void retriveResultsAvailable(AVTRetrieveEvent e) {		
+		retrivedFiles = (List<File>) e.getSource();	
+		synchronized(retrivedFiles){
+			allRetrivedFiles.addAll(retrivedFiles);
+		}		
+		numRetrieveThreadsReturned++;
+		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
+			finalizeRetrieve();
+		}
 	}	
 		
 	synchronized void finalizeRetrieve(){		
 		progressBar.setString("AD Retrieve finished");
 		progressBar.setIndeterminate(false);						
-		File[] files = new File[retrivedFiles.size()];		 
-		retrivedFiles.toArray(files);		
+		File[] files = new File[allRetrivedFiles.size()];		 
+		allRetrivedFiles.toArray(files);		
 		FileManager fileMgr = FileManagerFactory.getInstance();						
         fileMgr.run(files);	
         criteriaPanel.getQueryButton().setBackground(xipBtn);
@@ -252,40 +278,25 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 		btnRetrieve.setEnabled(true);
 		btnRetrieve.setBackground(xipBtn);					
 	}
-
-	String selectedSeriesInstanceUID;
-	String selectedStudyInstanceUID;
+	
 	String singleAimUID;		
 	public void valueChanged(TreeSelectionEvent e) {				
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		
 		if (node == null) return;				
 		if (!node.isRoot()) {																	
 			Object selectedNode = node.getUserObject();
-			if(selectedNode instanceof Study){
-				selectedSeriesInstanceUID = "";			
-				selectedStudyInstanceUID = ((Study)node.getUserObject()).getStudyInstanceUID();
+			if(selectedNode instanceof Study){				
 				singleAimUID = null;
 				btnRetrieve.setEnabled(false);
-			}else if(selectedNode instanceof Series){				
-				selectedSeriesInstanceUID = ((Series)node.getUserObject()).getSeriesInstanceUID();				 				
-				DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();				
-				if(parentNode.getUserObject() instanceof Study){
-					selectedStudyInstanceUID = ((Study)parentNode.getUserObject()).getStudyInstanceUID();
-				}else{
-					
-				}
+			}else if(selectedNode instanceof Series){												 								
 				singleAimUID = null;
 				btnRetrieve.setBackground(xipBtn);
 				btnRetrieve.setForeground(Color.WHITE);
 				btnRetrieve.setEnabled(true);
 			}else if(selectedNode instanceof ImageItem){				
-				selectedSeriesInstanceUID = "";			
-				selectedStudyInstanceUID = "";
 				singleAimUID = null;
 				btnRetrieve.setEnabled(false);
 			}else if(selectedNode instanceof AIMItem){				
-				selectedSeriesInstanceUID = "";			
-				selectedStudyInstanceUID = "";
 				singleAimUID = ((AIMItem)selectedNode).getItemID();				
 				btnRetrieve.setBackground(xipBtn);
 				btnRetrieve.setForeground(Color.WHITE);
@@ -297,5 +308,15 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 		} else {
 			btnRetrieve.setEnabled(false);			
 		}					
-	}		
+	}
+	
+	MouseListener ml = new MouseAdapter() {
+	     public void mousePressed(MouseEvent e) {
+	    	 if(resultTree.getSelectedSeries().size() > 0){
+	    		 btnRetrieve.setEnabled(true);
+	    	 }else{
+	    		 btnRetrieve.setEnabled(false);
+	    	 }
+	     }
+	};
 }
