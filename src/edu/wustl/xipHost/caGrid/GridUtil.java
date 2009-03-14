@@ -142,7 +142,8 @@ public class GridUtil {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/mm/yyyy");
 			String strPatientBirthDate = null;
 			if(patientBirthDate != null){
-				strPatientBirthDate = sdf.format(patientBirthDate.getTime());if(strPatientBirthDate == null){strPatientBirthDate = "";}
+				strPatientBirthDate = sdf.format(patientBirthDate.getTime());
+				if(strPatientBirthDate == null){strPatientBirthDate = "";}
 	        }else{
 	        	strPatientBirthDate = "";
 	        }
