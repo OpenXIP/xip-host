@@ -75,8 +75,7 @@ public class AVTQuery implements Runnable{
 		
 		//2. Search for AIM
 		List<String> annotationUIDs = adService.findAnnotations(dicomCriteria, null);
-		List<ImageAnnotation> foundAnnotations = new ArrayList<ImageAnnotation>();
-		AnnotationFactory annotFactory = new AnnotationFactory();
+		List<ImageAnnotation> foundAnnotations = new ArrayList<ImageAnnotation>();		
 		for(int i = 0; i < annotationUIDs.size(); i++){
 			ImageAnnotation loadedAnnot = adService.getAnnotation(annotationUIDs.get(i));			
 			foundAnnotations.add(loadedAnnot);			
