@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.dicom.PacsLocation;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -105,8 +107,11 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);			
 			if(bln){				
 				String studyUID = criteriaPanel.getFilterList().get(TagFromName.StudyInstanceUID).getDelimitedStringValuesOrEmptyString();
-				String seriesUID = criteriaPanel.getFilterList().get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();								
-				AVTQuery avtQuery = new AVTQuery(studyUID, seriesUID);
+				String seriesUID = criteriaPanel.getFilterList().get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();
+				//create AVT AD criteria map HashMap<Integer, Object>
+				HashMap<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(criteriaPanel.getFilterList());
+				//pass adCriteria to AVTQuery, modify AVTQuery accordingly
+				AVTQuery avtQuery = new AVTQuery(adCriteria);
 				avtQuery.addAVTListener(this);
 				Thread t = new Thread(avtQuery);
 				t.start();			
