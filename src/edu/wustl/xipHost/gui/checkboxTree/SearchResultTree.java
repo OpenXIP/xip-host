@@ -63,7 +63,11 @@ public class SearchResultTree extends JTree {
 	public void updateNodes(SearchResult result) {					    			
 		results = new ArrayList<SearchResult>();
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
-		if(result == null){
+		if(result == null){			
+			treeModel.reload(rootNode);
+			return;
+		}else if(result.getPatients().size() == 0 && result.getItems().size() == 0){
+			rootNode.removeAllChildren();
 			treeModel.reload(rootNode);
 			return;
 		}
