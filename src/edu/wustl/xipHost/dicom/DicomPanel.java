@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -41,6 +40,7 @@ import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.CodeStringAttribute;
+import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
@@ -383,7 +383,7 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();	
 			setCriteriaList(criteriaPanel.getFilterList());				
-			Boolean bln = criteriaPanel.verifyCriteria(criteria);
+			Boolean bln = criteriaPanel.verifyCriteria(criteria);						
 			if(bln && calledPacsLocation != null){
 				DicomQuery dicomQuery = new DicomQuery(criteria, calledPacsLocation);
 				dicomQuery.addSearchListener(this);
