@@ -1,32 +1,19 @@
 package edu.wustl.xipHost.avt;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.hibernate.Session;
-import org.jdom.JDOMException;
-
-import com.siemens.scr.avt.ad.annotation.AnnotationFactory;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotationDescriptor;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.dicom.GeneralImage;
-import com.siemens.scr.avt.ad.dicom.GeneralSeries;
-import com.siemens.scr.avt.ad.io.AnnotationIO;
-import com.siemens.scr.avt.ad.io.DicomIO;
-import com.siemens.scr.avt.ad.query.Queries;
 import com.siemens.scr.avt.ad.util.HibernateUtil;
-import com.siemens.scr.avt.ad.util.ResourceLocator;
-
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -36,13 +23,10 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 
 public class AVTQuery implements Runnable{
-	ADFacade adService;
-	String studyInstanceUID;
-	String seriesInstanceUID; 
-	
-	public AVTQuery(String studyInstanceUID, String seriesInstanceUID){
-		this.studyInstanceUID = studyInstanceUID;
-		this.seriesInstanceUID = seriesInstanceUID;
+	ADFacade adService;	
+	HashMap<Integer, Object> adDicomCriteria;
+	public AVTQuery(HashMap<Integer, Object> adDicomCriteria){
+		this.adDicomCriteria = adDicomCriteria;
 		adService = AVTFactory.getADServiceInstance();
 		if(adService == null){
 			System.out.println("Connection problem");
@@ -52,15 +36,11 @@ public class AVTQuery implements Runnable{
 	SearchResult result;
 	public void run() {
 		//1. Search fro DICOM		
-		
-		//System.out.println(studyInstanceUID);
-		//System.out.println(seriesInstanceUID);
-		HashMap<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
-		dicomCriteria.put(Tag.PatientID, "1.3.6.1.4.1.9328.50.1.0022");
-		
+		//HashMap<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();		
+		//dicomCriteria.put(Tag.PatientID, "1.3.6.1.4.1.9328.50.1.0022");		
 		//dicomCriteria.put(Tag.StudyInstanceUID, studyInstanceUID);
 		//dicomCriteria.put(Tag.SeriesInstanceUID, seriesInstanceUID);		
-		List<String> dicomUIDs = adService.findDicomObjs(dicomCriteria, null);						
+		List<String> dicomUIDs = adService.findDicomObjs(adDicomCriteria, null);						
 		List<DicomObject> foundDICOMs = new ArrayList<DicomObject>();
 		for(int i = 0; i < dicomUIDs.size(); i++){
 			DicomObject loadedDcm = adService.getDicomObject(dicomUIDs.get(i));
@@ -74,7 +54,7 @@ public class AVTQuery implements Runnable{
 		}		
 		
 		//2. Search for AIM
-		List<String> annotationUIDs = adService.findAnnotations(dicomCriteria, null);
+		List<String> annotationUIDs = adService.findAnnotations(adDicomCriteria, null);
 		List<ImageAnnotation> foundAnnotations = new ArrayList<ImageAnnotation>();		
 		for(int i = 0; i < annotationUIDs.size(); i++){
 			ImageAnnotation loadedAnnot = adService.getAnnotation(annotationUIDs.get(i));			
