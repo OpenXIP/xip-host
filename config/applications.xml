@@ -1,32 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <applications>
-  <application>
-    <name>TestApp_WG23FileAccess</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\edu\wustl\xipApplication\samples\XIPApplication_WashU_3.bat</exePath>
-    <vendor />
-    <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\edu\wustl\xipApplication\samples\ApplicationIcon-16x16.png</iconFile>
-  </application>
-  <application>
-    <name>TestApp_WG23NativeModel</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\edu\wustl\xipApplication\samples\XIPAppNativeModel.bat</exePath>
-    <vendor />
-    <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\edu\wustl\xipApplication\samples\ApplicationIcon-16x16.png</iconFile>
-  </application>
-  <application>
-    <name>RECIST_Adjudicator</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\RECISTFollowUpAdjudicator.bat</exePath>
-    <vendor />
-    <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\edu\wustl\xipApplication\samples\ApplicationIcon-16x16.png</iconFile>
-  </application>
-  <application>
-    <name>AVT_IA</name>
-    <exePath>C:\WUSTL\Projects\AVT_IA\bin\AVTImageAnnotation.bat</exePath>
-    <vendor />
-    <version />
-    <iconFile />
-  </application>
+  
 </applications>
 
