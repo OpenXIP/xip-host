@@ -132,7 +132,6 @@
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-dbcp-1.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-pool-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/concurrent-1.3.4.jar"/>
@@ -197,7 +196,6 @@
 	<classpathentry kind="lib" path="lib/DICOMDataService-stubs-1.2dev.jar"/>
 	<classpathentry kind="lib" path="lib/FSCQL-1.2dev.jar"/>
 	<classpathentry kind="lib" path="lib/gef_modified.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate3.jar"/>
 	<classpathentry kind="lib" path="lib/ImageDataService-client-1.2dev.jar"/>
 	<classpathentry kind="lib" path="lib/ImageDataService-common-1.2dev.jar"/>
 	<classpathentry kind="lib" path="lib/ImageDataService-stubs-1.2dev.jar"/>
@@ -217,8 +215,6 @@
 	<classpathentry kind="lib" path="lib/xip/aimHelperWashU.jar"/>
 	<classpathentry kind="lib" path="lib/xip/velocity-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/xip/db2jcc.jar"/>
-	<classpathentry kind="lib" path="lib/xip/com.siemens.scr.avt.ad.connector.api-0.0.2-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/xip/com.siemens.scr.avt.ad.connector.jdbc-0.0.3-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="ECLIPSE_HOME"/>
 	<classpathentry kind="lib" path="lib/nci/acegi-security-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/nci/ant-contrib-1.0b3.jar"/>
@@ -315,5 +311,6 @@
 	<classpathentry kind="lib" path="lib/OHT/axis2/wstx-asl-3.2.4.jar"/>
 	<classpathentry kind="lib" path="lib/OHT/axis2/xalan-2.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/OHT/axis2/XmlSchema-1.4.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/AVT"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
