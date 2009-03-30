@@ -35,41 +35,12 @@ public class AVTQuery implements Runnable{
 	
 	SearchResult result;
 	public void run() {
-		//1. Search fro DICOM		
-		//HashMap<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();		
-		//dicomCriteria.put(Tag.PatientID, "1.3.6.1.4.1.9328.50.1.0022");		
-		//dicomCriteria.put(Tag.StudyInstanceUID, studyInstanceUID);
-		//dicomCriteria.put(Tag.SeriesInstanceUID, seriesInstanceUID);		
-		List<String> dicomUIDs = adService.findDicomObjs(adDicomCriteria, null);						
-		List<DicomObject> foundDICOMs = new ArrayList<DicomObject>();
-		for(int i = 0; i < dicomUIDs.size(); i++){
-			DicomObject loadedDcm = adService.getDicomObject(dicomUIDs.get(i));
-			foundDICOMs.add(loadedDcm);
-			/*try {
-				DicomIO.dumpDicom2File(dicomUIDs.get(i), dicomUIDs.get(i) + ".dcm");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/			
-		}		
-		
-		//2. Search for AIM
-		List<String> annotationUIDs = adService.findAnnotations(adDicomCriteria, null);
-		List<ImageAnnotation> foundAnnotations = new ArrayList<ImageAnnotation>();		
-		for(int i = 0; i < annotationUIDs.size(); i++){
-			ImageAnnotation loadedAnnot = adService.getAnnotation(annotationUIDs.get(i));			
-			foundAnnotations.add(loadedAnnot);			
-		}		
-		//System.out.println("<------------------------------------------------------------->" + foundDICOMs.get(0).getString(Tag.SOPInstanceUID));
+		//1. Search fro DICOM										
+		List<DicomObject> foundDICOMs = adService.retrieveDicomObjsWithoutPixel(adDicomCriteria, null);		
+		//2. Search for AIM		
+		List<ImageAnnotation> foundAnnotations = adService.retrieveAnnotations(adDicomCriteria, null);						
 		result = resolveToSearchResult(foundDICOMs, foundAnnotations);
 		fireResultsAvailable(result);
-		
-		/*List<ImageAnnotationDescriptor> aimDescs = adService.listAnnotationsInSeries(seriesInstanceUID);		
-		if(aimDescs == null){
-			aimDescs = new ArrayList<ImageAnnotationDescriptor>();
-		}
-		fireResultsAvailable(aimDescs);		//returns array with empty string
-		*/
 	}
 	
 	SearchResult resolveToSearchResult(List<DicomObject> dicomObjects, List<ImageAnnotation> imageAnnotations){
