@@ -311,5 +311,6 @@
 	<classpathentry kind="lib" path="lib/OHT/axis2/xalan-2.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/OHT/axis2/XmlSchema-1.4.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/AVT"/>
+	<classpathentry kind="lib" path="lib/xip/xmlunit-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
