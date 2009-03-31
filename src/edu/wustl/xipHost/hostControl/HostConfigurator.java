@@ -356,7 +356,7 @@ public class HostConfigurator {
 			e1.printStackTrace();
 		}		        				
 		//Turn off commons loggin for better performance
-		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");
+		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");		
 		hostConfigurator = new HostConfigurator();
 		boolean startupOK = hostConfigurator.runHostStartupSequence();
 		if(startupOK == false){			
