@@ -108,8 +108,6 @@ public class AVTQuery implements Runnable{
 					}
 				}
 				session.close();
-				//j = imageAnnotations.size();
-				
 				break;
 			}			
 		}				
