@@ -212,7 +212,6 @@
 	<classpathentry kind="lib" path="lib/xsd2domainmodel-1.2dev.jar"/>
 	<classpathentry kind="lib" path="lib/xsom14.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
-	<classpathentry kind="lib" path="lib/xip/aimHelperWashU.jar"/>
 	<classpathentry kind="lib" path="lib/xip/velocity-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/xip/db2jcc.jar"/>
 	<classpathentry kind="var" path="ECLIPSE_HOME"/>
