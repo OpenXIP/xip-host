@@ -9,14 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-
-import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.io.DicomIO;
@@ -27,6 +24,8 @@ public class AVTRetrieve implements Runnable{
 	String seriesInstanceUID;
 	String aimUID;
 	File importDir;
+	//int numThreads = 3;
+	//ExecutorService exeService = Executors.newFixedThreadPool(numThreads);	
 	
 	public AVTRetrieve(String studyInstanceUID, String seriesInstanceUID, File importLocation) throws IOException{
 		this.studyInstanceUID = studyInstanceUID;
@@ -84,15 +83,12 @@ public class AVTRetrieve implements Runnable{
 		//Retrieve DICOM
 		List<String> dicomUIDs = adService.findDicomObjs(dicomCriteria, null);										
 		for(int i = 0; i < dicomUIDs.size(); i++){			
-			try {				
-				String fileName = dirPath + dicomUIDs.get(i) + ".dcm";
-				File file = new File(fileName);
-				DicomIO.dumpDicom2File(dicomUIDs.get(i), fileName);
-				files.add(file);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
+			String fileName = dirPath + dicomUIDs.get(i) + ".dcm";			
+			DicomIO.dumpDicom2File(dicomUIDs.get(i), fileName);
+			File file = new File(fileName);
+			files.add(file);
+			//AVTSerializeDICOM2File serialize = new AVTSerializeDICOM2File(dicomUIDs.get(i), fileName);
+			//exeService.execute(serialize);			
 		}			
 		//Retrieve AIM		
 		List<String> annotationUIDs = adService.findAnnotations(dicomCriteria, null);		

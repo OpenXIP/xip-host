@@ -50,16 +50,15 @@ public class AVTStore implements Runnable {
 		for(int j = 0; j < i; j++){
 			try {
 				ImageAnnotation imageAnnotation = AnnotationIO.loadAnnotationFromFile(aimToStore[j]);
-				imageAnnotations.add(imageAnnotation);
+				imageAnnotations.add(imageAnnotation);				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (JDOMException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			
-		}
+			}		
+		}		
 		bln = adService.saveAnnotations(imageAnnotations, null, null);
 		notifyStoreResult(bln);
 	}
