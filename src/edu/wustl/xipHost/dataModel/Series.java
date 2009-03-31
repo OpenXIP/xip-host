@@ -36,7 +36,13 @@ public class Series {
 		return this.seriesInstanceUID;		
 	}	
 	public String toString(){
-		return new String("Series:" + this.seriesNumber + " " + this.modality);
+		String str = "";
+		if(seriesNumber.isEmpty()){
+			str = "Series:" + seriesInstanceUID + " " + modality; 
+		}else{
+			str = "Series:" + seriesNumber + " " + modality; 
+		}			
+		return new String(str);
 	}
 		
 	public void addItem(Item item){

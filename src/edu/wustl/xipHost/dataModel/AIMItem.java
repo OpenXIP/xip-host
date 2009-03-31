@@ -25,7 +25,15 @@ public class AIMItem implements Item{
 	}
 	@Override
 	public String toString(){
-		return new String("AIM:" + this.imageAnnotationType + " " 
-				+ this.dateTime + " Rater " + this.authorName);
+		String str = "AIM:";
+		if(imageAnnotationType.isEmpty() && dateTime.isEmpty()){
+			str = str + aimUID;
+		}else{
+			str = str + imageAnnotationType + " " + dateTime;
+		}
+		if(!authorName.isEmpty()){
+			str = str + " Rater " + authorName;
+		}		
+		return str;
 	}	
 }
