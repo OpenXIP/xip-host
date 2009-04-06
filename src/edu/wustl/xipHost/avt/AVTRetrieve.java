@@ -38,6 +38,7 @@ public class AVTRetrieve implements Runnable{
 			importDir = importLocation;
 		}	
 	}
+	
 	public AVTRetrieve(String aimUID, File importLocation) throws IOException{
 		this.aimUID = aimUID;
 		if(importLocation == null){

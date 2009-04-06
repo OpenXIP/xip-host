@@ -106,8 +106,6 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 			setCriteriaList(criteriaPanel.getFilterList());	
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);			
 			if(bln){				
-				String studyUID = criteriaPanel.getFilterList().get(TagFromName.StudyInstanceUID).getDelimitedStringValuesOrEmptyString();
-				String seriesUID = criteriaPanel.getFilterList().get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();
 				//create AVT AD criteria map HashMap<Integer, Object>
 				HashMap<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(criteriaPanel.getFilterList());
 				//pass adCriteria to AVTQuery, modify AVTQuery accordingly
