@@ -3,8 +3,6 @@
  */
 package edu.wustl.xipHost.avt;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -15,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom.JDOMException;
 import org.xml.sax.SAXException;
-
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.io.AnnotationIO;
@@ -63,7 +60,7 @@ public class StoreAIMToADTest extends TestCase {
 	//Expected result: boolean true
 	public void testStoreAimToAD_1A() throws IOException, JDOMException, InterruptedException, SAXException{
 		File[] aims = new File[1];		
-		File aim1 = new File("./test-content/AIM_rv12_Test/0022BaselineA.xml");		
+		File aim1 = new File("./test-content/AIM_rv9_Test/0022BaselineA.xml");		
 		aims[0] = aim1;			
 		ImageAnnotation annotation = AnnotationIO.loadAnnotationFromFile(aim1);
 		String annotationUID = annotation.getDescriptor().getUID();
