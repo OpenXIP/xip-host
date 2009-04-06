@@ -4,6 +4,8 @@
 package edu.wustl.xipHost.dataModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -56,5 +58,17 @@ public class Series {
 			if(items.get(i).getItemID().equalsIgnoreCase(itemID)){return true;}
 		}			
 		return false;
+	}
+	
+	public void sort(){
+		Collections.sort(items, new SortByUID());
+	}
+	
+	class SortByUID implements Comparator<Item> {
+		@Override
+		public int compare(Item o1, Item o2) {			
+			return o1.getItemID().compareTo(o2.getItemID());
+		}
+		
 	}
 }
