@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -58,12 +59,11 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 	JButton btnExpand = new JButton("Expand All");
 	JButton btnColaps = new JButton("Collapse All");    		
 	JButton btnRetrieve = new JButton("Retrieve");
-	Border border1 = BorderFactory.createLoweredBevelBorder();
-	
-	JProgressBar progressBar = new JProgressBar();
-		
+	Border border1 = BorderFactory.createLoweredBevelBorder();	
+	JProgressBar progressBar = new JProgressBar();		
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);	
+	JLabel infoLabel = new JLabel("UNDER   DEVELOPMENT");
 	
 	public GlobalSearchPanel(){
 		setBackground(xipColor);
@@ -107,6 +107,8 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 	    progressBar.setStringPainted(true);	    
 	    progressBar.setBackground(new Color(156, 162, 189));	    
 	    progressBar.setForeground(xipColor);
+	    infoLabel.setForeground(Color.ORANGE);
+		add(infoLabel);
 	    add(leftPanel);
 	    add(rightPanel);
 	    add(progressBar);
@@ -123,7 +125,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
                        
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
-        constraints.gridy = 0;        
+        constraints.gridy = 1;        
         constraints.insets.top = 10;
         constraints.insets.left = 20;        
         constraints.insets.bottom = 5;        
@@ -132,17 +134,28 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
         
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 1;
-        constraints.gridy = 0;        
+        constraints.gridy = 1;        
         constraints.insets.top = 10;
         constraints.insets.left = 5;
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(rightPanel, constraints);
-                        
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 5;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(infoLabel, constraints);
+        
         constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
-        constraints.gridy = 1;
+        constraints.gridy = 2;
         constraints.gridwidth = 2;
         constraints.insets.top = 10;
         constraints.insets.left = 0;

@@ -23,10 +23,7 @@ public class FileRunner implements Runnable {
 	public void run() {						
 		if(DicomUtil.isDICOM(item)){						
 			parser.parse(item);
-			map = parser.getShortDicomHeader(item.toURI());				
-			/*for(int i = 0; i < map.length; i++){				
-			   System.out.println(map[i][0] + " " + map[i][1]);
-			}*/			
+			map = parser.getShortDicomHeader(item.toURI());								
 			notifyDicomParsed();			
 		}else{
 			notifyNonDICOMAvailable();

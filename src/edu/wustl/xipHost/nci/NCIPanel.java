@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -40,6 +41,7 @@ public class NCIPanel extends JPanel implements ActionListener, TreeSelectionLis
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Border border = BorderFactory.createLoweredBevelBorder();		
 	JButton btnRetrieve;
+	JLabel infoLabel = new JLabel("UNDER   DEVELOPMENT");
 	
 	public NCIPanel(){
 		setBackground(xipColor);		
@@ -58,13 +60,15 @@ public class NCIPanel extends JPanel implements ActionListener, TreeSelectionLis
 		btnRetrieve.setPreferredSize(new Dimension(115, 25));
 		btnRetrieve.addActionListener(this);
 		rightPanel.add(treeView);
-		rightPanel.add(btnRetrieve);
+		rightPanel.add(btnRetrieve);		
 		leftPanel.setBackground(xipColor);
 		rightPanel.setBackground(xipColor);
+		infoLabel.setForeground(Color.ORANGE);
+		add(infoLabel);
 		add(leftPanel);
 		add(rightPanel);
 		progressBar.setIndeterminate(false);
-	    progressBar.setString("");	    
+	    progressBar.setString("");	    	    	    
 	    progressBar.setStringPainted(true);	    
 	    progressBar.setBackground(new Color(156, 162, 189));
 	    progressBar.setForeground(xipColor);
@@ -76,11 +80,11 @@ public class NCIPanel extends JPanel implements ActionListener, TreeSelectionLis
 	void buildLayout(){				
 		GridBagLayout layout = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();
-        setLayout(layout);         
-                
+        setLayout(layout);                  
+        
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
-        constraints.gridy = 0;        
+        constraints.gridy = 1;        
         constraints.insets.top = 10;
         constraints.insets.left = 20;
         constraints.insets.right = 15;
@@ -90,7 +94,7 @@ public class NCIPanel extends JPanel implements ActionListener, TreeSelectionLis
         
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 1;
-        constraints.gridy = 0;        
+        constraints.gridy = 1;        
         constraints.insets.top = 10;
         constraints.insets.left = 15;
         constraints.insets.right = 20;
@@ -98,9 +102,20 @@ public class NCIPanel extends JPanel implements ActionListener, TreeSelectionLis
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(rightPanel, constraints);
         
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 5;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(infoLabel, constraints);
+        
         constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
-        constraints.gridy = 1; 
+        constraints.gridy = 2; 
         constraints.gridwidth = 2;
         constraints.insets.top = 10;
         constraints.insets.left = 0;

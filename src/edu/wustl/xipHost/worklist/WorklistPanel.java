@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -48,6 +49,7 @@ public class WorklistPanel extends JPanel implements WorklistEntryListener{
 	Font font_2 = new Font("Tahoma", 0, 12);
 	Border border = BorderFactory.createLineBorder(Color.black);
 	Color xipColor = new Color(51, 51, 102);
+	JLabel infoLabel = new JLabel("UNDER   DEVELOPMENT");
 		
 	Worklist worklist;
 	
@@ -90,6 +92,8 @@ public class WorklistPanel extends JPanel implements WorklistEntryListener{
 	    progressBar.setStringPainted(true);	    
 	    progressBar.setBackground(new Color(156, 162, 189));
 	    progressBar.setForeground(xipColor);
+	    infoLabel.setForeground(Color.ORANGE);
+		add(infoLabel);
 	    add(progressBar);
 		setBackground(xipColor);
 		buildLayout();         		
@@ -161,16 +165,24 @@ public class WorklistPanel extends JPanel implements WorklistEntryListener{
         GridBagConstraints constraints = new GridBagConstraints();
         setLayout(layout);
         
-        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 0;                     
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 10;
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(infoLabel, constraints);      
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 1;                     
         constraints.insets.top = 10;
         constraints.insets.bottom = 10;
         layout.setConstraints(panel, constraints);        
         
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
-        constraints.gridy = 1;                     
+        constraints.gridy = 2;                     
         constraints.insets.top = 10;
         constraints.insets.bottom = 10;
         layout.setConstraints(progressBar, constraints);

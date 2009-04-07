@@ -181,7 +181,7 @@ public class AVTQuery implements Runnable{
 						Item aimItem = new AIMItem(annotType, strAnnotDateTime, annotAuthorName, annotUID);
 						serie.addItem(aimItem);
 					}
-					serie.sort();
+					serie.sort();					
 				}
 			}
 		}

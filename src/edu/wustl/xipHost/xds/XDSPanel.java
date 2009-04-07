@@ -19,6 +19,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -57,6 +58,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Border border = BorderFactory.createLoweredBevelBorder();		
 	JButton btnRetrieve;
+	JLabel infoLabel = new JLabel("UNDER   DEVELOPMENT");
 	
 	public XDSPanel(){
 		setBackground(xipColor);		
@@ -80,6 +82,8 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		rightPanel.add(btnRetrieve);
 		leftPanel.setBackground(xipColor);
 		rightPanel.setBackground(xipColor);
+		infoLabel.setForeground(Color.ORANGE);
+		add(infoLabel);
 		add(leftPanel);
 		add(rightPanel);
 		progressBar.setIndeterminate(false);
@@ -146,7 +150,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
                 
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
-        constraints.gridy = 0;        
+        constraints.gridy = 1;        
         constraints.insets.top = 10;
         constraints.insets.left = 20;
         constraints.insets.right = 15;
@@ -156,7 +160,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 1;
-        constraints.gridy = 0;        
+        constraints.gridy = 1;        
         constraints.insets.top = 10;
         constraints.insets.left = 15;
         constraints.insets.right = 20;
@@ -164,9 +168,20 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(rightPanel, constraints);
         
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 5;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(infoLabel, constraints);
+        
         constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
-        constraints.gridy = 1; 
+        constraints.gridy = 2; 
         constraints.gridwidth = 2;
         constraints.insets.top = 10;
         constraints.insets.left = 0;
