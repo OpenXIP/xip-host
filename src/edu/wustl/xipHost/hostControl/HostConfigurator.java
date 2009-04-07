@@ -95,9 +95,7 @@ public class HostConfigurator {
         gridMgr.setImportDirectory(hostTmpDir);		
 		
     	//run WorkList startup
-		Worklist worklist = WorklistFactory.getInstance();        
-		//Injector injector = Guice.createInjector(new WorklistModule());
-        //Worklist worklist = injector.getInstance(Worklist.class);
+		Worklist worklist = WorklistFactory.getInstance();        		
 		String path = "./config/worklist.xml";
 		File xmlWorklistFile = new File(path);					
 		worklist.loadWorklist(xmlWorklistFile);		
