@@ -179,6 +179,8 @@ public class AVTQuery implements Runnable{
 						String annotAuthorName = annotation.getDescriptor().getAuthorName();if(annotAuthorName == null){annotAuthorName = "";}
 						String annotUID = annotation.getDescriptor().getUID();if(annotUID == null){annotUID = "";}
 						Item aimItem = new AIMItem(annotType, strAnnotDateTime, annotAuthorName, annotUID);
+						//TODO
+						//add getAttachements() and then render them on a JTree with AIM objects
 						serie.addItem(aimItem);
 					}
 					serie.sort();					

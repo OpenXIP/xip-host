@@ -9,12 +9,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import org.dcm4che2.data.DicomObject;
 import org.jdom.JDOMException;
 import org.nema.dicom.wg23.ObjectLocator;
+
+import com.siemens.scr.avt.ad.annotation.AnnotationAttachment;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.io.AnnotationIO;
+import com.siemens.scr.avt.ad.io.DicomIO;
 import com.siemens.scr.avt.ad.util.DicomParser;
 import edu.wustl.xipHost.dicom.DicomUtil;
 
@@ -25,7 +30,7 @@ import edu.wustl.xipHost.dicom.DicomUtil;
 public class AVTStore implements Runnable {
 	ADFacade adService = AVTFactory.getADServiceInstance();
 	List<File> aimToStore;	
-	List<File> dicomToStore;
+	List<File> attachmentsToStore;
 	
 	/**
 	 * Constructor used in JUnit testing
@@ -39,21 +44,20 @@ public class AVTStore implements Runnable {
 	}	
 	
 	public AVTStore(List<ObjectLocator> objectLocs){
-		dicomToStore = new ArrayList<File>();
+		attachmentsToStore = new ArrayList<File>();
 		//1. Check if objecLocs are AIM (xml) or DICOM (dcm)
 		//aimToStore = new File[objectLocs.size()];
 		aimToStore = new ArrayList<File>();
-		for(ObjectLocator objLoc : objectLocs){			
-			
+		for(ObjectLocator objLoc : objectLocs){						
 			try {
 				URI uri = new URI(objLoc.getUri());
 				File file = new File(uri);
 				String mimeType;
 				mimeType = DicomUtil.mimeType(file);
-				if(!mimeType.equalsIgnoreCase("application/dicom")){
+				if(mimeType.equalsIgnoreCase("text/xml")){
 					aimToStore.add(file);	
-				}else if(mimeType.equalsIgnoreCase("application/dicom")){
-					dicomToStore.add(file);
+				}else if(!mimeType.equalsIgnoreCase("text/xml")){
+					attachmentsToStore.add(file);
 				}
 			} catch (URISyntaxException e1) {
 				// TODO Auto-generated catch block
@@ -67,40 +71,22 @@ public class AVTStore implements Runnable {
 	}
 	
 	boolean bln;
-	public void run() {				
-		if(aimToStore != null){
-			List<ImageAnnotation> imageAnnotations = new ArrayList<ImageAnnotation>();
-			for(File aimFile : aimToStore){
-				try {
-					ImageAnnotation imageAnnotation = AnnotationIO.loadAnnotationFromFile(aimFile);
-					imageAnnotations.add(imageAnnotation);				
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JDOMException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}		
+	public void run() {						
+		if(aimToStore != null && attachmentsToStore != null){
+			File aimFile = aimToStore.get(0);
+			File dicomFile = attachmentsToStore.get(0);			
+			try {				
+				ImageAnnotation imageAnnotation = AnnotationIO.loadAnnotationWithAttachment(aimFile, dicomFile);
+				AnnotationIO.saveOrUpdateAnnotation(imageAnnotation);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JDOMException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}		
-			bln = adService.saveAnnotations(imageAnnotations, null, null);
-		}				
-		if(dicomToStore != null){
-			List<DicomObject> dicomObjects = new ArrayList<DicomObject>();
-			for(File dcmFile : dicomToStore){
-				DicomObject dicomObj;
-				try {
-					dicomObj = DicomParser.read(dcmFile);
-					dicomObjects.add(dicomObj); 	
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-						 
-			}
-			adService.saveDicoms(dicomObjects, null, null);
-			notifyStoreResult(true);
 		}
-		
+		notifyStoreResult(true);
 	}
 
 	public boolean getStoreResult(){
