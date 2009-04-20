@@ -4,6 +4,8 @@
 package edu.wustl.xipHost.hostControl;
 
 import java.util.List;
+
+import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
 import org.nema.dicom.wg23.ArrayOfObjectLocator;
 import org.nema.dicom.wg23.ArrayOfUUID;
 import org.nema.dicom.wg23.AvailableData;
@@ -29,12 +31,16 @@ public class DataStore implements Runnable {
 	}
 	
 	public void run() {
-		List<ObjectDescriptor> listObjDescs = availableData.getObjectDescriptors().getObjectDescriptor();		
+		//1. It is excpected for IA application that AIM object will is added to the top AvailableData descriptors list.
+		//2. DICOM attachemnt objects are excpected to be added to the series of the AvailableData
+		//3. When storing AIM pairs of AIM plus DICOM degmentation objects are expected
+		
+		ObjectDescriptor aimDesc = availableData.getObjectDescriptors().getObjectDescriptor().get(0);		
+		ObjectDescriptor dicomSegDesc = availableData.getPatients().getPatient().get(0).getStudies().getStudy().get(0).getSeries().getSeries().get(0).getObjectDescriptors().getObjectDescriptor().get(0);
 		ArrayOfUUID arrayUUIDs = new ArrayOfUUID();
-		List<Uuid> listUUIDs = arrayUUIDs.getUuid();
-		for(int i = 0; i < listObjDescs.size(); i++){
-			listUUIDs.add(listObjDescs.get(i).getUuid());
-		}	
+		List<Uuid> listUUIDs = arrayUUIDs.getUuid();		
+		listUUIDs.add(aimDesc.getUuid());
+		listUUIDs.add(dicomSegDesc.getUuid());
 		ArrayOfObjectLocator arrayOfObjectLocator = app.getClientToApplication().getDataAsFile(arrayUUIDs, false);
 		if(arrayOfObjectLocator == null){
 			return;
