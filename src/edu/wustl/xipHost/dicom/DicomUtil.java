@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import org.dcm4che2.data.Tag;
-
 import com.pixelmed.dicom.AgeStringAttribute;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
@@ -53,7 +51,8 @@ public class DicomUtil {
 		String magicNum = new String();
 		Boolean isDCM = file.getAbsolutePath().endsWith(".dcm");
 		try {
-			InputStream in = new FileInputStream(file);
+			String filePath = file.getAbsolutePath();
+			InputStream in = new FileInputStream(filePath);
 			int size = in.available();
 			if(size > 128 + 4){
 				data = new byte[size];
