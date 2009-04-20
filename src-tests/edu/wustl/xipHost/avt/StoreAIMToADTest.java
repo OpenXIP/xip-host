@@ -72,7 +72,7 @@ public class StoreAIMToADTest extends TestCase {
 		ImageAnnotation loadedAnnotation = adService.getAnnotation(annotationUID);
 		assertTrue(assertAnnotationEquals(annotation, loadedAnnotation));		
 	}
-	
+		
 	static boolean assertAnnotationEquals(ImageAnnotation expected, ImageAnnotation actual) throws SAXException, IOException{
 		// Ignoring PK, Attachment, and referenced images
 		if(expected == actual){
