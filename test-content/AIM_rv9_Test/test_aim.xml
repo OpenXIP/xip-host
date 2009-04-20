@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<imageAnnotation xmlns="gme://caCORE.caCORE/3.2/edu.northwestern.radiology.AIM" imageAnnotationType="Other" uid="1.3.6.1.4.1.5962.99.1.2241079968.200827889.1239191693984.2.0" name="ImageAnnotation" dateTime="2009-04-08T19:56:25" comment="Lung" aimVersion="AIM 1.0rv9" id="0">
+    <user>
+        <User loginName="123" authorName="" id="0"/>
+    </user>
+    <imagingObservationCollection>
+        <ImagingObservation codeValue="T-D000A" codingSchemeDesignator="SRT" codeMeaning="LUNG" id="0">
+            <imagingObservationCharacteristicCollection>
+                <ImagingObservationCharacteristic comment="" codeValue="T-D000A" codingSchemeDesignator="SRT" codeMeaning="Extremely Obvious" id="0"/>
+            </imagingObservationCharacteristicCollection>
+        </ImagingObservation>
+    </imagingObservationCollection>
+    <anatomicEntityCollection>
+        <AnatomicEntity codeValue="T-28000" codingSchemeDesignator="SRT" codeMeaning="Lung" id="0"/>
+    </anatomicEntityCollection>
+    <imageReferenceCollection>
+        <ImageReference xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DICOMImageReference" id="0">
+            <study>
+                <Study date="2009-04-08T19:56:25" studyInstanceUID="1.3.12.2.1107.5.99.2.7857.30000006121304395418700000401" id="0">
+                    <series>
+                        <Series modality="CT" seriesInstanceUID="1.3.12.2.1107.5.99.2.7857.30000006121304395418700000400" id="1">
+                            <imageCollection>
+								<Image SOPInstanceUID="1.3.6.1.4.1.9328.50.1.10717" SOPClassUID="1.2.840.10008.5.1.4.1.1.2" id="0"/>
+
+                            </imageCollection>
+                        </Series>
+                    </series>
+                </Study>
+            </study>
+        </ImageReference>
+    </imageReferenceCollection>
+    <probabilityMapCollection>
+        <ProbabilityMap referencedInstanceUID="1.2.276.0.7230010.3.1.4.98758689.7872.1239191777.5" instatnceUID="1.3.6.1.4.1.5962.99.1.2241.2008.1239191693984.2.1.19.56.25">
+            <imagingObservation>
+                <ImagingObservation codeValue="T-D000A" codingSchemeDesignator="SRT" codeMeaning="LUNG" id="0"/>
+            </imagingObservation>
+        </ProbabilityMap>
+    </probabilityMapCollection>
+    <patient>
+        <Patient sex="M" patientID="108280" name="QSD1939-061211-LungLesion" id="0"/>
+    </patient>
+</imageAnnotation>
