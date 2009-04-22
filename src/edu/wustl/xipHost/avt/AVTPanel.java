@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,7 +29,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.TagFromName;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -307,7 +305,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 			}else{
 				btnRetrieve.setEnabled(false);
 			}			
-			//TODO enable/diable buttons																				
+			//TODO enable/disable buttons																				
 		} else {
 			btnRetrieve.setEnabled(false);			
 		}					
