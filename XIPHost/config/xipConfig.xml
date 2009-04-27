@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<host>
-	<tmpDir>C:\TmpXIP</tmpDir>
-	<outputDir>C:\OutXIP</outputDir>
-	<displayStartup>false</displayStartup>
-</host>
