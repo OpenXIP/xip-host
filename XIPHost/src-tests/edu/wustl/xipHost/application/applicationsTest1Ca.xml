@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications>
+  <application>
+    <name>WashU</name>
+    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\wustl\XIPApplication_WashU_2.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile/>
+  <application>
+  <application>
+    <name>SiemensConeDemo</name>
+    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\SiemensConeDemo.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile/>
+  </application>
+  <application>
+    <name>RECIST</name>
+    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\RECIST.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile/>
+  </application>
+  <application>
+    <name>WashU_NativeModel</name>
+    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\wustl\XIPAppNativeModel.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile/>
+  </application>
+  <application>
+    <name>RECIST_One_ViewPort</name>
+    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\RECIST_One_ViewPort.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile/>
+  </application>
+</applications>
+
