@@ -9,9 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.namespace.QName;
-
 import org.globus.wsrf.encoding.ObjectSerializer;
 
 /**
