@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
- * Simulating SVN Conflict
+ * Simulating SVN Conflict, 2
  */
 package edu.wustl.xipHost.hostControl;
 
