@@ -9,18 +9,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import org.dcm4che2.data.DicomObject;
 import org.jdom.JDOMException;
 import org.nema.dicom.wg23.ObjectLocator;
-
-import com.siemens.scr.avt.ad.annotation.AnnotationAttachment;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.io.AnnotationIO;
-import com.siemens.scr.avt.ad.io.DicomIO;
-import com.siemens.scr.avt.ad.util.DicomParser;
 import edu.wustl.xipHost.dicom.DicomUtil;
 
 /**
