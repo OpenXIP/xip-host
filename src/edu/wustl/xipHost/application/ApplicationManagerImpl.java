@@ -45,11 +45,11 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		        while(iter.hasNext()){                                                               
 		        	Element application = (Element)iter.next();
 		        	name = application.getChildText("name");
-		        	exePath = application.getChildText("exePath");
+		        	exePath = new File(application.getChildText("exePath")).getCanonicalPath();		        	
 		        	vendor = application.getChildText("vendor");
 		        	version = application.getChildText("version");
-		        	iconFile = application.getChildText("iconFile");
-		        	try{		        		
+		        	iconFile = application.getChildText("iconFile");		        	
+		        	try{		        				        				        		
 		        		Application app = new Application(name, new File(exePath), vendor, version, new File(iconFile));		        			    				
 			    		addApplication(app);		        	
 			        	i++;
