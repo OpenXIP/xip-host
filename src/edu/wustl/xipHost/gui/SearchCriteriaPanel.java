@@ -30,6 +30,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
  */
 public class SearchCriteriaPanel extends JPanel implements ActionListener{
 	private static final long serialVersionUID = 1L;
+	private SearchCriteriaVerifier searchCriteriaVerifier;
 	JPanel btnPanel = new JPanel();
 	JButton btnSearch = new JButton("Search");
 	JButton btnCancel = new JButton("Cancel");
@@ -38,7 +39,9 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
 	
-	public SearchCriteriaPanel(){		
+	public SearchCriteriaPanel(){
+		// default criteria verifier is basic one unless different one is set.
+		searchCriteriaVerifier = new BasicSearchCriteriaVerifier();
 		//ApplicationFrameQuery appFrame = new ApplicationFrameQuery(null);
 		AttributeList list = DicomUtil.constructEmptyAttributeList();		
 		panel = new FilterPanel(list);
@@ -91,6 +94,15 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
         layout.setConstraints(btnPanel, constraints);
 	}
 	
+	/**
+	 * Replace the default verifier with a different implementation.
+	 * 
+	 * @param verifier
+	 */
+	public void setSearchCriteriaVerifier( SearchCriteriaVerifier verifier) {
+		searchCriteriaVerifier = verifier;
+	}
+	
 	public AttributeList getFilterList(){
 		return panel.getFilterList();
 	}
@@ -122,31 +134,8 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 		}
 	}
 	
-	public boolean verifyCriteria(AttributeList list){															
-		if(list.size() > 0){			
-			//Make sure values are not null and at least one is non empty String (except SpecificCharacterSet)
-			DicomDictionary dictionary = AttributeList.getDictionary();
-			Iterator iter = dictionary.getTagIterator();			
-			boolean isEmpty = true;
-			while(iter.hasNext()){
-				AttributeTag attTag  = (AttributeTag)iter.next();
-				String strAtt = attTag.toString();									
-				String attValue = Attribute.getSingleStringValueOrEmptyString(list, attTag);
-				if(attValue.equalsIgnoreCase("null")){
-					return false;
-				} else if (isEmpty == true && !attValue.isEmpty() && !strAtt.equalsIgnoreCase("(0x0008,0x0005)")){	//(0x0008,0x0005) is attribute tag SpecificCharacterSet
-					//System.out.println("JK: " + strAtt + " " + attValue);
-					isEmpty = false;
-				}
-			}			
-			if(isEmpty == false){
-				return true;
-			}else{
-				return false;
-			}
-		} else {
-			return false;
-		}		
+	public boolean verifyCriteria(AttributeList list){
+		return searchCriteriaVerifier.verifyCriteria(list);
 	}
 	
 	public void setQueryButtonText(String text){
