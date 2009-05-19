@@ -214,11 +214,9 @@ public class SearchResultTree extends JTree {
 	}
 	
 	
-	Map<Series, Study> selectedSeries2 = new LinkedHashMap<Series, Study>();
-	
-	List<Series> selectedSeries = new ArrayList<Series>();	
+	Map<Series, Study> selectedSeries = new LinkedHashMap<Series, Study>();			
 	public Map<Series, Study> getSelectedSeries(){
-		return selectedSeries2;
+		return selectedSeries;
 	}
 	
 	MouseListener ml = new MouseAdapter() {
@@ -236,11 +234,8 @@ public class SearchResultTree extends JTree {
 	     		if (!node.isRoot()) {																	
 	     			Object selectedNode = node.getUserObject();
 	     			if(selectedNode instanceof Study){
-	     				System.out.println(selectedNode.toString());
-	     				//selectedNode.setSelected(true);
+	     				System.out.println(selectedNode.toString());	     				
 	     				repaint();
-	     				//selectedSeriesInstanceUID = null;			
-	     				//selectedStudyInstanceUID = ((Study)node.getUserObject()).getStudyInstanceUID();
 	     			}else if(selectedNode instanceof Series){				
 	     				SeriesNode seriesNode = (SeriesNode)node;
 	     				DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();				
@@ -250,17 +245,15 @@ public class SearchResultTree extends JTree {
 	     				}	     				
 	     				if(seriesNode.isSelected){
 	     					seriesNode.setSelected(false);
-	     					((SeriesNode)node).getCheckBox().setSelected(false);
+	     					((SeriesNode)node).getCheckBox().setSelected(false);	     					
 	     					selectedSeries.remove((Series)selectedNode);
-	     					selectedSeries2.remove((Series)selectedNode);
 	     				}else if(seriesNode.isSelected == false){    					
-	     					seriesNode.setSelected(true);
-	     					selectedSeries.add((Series)selectedNode);
-	     					selectedSeries2.put((Series)selectedNode, study);
+	     					seriesNode.setSelected(true);	     					
+	     					selectedSeries.put((Series)selectedNode, study);
 	     					((SeriesNode)node).getCheckBox().setSelected(true);
 	     				}    				
 	     				repaint();	     				   				
-	     				 Set<Entry<Series, Study>> set = selectedSeries2.entrySet();
+	     				Set<Entry<Series, Study>> set = selectedSeries.entrySet();
 	     				Iterator iter = set.iterator();
 	     				while(iter.hasNext()){
 	     		    		Entry<Series, Study> next = (Entry<Series, Study>)iter.next();

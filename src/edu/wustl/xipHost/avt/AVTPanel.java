@@ -25,12 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import com.pixelmed.dicom.AttributeList;
-import edu.wustl.xipHost.dataModel.AIMItem;
-import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
@@ -42,7 +37,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 
-public class AVTPanel extends JPanel implements ActionListener, AVTListener, TreeSelectionListener{
+public class AVTPanel extends JPanel implements ActionListener, AVTListener {
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);
@@ -119,52 +114,32 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 			allRetrivedFiles = new ArrayList<File>();
 			numRetrieveThreadsStarted = 0;
 			numRetrieveThreadsReturned = 0;
-			File importDir = HostConfigurator.getHostConfigurator().getHostTmpDir();			
-			if(singleAimUID == null){
-				progressBar.setString("Processing retrieve request ...");
-				progressBar.setIndeterminate(true);
-				progressBar.updateUI();	
-				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-				criteriaPanel.getQueryButton().setEnabled(false);
-				btnRetrieve.setBackground(Color.GRAY);
-				btnRetrieve.setEnabled(false);												
-				Map<Series, Study> map = resultTree.getSelectedSeries();
-				Set<Series> seriesSet = map.keySet();
-				Iterator<Series> iter = seriesSet.iterator();
-				while (iter.hasNext()){
-					Series series = iter.next();
-					String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
-					String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();
-					try {
-						AVTRetrieve avtRetrieve = new AVTRetrieve(selectedStudyInstanceUID, selectedSeriesInstanceUID, importDir);
-						avtRetrieve.addAVTListener(this);					
-						Thread t = new Thread(avtRetrieve);
-						t.start();
-						numRetrieveThreadsStarted++;
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}	
-				}								
-			}else if(singleAimUID != null){
-				progressBar.setString("Processing retrieve request ...");
-				progressBar.setIndeterminate(true);
-				progressBar.updateUI();	
-				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-				criteriaPanel.getQueryButton().setEnabled(false);
-				btnRetrieve.setBackground(Color.GRAY);
-				btnRetrieve.setEnabled(false);
-				AVTRetrieve avtRetrieve;
+			File importDir = HostConfigurator.getHostConfigurator().getHostTmpDir();						
+			progressBar.setString("Processing retrieve request ...");
+			progressBar.setIndeterminate(true);
+			progressBar.updateUI();	
+			criteriaPanel.getQueryButton().setBackground(Color.GRAY);
+			criteriaPanel.getQueryButton().setEnabled(false);
+			btnRetrieve.setBackground(Color.GRAY);
+			btnRetrieve.setEnabled(false);												
+			Map<Series, Study> map = resultTree.getSelectedSeries();
+			Set<Series> seriesSet = map.keySet();
+			Iterator<Series> iter = seriesSet.iterator();
+			while (iter.hasNext()){
+				Series series = iter.next();
+				String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
+				String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();
 				try {
-					avtRetrieve = new AVTRetrieve(singleAimUID, importDir);
-					avtRetrieve.addAVTListener(this);
+					AVTRetrieve avtRetrieve = new AVTRetrieve(selectedStudyInstanceUID, selectedSeriesInstanceUID, importDir);
+					avtRetrieve.addAVTListener(this);					
 					Thread t = new Thread(avtRetrieve);
 					t.start();
+					numRetrieveThreadsStarted++;
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}				
-			}
+				}	
+			}											
 		}		
 	}	
 	
@@ -278,37 +253,6 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener, Tre
 		criteriaPanel.getQueryButton().setEnabled(true);		
 		btnRetrieve.setEnabled(true);
 		btnRetrieve.setBackground(xipBtn);					
-	}
-	
-	String singleAimUID;		
-	public void valueChanged(TreeSelectionEvent e) {				
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		
-		if (node == null) return;				
-		if (!node.isRoot()) {																	
-			Object selectedNode = node.getUserObject();
-			if(selectedNode instanceof Study){				
-				singleAimUID = null;
-				btnRetrieve.setEnabled(false);
-			}else if(selectedNode instanceof Series){												 								
-				singleAimUID = null;
-				btnRetrieve.setBackground(xipBtn);
-				btnRetrieve.setForeground(Color.WHITE);
-				btnRetrieve.setEnabled(true);
-			}else if(selectedNode instanceof ImageItem){				
-				singleAimUID = null;
-				btnRetrieve.setEnabled(false);
-			}else if(selectedNode instanceof AIMItem){				
-				singleAimUID = ((AIMItem)selectedNode).getItemID();				
-				btnRetrieve.setBackground(xipBtn);
-				btnRetrieve.setForeground(Color.WHITE);
-				btnRetrieve.setEnabled(true);
-			}else{
-				btnRetrieve.setEnabled(false);
-			}			
-			//TODO enable/disable buttons																				
-		} else {
-			btnRetrieve.setEnabled(false);			
-		}					
 	}
 	
 	MouseListener ml = new MouseAdapter() {
