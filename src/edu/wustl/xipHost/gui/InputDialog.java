@@ -55,7 +55,11 @@ import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
+import edu.wustl.xipHost.localFileSystem.DicomParseEvent;
+import edu.wustl.xipHost.localFileSystem.DicomParseListener;
+import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
+import edu.wustl.xipHost.localFileSystem.FileRunner;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
 
@@ -63,7 +67,7 @@ import edu.wustl.xipHost.wg23.WG23DataModel;
  * @author Jaroslaw Krych
  *
  */
-public class InputDialog extends JPanel implements ListSelectionListener, ActionListener {	
+public class InputDialog extends JPanel implements ListSelectionListener, ActionListener, DicomParseListener  {	
 	DicomTableModel dicomTableModel = new DicomTableModel();
 	JList list;
 	JScrollPane listScroller;
@@ -83,7 +87,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 		setBackground(Color.BLACK);			
 		listModel = new DefaultListModel();
 		list = new JList(listModel);
-		list.addListSelectionListener(this);
+		list.addListSelectionListener(this);		
 		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);		
 		list.setVisibleRowCount(-1);		
 		listScroller = new JScrollPane(list);
@@ -156,12 +160,24 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 	Map<URI, String[][]> hashmap = new HashMap<URI, String[][]>();
 	public void setParsingResult(URI uri, String[][] parsingResult){
 		hashmap.put(uri, parsingResult);
-		listModel.addElement(uri);			
+		//listModel.addElement(uri);			
 	}		
+	
+	//TODO ID#919 and ID#887
+	public void setItems(File[] items){
+		for(File file : items){
+			URI uri = file.toURI();
+			hashmap.put(file.toURI(), null);
+			listModel.addElement(uri);	
+		}
+	}
 	
 	void clearData(){
 		hashmap.clear();		
 		listModel.clear();
+		values = null;
+		FileManagerFactory.getInstance().clearParsedData();	
+		tableInput.updateUI();
 	}
 		
 	ImageIcon iconApp1 = new ImageIcon("./gif/ApplicationIcon-16x16.png");
@@ -169,16 +185,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 	public void setApplications(List<Application> applications){	
 		iconPanel.removeAll();
 		for(int i = 0; i < applications.size(); i++){
-			Application app = applications.get(i);
-			/*AppLabel lblApp = new AppLabel(app.getName(), iconApp1, JLabel.CENTER);			
-			lblApp.setApplicationUUID(app.getID());
-			lblApp.setToolTipText(app.getName());
-			lblApp.setHorizontalTextPosition(0);
-			lblApp.setVerticalTextPosition(3);
-			lblApp.setForeground(Color.WHITE);
-			lblApp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			lblApp.addMouseListener(appMouseAdapter);			
-			iconPanel.add(lblApp);*/
+			Application app = applications.get(i);			
 			ImageIcon iconFile;
 			if(app.getIconFile() == null){
 				iconFile = null;
@@ -355,9 +362,19 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 	
 
 	public void valueChanged(ListSelectionEvent e) {
-		JList list = ((JList)e.getSource());		
-		URI selectedURI = (URI)list.getSelectedValue();
-		setTableValues(hashmap.get(selectedURI));		
+		if (e.getValueIsAdjusting() == false) {
+			if (list.getSelectedIndex() != -1) {
+				JList list = ((JList)e.getSource());		
+				URI selectedURI = (URI)list.getSelectedValue();
+				
+				//setTableValues(hashmap.get(selectedURI));
+				
+				//TODO ID#919 and ID#887
+				FileRunner runner = new FileRunner(new File(selectedURI));
+				runner.addDicomParseListener(this);
+				runner.run();
+			}
+		}		
 	}
 	
 	void setTableValues(String[][] values){
@@ -373,7 +390,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 		Application app = appMgr.getApplication(uuid);
 		//Check if application to be launched is not running.
 		//If yes, create new application instance
-		State state = app.getState();
+		State state = app.getState();		
 		WG23DataModel data = FileManagerFactory.getInstance().getWG23DataModel();
 		if(state != null && !state.equals(State.EXIT)){
 			String instanceName = app.getName();
@@ -389,7 +406,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 		}else{
 			app.setData(data);			
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
 		}					
 		setCursor(normalCursor);
 		frame.setVisible(false);
@@ -408,6 +425,27 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 		};		 
 		rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
 		rootPane.getActionMap().put("ESCAPE", escapeAction);
+	}
+
+	//TODO ID#919 and ID#887
+	@Override
+	public void dicomAvailable(DicomParseEvent e) {
+		setCursor(hourglassCursor);
+		FileRunner source = (FileRunner)e.getSource();
+		File file = source.getItem();
+		URI selectedURI = file.toURI();
+		String[][] result = source.getParsingResult();		
+		setParsingResult(file.toURI(), result);
+		setTableValues(hashmap.get(selectedURI));
+		updateUI();		
+		setCursor(normalCursor);
+	}
+
+	@Override
+	public void nondicomAvailable(DicomParseEvent e) {
+		hashmap.clear();				
+		values = null;
+		tableInput.updateUI();			
 	}
 	
 	

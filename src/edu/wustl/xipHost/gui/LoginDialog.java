@@ -24,7 +24,7 @@ import edu.wustl.xipHost.hostControl.NewUserListener;
 
 public class LoginDialog extends JDialog implements ActionListener, KeyListener, NewUserListener, Runnable {				
 	JPanel panel = new JPanel();	
-	JLabel lblWashU = new JLabel("Washington University in Saint Louis");
+	JLabel lblWashU = new JLabel("Washington University in St. Louis");
 	JLabel lblHost = new JLabel("Starting XIP Host ");
 	LoginPanel loginPanel = new LoginPanel();
 	Font font = new Font("Tahoma", 1, 12);		

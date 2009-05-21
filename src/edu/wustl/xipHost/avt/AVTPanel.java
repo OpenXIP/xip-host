@@ -30,7 +30,6 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
-import edu.wustl.xipHost.dicom.PacsLocation;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
@@ -49,8 +48,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener {
 	Color xipLightBlue = new Color(156, 162, 189);
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Border border = BorderFactory.createLoweredBevelBorder();		
-	JButton btnRetrieve;
-	PacsLocation loc = new PacsLocation("127.0.0.1", 3001, "WORKSTATION1", "XIPHost embedded database");
+	JButton btnRetrieve;	
 	
 	public AVTPanel(){
 		setBackground(xipColor);		

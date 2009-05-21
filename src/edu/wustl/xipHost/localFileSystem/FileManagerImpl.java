@@ -62,8 +62,8 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 			//new Thread(runner).start();
 			exeService.execute(runner);			
 		}		
-	}
-		
+	}	
+	
 	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
 	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	
@@ -99,8 +99,19 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 	}
 	
 	public List<String[][]> getParsedResults(){
+		if(parsedResults == null){
+			parse(items);
+			while(!isParsingCompleted){
+				//TODO change cursor icon for the duration of parsing
+			}
+		}
 		return parsedResults;			
 	}
+	
+	public void clearParsedData(){
+		parsedResults = null;
+	}
+	
 	public boolean isParsingCompleted(){
 		return isParsingCompleted;
 	}
@@ -116,9 +127,17 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 		Collection<Application> values = appMap.values();			
 		inputDialog.setApplications(new ArrayList<Application>(values));
 		inputDialog.display();				
-		parse(items);		
+		//parse(items);
+		displayItems(items);
 	}	
 		
+	//TODO ID#919 and ID#887
+	void displayItems(File[] items){
+		this.items = items;		
+		inputDialog.setItems(items);
+		inputDialog.updateUI();
+	}
+	
 	public WG23DataModel makeWG23DataModel(List<File> files){		
 		if(files == null){return null;}										
 		if(getParsedResults() == null){
