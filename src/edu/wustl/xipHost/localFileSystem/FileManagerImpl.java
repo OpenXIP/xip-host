@@ -110,6 +110,7 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 	
 	public void clearParsedData(){
 		parsedResults = null;
+		isParsingCompleted = false;
 	}
 	
 	public boolean isParsingCompleted(){

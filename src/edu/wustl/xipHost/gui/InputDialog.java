@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.gui;
 
@@ -15,8 +15,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -57,7 +55,6 @@ import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.DicomParseEvent;
 import edu.wustl.xipHost.localFileSystem.DicomParseListener;
-import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import edu.wustl.xipHost.localFileSystem.FileRunner;
 import edu.wustl.xipHost.wg23.WG23DataModel;
@@ -82,6 +79,8 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 	String[][] values;		
 	JPanel iconPanel = new JPanel();
 	JScrollPane scrollPane = new JScrollPane(iconPanel);
+	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
+	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);	
 	
 	public InputDialog(){									
 		setBackground(Color.BLACK);			
@@ -295,25 +294,6 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 			  }		
 	}
 	
-	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
-	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-	class AppMouseAdapter extends MouseAdapter{							
-		public void mouseClicked(MouseEvent e) {			
-			setCursor(hourglassCursor);
-			AppLabel lbl = (AppLabel)e.getSource();
-			UUID uuid = lbl.getApplicationUUID();
-			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-			Application app = appMgr.getApplication(uuid);			
-			WG23DataModel data = FileManagerFactory.getInstance().getWG23DataModel();
-			app.setData(data);
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
-			setCursor(normalCursor);
-			frame.dispose();
-			clearData();			
-		}
-	}	
-	
-	
 	JDialog frame;	
 	public void display(){			
 		updateUI();
@@ -428,6 +408,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 	}
 
 	//TODO ID#919 and ID#887
+	//dicomAvailbale() or nondicomAvailable() is used to parse single items on demand (upon selection of the item) 
 	@Override
 	public void dicomAvailable(DicomParseEvent e) {
 		setCursor(hourglassCursor);
