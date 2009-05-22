@@ -31,6 +31,7 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
+import edu.wustl.xipHost.gui.AVTSearchCriteriaVerifier;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
@@ -52,6 +53,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener {
 	
 	public AVTPanel(){
 		setBackground(xipColor);		
+		criteriaPanel.setSearchCriteriaVerifier( new AVTSearchCriteriaVerifier());
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search AD");
 		leftPanel.add(criteriaPanel);			    
