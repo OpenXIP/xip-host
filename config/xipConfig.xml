@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <host>
-	<tmpDir>C:\TmpXIP</tmpDir>
-	<outputDir>C:\OutXIP</outputDir>
+	<tmpDir>D:\drm\tmpXIP</tmpDir>
+	<outputDir>D:\drm\outXIP</outputDir>
 	<displayStartup>false</displayStartup>
 </host>
