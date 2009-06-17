@@ -36,8 +36,8 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 	JButton btnCancel = new JButton("Cancel");
 	FilterPanel panel;
 	JScrollPane attEntryPanel;
-	Color xipColor = new Color(51, 51, 102);
-	Color xipBtn = new Color(56, 73, 150);
+	//Color xipColor = new Color(51, 51, 102);
+	//Color xipBtn = new Color(56, 73, 150);
 	
 	public SearchCriteriaPanel(){
 		// default criteria verifier is basic one unless different one is set.
@@ -45,24 +45,24 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 		//ApplicationFrameQuery appFrame = new ApplicationFrameQuery(null);
 		AttributeList list = DicomUtil.constructEmptyAttributeList();		
 		panel = new FilterPanel(list);
-		panel.setBackground(new Color(156, 162, 189));
-		panel.setForeground(Color.WHITE);
+//		panel.setBackground(new Color(156, 162, 189));
+//		panel.setForeground(Color.WHITE);
 		attEntryPanel = new JScrollPane(panel);
 		attEntryPanel.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));		
 		add(attEntryPanel);
 		btnSearch.setPreferredSize(new Dimension(120, 25));
-		btnSearch.setBackground(xipBtn);
-		btnSearch.setForeground(Color.WHITE);
+		//btnSearch.setBackground(xipBtn);
+		//btnSearch.setForeground(Color.WHITE);
 		btnCancel.setPreferredSize(new Dimension(100, 25));
-		btnCancel.setBackground(xipBtn);
-		btnCancel.setForeground(Color.WHITE);
+		//btnCancel.setBackground(xipBtn);
+		//btnCancel.setForeground(Color.WHITE);
 		btnSearch.addActionListener(this);
 		btnCancel.addActionListener(this);
 		btnPanel.add(btnSearch);
 		btnPanel.add(btnCancel);
-		btnPanel.setBackground(xipColor);
+		//btnPanel.setBackground(xipColor);
 		add(btnPanel);
-		this.setBackground(xipColor);
+		//this.setBackground(xipColor);
 		buildLayout();				
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension windowSize = this.getPreferredSize();

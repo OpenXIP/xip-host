@@ -37,9 +37,9 @@ public class HostMainWindow extends JFrame implements ActionListener {
     static Rectangle appScreenSize = new Rectangle();    
     OptionsDialog optionsDialog = new OptionsDialog(new JFrame());        
       
-    Color xipColor = new Color(51, 51, 102);
-    Color xipLightBlue = new Color(156, 162, 189);
-	Font font = new Font("Tahoma", 0, 12);
+    //Color xipColor = new Color(51, 51, 102);
+    //Color xipLightBlue = new Color(156, 162, 189);
+	//Font font = new Font("Tahoma", 0, 12);
     
 	String userName;			
 	WorklistPanel worklistPanel;
@@ -70,16 +70,16 @@ public class HostMainWindow extends JFrame implements ActionListener {
 	}	
 		
     public void display(){                
-    	UIManager.put("TabbedPane.selected", xipLightBlue);    	
+    	//UIManager.put("TabbedPane.selected", xipLightBlue);    	
     	setLayout(new BorderLayout());	
         toolBar.setUserName(userName);		
         add(toolBar, BorderLayout.NORTH);        
         sideTabbedPane = VerticalTextIcon.createTabbedPane(JTabbedPane.RIGHT);
-        sideTabbedPane.setBackground(xipColor);         
+        //sideTabbedPane.setBackground(xipColor);         
         add(sideTabbedPane, BorderLayout.CENTER);
         sideTabbedPane.addMouseListener(mouseAdapter);       
         hostPanel.add(tabPaneCenter);
-        hostPanel.setBackground(xipColor);
+        //hostPanel.setBackground(xipColor);
         buildHostPanelLayout();        
         VerticalTextIcon.addTab(sideTabbedPane, "Host", UUID.randomUUID(), hostPanel);   
                 
@@ -92,7 +92,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         tabPaneCenter.addTab("NCIA", icon, nciPanel, null);
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
         tabPaneCenter.addTab("Worklist", icon, worklistPanel, null);
-        tabPaneCenter.setFont(font);
+        //tabPaneCenter.setFont(font);
         
         toolBar.btnHost.addActionListener(this);
         toolBar.btnLocal.addActionListener(this);
@@ -114,7 +114,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight());
-        getContentPane().setBackground(Color.BLACK);        
+//        getContentPane().setBackground(Color.BLACK);        
         setVisible(true);                        
         setAlwaysOnTop(true);
         setAlwaysOnTop(false);              

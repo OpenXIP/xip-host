@@ -12,8 +12,8 @@ import java.awt.event.*;
  * Customized IconBar
  */
 public class HostIconBar extends JToolBar {			
-	Font font = new Font("Tahoma", 0, 12);
-	Font fontBold = new Font("Tahoma", 1, 12);		
+//	Font font = new Font("Tahoma", 0, 12);
+//	Font fontBold = new Font("Tahoma", 1, 12);		
 	JButton btnHost = new JButton(new ImageIcon("./gif/XIP-Host-Corner-Logo-Red.PNG"));
 	ImageIcon iconHelp = new ImageIcon("./gif/Help24.gif");
 	ImageIcon iconAbout = new ImageIcon("./gif/About24.gif");
@@ -34,8 +34,8 @@ public class HostIconBar extends JToolBar {
 		
     public HostIconBar() {                                        	    	    	
     	setLayout(new BorderLayout());    	
-    	lblName.setFont(fontBold);
-    	lblName.setForeground(Color.WHITE);
+//    	lblName.setFont(fontBold);
+//    	lblName.setForeground(Color.WHITE);
     	lblHelp.setToolTipText("Help Contents");
     	lblAbout.setToolTipText("About");
     	JButton[] btns = new JButton[7];
@@ -48,10 +48,10 @@ public class HostIconBar extends JToolBar {
     	btns[6] = btnExitApp;
     	    	
     	for(int i = 0; i < btns.length; i++){    		
-        	btns[i].setFont(font);
-        	btns[i].setBackground(new Color(51, 51, 102));
-        	btns[i].setForeground(Color.WHITE);
-        	btns[i].setOpaque(true);        	
+//        	btns[i].setFont(font);
+//        	btns[i].setBackground(new Color(51, 51, 102));
+//        	btns[i].setForeground(Color.WHITE);
+//        	btns[i].setOpaque(true);        	
         	btns[i].setRolloverEnabled(true);
         	btns[i].setPreferredSize(new Dimension((int)btns[i].getPreferredSize().getWidth(), 30));
     	}    	
@@ -60,18 +60,18 @@ public class HostIconBar extends JToolBar {
     	hostPanel.add(lblHelp);
     	hostPanel.add(lblAbout);
     	hostPanel.add(lblName);
-    	hostPanel.setBackground(Color.BLACK);
+ //   	hostPanel.setBackground(Color.BLACK);
     	add(hostPanel, BorderLayout.WEST);    	    	
     	hostBtnPanel.add(btnLocal);    	    	
     	hostBtnPanel.add(btnOptions);
     	hostBtnPanel.add(btnExit);
     	add(hostBtnPanel, BorderLayout.EAST);
-    	hostBtnPanel.setBackground(Color.BLACK);
+//    	hostBtnPanel.setBackground(Color.BLACK);
     	appBtnPanel.add(btnSuspend);    	
     	appBtnPanel.add(btnCancel);
     	appBtnPanel.add(btnExitApp);
-    	appBtnPanel.setBackground(Color.BLACK);    	
-    	setBackground(Color.BLACK);    	
+//    	appBtnPanel.setBackground(Color.BLACK);    	
+//    	setBackground(Color.BLACK);    	
     }                   
     
     /*

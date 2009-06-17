@@ -135,9 +135,9 @@ public class FilterPanel extends JPanel implements FocusListener {
 		JLabel label = new JLabel(name);
 		JTextField text = new TextFieldForAttribute(a);
 		text.addFocusListener(this);
-		label.setFont(font_1);
-		label.setForeground(Color.WHITE);
-		text.setFont(font_1);
+//		label.setFont(font_1);
+//		label.setForeground(Color.WHITE);
+//		text.setFont(font_1);
 		
 		
 		constraints.gridy = row;

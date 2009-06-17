@@ -44,15 +44,15 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener {
 	JPanel leftPanel = new JPanel();
 	JPanel rightPanel = new JPanel();
 	JProgressBar progressBar = new JProgressBar();	
-	Color xipColor = new Color(51, 51, 102);
-	Color xipBtn = new Color(56, 73, 150);
-	Color xipLightBlue = new Color(156, 162, 189);
-	Font font_1 = new Font("Tahoma", 0, 13);
+	//Color xipColor = new Color(51, 51, 102);
+	//Color xipBtn = new Color(56, 73, 150);
+	//Color xipLightBlue = new Color(156, 162, 189);
+	//Font font_1 = new Font("Tahoma", 0, 13);
 	Border border = BorderFactory.createLoweredBevelBorder();		
 	JButton btnRetrieve;	
 	
 	public AVTPanel(){
-		setBackground(xipColor);		
+		//setBackground(xipColor);		
 		criteriaPanel.setSearchCriteriaVerifier( new AVTSearchCriteriaVerifier());
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search AD");
@@ -62,24 +62,24 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener {
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);	
 		btnRetrieve = new JButton("Retrieve");
-        btnRetrieve.setFont(font_1); 
+        //btnRetrieve.setFont(font_1); 
         btnRetrieve.setFocusable(true);
 		btnRetrieve.setEnabled(false);				
-		btnRetrieve.setBackground(xipBtn);
-		btnRetrieve.setForeground(Color.WHITE);
+		//btnRetrieve.setBackground(xipBtn);
+//		btnRetrieve.setForeground(Color.WHITE);
 		btnRetrieve.setPreferredSize(new Dimension(115, 25));
 		btnRetrieve.addActionListener(this);
 		rightPanel.add(treeView);
 		rightPanel.add(btnRetrieve);
-		leftPanel.setBackground(xipColor);
-		rightPanel.setBackground(xipColor);
+		//leftPanel.setBackground(xipColor);
+		//rightPanel.setBackground(xipColor);
 		add(leftPanel);
 		add(rightPanel);
 		progressBar.setIndeterminate(false);
 	    progressBar.setString("");	    
 	    progressBar.setStringPainted(true);	    
 	    progressBar.setBackground(new Color(156, 162, 189));
-	    progressBar.setForeground(xipColor);
+	    //progressBar.setForeground(xipColor);
 	    add(progressBar);
 	    buildRightPanelLayout();
 	    buildLayout();
@@ -249,10 +249,10 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener {
 		allRetrivedFiles.toArray(files);		
 		FileManager fileMgr = FileManagerFactory.getInstance();						
         fileMgr.run(files);	
-        criteriaPanel.getQueryButton().setBackground(xipBtn);
+        //criteriaPanel.getQueryButton().setBackground(xipBtn);
 		criteriaPanel.getQueryButton().setEnabled(true);		
 		btnRetrieve.setEnabled(true);
-		btnRetrieve.setBackground(xipBtn);					
+		//btnRetrieve.setBackground(xipBtn);					
 	}
 	
 	MouseListener ml = new MouseAdapter() {

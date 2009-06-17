@@ -39,8 +39,8 @@ public class SearchResultTree extends JTree {
 	DefaultTreeModel treeModel;			
 	CheckBoxTreeRenderer renderer;
 	
-	Font font = new Font("Tahoma", 0, 12);
-	Color xipLightBlue = new Color(156, 162, 189);	
+//	Font font = new Font("Tahoma", 0, 12);
+//	Color xipLightBlue = new Color(156, 162, 189);	
 	
 	public SearchResultTree() {	  						    	    						
 		rootNode = new DefaultMutableTreeNode("Search Results");		
@@ -55,8 +55,8 @@ public class SearchResultTree extends JTree {
 	    setShowsRootHandles(true);
 	    setRootVisible(true);	    
 	    putClientProperty("JTree.lineStyle", "Horizontal");	   	    	    
-	    setFont(font);
-	    setBackground(xipLightBlue);
+//	    setFont(font);
+//	    setBackground(xipLightBlue);
 	}			
 	
 	List<SearchResult> results;
