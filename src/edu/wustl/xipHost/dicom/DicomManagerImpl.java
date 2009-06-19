@@ -186,6 +186,7 @@ public class DicomManagerImpl implements DicomManager{
 		int port = location.getPort();
 		calledAETitle = location.getAETitle();
 		//ensure callingAETitle is not empty (not all stations allow empty value). 
+		// TODO get AETitle from config
 		String callingAETitle = "defaultXIPhost";
 		mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);		
 		try {

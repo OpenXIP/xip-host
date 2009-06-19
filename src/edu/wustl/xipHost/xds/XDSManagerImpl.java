@@ -107,7 +107,7 @@ public class XDSManagerImpl implements XDSManager{
 		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserId(auditUser);
 		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
 		
-		//TODO Move l. 78 to user login (execute after successful/failed login)
+/*		//TODO Move l. 78 to user login (execute after successful/failed login)
 		XUAModuleContext context = XUAModuleContext.getContext(); 
 		context.setXUAEnabled(true); 
 		//String atnaUsername = context.getLoginHandler().login("https://ibm2:8443/XUATools/IBM_STS", // stsProviderUrl
@@ -138,7 +138,7 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		//*/
 		// If not using XUA, uncomment the following line of code
-		//PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
+		PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
 		
 		/*
 		// Alternative of setting up a secure connection
@@ -404,7 +404,9 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "https://127.0.0.1:4100/test";
 		//String registryURL = "https://spirit1:8443/XDS/registry";
 		//String registryURL = "https://ith-icoserve1:8243/Registry/services/RegistryService";
-		String registryURL = "https://ibm3:9448/IBMXDSRegistry/XDSb/SOAP12/Registry";
+		String registryURL = "http://82.15.200.163:8080/Registry/services/RegistryService";
+		//String registryURL = "https://ibm3:9448/IBMXDSRegistry/XDSb/SOAP12/Registry";
+		//String registryURL = "https://xds-ibm.lgs.com:9443/IBMXDSRegistry/XDSb/SOAP12/Registry";
 		// TODO Get URI from a config file
 		URI registryURI = null;
 		try {
@@ -441,7 +443,9 @@ public class XDSManagerImpl implements XDSManager{
 				//XDS_B_REPOSITORY_URI = new URI(NIST_B_STORED_QUERY_SECURED);
 				//XDS_B_REPOSITORY_URI = new URI("https://spirit1:8443/XDS/repository");
 				//XDS_B_REPOSITORY_URI = new URI("https://ith-icoserve1:8243/Repository/services/RepositoryService");
-				XDS_B_REPOSITORY_URI = new URI("https://ibm3:9448/IBMXDSRepository/XDSb/SOAP12/Repository");
+				XDS_B_REPOSITORY_URI = new URI("http://82.150.200.163:8080/Repository/services/RepositoryService");
+				//XDS_B_REPOSITORY_URI = new URI("https://ibm3:9448/IBMXDSRepository/XDSb/SOAP12/Repository");
+				//XDS_B_REPOSITORY_URI = new URI("xds-ibm.lgs.com:9443/IBMXDSRepository/XDSb/SOAP12/Repository");
 			} catch (URISyntaxException e4) {
 				// TODO Auto-generated catch block
 				e4.printStackTrace();
@@ -474,14 +478,15 @@ public class XDSManagerImpl implements XDSManager{
 		//patientId.setIdNumber("NIST-test-10");
 		//patientId.setIdNumber("89765a87b^^^");
 		//patientId.setIdNumber("270a59d7a8b145b^^^");
+		patientId.setAssigningAuthorityName("IHENA");
 		patientId.setAssigningAuthorityUniversalId("1.3.6.1.4.1.21367.2009.1.2.300"); // for 2009 connectathon 
 		patientId.setAssigningAuthorityUniversalIdType("ISO");
 		//patientId.setIdNumber("d74cde348faf4e3");
 		//patientId.setIdNumber("5aaef86586ad4ae");
 		//patientId.setIdNumber("PDQ113XX01");
 		//patientId.setIdNumber("felipe_melo"); // for Sprit
-		patientId.setIdNumber("TBDxxxxxxx"); // for ITH
-		//patientId.setIdNumber("101"); //for IBM
+		//patientId.setIdNumber("TBDxxxxxxx"); // for ITH
+		patientId.setIdNumber("101"); //for IBM
 		// TODO PIX lookup if assigning authority is not what we expect.  Also, read assigning authority from config file
 		/*
 		//our IDs would be incorporated here
