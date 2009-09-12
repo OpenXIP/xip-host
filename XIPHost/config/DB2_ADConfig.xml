@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ad>
-	<serverName>127.0.0.1</serverName>
-	<serverPort>50000</serverPort>
-	<databaseName>AD</databaseName>
-	<userName>db2user</userName>
-	<password>123</password>
-</ad>
