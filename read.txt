@@ -1,0 +1,86 @@
+XIP Host Reference Implementation - November 21, 2008
+Copyright (c) 2007-2008 Washington University in Saint Louis. All Rights Reserved.
+
+
+***************************************
+Overview
+***************************************
+XIPHost is a Java based standalone application, used to query and retrieve DICOM data and non-DICOM objects 
+(e.g. XML annotation objects) from a local file system, caGrid, DICOM repositories and AVT Assessment Database. 
+It manages and invokes image processing applications conforming to DICOM WG-23 standard. 
+It allows to submit data to those applications for processing, supports data storage in a local files system, 
+caGrid enabled repositories, DICOM repositories and AVT Assessment Database.
+
+XIP Host Reference Implementation is compliant with "File Access" and "Native Model" 
+of WG23 interface as defined in Supplement 118 v. 25.
+
+***************************************
+User Instructions
+***************************************
+
+1. When launching XIP Host for the first time, end user is prompted to specify
+   parent of TmpXIP and OutXIP directories plus directory to store DICOM objects
+   managed by Pixelmed server and HSQLDB. This does not apply if dirs exist on a system where host is running.
+
+   TmpXIP directory is used to store data retrieved from caGid before passing it to
+   the XIP application. TmpXIP directory content is cleared at the Host exit time. 
+   CAUTION: any content placed under TmpXIP directory will be permanently deleted
+   after Host termination.
+
+   OutXIP is XIP Application's output directory. It is used to store data produced
+   by XIP Application. OutXIP directory content is preserved between XIP Host
+   subsequent launches.
+
+   Optional ways of setting TmpXIP and OutXIP include:
+       - modifying xipConfig.xml file found in ..\xip-reference-impl\XIP\config\
+   
+   To configure AVT Assessment Database connection modify the following file:
+   ..\xip-reference-impl\config\DB2_ADConfig.xml
+
+2. Data must be selected prior to any application launch. End user can select
+   data from the local file system, query/retrieve data from the DICOM repository,
+   caGrid or AVT AD repository.
+
+3. XIP Host supports multi application management. More than one application can be
+   ran at the same time. To switch between running application use tabs located on
+   the right site of the host. 
+   XIP Host allows also to run more than one instance of the same application at
+   the same time. 
+
+4. Worklist
+   XIP Host Reference Implementation comes with a simple worklist functionality.
+   The definition of each worklist entry can be found in:
+
+         ..\xip-referenceimpl\XIP\config\worklist.xml
+   
+   Application assigned to worklist entry should be first added/registered with
+   the host before executing worklist entry.
+
+   To execute worklist item, click twice on a worklist entry. 
+   Steps that follow:
+        - DICOM and AIM data is retrieved from caGrid repository 
+          and stored in TmpXIP directory
+        - application is automatically launched, and dataset used for display or to be processed.
+
+   Note: depending on the quality of the network connection and the volume of the
+   data being retrieved, time to download data may take few minutes. 
+
+5. To add XIP Application
+      - 'Options / Add application' or
+      - modify ..\xip-referenceimpl\XIP\config\applications.xml
+      Note: Name and Path attributes are required. Path should point to the application
+      executable file (.bat, .exe, .sh).
+
+6. To terminate XIP application
+      - select application's tab
+      - select 'Exit' from the tool bar
+
+7. To add/modify/remove grid and pacs location
+      - modify grid_locations.xml or pacs_locations.xml accordingly
+      Note: host verifies location parameters. If location does not pass validation test 
+      it is not loaded at host startup.
+      
+***************************************
+For more information contact: 
+      Jaroslaw Krych - Developer (314-747-1728)
+      Lawrence Tarbox - Project Lead (314-362-6965)

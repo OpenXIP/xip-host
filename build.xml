@@ -1,0 +1,79 @@
+<project name="XIPHost" default="all" basedir=".">
+   <description>
+      XIP Host Reference Implementation, Washington University in Saint Louis, 2008
+   </description>
+   
+   <!-- set global properties for this build -->
+   <property name="src" location="src" />
+   <property name="build" location="build" />
+   <property name="build.lib" location="${build}/lib" />
+   <property name="build.classes" location="${build}/classes" />	
+   <property name="resources" location="resources" />
+   <property name="lib" location="lib" />
+   <property name="ext.lib" location="ext/lib"/>   
+   <property name="main-class" value="edu.wustl.xipHost.hostControl.HostConfigurator" />   
+   <property name="endorsed" location="endorsed"/>	
+	      
+   <target name="init">
+      <!-- Create the build directory structure used by compile -->
+      <mkdir dir="${build}" />
+      <mkdir dir="${build.lib}" />
+      <mkdir dir="${build.classes}" />     
+   </target>
+   
+   <path id="sourcepath">      
+      <pathelement location="${src}" />     
+   </path>
+   
+      
+   <path id="classpath">
+      <!-- order matters.  need data jars first -->         
+      <fileset dir="${lib}" includes="**/*.jar">     
+         <!--	<include name="caGrid-1.0-data-*.jar" /> -->
+      </fileset>
+      <fileset dir="${ext.lib}" includes="**/*.jar">     
+         <!--	<include name="caGrid-1.0-data-*.jar" /> -->
+      </fileset>	     	  
+   	  <fileset dir="${lib}">
+         <!--	<exclude name="caGrid-1.0-data-*.jar" /> -->
+      </fileset>            
+   </path>   
+
+   <path id="run.classpath">
+      <path refid="classpath" />
+      <fileset dir="${build.lib}">
+	      <include name="*.jar" />
+      </fileset>
+      <fileset dir="${endorsed}" includes="**/*.jar"/>     	
+   </path>  
+	
+   <target name="compile" depends="init" description="compile the source ">
+      <!-- Compile the java code from ${src} into ${build.classes} -->
+      <javac srcdir="${src}" destdir="${build.classes}" debug="on" classpathref="classpath">
+      </javac>
+   </target>  	
+	
+   <target name="jar" depends="compile" description="generate the distribution jar">
+      <!-- Put everything in ${build.classes} into the XXXX-${DSTAMP}.jar file -->
+      <jar jarfile="${build.lib}/XIPHost.jar" basedir="${build.classes}"/>
+   </target>
+   
+   <!-- =============================================================== -->   
+   <!-- Run application                                       		    -->   
+   <!-- =============================================================== -->
+   
+   <!--target name="run" depends="compile"-->
+   <target name="run">
+      <java classname="${main-class}" classpathref="run.classpath" fork="true" maxmemory="256m">
+	      <jvmarg value="-Djava.endorsed.dirs=${endorsed}"/>
+      </java>
+   </target>
+         
+   <target name="all" depends="jar" description="compile everything" />
+   
+   <target name="clean" description="clean up">
+      <!-- Delete the ${build} directory tree -->
+      <delete dir="${build}" />
+   </target>
+
+</project>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locations>
+  <grid_location>
+  	<gridAddress>http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService</gridAddress>
+  	<shortName>DICOM Server Ohio State University</shortName>
+  	<type></type>
+  </grid_location>
+  <grid_location>
+  	<gridAddress>http://140.254.80.50:50010/wsrf/services/cagrid/AIMDataService</gridAddress>
+  	<shortName>AIM Server Ohio State University</shortName>
+  	<type>AIM</type>
+  </grid_location>
+</locations>
+

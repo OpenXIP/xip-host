@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locations>
+  <pacs_location>
+    <hostAddress>10.252.175.60</hostAddress>
+    <hostPort>3001</hostPort>
+    <hostAETitle>WS1</hostAETitle>
+    <hostShortName>WorkStation1</hostShortName>
+  </pacs_location>
+  <pacs_location>
+    <hostAddress>10.252.175.60</hostAddress>
+    <hostPort>3001</hostPort>
+    <hostAETitle>WORKSTATION1</hostAETitle>
+    <hostShortName>WS1</hostShortName>
+  </pacs_location>
+  <pacs_location>
+    <hostAddress>10.252.175.31</hostAddress>
+    <hostPort>2350</hostPort>
+    <!-- 
+    	<hostAETitle>BERLIN</hostAETitle>
+    	<hostShortName>Steve Moore BERLIN</hostShortName>
+     -->
+    
+  </pacs_location>
+</locations>
+

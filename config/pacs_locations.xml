@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locations>
+  <pacs_location>
+    <hostAddress>127.0.0.1</hostAddress>
+    <hostPort>3001</hostPort>
+    <hostAETitle>WORKSTATION1</hostAETitle>
+    <hostShortName>XIPHost embedded database</hostShortName>
+  </pacs_location>
+  <pacs_location>
+    <hostAddress>127.0.0.1</hostAddress>
+    <hostPort>3002</hostPort>
+    <hostAETitle>WORKSTATION2</hostAETitle>
+    <hostShortName>Embedded test database</hostShortName>
+  </pacs_location>
+</locations>
+
