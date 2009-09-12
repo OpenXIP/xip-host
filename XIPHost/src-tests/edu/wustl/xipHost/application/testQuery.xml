@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DICOM_DATASET>
+  <ELEMENT name="FileMetaInformationGroupLength" tag="00020000" vr="UL">
+    <value number="1">190</value>
+  </ELEMENT>
+  <ELEMENT name="FileMetaInformationVersion" tag="00020001" vr="OB" />
+  <ELEMENT name="MediaStorageSOPClassUID" tag="00020002" vr="UI">
+    <value number="1">1.2.840.10008.5.1.4.1.1.2</value>
+  </ELEMENT>
+  <ELEMENT name="MediaStorageSOPInstanceUID" tag="00020003" vr="UI">
+    <value number="1">1.3.6.1.4.1.9328.50.1.20034</value>
+  </ELEMENT>
+  <ELEMENT name="TransferSyntaxUID" tag="00020010" vr="UI">
+    <value number="1">1.2.840.10008.1.2.1</value>
+  </ELEMENT>
+  <ELEMENT name="ImplementationClassUID" tag="00020012" vr="UI">
+    <value number="1">1.3.6.1.4.1.5962.99.2</value>
+  </ELEMENT>
+  <ELEMENT name="ImplementationVersionName" tag="00020013" vr="SH">
+    <value number="1">PIXELMEDJAVA001</value>
+  </ELEMENT>
+  <ELEMENT name="SourceApplicationEntityTitle" tag="00020016" vr="AE">
+    <value number="1">DICOMDATASERVICE</value>
+  </ELEMENT>
+  <ELEMENT name="SpecificCharacterSet" tag="00080005" vr="CS">
+    <value number="1">ISO_IR 100</value>
+  </ELEMENT>
+  <ELEMENT name="ImageType" tag="00080008" vr="CS">
+    <value number="1">ORIGINAL</value>
+    <value number="2">PRIMARY</value>
+    <value number="3">LOCALIZER</value>
+  </ELEMENT>
+  <ELEMENT name="SOPClassUID" tag="00080016" vr="UI">
+    <value number="1">1.2.840.10008.5.1.4.1.1.2</value>
+  </ELEMENT>
+  <ELEMENT name="SOPInstanceUID" tag="00080018" vr="UI">
+    <value number="1">1.3.6.1.4.1.9328.50.1.20034</value>
+  </ELEMENT>
+  <ELEMENT name="SOPInstanceUID" tag="00080018" vr="UI">
+    <value number="1">1.3.6.1.4.1.9328.50.1.20034</value>
+  </ELEMENT>
+  <ELEMENT name="StudyDate" tag="00080020" vr="DA">
+    <value number="1">20000711</value>
+  </ELEMENT>
+  <ELEMENT name="SeriesDate" tag="00080021" vr="DA">
+    <value number="1">20000711</value>
+  </ELEMENT>
+  <ELEMENT name="AcquisitionDate" tag="00080022" vr="DA">
+    <value number="1">20000711</value>
+  </ELEMENT>
+  <ELEMENT name="ContentDate" tag="00080023" vr="DA">
+    <value number="1">20000711</value>
+  </ELEMENT>
+  <ELEMENT name="StudyTime" tag="00080030" vr="TM">
+    <value number="1">081807</value>
+  </ELEMENT>
+  <ELEMENT name="AcquisitionTime" tag="00080032" vr="TM">
+    <value number="1">081826</value>
+  </ELEMENT>
+  <ELEMENT name="ContentTime" tag="00080033" vr="TM">
+    <value number="1">081833</value>
+  </ELEMENT>
+  <ELEMENT name="AccessionNumber" tag="00080050" vr="SH" />
+  <ELEMENT name="Modality" tag="00080060" vr="CS">
+    <value number="1">CT</value>
+  </ELEMENT>
+  <ELEMENT name="Manufacturer" tag="00080070" vr="LO">
+    <value number="1">GE MEDICAL SYSTEMS</value>
+  </ELEMENT>
+  <ELEMENT name="InstitutionName" tag="00080080" vr="LO" />
+  <ELEMENT name="ReferringPhysicianName" tag="00080090" vr="PN">
+    <value number="1">xDONEx</value>
+  </ELEMENT>
+  <ELEMENT name="StudyDescription" tag="00081030" vr="LO">
+    <value number="1">CT CHEST W/ CONT</value>
+  </ELEMENT>
+  <ELEMENT name="SeriesDescription" tag="0008103e" vr="LO" />
+  <ELEMENT name="ManufacturerModelName" tag="00081090" vr="LO">
+    <value number="1">LightSpeed QX/i</value>
+  </ELEMENT>
+  <ELEMENT name="PatientName" tag="00100010" vr="PN">
+    <value number="1">1.3.6.1.4.1.9328.50.1.0039</value>
+  </ELEMENT>
+  <ELEMENT name="PatientID" tag="00100020" vr="LO">
+    <value number="1">1.3.6.1.4.1.9328.50.1.0039</value>
+  </ELEMENT>
+  <ELEMENT name="PatientBirthDate" tag="00100030" vr="DA" />
+  <ELEMENT name="PatientSex" tag="00100040" vr="CS">
+    <value number="1">M</value>
+  </ELEMENT>
+  <ELEMENT name="PatientAge" tag="00101010" vr="AS">
+    <value number="1">054Y</value>
+  </ELEMENT>
+  <ELEMENT name="AdditionalPatientHistory" tag="001021b0" vr="LT">
+    <value number="1">NSCLC</value>
+  </ELEMENT>
+  <ELEMENT name="ScanOptions" tag="00180022" vr="CS">
+    <value number="1">SCOUT MODE</value>
+  </ELEMENT>
+  <ELEMENT name="SliceThickness" tag="00180050" vr="DS">
+    <value number="1">400.181793</value>
+  </ELEMENT>
+  <ELEMENT name="KVP" tag="00180060" vr="DS">
+    <value number="1">120</value>
+  </ELEMENT>
+  <ELEMENT name="DataCollectionDiameter" tag="00180090" vr="DS">
+    <value number="1">500.000000</value>
+  </ELEMENT>
+  <ELEMENT name="SoftwareVersion" tag="00181020" vr="LO">
+    <value number="1">LightSpeedApps10.5_2.8.2I_H1.3M4</value>
+  </ELEMENT>
+  <ELEMENT name="ProtocolName" tag="00181030" vr="LO">
+    <value number="1">5.3 Chest  Lung CA</value>
+  </ELEMENT>
+  <ELEMENT name="ReconstructionDiameter" tag="00181100" vr="DS" />
+  <ELEMENT name="DistanceSourceToDetector" tag="00181110" vr="DS">
+    <value number="1">949.075012</value>
+  </ELEMENT>
+  <ELEMENT name="DistanceSourceToPatient" tag="00181111" vr="DS">
+    <value number="1">541.000000</value>
+  </ELEMENT>
+  <ELEMENT name="GantryDetectorTilt" tag="00181120" vr="DS">
+    <value number="1">0.000000</value>
+  </ELEMENT>
+  <ELEMENT name="TableHeight" tag="00181130" vr="DS">
+    <value number="1">169.100006</value>
+  </ELEMENT>
+  <ELEMENT name="RotationDirection" tag="00181140" vr="CS">
+    <value number="1">CW</value>
+  </ELEMENT>
+  <ELEMENT name="ExposureTime" tag="00181150" vr="IS">
+    <value number="1">1665</value>
+  </ELEMENT>
+  <ELEMENT name="XrayTubeCurrent" tag="00181151" vr="IS">
+    <value number="1">10</value>
+  </ELEMENT>
+  <ELEMENT name="Exposure" tag="00181152" vr="IS">
+    <value number="1">40</value>
+  </ELEMENT>
+  <ELEMENT name="FilterType" tag="00181160" vr="SH">
+    <value number="1">BODY FILTER</value>
+  </ELEMENT>
+  <ELEMENT name="GeneratorPower" tag="00181170" vr="IS">
+    <value number="1">1200</value>
+  </ELEMENT>
+  <ELEMENT name="FocalSpot" tag="00181190" vr="DS">
+    <value number="1">0.700000</value>
+  </ELEMENT>
+  <ELEMENT name="ConvolutionKernel" tag="00181210" vr="SH">
+    <value number="1">EXPERIMENTAL7</value>
+  </ELEMENT>
+  <ELEMENT name="PatientPosition" tag="00185100" vr="CS">
+    <value number="1">FFS</value>
+  </ELEMENT>
+  <ELEMENT name="StudyInstanceUID" tag="0020000d" vr="UI">
+    <value number="1">1.3.6.1.4.1.9328.50.1.20035</value>
+  </ELEMENT>
+  <ELEMENT name="SeriesInstanceUID" tag="0020000e" vr="UI">
+    <value number="1">1.3.6.1.4.1.9328.50.1.20036</value>
+  </ELEMENT>
+  <ELEMENT name="StudyID" tag="00200010" vr="SH">
+    <value number="1">4</value>
+  </ELEMENT>
+  <ELEMENT name="SeriesNumber" tag="00200011" vr="IS">
+    <value number="1">1</value>
+  </ELEMENT>
+  <ELEMENT name="AcquisitionNumber" tag="00200012" vr="IS">
+    <value number="1">1</value>
+  </ELEMENT>
+  <ELEMENT name="InstanceNumber" tag="00200013" vr="IS">
+    <value number="1">1</value>
+  </ELEMENT>
+  <ELEMENT name="ImagePositionPatient" tag="00200032" vr="DS">
+    <value number="1">0.000000</value>
+    <value number="2">265.000000</value>
+    <value number="3">50.000000</value>
+  </ELEMENT>
+  <ELEMENT name="ImageOrientationPatient" tag="00200037" vr="DS">
+    <value number="1">0.000000</value>
+    <value number="2">-1.000000</value>
+    <value number="3">0.000000</value>
+    <value number="4">0.000000</value>
+    <value number="5">0.000000</value>
+    <value number="6">-1.000000</value>
+  </ELEMENT>
+  <ELEMENT name="FrameOfReferenceUID" tag="00200052" vr="UI">
+    <value number="1">1.3.6.1.4.1.9328.50.1.20037</value>
+  </ELEMENT>
+  <ELEMENT name="PositionReferenceIndicator" tag="00201040" vr="LO">
+    <value number="1">SN</value>
+  </ELEMENT>
+  <ELEMENT name="SliceLocation" tag="00201041" vr="DS">
+    <value number="1">50.000000</value>
+  </ELEMENT>
+  <ELEMENT name="SamplesPerPixel" tag="00280002" vr="US">
+    <value number="1">1</value>
+  </ELEMENT>
+  <ELEMENT name="PhotometricInterpretation" tag="00280004" vr="CS">
+    <value number="1">MONOCHROME2</value>
+  </ELEMENT>
+  <ELEMENT name="Rows" tag="00280010" vr="US">
+    <value number="1">733</value>
+  </ELEMENT>
+  <ELEMENT name="Columns" tag="00280011" vr="US">
+    <value number="1">888</value>
+  </ELEMENT>
+  <ELEMENT name="PixelSpacing" tag="00280030" vr="DS">
+    <value number="1">0.545455</value>
+    <value number="2">0.596847</value>
+  </ELEMENT>
+  <ELEMENT name="BitsAllocated" tag="00280100" vr="US">
+    <value number="1">16</value>
+  </ELEMENT>
+  <ELEMENT name="BitsStored" tag="00280101" vr="US">
+    <value number="1">16</value>
+  </ELEMENT>
+  <ELEMENT name="HighBit" tag="00280102" vr="US">
+    <value number="1">15</value>
+  </ELEMENT>
+  <ELEMENT name="PixelRepresentation" tag="00280103" vr="US">
+    <value number="1">1</value>
+  </ELEMENT>
+  <ELEMENT name="WindowCenter" tag="00281050" vr="DS">
+    <value number="1">50</value>
+  </ELEMENT>
+  <ELEMENT name="WindowWidth" tag="00281051" vr="DS">
+    <value number="1">500</value>
+  </ELEMENT>
+  <ELEMENT name="RescaleIntercept" tag="00281052" vr="DS">
+    <value number="1">-1024</value>
+  </ELEMENT>
+  <ELEMENT name="RescaleSlope" tag="00281053" vr="DS">
+    <value number="1">1</value>
+  </ELEMENT>
+  <ELEMENT name="UID" tag="0040a124" vr="UI" />
+  <ELEMENT name="StorageMediaFileSetUID" tag="00880140" vr="UI" />
+  <ELEMENT name="ReferencedFrameOfReferenceUID" tag="30060024" vr="UI" />
+  <ELEMENT name="RelatedFrameOfReferenceUID" tag="300600c2" vr="UI" />
+  <ELEMENT name="PixelData" tag="7fe00010" vr="OW">
+    <value number="1">
+      <BULKDATA offset="0" length="0">file:/C:/TmpXIP/TmpXIP3065.tmp/DICOM-TEST3066.tmp/1.3.6.1.4.1.9328.50.1.20034.dcm</BULKDATA>
+    </value>
+  </ELEMENT>
+</DICOM_DATASET>
+

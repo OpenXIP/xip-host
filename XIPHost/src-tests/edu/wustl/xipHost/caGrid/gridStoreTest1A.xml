@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locations>
+  <grid_location>
+    <gridAddress>http://127.0.0.1</gridAddress>
+    <shortName>Test Location</shortName>
+    <type>DICOM</type>
+  </grid_location>
+  <grid_location>
+    <gridAddress>http://127.0.0.1</gridAddress>
+    <shortName>Test Loc</shortName>
+    <type>AIM</type>
+  </grid_location>
+</locations>
+
