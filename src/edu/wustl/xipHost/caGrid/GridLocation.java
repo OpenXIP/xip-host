@@ -17,9 +17,10 @@ import java.net.URL;
 public class GridLocation {
 	String address;
 	Type type;
+	String protocolVersion;
 	String shortName;
 	
-	public GridLocation(String address, Type type, String shortName){
+	public GridLocation(String address, Type type, String protocolVersion, String shortName){
 		//verify address is a valid address - string can be converted to URL		
 		if(address != null){
 			try {
@@ -32,6 +33,7 @@ public class GridLocation {
 		if(type != null && shortName != null && !shortName.isEmpty() && shortName.trim().length() != 0){
 			this.address = address;
 			this.type = type;
+			this.protocolVersion  = protocolVersion;
 			this.shortName = shortName;
 		} else{			
 			throw new IllegalArgumentException("GridLocation address: " + address + " is not valid.");			
@@ -43,6 +45,9 @@ public class GridLocation {
 	}	
 	public Type getType(){
 		return type;
+	}
+	public String getProtocolVersion(){
+		return this.protocolVersion;
 	}
 	public String getShortName(){
 		return this.shortName;

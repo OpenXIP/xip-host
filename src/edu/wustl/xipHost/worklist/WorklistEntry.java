@@ -256,7 +256,7 @@ public class WorklistEntry implements Runnable, GridRetrieveListener, NCIARetrie
 		/*-------------- For DICOM prev ------------*/
 		//NCIA - if NCIA requested retrieve and return;
 		if(getDicomServiceURI().equalsIgnoreCase("http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService")){			
-			GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "Worklist DICOM Service URI - previous dataset");
+			GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "NCIA-4.2", "Worklist DICOM Service URI - previous dataset");
 			nciaRetrievePrev = new NCIARetrieve(getSeriesInstanceUIDPrev(), gridLoc, importLocation);
 			nciaRetrievePrev.addNCIARetrieveListener(this);
 			Thread t1 = new Thread(nciaRetrievePrev);
@@ -267,7 +267,7 @@ public class WorklistEntry implements Runnable, GridRetrieveListener, NCIARetrie
 			t2.start();			
 		}else{
 			CQLQuery cqlDicomPrev = makeCQLforDICOM(1);
-			GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "Worklist DICOM Service URI - previous dataset");		
+			GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "DICOM", "Worklist DICOM Service URI - previous dataset");		
 			try {
 				gridRetrievePrev = new GridRetrieve(cqlDicomPrev, gridLoc, importLocation);
 			} catch (IOException e) {
@@ -279,7 +279,7 @@ public class WorklistEntry implements Runnable, GridRetrieveListener, NCIARetrie
 			t.start();
 			/*-------------- For AIM prev ------------*/
 			CQLQuery cqlAimPrev = makeCQLforAIM(1);
-			GridLocation aimLoc = new GridLocation(getAimServiceURI(), Type.AIM, "Worklist AIM Service URI - previous dataset");
+			GridLocation aimLoc = new GridLocation(getAimServiceURI(), Type.AIM, "AIM-TCGA", "Worklist AIM Service URI - previous dataset");
 			try {
 				aimRetrievePrev = new AimRetrieve(cqlAimPrev, aimLoc, importLocation);
 			} catch (IOException e1) {

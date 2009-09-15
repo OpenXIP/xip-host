@@ -50,11 +50,12 @@ public class GridManagerImpl implements GridManager {
 			String address = (((Element)children.get(i)).getChildText("gridAddress"));
 			String shortName = (((Element)children.get(i)).getChildText("shortName"));
 			String type = (((Element)children.get(i)).getChildText("type"));
+			String protocolVersion = (((Element)children.get(i)).getChildText("protocolVersion"));
 			try{
 				if(type != null && type.equalsIgnoreCase("DICOM")){
-					gridLocations.add(new GridLocation(address, Type.DICOM, shortName));
+					gridLocations.add(new GridLocation(address, Type.DICOM, protocolVersion, shortName));
 				}else if (type != null && type.equalsIgnoreCase("AIM")){
-					gridLocations.add(new GridLocation(address, Type.AIM, shortName));
+					gridLocations.add(new GridLocation(address, Type.AIM, protocolVersion, shortName));
 				} else{
 					System.out.println("Invalid " + address + " " + type + " " + shortName + " - check location's 'type' attribute.");
 				}
@@ -79,13 +80,16 @@ public class GridManagerImpl implements GridManager {
 			Element gridAddressElem = new Element("gridAddress");
 			Element shortNameElem = new Element("shortName");
 			Element typeElem = new Element("type");
+			Element protocolVersionElem = new Element("protocolVersion");
 			rootSave.addContent(gridLocationElem);
 			gridLocationElem.addContent(gridAddressElem);
 			gridLocationElem.addContent(shortNameElem);
 			gridLocationElem.addContent(typeElem);
+			gridLocationElem.addContent(protocolVersionElem);
 			gridAddressElem.addContent(locations.get(i).getAddress());
 			shortNameElem.addContent(locations.get(i).getShortName());			
-			typeElem.addContent(locations.get(i).getType().toString());									
+			typeElem.addContent(locations.get(i).getType().toString());
+			protocolVersionElem.addContent(locations.get(i).getProtocolVersion().toString());
 		}		
 		try {
 			FileOutputStream outStream = new FileOutputStream(file);

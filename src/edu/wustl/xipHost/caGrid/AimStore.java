@@ -22,7 +22,7 @@ public class AimStore implements Runnable{
 	public AimStore(List<ObjectLocator> aimObjectLocs, GridLocation gridLocation){		
 		this.aimObjectLocs = aimObjectLocs;		
 		if(gridLocation == null){			
-			gridLocation = new GridLocation("http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService", Type.AIM, "AIM Server Ohio State University AIM_1_rv_1.9");
+			gridLocation = new GridLocation("http://node01.cci.emory.edu:8080/wsrf/services/cagrid/AIMTCGADataService", Type.AIM, "AIM-TCGA", "TCGA AIM Server at Emory");
 		}
 		this.aimServiceURL = gridLocation.getAddress();				
 	}

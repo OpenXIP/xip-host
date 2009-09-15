@@ -171,8 +171,8 @@ public class LocationsDialog extends JDialog implements ActionListener , KeyList
 			e1.printStackTrace();
 		}	
 		List<GridLocation> locs = new ArrayList<GridLocation>();
-		GridLocation gridLoc1 = new GridLocation("http://10.252.175.60", Type.DICOM, "Test Location 1");
-		GridLocation gridLoc2 = new GridLocation("http://10.252.175.60", Type.DICOM, "Test Location 2");
+		GridLocation gridLoc1 = new GridLocation("http://10.252.175.60", Type.DICOM, "DICOM", "Test Location 1");
+		GridLocation gridLoc2 = new GridLocation("http://10.252.175.60", Type.DICOM, "DICOM", "Test Location 2");
 		locs.add(gridLoc1);
 		locs.add(gridLoc2);				
 		LocationsDialog locDialog = new LocationsDialog(new JFrame(), locs);
@@ -193,9 +193,10 @@ public class LocationsDialog extends JDialog implements ActionListener , KeyList
 			String strURL = descPanel.txtURL.getText();
 			String strName = descPanel.txtName.getText();
 			Type type = (Type) descPanel.type.getSelectedItem();
+			String protocolVersion = descPanel.txtProtocolVersion.getText();
 			GridLocation loc = null;
 			if(verifyInput()){				
-				loc = new GridLocation(strURL, type, strName);
+				loc = new GridLocation(strURL, type, protocolVersion, strName);
 			}else{
 				return;
 			}
@@ -220,10 +221,11 @@ public class LocationsDialog extends JDialog implements ActionListener , KeyList
 			String strURL = descPanel.txtURL.getText();
 			String strName = descPanel.txtName.getText();
 			Type type = (Type) descPanel.type.getSelectedItem();
+			String protocolVersion = descPanel.txtProtocolVersion.getText();
 			GridLocation oldLoc = (GridLocation) list.getSelectedItem();
 			GridLocation newLoc = null;			
 			try{
-				newLoc = new GridLocation(strURL, type, strName);
+				newLoc = new GridLocation(strURL, type, protocolVersion, strName);
 			}catch (IllegalArgumentException excep){
 				if(descPanel.lblURL.getText().trim().isEmpty()){descPanel.lblURL.setForeground(Color.RED);}
 				if(descPanel.lblName.getText().trim().isEmpty()){descPanel.lblName.setForeground(Color.RED);}
@@ -323,6 +325,9 @@ public class LocationsDialog extends JDialog implements ActionListener , KeyList
 		JTextField txtURL = new JTextField("", 45);	
 		JTextField txtName = new JTextField("", 45);
 		JComboBox type = new JComboBox();
+		JLabel lblProtocolVersion = new JLabel("Protocol Version");
+		JLabel lblProtocolVersionError = new JLabel("");
+		JTextField txtProtocolVersion = new JTextField("", 45);
 		Border border = BorderFactory.createLoweredBevelBorder();
 		public DescPanel(){									
 			lblURL.setForeground(Color.WHITE);
@@ -330,6 +335,8 @@ public class LocationsDialog extends JDialog implements ActionListener , KeyList
 			lblName.setForeground(Color.WHITE);
 			lblNameError.setForeground(Color.RED);
 			lblType.setForeground(Color.WHITE);						
+			lblProtocolVersion.setForeground(Color.WHITE);
+			lblProtocolVersionError.setForeground(Color.RED);
 			add(lblURL);			
 			add(lblURLError);
 			add(txtURL);
@@ -341,6 +348,9 @@ public class LocationsDialog extends JDialog implements ActionListener , KeyList
 			type.addItem(Type.AIM);
 			type.setSelectedIndex(0);
 			add(type);			
+			add(lblProtocolVersion);
+			add(lblProtocolVersionError);
+			add(txtProtocolVersion);
 			setBorder(border);
 			buildLayout();
 		}
