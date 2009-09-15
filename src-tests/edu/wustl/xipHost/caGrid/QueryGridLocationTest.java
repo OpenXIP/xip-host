@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 public class QueryGridLocationTest extends TestCase {
 	GridManager gridMgr;
 	//GridLocation gridLoc = new GridLocation("http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "OSU");
-	GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "OSU");
+	GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "OSU");
 	CQLQuery cqlQuery = null;
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -130,7 +130,7 @@ public class QueryGridLocationTest extends TestCase {
 	//GridManagerImpl - query grid 1D - alternative flow. 
 	//CQL statement is valid but GridLocation does not exist and network is on.
 	public void testQueryGridLocation1D() throws RemoteException, ConnectException {										              
-		gridLoc = new GridLocation("http://127.0.0.1", Type.DICOM, "Test Location");	//There is no repository at http://127.0.0.1 		
+		gridLoc = new GridLocation("http://127.0.0.1", Type.DICOM, "DICOM", "Test Location");	//There is no repository at http://127.0.0.1 		
 		try{
 			gridMgr.query(cqlQuery, gridLoc);
 			fail("Invalid GridLocation.");

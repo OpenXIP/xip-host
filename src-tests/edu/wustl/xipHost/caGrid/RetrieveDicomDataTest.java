@@ -26,7 +26,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	protected void setUp() throws Exception {
 		super.setUp();
 		gridMgr = new GridManagerImpl();
-		gridLoc = new GridLocation("http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "Ohio State University");
+		gridLoc = new GridLocation("http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University");
 		parser = new BasicDicomParser2();
 		importDir = new File("./test-content/TmpXIP_Test");
 		if(importDir.exists() == false){
@@ -88,7 +88,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	//CQL statement constructed for the series level 
 	//study and series InstanceUIDs must be included in CQL statement
 	public void testRetrieveDicomData1A() throws IOException {
-		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "Ohio State University caGrid_1.2");
+		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");
 		String studyInstanceUID = "1.3.6.1.4.1.9328.50.1.20035";
 		String seriesInstanceUID = "1.3.6.1.4.1.9328.50.1.20036";
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);				
@@ -125,7 +125,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	//CQL statement constructed for study level 
 	//only studyInstanceUID is included in CQL statement
 	public void testRetrieveDicomData1B() throws IOException {
-		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "Ohio State University caGrid_1.2");
+		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");
 		String studyInstanceUID = "1.3.6.1.4.1.9328.50.1.20035";
 		String seriesInstanceUID = null;
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);				
@@ -159,7 +159,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	//GridManagerImpl - retrieve dicom from the grid 1Ca - alternative flow. 
 	//CQL statement is invalid, GridLocation and import directory are valid and network is on.
 	public void testRetrieveDicomData1Ca() throws IOException {
-		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "Ohio State University caGrid_1.2");
+		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");
 		String studyInstanceUID = "1.3.6.1.4.1.9328.50.1.20035";
 		String seriesInstanceUID = null;
 		//Crears invalid CQL: see generalSeriesInstanceUID
@@ -205,7 +205,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	//GridManagerImpl - retrieve dicom from the grid 1Cb - alternative flow. 
 	//CQL statement is null, GridLocation and import directory are valid and network is on.
 	public void testRetrieveDicomData1Cb() throws IOException {
-		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "Ohio State University caGrid_1.2");			
+		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");			
 		GridRetrieve gridRetrieve = new GridRetrieve(null, gridLoc, importDir);
 		gridRetrieve.addGridRetrieveListener(this);
 		Thread t = new Thread(gridRetrieve);
@@ -241,7 +241,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	//GridManagerImpl - retrieve dicom from the grid 1Ea - alternative flow. 
 	//CQL statement is valid, GridLocation is valid and import directory does not exist. Network is on.
 	public void testRetrieveDicomData1Ea() {
-		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "Ohio State University caGrid_1.2");		
+		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");		
 		if(importDir.exists()){
 			Util.delete(importDir);
 		}
@@ -267,7 +267,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	//GridManagerImpl - retrieve dicom from the grid 1Eb - alternative flow. 
 	//CQL statement is valid, GridLocation is valid and import directory is null. Network is on.
 	public void testRetrieveDicomData1Eb() throws IOException {
-		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "Ohio State University caGrid_1.2");		
+		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");		
 		String studyInstanceUID = "1.3.6.1.4.1.9328.50.1.20035";
 		String seriesInstanceUID = "1.3.6.1.4.1.9328.50.1.20036";
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);

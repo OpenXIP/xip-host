@@ -14,7 +14,7 @@ public class GridLocationTest extends TestCase {
 	
 	//GridLocation 1A of the basic flow. All parameters are correct.
 	public void testValidate1A() throws IllegalArgumentException {				
-		GridLocation loc = new GridLocation("http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "OSU");
+		GridLocation loc = new GridLocation("http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "OSU");
 		assertEquals("Parameters correct but object was not created.", loc, loc);
 		//assertNotNull("Parameters correct but created object is null.", loc);
 	}
@@ -22,7 +22,7 @@ public class GridLocationTest extends TestCase {
 	public void testValidate1B() {				
 		try {			
 			//new GridLocation(null, null, null);
-			new GridLocation("http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService", null, "OSU");
+			new GridLocation("http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService", null, "DICOM", "OSU");
 			fail("Parameters are missing");
 		} catch (IllegalArgumentException e){
 			assertTrue(true);
@@ -31,7 +31,7 @@ public class GridLocationTest extends TestCase {
 	//GridLocation 1C alternative flow. Parameters are invalid.
 	public void testValidate1C() {				
 		try {
-			new GridLocation(" ", Type.AIM, " ");
+			new GridLocation(" ", Type.AIM, "AIM-0.9", " ");
 			fail("Invalid parameters");
 		} catch (IllegalArgumentException e){
 			assertTrue(true);
@@ -41,7 +41,7 @@ public class GridLocationTest extends TestCase {
 	//It has IP for and cannot be converted to URL
 	public void testValidate1D() {				
 		try {
-			new GridLocation("10.252.175.60", Type.DICOM, "Test location");
+			new GridLocation("10.252.175.60", Type.DICOM, "DICOM", "Test location");
 			fail("Invalid parameters");
 		} catch (IllegalArgumentException e){
 			assertTrue(true);

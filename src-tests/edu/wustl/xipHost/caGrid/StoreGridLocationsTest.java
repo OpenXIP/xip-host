@@ -23,8 +23,8 @@ public class StoreGridLocationsTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		gridMgr = new GridManagerImpl();		
-		GridLocation gridLoc1 = new GridLocation("http://127.0.0.1", Type.DICOM, "Test Location");
-		GridLocation gridLoc2 = new GridLocation("http://127.0.0.1", Type.AIM, "Test Loc");
+		GridLocation gridLoc1 = new GridLocation("http://127.0.0.1", Type.DICOM, "DICOM", "Test Location");
+		GridLocation gridLoc2 = new GridLocation("http://127.0.0.1", Type.AIM, "AIM-0.9", "Test Loc");
 		locations = new ArrayList<GridLocation>();
 		locations.add(gridLoc1);
 		locations.add(gridLoc2);
