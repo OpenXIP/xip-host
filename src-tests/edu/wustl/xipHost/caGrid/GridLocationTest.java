@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.caGrid;
 
@@ -38,7 +38,7 @@ public class GridLocationTest extends TestCase {
 		}		
 	}
 	//GlobalSearchUtil 1D alternative flow. Address is invalid.
-	//It has IP for and cannot be converted to URL
+	//It has IP that cannot be converted to URL
 	public void testValidate1D() {				
 		try {
 			new GridLocation("10.252.175.60", Type.DICOM, "DICOM", "Test location");

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.caGrid;
 
@@ -30,7 +30,9 @@ public class GridLocation {
 			}			
 		}
 		//Verify that parameters except address are not missing, are valid, are not empty strings or do not start from white space
-		if(type != null && shortName != null && !shortName.isEmpty() && shortName.trim().length() != 0){
+		if(type != null 
+				&& protocolVersion != null && !protocolVersion.isEmpty() && protocolVersion.trim().length() != 0
+				&& shortName != null && !shortName.isEmpty() && shortName.trim().length() != 0){
 			this.address = address;
 			this.type = type;
 			this.protocolVersion  = protocolVersion;
@@ -41,22 +43,18 @@ public class GridLocation {
 	}
 
 	public String getAddress(){
-		return this.address;
+		return address;
 	}	
 	public Type getType(){
 		return type;
 	}
 	public String getProtocolVersion(){
-		return this.protocolVersion;
+		return protocolVersion;
 	}
 	public String getShortName(){
-		return this.shortName;
+		return shortName;
 	}
 	public enum Type {
 		DICOM, AIM;
-	}
-	
-	public boolean validate() {
-		return true;	
 	}	
 }
