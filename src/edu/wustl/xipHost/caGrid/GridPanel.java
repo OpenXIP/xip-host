@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.caGrid;
 
@@ -38,10 +38,8 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.xml.namespace.QName;
-
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
-
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dataModel.SearchResult;
