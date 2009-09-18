@@ -13,6 +13,7 @@ import org.globus.wsrf.encoding.SerializationException;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.dicomdataservice.client.DICOMDataServiceClient;
 import gov.nih.nci.ivi.helper.DICOMDataServiceHelper;
+import gov.nih.nci.ivi.helper.NCIADataServiceHelper;
 
 
 /**
@@ -60,8 +61,8 @@ public class GridRetrieve implements Runnable {
         listener.importedFilesAvailable(event);
 	}
 	
-	DICOMDataServiceHelper helper = new DICOMDataServiceHelper("./resources/NCIAModelMap.properties");					
-	//DICOMDataServiceClient dicomClient;
+	DICOMDataServiceHelper dicomHelper = new DICOMDataServiceHelper();					
+	NCIADataServiceHelper nciaHelper = new NCIADataServiceHelper();
 	public List<File> retrieveDicomData(CQLQuery cqlQuery, GridLocation location, File importDir) throws IOException {						
 		if(importDir == null){
 			throw new NullPointerException();
@@ -69,18 +70,21 @@ public class GridRetrieve implements Runnable {
 		List<File> dicomFiles = new ArrayList<File>();		
 		File inputDir = File.createTempFile("DICOM-XIPHOST", null, importDir);			
 		importDir = inputDir;		
-		inputDir.delete();
-								
-		/*try {
+		inputDir.delete();								
+		try {
 			System.err.println(ObjectSerializer.toString(cqlQuery, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 		} catch (SerializationException e) {			
 			e.printStackTrace();
-		}*/		
+		}		
 		try{						
-			//dicomClient = new DICOMDataServiceClient(location.getAddress());
-			//dicomClient.retrieveDICOMData(cqlQuery);
-			helper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());
+			if(location.getProtocolVersion().equalsIgnoreCase("DICOM")){
+				dicomHelper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());				
+			}else if(location.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
+				nciaHelper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());
+			}else{
+				
+			}			
 		}catch(Exception e){									
 			return dicomFiles;
 		}
