@@ -31,9 +31,6 @@ import edu.wustl.xipHost.caGrid.GridRetrieveListener;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
 import edu.wustl.xipHost.dicom.BasicDicomParser2;
 import edu.wustl.xipHost.dicom.DicomUtil;
-import edu.wustl.xipHost.nci.NCIARetrieve;
-import edu.wustl.xipHost.nci.NCIARetrieveEvent;
-import edu.wustl.xipHost.nci.NCIARetrieveListener;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
@@ -47,7 +44,7 @@ import gov.nih.nci.ncia.domain.Series;
  * @author Jaroslaw Krych
  *
  */
-public class WorklistEntry implements Runnable, GridRetrieveListener, NCIARetrieveListener {
+public class WorklistEntry implements Runnable, GridRetrieveListener {
 	String subjectName;
 	String subjectID;
 	String studyDate;
@@ -235,16 +232,12 @@ public class WorklistEntry implements Runnable, GridRetrieveListener, NCIARetrie
 	GridRetrieve gridRetrieveCurr;
 	AimRetrieve aimRetrievePrev;
 	AimRetrieve aimRetrieveCurr;
-	NCIARetrieve nciaRetrievePrev;
-	NCIARetrieve nciaRetrieveCurr;
 	public void execute(File importLocation){						
 		System.out.println("Executing worklist entry ...");										
 		dicomPrevRetrieved = false;
 		dicomCurrRetrieved = false;
 		aimPrevRetrieved = false;
 		aimCurrRetrieved = false;
-		nciaPrevRetrieved = false;
-		nciaCurrRetrieved = false;
 		//1.Make CQL statement for:
 		// a. dicomPrev
 		// b. aimPrev
@@ -254,64 +247,51 @@ public class WorklistEntry implements Runnable, GridRetrieveListener, NCIARetrie
 		//3. Arrange data sets
 		//4. Launch assigned application and passe appropriate data set
 		/*-------------- For DICOM prev ------------*/
-		//NCIA - if NCIA requested retrieve and return;
-		if(getDicomServiceURI().equalsIgnoreCase("http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService")){			
-			GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "NCIA-4.2", "Worklist DICOM Service URI - previous dataset");
-			nciaRetrievePrev = new NCIARetrieve(getSeriesInstanceUIDPrev(), gridLoc, importLocation);
-			nciaRetrievePrev.addNCIARetrieveListener(this);
-			Thread t1 = new Thread(nciaRetrievePrev);
-			t1.start();
-			nciaRetrieveCurr = new NCIARetrieve(getSeriesInstanceUIDCurr(), gridLoc, importLocation);
-			nciaRetrieveCurr.addNCIARetrieveListener(this);
-			Thread t2 = new Thread(nciaRetrieveCurr);
-			t2.start();			
-		}else{
-			CQLQuery cqlDicomPrev = makeCQLforDICOM(1);
-			GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "DICOM", "Worklist DICOM Service URI - previous dataset");		
-			try {
-				gridRetrievePrev = new GridRetrieve(cqlDicomPrev, gridLoc, importLocation);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			gridRetrievePrev.addGridRetrieveListener(this);		
-			Thread t = new Thread(gridRetrievePrev);
-			t.start();
-			/*-------------- For AIM prev ------------*/
-			CQLQuery cqlAimPrev = makeCQLforAIM(1);
-			GridLocation aimLoc = new GridLocation(getAimServiceURI(), Type.AIM, "AIM-TCGA", "Worklist AIM Service URI - previous dataset");
-			try {
-				aimRetrievePrev = new AimRetrieve(cqlAimPrev, aimLoc, importLocation);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			aimRetrievePrev.addGridRetrieveListener(this);
-			Thread t1AIM = new Thread(aimRetrievePrev);
-			t1AIM.start();
-			/*-------------- For DICOM curr ------------*/
-			CQLQuery cqlDicomCurr = makeCQLforDICOM(2);				
-			try {
-				gridRetrieveCurr = new GridRetrieve(cqlDicomCurr, gridLoc, importLocation);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			gridRetrieveCurr.addGridRetrieveListener(this);		
-			Thread t2 = new Thread(gridRetrieveCurr);
-			t2.start();
-			/*-------------- For AIM curr ------------*/
-			CQLQuery cqlAimCurr = makeCQLforAIM(2);
-			try {
-				aimRetrieveCurr = new AimRetrieve(cqlAimCurr, aimLoc, importLocation);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			aimRetrieveCurr.addGridRetrieveListener(this);
-			Thread t2AIM = new Thread(aimRetrieveCurr);
-			t2AIM.start();
-		}				
+		CQLQuery cqlDicomPrev = makeCQLforDICOM(1);
+		GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "DICOM", "Worklist DICOM Service URI - previous dataset");		
+		try {
+			gridRetrievePrev = new GridRetrieve(cqlDicomPrev, gridLoc, importLocation);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		gridRetrievePrev.addGridRetrieveListener(this);		
+		Thread t = new Thread(gridRetrievePrev);
+		t.start();
+		/*-------------- For AIM prev ------------*/
+		CQLQuery cqlAimPrev = makeCQLforAIM(1);
+		GridLocation aimLoc = new GridLocation(getAimServiceURI(), Type.AIM, "AIM-TCGA", "Worklist AIM Service URI - previous dataset");
+		try {
+			aimRetrievePrev = new AimRetrieve(cqlAimPrev, aimLoc, importLocation);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		aimRetrievePrev.addGridRetrieveListener(this);
+		Thread t1AIM = new Thread(aimRetrievePrev);
+		t1AIM.start();
+		/*-------------- For DICOM curr ------------*/
+		CQLQuery cqlDicomCurr = makeCQLforDICOM(2);				
+		try {
+			gridRetrieveCurr = new GridRetrieve(cqlDicomCurr, gridLoc, importLocation);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		gridRetrieveCurr.addGridRetrieveListener(this);		
+		Thread t2 = new Thread(gridRetrieveCurr);
+		t2.start();
+		/*-------------- For AIM curr ------------*/
+		CQLQuery cqlAimCurr = makeCQLforAIM(2);
+		try {
+			aimRetrieveCurr = new AimRetrieve(cqlAimCurr, aimLoc, importLocation);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		aimRetrieveCurr.addGridRetrieveListener(this);
+		Thread t2AIM = new Thread(aimRetrieveCurr);
+		t2AIM.start();				
 	}
 
 	boolean dicomPrevRetrieved;
@@ -529,26 +509,5 @@ public class WorklistEntry implements Runnable, GridRetrieveListener, NCIARetrie
 	WG23DataModel dm;
 	public WG23DataModel getDataModel(){
 		return dm;
-	}
-	
-	boolean nciaPrevRetrieved;
-	boolean nciaCurrRetrieved;
-	public void importedFilesAvailable(NCIARetrieveEvent e) {
-		if(e.getSource() instanceof NCIARetrieve){
-			NCIARetrieve source = (NCIARetrieve) e.getSource();			
-			if(source == nciaRetrievePrev){				
-				prev.addAll(nciaRetrievePrev.getRetrievedFiles());				
-				nciaPrevRetrieved = true;
-			}else if(source == nciaRetrieveCurr){
-				curr.addAll(nciaRetrieveCurr.getRetrievedFiles());					
-				nciaCurrRetrieved = true;
-			}			
-		}
-		if(nciaPrevRetrieved == true && nciaCurrRetrieved == true){																	
-			//long t1 = System.currentTimeMillis();
-			dm = makeWG23DataModel(prev, curr);
-			//long t2 = System.currentTimeMillis();			
-			notifyWorklistDataEntryAvailable();
-		}	
 	}
 }
