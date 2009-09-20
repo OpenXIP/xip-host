@@ -71,12 +71,12 @@ public class GridRetrieve implements Runnable {
 		File inputDir = File.createTempFile("DICOM-XIPHOST", null, importDir);			
 		importDir = inputDir;		
 		inputDir.delete();								
-		try {
+		/*try {
 			System.err.println(ObjectSerializer.toString(cqlQuery, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 		} catch (SerializationException e) {			
 			e.printStackTrace();
-		}		
+		}*/		
 		try{						
 			if(location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 				dicomHelper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());				

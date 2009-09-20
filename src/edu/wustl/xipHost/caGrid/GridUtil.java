@@ -29,6 +29,7 @@ import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
+import gov.nih.nci.ivi.helper.NCIADataServiceHelper;
 
 public class GridUtil {
 	Properties prop = new Properties();
@@ -113,6 +114,14 @@ public class GridUtil {
 		}		
 	}
 	
+	public static CQLQuery convertToCQLWithNCIAHelper(AttributeList criteriaList){
+		if(criteriaList == null){
+			return null;
+		}
+		NCIADataServiceHelper nciaHelper = new NCIADataServiceHelper();
+		CQLQuery cql = nciaHelper.makeCQLQueryFromDICOMAttributes(criteriaList);
+		return cql;
+	}
 	
 	/**
 	 * 
