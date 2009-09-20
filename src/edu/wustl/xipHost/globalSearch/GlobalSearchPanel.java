@@ -288,7 +288,8 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 				
 			}												
 			//2.Create arguments for runnable query(CQL, Location)			
-			CQLQuery cql = GridUtil.convertToCQLStatement(criteria);
+			GridUtil gridUtil = gridMgr.getGridUtil();
+			CQLQuery cql = gridUtil.convertToCQLStatement(criteria);
 			if(cql == null){return false;}
 			for(int i = 0 ; i < gridLocs.size(); i++){								
 				GridQuery gridQuery = new GridQuery(cql, gridLocs.get(i));				

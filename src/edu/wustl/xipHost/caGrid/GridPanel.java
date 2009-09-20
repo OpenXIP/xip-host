@@ -305,9 +305,10 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			progressBar.updateUI();	
 			setCriteriaList(criteriaPanel.getFilterList());				
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);
-			if(bln && selectedGridTypeDicomService != null){
-				CQLQuery cql = GridUtil.convertToCQLStatement(criteria);								
-				//CQLQueryResultsIterator iter = gridMgr.queryDicomData(cql, selectedGridService);
+			if(bln && selectedGridTypeDicomService != null){											
+				GridUtil gridUtil = gridMgr.getGridUtil();
+				CQLQuery cql = gridUtil.convertToCQLStatement(criteria);	
+				//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);				
 				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService);				
 				gridQuery.addGridSearchListener(this);
 				Thread t = new Thread(gridQuery); 					
