@@ -68,7 +68,7 @@ public class GridUtil {
 		}		 
 	}
 		
-	public static CQLQuery convertToCQLStatement(AttributeList criteriaList){
+	public CQLQuery convertToCQLStatement(AttributeList criteriaList){
 		if(criteriaList == null){
 			return null;
 		}
@@ -221,6 +221,6 @@ public class GridUtil {
 		Attribute a = new UniqueIdentifierAttribute(TagFromName.SeriesInstanceUID);        
 		a.addValue("1.3.6.1.4.1.9328.50.1.9772");
         attList.put(TagFromName.SeriesInstanceUID, a);  
-		GridUtil.convertToCQLStatement(attList);
+		test.convertToCQLStatement(attList);
 	}		
 }
