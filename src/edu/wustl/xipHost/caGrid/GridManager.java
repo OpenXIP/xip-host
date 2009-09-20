@@ -30,7 +30,6 @@ public interface GridManager {
 	 * @throws FileNotFoundException
 	 */
 	public abstract boolean storeGridLocations(List<GridLocation> locations, File file) throws FileNotFoundException;
-	public abstract SearchResult query(CQLQuery query, GridLocation location) throws MalformedURIException, RemoteException, ConnectException;
 	public abstract List<GridLocation> getGridLocations();
 	public abstract List<GridLocation> getGridTypeDicomLocations();
 	public abstract List<GridLocation> getGridTypeAimLocations();

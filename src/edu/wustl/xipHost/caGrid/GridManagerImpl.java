@@ -105,49 +105,6 @@ public class GridManagerImpl implements GridManager {
 		}
 		return true;
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see edu.wustl.xipHost.caGrid.GridManager#query(gov.nih.nci.cagrid.cqlquery.CQLQuery, edu.wustl.xipHost.caGrid.GridLocation)
-	 */
-	public SearchResult query(CQLQuery query, GridLocation location) throws MalformedURIException, RemoteException, ConnectException{		
-		DataServiceClient dicomClient = null;
-		NCIACoreServiceClient nciaClient = null;
-		CQLQueryResultsIterator iter;		
-		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
-			dicomClient = new DataServiceClient(location.getAddress());			
-		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
-			nciaClient = new NCIACoreServiceClient(location.getAddress());
-		}else{
-			return null;
-		}
-		final CQLQuery fcqlq = query;		
-		CQLQueryResults results = null;
-		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
-			results = dicomClient.query(fcqlq);
-		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
-			results = nciaClient.query(fcqlq);
-		}						
-        iter = new CQLQueryResultsIterator(results);        
-        
-        /*int ii = 0;
-		while (iter.hasNext()) {
-			System.out.println(ii++);
-			java.lang.Object obj = iter.next();
-			if (obj == null) {
-				System.out.println("something not right.  obj is null");
-				continue;
-			}
-			Patient patient = Patient.class.cast(obj);						
-			System.out.println("Patient Id: " + patient.getPatientId());							
-			System.out.println("Patient name: " + patient.getPatientName());
-		}*/
-        
-        
-        
-        SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	        
-        return result;			
-	}	
 		
 	/* (non-Javadoc)
 	 * @see edu.wustl.xipHost.caGrid.GridManager#getGridLocations()
