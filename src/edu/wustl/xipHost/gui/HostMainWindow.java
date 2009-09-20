@@ -83,7 +83,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         //Add tabs        
         ImageIcon icon = null;
         tabPaneCenter.addTab("AVT AD", icon, avtPanel, null);                
-        tabPaneCenter.addTab("caGrid OSU", icon, gridPanel, null);	   
+        tabPaneCenter.addTab("NBIA", icon, gridPanel, null);	   
         tabPaneCenter.addTab("PACS", icon, dicomPanel, null);	   
         tabPaneCenter.addTab("GlobalSearch", icon, globalSearchPanel, null);        
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
