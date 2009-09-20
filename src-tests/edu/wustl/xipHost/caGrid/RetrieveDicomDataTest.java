@@ -17,7 +17,6 @@ import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
 import junit.framework.TestCase;
 
 public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListener{
-	GridManager gridMgr;
 	GridLocation gridLoc;
 	CQLQuery cqlQuery = null;
 	BasicDicomParser2 parser;
@@ -25,7 +24,6 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		gridMgr = new GridManagerImpl();
 		gridLoc = new GridLocation("http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University");
 		parser = new BasicDicomParser2();
 		importDir = new File("./test-content/TmpXIP_Test");
