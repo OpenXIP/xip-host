@@ -23,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.caGrid.CQLTargetName;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
@@ -289,7 +290,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 			}												
 			//2.Create arguments for runnable query(CQL, Location)			
 			GridUtil gridUtil = gridMgr.getGridUtil();
-			CQLQuery cql = gridUtil.convertToCQLStatement(criteria);
+			CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.SERIES);
 			if(cql == null){return false;}
 			for(int i = 0 ; i < gridLocs.size(); i++){								
 				GridQuery gridQuery = new GridQuery(cql, gridLocs.get(i));				
