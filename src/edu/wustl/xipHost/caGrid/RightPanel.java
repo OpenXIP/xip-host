@@ -36,8 +36,8 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
  * Creates RightPanel fo caGridDiscoveryPanel
  */
 public class RightPanel extends JPanel {	
-	//GridJTreePanel gridJTree = new GridJTreePanel();
-	SearchResultTree gridJTree;	
+	//SearchResultTree gridJTree;	
+	SearchResultTreeGrid gridJTree;
 	JScrollPane treeView;
     JCheckBox cbxAnnot;
     DefaultComboBoxModel comboModel;	
@@ -56,7 +56,8 @@ public class RightPanel extends JPanel {
 	
 	public RightPanel(){		
 		setBackground(xipColor);
-		gridJTree = new SearchResultTree();			    
+		//gridJTree = new SearchResultTree();			    
+		gridJTree = new SearchResultTreeGrid();
 		treeView = new JScrollPane(gridJTree);
 		cbxAnnot = new JCheckBox("with annotations", true);
 		comboModel = new DefaultComboBoxModel();
@@ -75,8 +76,7 @@ public class RightPanel extends JPanel {
 		btnRetrieve.setFocusable(true);
 		btnRetrieve.setEnabled(false);		
 		btnRetrieve.setFont(font_1);
-		btnRetrieve.setBackground(Color.GRAY);
-		//btnRetrieve.setForeground(Color.BLACK);
+		btnRetrieve.setBackground(Color.GRAY);		
 		btnRetrieve.setPreferredSize(new Dimension(115, 25));
 		cbxAnnot.setFont(font_1);
 		cbxAnnot.setEnabled(false);		
@@ -100,7 +100,7 @@ public class RightPanel extends JPanel {
 		buildLayout();		
 	}
 			
-	public SearchResultTree getGridJTreePanel(){
+	public SearchResultTreeGrid getGridJTreePanel(){
 		return gridJTree;
 	}		
 	
