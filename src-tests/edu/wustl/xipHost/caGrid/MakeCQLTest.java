@@ -42,7 +42,7 @@ public class MakeCQLTest extends TestCase {
 			e.printStackTrace(System.err);			
 		}
 		//CQLQuery cql = nciaHelper.makeCQLQueryFromDICOMAttributes(attList);
-		CQLQuery cql = gridUtil.convertToCQLStatement(attList);
+		CQLQuery cql = gridUtil.convertToCQLStatement(attList, CQLTargetName.SERIES);
 		/*try {
 			System.err.println(ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 		} catch (SerializationException e) {			
