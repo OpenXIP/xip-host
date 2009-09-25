@@ -43,7 +43,7 @@ public class StoreAimObjectsTest extends TestCase {
 		Uuid objUUID = new Uuid();
 		objUUID.setUuid(UUID.randomUUID().toString());
 		objLoc.setUuid(objUUID);
-		File file = new File("./src-tests/edu/wustl/xipHost/avt/0022FollowupA.xml");
+		File file = new File("./test-content/AIM_rv9_Test/0022FollowupA.xml");
 		String uri = file.toURI().toURL().toExternalForm();
 		objLoc.setUri(uri);
 		objLocs.add(objLoc);
