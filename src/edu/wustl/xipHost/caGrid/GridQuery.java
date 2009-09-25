@@ -9,7 +9,6 @@ import org.apache.axis.types.URI.MalformedURIException;
 import javax.xml.namespace.QName;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
-
 import edu.northwestern.radiology.aim.Series;
 import edu.northwestern.radiology.aim.Study;
 import edu.wustl.xipHost.caGrid.GridLocation;
@@ -26,26 +25,23 @@ import gov.nih.nci.ncia.domain.Patient;
  *
  */
 public class GridQuery implements Runnable {
-	GridManager gridMgr;
 	CQLQuery cqlQuery;
 	GridLocation gridLoc;
 	
 	public GridQuery(CQLQuery cql, GridLocation gridLocation){
 		cqlQuery = cql;
 		gridLoc = gridLocation;
-		gridMgr = GridManagerFactory.getInstance();
 	}
 		
 	SearchResult searchResult;
 	public void run() {
 		try {
-			/*try {
+			try {
 				System.err.println(ObjectSerializer.toString(cqlQuery, 
 						new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 			} catch (SerializationException e) {			
 				e.printStackTrace();
-			}		
-			System.out.println(gridLoc.getAddress()); */
+			}		 
 			searchResult = query(cqlQuery, gridLoc);
 			fireUpdateUI();
 			//System.out.println("Grid Query number of studies: " + dicomSearchResult.getStudies().size());			
@@ -86,7 +82,7 @@ public class GridQuery implements Runnable {
 			results = nciaClient.query(fcqlq);
 		}						
         iter = new CQLQueryResultsIterator(results);        
-        
+        /*
         int ii = 0;
 		while (iter.hasNext()) {
 			System.out.println(ii++);
@@ -94,15 +90,23 @@ public class GridQuery implements Runnable {
 			if (obj == null) {
 				System.out.println("something not right.  obj is null");
 				continue;
-			}
-			//gov.nih.nci.ncia.domain.Patient patient = gov.nih.nci.ncia.domain.Patient.class.cast(obj);	
-			gov.nih.nci.ncia.domain.Series series = gov.nih.nci.ncia.domain.Series.class.cast(obj);
-			//System.out.println("Patient Id: " + patient.getPatientId());							
-			//System.out.println("Patient name: " + patient.getPatientName());
-			System.out.println("SeriesInstanceUID: " + series.getSeriesInstanceUID());							
-		}
-                
-        SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	        
+			}				
+			if(obj instanceof gov.nih.nci.ncia.domain.Patient){
+				gov.nih.nci.ncia.domain.Patient patient = gov.nih.nci.ncia.domain.Patient.class.cast(obj);
+				System.out.println("Patient Id: " + patient.getPatientId());							
+				System.out.println("Patient name: " + patient.getPatientName());
+			}else if(obj instanceof gov.nih.nci.ncia.domain.Study){
+				//gov.nih.nci.ncia.domain.Study study = gov.nih.nci.ncia.domain.Study.class.cast(obj);
+				//System.out.println("studyInstanceUID: " + study.getStudyInstanceUID());
+				//System.out.println("Study description: " + study.getStudyDescription());
+			}else if(obj instanceof gov.nih.nci.ncia.domain.Series){
+				//gov.nih.nci.ncia.domain.Series series = gov.nih.nci.ncia.domain.Series.class.cast(obj);			
+				//System.out.println("SeriesInstanceUID: " + series.getSeriesInstanceUID());				
+			}			
+		} 
+		*/               
+        //SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	        
+        SearchResult result = GridUtil.convertNCIACQLQueryResultsIteratorToSearchResult(iter, location);
         return result;			
 	}	
 	
