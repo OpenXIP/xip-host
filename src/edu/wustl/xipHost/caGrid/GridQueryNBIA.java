@@ -36,12 +36,12 @@ public class GridQueryNBIA extends GridQuery implements Runnable {
 	SearchResult searchResult;
 	public void run() {
 		try {
-			try {
+			/*try {
 				System.err.println(ObjectSerializer.toString(cqlQuery, 
 						new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 			} catch (SerializationException e) {			
 				e.printStackTrace();
-			}		 
+			}*/		 
 			searchResult = query(cqlQuery, gridLoc, initialSearchResult, selectedObject);
 			fireUpdateUI();			
 		} catch (MalformedURIException e) {

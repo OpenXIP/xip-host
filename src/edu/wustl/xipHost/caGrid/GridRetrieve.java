@@ -11,10 +11,8 @@ import javax.xml.namespace.QName;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.ivi.dicomdataservice.client.DICOMDataServiceClient;
 import gov.nih.nci.ivi.helper.DICOMDataServiceHelper;
 import gov.nih.nci.ivi.helper.NCIADataServiceHelper;
-
 
 /**
  * @author Jaroslaw Krych
@@ -70,16 +68,19 @@ public class GridRetrieve implements Runnable {
 		List<File> dicomFiles = new ArrayList<File>();		
 		File inputDir = File.createTempFile("DICOM-XIPHOST", null, importDir);			
 		importDir = inputDir;		
-		inputDir.delete();								
-		/*try {
+		inputDir.delete();
+		if(importDir.exists() == false){
+			importDir.mkdir();
+		}
+		try {
 			System.err.println(ObjectSerializer.toString(cqlQuery, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 		} catch (SerializationException e) {			
 			e.printStackTrace();
-		}*/		
+		}		
 		try{						
 			if(location.getProtocolVersion().equalsIgnoreCase("DICOM")){
-				dicomHelper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());				
+				dicomHelper.retrieveDICOMData(cqlQuery, location.getAddress(), inputDir.getCanonicalPath());				
 			}else if(location.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
 				nciaHelper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());
 			}else{
@@ -95,7 +96,5 @@ public class GridRetrieve implements Runnable {
 			dicomFiles.add(new File(importDir + File.separator + retrievedFiles[i]));
 		}
 		return dicomFiles;
-	}
-	
-	
+	}	
 }

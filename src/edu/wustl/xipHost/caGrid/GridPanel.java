@@ -552,7 +552,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     			selectedNode = node.getUserObject();
 			     			if(selectedNode instanceof Patient){
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);
-			     				System.out.println(selectedNode.toString());
+			     				//System.out.println(selectedNode.toString());
 			     				//Retrieve studies for selected patient
 			     				rightPanel.btnRetrieve.setEnabled(false);
 			     				rightPanel.cbxAnnot.setEnabled(false);
@@ -588,7 +588,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				repaint();
 			     			}else if(selectedNode instanceof Study){
 			     				Study selectedStudy = Study.class.cast(selectedNode);
-			     				System.out.println(selectedNode.toString());
+			     				//System.out.println(selectedNode.toString());
 			     				//Retrieve studies for selected patient
 			     				rightPanel.btnRetrieve.setEnabled(false);
 			     				rightPanel.cbxAnnot.setEnabled(false);
