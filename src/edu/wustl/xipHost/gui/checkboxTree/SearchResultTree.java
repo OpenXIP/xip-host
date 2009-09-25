@@ -36,7 +36,7 @@ import edu.wustl.xipHost.dataModel.Study;
 public class SearchResultTree extends JTree {	
 
 	public DefaultMutableTreeNode rootNode;
-	DefaultTreeModel treeModel;			
+	protected DefaultTreeModel treeModel;			
 	CheckBoxTreeRenderer renderer;
 	
 	Font font = new Font("Tahoma", 0, 12);
@@ -76,7 +76,7 @@ public class SearchResultTree extends JTree {
 		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.toString());
 		for(int i = 0; i < result.getPatients().size(); i++){
 			Patient patient = result.getPatients().get(i);	
-			final String patientDesc = patient.toString();			
+			final String patientDesc = patient.toString();						
 			for(int j = 0; j < patient.getStudies().size(); j++){
 				final Study study = patient.getStudies().get(j);
 				DefaultMutableTreeNode studyNode = new DefaultMutableTreeNode(study){
@@ -135,8 +135,7 @@ public class SearchResultTree extends JTree {
 			treeModel.nodeChanged(rootNode);
 			treeModel.reload(rootNode);				
 		}
-	}
-	
+	}		
 	
 	
 	/**
