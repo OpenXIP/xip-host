@@ -6,11 +6,6 @@ package edu.wustl.xipHost.caGrid;
 import java.net.ConnectException;
 import java.rmi.RemoteException;
 import org.apache.axis.types.URI.MalformedURIException;
-import javax.xml.namespace.QName;
-import org.globus.wsrf.encoding.ObjectSerializer;
-import org.globus.wsrf.encoding.SerializationException;
-import edu.northwestern.radiology.aim.Series;
-import edu.northwestern.radiology.aim.Study;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
@@ -18,7 +13,6 @@ import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
 import gov.nih.nci.cagrid.data.client.DataServiceClient;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
-import gov.nih.nci.ncia.domain.Patient;
 
 /**
  * @author Jaroslaw Krych
@@ -35,13 +29,7 @@ public class GridQuery implements Runnable {
 		
 	SearchResult searchResult;
 	public void run() {
-		try {
-			try {
-				System.err.println(ObjectSerializer.toString(cqlQuery, 
-						new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
-			} catch (SerializationException e) {			
-				e.printStackTrace();
-			}		 
+		try {		 
 			searchResult = query(cqlQuery, gridLoc);
 			fireUpdateUI();
 			//System.out.println("Grid Query number of studies: " + dicomSearchResult.getStudies().size());			
