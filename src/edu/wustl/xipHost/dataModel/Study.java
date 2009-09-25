@@ -41,7 +41,13 @@ public class Study extends org.nema.dicom.wg23.Patient {
 	}
 	
 	public String toString(){		
-		return new String("Study:" + this.studyDate + " " + this.studyID + " " + this.studyDesc);
+		String studyId;
+		if(this.studyID == ""){
+			studyId = this.studyInstanceUID;
+		}else{
+			studyId = this.studyID;
+		}
+		return new String("Study:" + this.studyDate + " " + studyId + " " + this.studyDesc);
 	}
 	
 	public void addSeries(Series series){
