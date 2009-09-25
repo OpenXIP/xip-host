@@ -68,14 +68,19 @@ public class GridUtil {
 		}		 
 	}
 		
-	public CQLQuery convertToCQLStatement(AttributeList criteriaList){
-		if(criteriaList == null){
+	public CQLQuery convertToCQLStatement(AttributeList criteriaList, CQLTargetName value){
+		if(criteriaList == null || value == null){
 			return null;
 		}
 		HashMap<String, String> query = new HashMap<String, String>();
-		query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
-		CQLQuery cqlq = null;
-		
+		if(value == CQLTargetName.PATIENT){
+			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Patient.class.getCanonicalName());
+		}else if( value == CQLTargetName.STUDY){
+			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Study.class.getCanonicalName());
+		}else{
+			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
+		}				
+		CQLQuery cqlq = null;		
 		DicomDictionary dictionary = AttributeList.getDictionary();
 		Iterator iter = dictionary.getTagIterator();		
 		while(iter.hasNext()){
@@ -88,8 +93,7 @@ public class GridUtil {
 				if(attValue.equalsIgnoreCase("*")){attValue = "";}
 				query.put(nciaAttName, attValue);
 			}							
-		}						
-		
+		}								
 		try {
 			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap());
 			if (query.isEmpty()) {					
@@ -214,6 +218,109 @@ public class GridUtil {
 		return resultGrid;
 	}		
 	
+	public static SearchResult convertNCIACQLQueryResultsIteratorToSearchResult(CQLQueryResultsIterator iter, GridLocation location){				
+		SearchResult resultGrid = new SearchResult(location.getShortName());
+		Patient patientFromGrid = null;
+		Study studyFromGrid = null;
+		Series seriesFromGrid = null;
+		while (iter.hasNext()) {			
+			java.lang.Object obj = iter.next();
+			if (obj == null) {
+				System.out.println("something not right.  obj is null");
+				continue;
+			}
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/mm/yyyy");
+			if(obj instanceof gov.nih.nci.ncia.domain.Patient){
+				gov.nih.nci.ncia.domain.Patient patientGrid = gov.nih.nci.ncia.domain.Patient.class.cast(obj);			
+				String patientName = patientGrid.getPatientName(); if(patientName == null){patientName = "";}
+				String patientID = patientGrid.getPatientId(); if(patientID == null){patientID = "";}
+				Calendar patientBirthDate = patientGrid.getPatientBirthDate();				
+				String strPatientBirthDate = null;
+				if(patientBirthDate != null){
+					strPatientBirthDate = sdf.format(patientBirthDate.getTime());
+					if(strPatientBirthDate == null){strPatientBirthDate = "";}
+		        }else{
+		        	strPatientBirthDate = "";
+		        }
+				if(resultGrid.contains(patientID) == false){
+					patientFromGrid = new Patient(patientName, patientID, strPatientBirthDate);
+					resultGrid.addPatient(patientFromGrid);
+				}
+			}else if (obj instanceof gov.nih.nci.ncia.domain.Study){
+				gov.nih.nci.ncia.domain.Study studyGrid = gov.nih.nci.ncia.domain.Study.class.cast(obj);
+				Calendar calendar = studyGrid.getStudyDate(); 			
+				String studyDate = null;
+				if(calendar != null){
+		        	studyDate = sdf.format(calendar.getTime());if(studyDate == null){studyDate = "";}
+		        }else{
+		        	studyDate = "";
+		        }
+				String studyID = studyGrid.getStudyId();if(studyID == null){studyID = "";}	
+				String studyDesc = studyGrid.getStudyDescription();if(studyDesc == null){studyDesc = "";}
+				String studyInstanceUID = studyGrid.getStudyInstanceUID();if(studyInstanceUID == null){studyInstanceUID = "";}				
+				studyFromGrid = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
+				System.out.println(studyFromGrid.toString());
+				//patientFromGrid.addStudy(studyFromGrid);
+				
+			}else if (obj instanceof Series){
+				
+			}else{
+				
+			}
+					
+		}		
+		return resultGrid;
+	}		
+	
+	public static SearchResult convertNCIACQLQueryResultsIteratorToSearchResult(CQLQueryResultsIterator iter, GridLocation location, SearchResult initialSearchResult, Object selectedObject){
+		SearchResult resultGrid = initialSearchResult;
+		Patient patientFromGrid = null;
+		Study studyFromGrid = null;
+		Series seriesFromGrid = null;
+		while (iter.hasNext()) {			
+			java.lang.Object obj = iter.next();
+			if (obj == null) {
+				System.out.println("something not right.  obj is null");
+				continue;
+			}
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/mm/yyyy");
+			if(selectedObject instanceof Patient){
+				patientFromGrid = Patient.class.cast(selectedObject);
+				gov.nih.nci.ncia.domain.Study studyGrid = gov.nih.nci.ncia.domain.Study.class.cast(obj);				
+				Calendar calendar = studyGrid.getStudyDate(); 			
+				String studyDate = null;
+				if(calendar != null){
+		        	studyDate = sdf.format(calendar.getTime());if(studyDate == null){studyDate = "";}
+		        }else{
+		        	studyDate = "";
+		        }
+				String studyID = studyGrid.getStudyId();if(studyID == null){studyID = "";}	
+				String studyDesc = studyGrid.getStudyDescription();if(studyDesc == null){studyDesc = "";}
+				String studyInstanceUID = studyGrid.getStudyInstanceUID();if(studyInstanceUID == null){studyInstanceUID = "";}				
+				studyFromGrid = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
+				System.out.println(studyFromGrid.toString());
+				if(patientFromGrid.contains(studyInstanceUID) == false){
+					studyFromGrid = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
+					patientFromGrid.addStudy(studyFromGrid);
+				}
+			} else if(selectedObject instanceof Study){
+				studyFromGrid = Study.class.cast(selectedObject);
+				gov.nih.nci.ncia.domain.Series seriesGrid = gov.nih.nci.ncia.domain.Series.class.cast(obj);
+				String seriesNumber = seriesGrid.getSeriesNumber().toString();if(seriesNumber == null){seriesNumber = "";}
+				String modality = seriesGrid.getModality();if(modality == null){modality = "";}
+				String seriesDesc = seriesGrid.getSeriesDescription();if(seriesDesc == null){seriesDesc = "";}						
+				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}
+				
+				if(studyFromGrid.contains(seriesInstanceUID) == false){
+					seriesFromGrid = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);	
+					studyFromGrid.addSeries(seriesFromGrid);
+				}
+			}
+		}
+		return resultGrid;
+	}
+	
+	
 	public static void main(String[] args) throws IOException, DicomException{
 		GridUtil test = new GridUtil();
 		test.loadNCIAModelMap(new FileInputStream("./resources/NCIAModelMap.properties"));		
@@ -221,6 +328,6 @@ public class GridUtil {
 		Attribute a = new UniqueIdentifierAttribute(TagFromName.SeriesInstanceUID);        
 		a.addValue("1.3.6.1.4.1.9328.50.1.9772");
         attList.put(TagFromName.SeriesInstanceUID, a);  
-		test.convertToCQLStatement(attList);
+		test.convertToCQLStatement(attList, CQLTargetName.SERIES);
 	}		
 }
