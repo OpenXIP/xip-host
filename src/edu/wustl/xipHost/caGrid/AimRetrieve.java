@@ -54,6 +54,9 @@ public class AimRetrieve implements Runnable{
 		File inputDir = File.createTempFile("AIM-XIPHOST", null, importDir);			
 		importDir = inputDir;		
 		inputDir.delete();
+		if(importDir.exists() == false){
+			importDir.mkdir();
+		}
 		if(cqlQuery == null){return null;}				
 		List<File> files = new ArrayList<File>();
 		AIMDataServiceHelper helper = new AIMDataServiceHelper();
