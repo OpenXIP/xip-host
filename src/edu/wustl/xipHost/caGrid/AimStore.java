@@ -9,13 +9,15 @@ import java.util.List;
 import org.nema.dicom.wg23.ObjectLocator;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
 import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
+import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
 /**
  * @author Jaroslaw Krych
  *
  */
 public class AimStore implements Runnable{
-	AIMDataServiceHelper helper = new AIMDataServiceHelper();	
+	//AIMDataServiceHelper helper = new AIMDataServiceHelper();	
+	AIMTCGADataServiceHelper tcgaAIMHelper = new AIMTCGADataServiceHelper();
 	String aimServiceURL;	
 	List<ObjectLocator> aimObjectLocs;
 	
@@ -32,7 +34,8 @@ public class AimStore implements Runnable{
 			for(int i = 0; i < aimObjectLocs.size(); i++){								
 				URI uri = new URI(aimObjectLocs.get(i).getUri());
 				File file = new File(uri);
-				helper.submitAnnotations(file.getCanonicalPath(), aimServiceURL);
+				//helper.submitAnnotations(file.getCanonicalPath(), aimServiceURL);
+				tcgaAIMHelper.submitAnnotations(file.getCanonicalPath(), aimServiceURL);
 			}			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
