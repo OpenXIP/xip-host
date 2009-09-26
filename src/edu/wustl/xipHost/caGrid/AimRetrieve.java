@@ -3,8 +3,11 @@
  */
 package edu.wustl.xipHost.caGrid;
 
+import edu.emory.cci.aim.stubs.service.AIMTCGADataService;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
+import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,16 +62,19 @@ public class AimRetrieve implements Runnable{
 		}
 		if(cqlQuery == null){return null;}				
 		List<File> files = new ArrayList<File>();
-		AIMDataServiceHelper helper = new AIMDataServiceHelper();
+		//AIMDataServiceHelper helper = new AIMDataServiceHelper();
+		AIMTCGADataServiceHelper aimHelper = new AIMTCGADataServiceHelper();
 		try {			
 			/*System.err.println(ObjectSerializer.toString(cqlQuery, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));	*/
-			helper.retrieveAnnotations(cqlQuery, gridLoc.getAddress(), importDir.getCanonicalPath());			
+			//helper.retrieveAnnotations(cqlQuery, gridLoc.getAddress(), importDir.getCanonicalPath());
+			aimHelper.retrieveAnnotations(cqlQuery, gridLoc.getAddress(), importDir.getCanonicalPath());
 			File[] aims = importDir.listFiles();
 			for(int i = 0; i < aims.length; i++){
 				files.add(aims[i]);
 			}			
 		} catch (Exception e) {			
+			e.printStackTrace();
 			return null;
 		}								
 		return files;		

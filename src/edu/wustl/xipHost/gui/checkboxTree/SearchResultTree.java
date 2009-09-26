@@ -93,6 +93,7 @@ public class SearchResultTree extends JTree {
 						return study;
 					}					
 				};
+				
 				locationNode.add(studyNode);
 				for(int k = 0; k < study.getSeries().size(); k++){
 					final Series series = study.getSeries().get(k);
@@ -201,6 +202,7 @@ public class SearchResultTree extends JTree {
 	public void expandAll() {
 		expandSubTree(getPathForRow(0));
     }
+	
 	private void expandSubTree(TreePath path) {
 		expandPath(path);
 		Object node = path.getLastPathComponent();

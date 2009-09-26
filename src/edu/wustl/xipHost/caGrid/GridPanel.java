@@ -68,6 +68,7 @@ import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
 import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
+import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
 
 /**
@@ -386,8 +387,24 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 					Thread t3 = new Thread(nciaRetrieve);
 					t3.start();
 					numRetrieveThreadsStarted++;
-				}												
-			}						
+				}
+			}
+			//Retrieve AIM				
+			if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){
+				for(int i = 0; i < criteriasAim.size(); i++){
+					CQLQuery aimCQL = criteriasAim.get(i);						
+					try {
+						AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
+						aimRetrieve.addGridRetrieveListener(this);
+						Thread t2 = new Thread(aimRetrieve);
+						t2.start();
+						numRetrieveThreadsStarted++;
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}					
+				}					
+			} 								
 		}
 	}	
 	
@@ -529,7 +546,8 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			Series series = iter.next();
 			String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
 			String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();			
-			CQLQuery aimCQL = AIMDataServiceHelper.generateImageAnnotationQuery(selectedStudyInstanceUID, selectedSeriesInstanceUID, null);;
+			//CQLQuery aimCQL = AIMDataServiceHelper.generateImageAnnotationQuery(selectedStudyInstanceUID, selectedSeriesInstanceUID, null);;
+			CQLQuery aimCQL = AIMTCGADataServiceHelper.generateImageAnnotationQuery(selectedStudyInstanceUID, selectedSeriesInstanceUID, null);
 			retrieveCriterias.add(aimCQL);
 		}
 		return retrieveCriterias;
@@ -589,8 +607,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				Boolean bln = criteriaPanel.verifyCriteria(updatedCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
-			     					CQLQuery cql = gridUtil.convertToCQLStatement(updatedCriteria, CQLTargetName.STUDY);	
-			     					//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);				
+			     					CQLQuery cql = gridUtil.convertToCQLStatement(updatedCriteria, CQLTargetName.STUDY);				
 			     					GridQueryNBIA gridQuery = new GridQueryNBIA(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addGridSearchListener(l);
 			     					Thread t = new Thread(gridQuery); 					
