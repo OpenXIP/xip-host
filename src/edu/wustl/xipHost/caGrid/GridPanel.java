@@ -74,7 +74,7 @@ import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
  * @author Jaroslaw Krych
  *
  */
-public class GridPanel extends JPanel implements ActionListener, GridSearchListener, GridRetrieveListener {	
+public class GridPanel extends JPanel implements ActionListener, GridSearchListener, GridRetrieveListener, NCIARetrieveListener {	
 
 	JPanel locationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select caGRID DICOM Service Location:");		
@@ -348,15 +348,16 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 				rightPanel.btnRetrieve.setBackground(Color.GRAY);
 				rightPanel.btnRetrieve.setEnabled(false);
 				rightPanel.cbxAnnot.setEnabled(false);												
+				/*
 				for(int i = 0; i < criteriasDicom.size(); i++){
 					CQLQuery cqlQuery = criteriasDicom.get(i);
 					CQLQuery aimCQL = criteriasAim.get(i);	
 					try {
-						//Retrieve Dicom
+						//Retrieve Dicom						
 						GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
 						gridRetrieve.addGridRetrieveListener(this);						
 						Thread t1 = new Thread(gridRetrieve);
-						t1.start();
+						t1.start();						
 						numRetrieveThreadsStarted++;
 						//Retrieve AIM
 						if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){							
@@ -371,8 +372,21 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 						e1.printStackTrace();
 						//TODO
 						//Set to mumber of threads to terminate retrieve
-					}																
-				}				
+					}																				
+				}*/
+				//Retrieve DICOM from NBIA
+				Map<Series, Study> map = resultTree.getSelectedSeries();
+				Set<Series> seriesSet = map.keySet();
+				Iterator<Series> iter = seriesSet.iterator();
+				while (iter.hasNext()){
+					Series series = iter.next();
+					String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
+					NCIARetrieve nciaRetrieve = new NCIARetrieve(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
+					nciaRetrieve.addNCIARetrieveListener(this);
+					Thread t3 = new Thread(nciaRetrieve);
+					t3.start();
+					numRetrieveThreadsStarted++;
+				}												
 			}						
 		}
 	}	
@@ -658,6 +672,34 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			FileManager fileMgr = FileManagerFactory.getInstance();						
 	        fileMgr.run(files);
 		}			
+	}
+
+	@Override
+	public void importedFilesAvailable(NCIARetrieveEvent e) {
+		if(e.getSource() instanceof NCIARetrieve){
+			NCIARetrieve dicomRetrieve = (NCIARetrieve)e.getSource();
+			List<File> result = dicomRetrieve.getRetrievedFiles();
+			allRetrivedFiles.addAll(result);
+		}else if(e.getSource() instanceof AimRetrieve){
+			AimRetrieve aimRetrieve = (AimRetrieve)e.getSource();
+			List<File> result = aimRetrieve.getRetrievedFiles();
+			if(result != null){
+				allRetrivedFiles.addAll(result);
+			}
+		}		
+		numRetrieveThreadsReturned++;
+		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
+			progressBar.setString("GridRetrieve finished");
+			progressBar.setIndeterminate(false);			
+			criteriaPanel.getQueryButton().setBackground(xipBtn);
+			criteriaPanel.getQueryButton().setEnabled(true);
+			rightPanel.btnRetrieve.setEnabled(true);
+			rightPanel.btnRetrieve.setBackground(xipBtn);						
+			File[] files = new File[allRetrivedFiles.size()];
+			allRetrivedFiles.toArray(files);		
+			FileManager fileMgr = FileManagerFactory.getInstance();						
+	        fileMgr.run(files);
+		}		
 	}	
 }
 
