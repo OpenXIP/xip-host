@@ -35,9 +35,12 @@ public class DataStore implements Runnable {
 		//2. DICOM attachment objects are expected to be added to the series of the AvailableData
 		//3. When storing AIM, pairs of AIM plus DICOM segmentation objects are expected		
 		ArrayOfUUID arrayUUIDs = new ArrayOfUUID();
-		List<Uuid> listUUIDs = arrayUUIDs.getUuid();
-		ObjectDescriptor aimDesc = availableData.getObjectDescriptors().getObjectDescriptor().get(0);		
-		listUUIDs.add(aimDesc.getUuid());
+		List<Uuid> listUUIDs = arrayUUIDs.getUuid();		
+		List<ObjectDescriptor> aimDescs = availableData.getObjectDescriptors().getObjectDescriptor();
+		for(int i = 0; i < aimDescs.size(); i++){
+			ObjectDescriptor aimDesc = availableData.getObjectDescriptors().getObjectDescriptor().get(i);		
+			listUUIDs.add(aimDesc.getUuid());
+		}		
 		ObjectDescriptor dicomSegDesc;
 		if(availableData.getPatients().getPatient().get(0).getStudies().getStudy().get(0).getSeries().getSeries().get(0).getObjectDescriptors().getObjectDescriptor().size() == 0){
 		
