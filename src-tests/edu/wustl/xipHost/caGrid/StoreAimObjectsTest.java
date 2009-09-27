@@ -48,8 +48,9 @@ public class StoreAimObjectsTest extends TestCase {
 		objLoc.setUri(uri);
 		objLocs.add(objLoc);
 		AimStore aimStore = new AimStore(objLocs, null);
-		Thread t = new Thread(aimStore);
-		t.start();
+		//Thread t = new Thread(aimStore);
+		//t.start();
+		aimStore.run();
 	}
 
 }
