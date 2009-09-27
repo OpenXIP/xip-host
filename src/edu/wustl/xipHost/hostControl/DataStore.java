@@ -31,15 +31,13 @@ public class DataStore implements Runnable {
 	}
 	
 	public void run() {
-		//1. It is excpected for IA application that AIM object will is added to the top AvailableData descriptors list.
-		//2. DICOM attachemnt objects are excpected to be added to the series of the AvailableData
-		//3. When storing AIM pairs of AIM plus DICOM degmentation objects are expected
-		
+		//1. It is expected for IA application that AIM object will is added to the top AvailableData descriptors list.
+		//2. DICOM attachment objects are expected to be added to the series of the AvailableData
+		//3. When storing AIM, pairs of AIM plus DICOM segmentation objects are expected		
 		ArrayOfUUID arrayUUIDs = new ArrayOfUUID();
 		List<Uuid> listUUIDs = arrayUUIDs.getUuid();
 		ObjectDescriptor aimDesc = availableData.getObjectDescriptors().getObjectDescriptor().get(0);		
 		listUUIDs.add(aimDesc.getUuid());
-		//JK on 09/27/2009
 		ObjectDescriptor dicomSegDesc;
 		if(availableData.getPatients().getPatient().get(0).getStudies().getStudy().get(0).getSeries().getSeries().get(0).getObjectDescriptors().getObjectDescriptor().size() == 0){
 		
@@ -52,7 +50,7 @@ public class DataStore implements Runnable {
 			return;
 		}else{
 			List<ObjectLocator> objLocs = arrayOfObjectLocator.getObjectLocator();
-			boolean submitToAVT = false;
+			boolean submitToAVT = true;
 			if(submitToAVT){
 				AVTStore avtStore = new AVTStore(objLocs);
 				Thread t = new Thread(avtStore);
