@@ -65,6 +65,7 @@ public class AVTStore implements Runnable {
 	
 	boolean bln;
 	public void run() {						
+		/* used with old version of IA and AD
 		if(aimToStore != null && attachmentsToStore != null){
 				File aimFile = aimToStore.get(0);
 				File dicomFile = attachmentsToStore.get(0);			
@@ -78,6 +79,21 @@ public class AVTStore implements Runnable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+		}*/
+		if(aimToStore != null){
+			for(int i = 0; i < aimToStore.size(); i++){
+				File aimFile = aimToStore.get(i);			
+				try {				
+					ImageAnnotation imageAnnotation = AnnotationIO.loadAnnotationFromFile(aimFile);
+					AnnotationIO.saveOrUpdateAnnotation(imageAnnotation);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JDOMException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}			
 		}
 		notifyStoreResult(true);
 	}
