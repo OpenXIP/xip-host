@@ -11,6 +11,9 @@ import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -99,10 +102,28 @@ public class SearchResultTreeGrid extends SearchResultTree{
 		}
 		rootNode.add(locationNode);				
 		treeModel.nodeChanged(rootNode);
-		treeModel.reload(rootNode);					
+		treeModel.reload(rootNode);
+		expandAll();
 	}
 	
-	 
+	
+	public void expandToLast(JTree tree) {
+	    TreeModel data = tree.getModel();
+	    Object node = data.getRoot();
+
+	    if (node == null) return;
+
+	    TreePath p = new TreePath(node);
+	    while (true) {
+	         int count = data.getChildCount(node);
+	         if (count == 0) break;
+	         node = data.getChild(node, count - 1);
+	         p = p.pathByAddingChild(node);
+	    }
+	    tree.scrollPathToVisible(p);
+	}
+
+	
 	 public static void main(String[] args) {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());			
