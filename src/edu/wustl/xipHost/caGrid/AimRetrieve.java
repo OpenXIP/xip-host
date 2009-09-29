@@ -3,17 +3,24 @@
  */
 package edu.wustl.xipHost.caGrid;
 
-import edu.emory.cci.aim.stubs.service.AIMTCGADataService;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
-
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.xml.namespace.QName;
+import org.apache.axis.types.URI.MalformedURIException;
 import org.globus.wsrf.encoding.ObjectSerializer;
+import org.jdom.Document;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
+
 
 /**
  * @author Jaroslaw Krych
@@ -62,13 +69,39 @@ public class AimRetrieve implements Runnable{
 		}
 		if(cqlQuery == null){return null;}				
 		List<File> files = new ArrayList<File>();
-		//AIMDataServiceHelper helper = new AIMDataServiceHelper();
 		AIMTCGADataServiceHelper aimHelper = new AIMTCGADataServiceHelper();
+		
 		try {			
-			/*System.err.println(ObjectSerializer.toString(cqlQuery, 
-					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));	*/
-			//helper.retrieveAnnotations(cqlQuery, gridLoc.getAddress(), importDir.getCanonicalPath());
-			aimHelper.retrieveAnnotations(cqlQuery, gridLoc.getAddress(), importDir.getCanonicalPath());
+			System.err.println(ObjectSerializer.toString(cqlQuery, 
+					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));	
+			//aimHelper.retrieveAnnotations(cqlQuery, gridLoc.getAddress(), importDir.getCanonicalPath());
+			try {
+				Iterator iter2 = aimHelper.queryAnnotations(cqlQuery, gridLoc.getAddress());
+				int ii = 0;
+				while (iter2.hasNext()) {
+					String xml = (String)iter2.next();
+					File aimFile = File.createTempFile("AIM-RETRIEVED-AIME-", ".xml", importDir);
+					FileOutputStream outStream = new FileOutputStream(aimFile);
+					XMLOutputter outToXMLFile = new XMLOutputter();
+					SAXBuilder builder = new SAXBuilder();
+					Document document;
+					InputStream is = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+					document = builder.build(is);
+					outToXMLFile.output(document, outStream);
+			    	outStream.flush();
+			    	outStream.close();   
+					System.out.println("xml: " + xml);
+					
+					System.out.println("Result " + ++ii + ". ");
+				}
+				
+			} catch (MalformedURIException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			File[] aims = importDir.listFiles();
 			for(int i = 0; i < aims.length; i++){
 				files.add(aims[i]);
@@ -76,7 +109,8 @@ public class AimRetrieve implements Runnable{
 		} catch (Exception e) {			
 			e.printStackTrace();
 			return null;
-		}								
+		}
+										
 		return files;		
 	}		
 	
