@@ -27,7 +27,7 @@ public class GridLocation {
 				new URL(address);
 			} catch (MalformedURLException e) {							
 				throw new IllegalArgumentException("Invalid Grid address: " + address);		
-			}			
+			}	
 		}
 		//Verify that parameters except address are not missing, are valid, are not empty strings or do not start from white space
 		if(type != null 

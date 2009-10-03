@@ -90,9 +90,9 @@ public class AimRetrieve implements Runnable{
 					outToXMLFile.output(document, outStream);
 			    	outStream.flush();
 			    	outStream.close();   
-					System.out.println("xml: " + xml);
-					
-					System.out.println("Result " + ++ii + ". ");
+					//System.out.println("xml: " + xml);					
+					//System.out.println("AIM result " + ++ii + ". ");
+					System.out.println(aimFile.getName());
 				}
 				
 			} catch (MalformedURIException e1) {
