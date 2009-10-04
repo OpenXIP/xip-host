@@ -298,7 +298,6 @@ public class GridUtil {
 				String studyDesc = studyGrid.getStudyDescription();if(studyDesc == null){studyDesc = "";}
 				String studyInstanceUID = studyGrid.getStudyInstanceUID();if(studyInstanceUID == null){studyInstanceUID = "";}				
 				studyFromGrid = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
-				System.out.println(studyFromGrid.toString());
 				if(patientFromGrid.contains(studyInstanceUID) == false){
 					studyFromGrid = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
 					patientFromGrid.addStudy(studyFromGrid);
@@ -309,8 +308,7 @@ public class GridUtil {
 				String seriesNumber = seriesGrid.getSeriesNumber().toString();if(seriesNumber == null){seriesNumber = "";}
 				String modality = seriesGrid.getModality();if(modality == null){modality = "";}
 				String seriesDesc = seriesGrid.getSeriesDescription();if(seriesDesc == null){seriesDesc = "";}						
-				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}
-				
+				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}				
 				if(studyFromGrid.contains(seriesInstanceUID) == false){
 					seriesFromGrid = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);	
 					studyFromGrid.addSeries(seriesFromGrid);

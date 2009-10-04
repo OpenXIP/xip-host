@@ -6,6 +6,8 @@ package edu.wustl.xipHost.caGrid;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -60,7 +62,7 @@ public class SearchResultTreeGrid extends SearchResultTree{
 				public Object getUserObject(){
 					return patient;
 				}					
-			};
+			};			
 			for(int j = 0; j < patient.getStudies().size(); j++){
 				final Study study = patient.getStudies().get(j);
 				DefaultMutableTreeNode studyNode = new DefaultMutableTreeNode(study){

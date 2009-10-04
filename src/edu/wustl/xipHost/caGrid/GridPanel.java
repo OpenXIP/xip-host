@@ -47,6 +47,7 @@ import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.CodeStringAttribute;
+import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.ShortStringAttribute;
 import com.pixelmed.dicom.SpecificCharacterSet;
@@ -588,6 +589,8 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     		if (node == null) return;		 
 			     		if (!node.isRoot()) {																	
 			     			selectedNode = node.getUserObject();
+			     			AttributeList initialCriteria = criteriaPanel.getFilterList();
+		     				AttributeList updatedCriteria = initialCriteria;
 			     			if(selectedNode instanceof Patient){
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);
 			     				//System.out.println(selectedNode.toString());
@@ -597,19 +600,23 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			     				progressBar.setString("Processing search request ...");
 			     				progressBar.setIndeterminate(true);
-			     				progressBar.updateUI();	
-			     				AttributeList initialCriteria = criteriaPanel.getFilterList();
-			     				AttributeList updatedCriteria = initialCriteria;
+			     				progressBar.updateUI();				     				
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
-			     				{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+			     				//Clear previous study criteria
 			     				try {
-									a.addValue(selectedPatient.getPatientID());
+			     					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+			     						a.addValue("");
+			     						updatedCriteria.put(t,a);}
+			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+			     						a.addValue(selectedPatient.getPatientID());
+			     						updatedCriteria.put(t,a); }
 								} catch (DicomException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
-								} updatedCriteria.put(t,a); }
-			     				setCriteriaList(updatedCriteria);				
+								} 
+								
+			     				//setCriteriaList(updatedCriteria);				
 			     				Boolean bln = criteriaPanel.verifyCriteria(updatedCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
@@ -633,18 +640,25 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				progressBar.setString("Processing search request ...");
 			     				progressBar.setIndeterminate(true);
 			     				progressBar.updateUI();	
-			     				AttributeList initialCriteria = criteriaPanel.getFilterList();
-			     				AttributeList updatedCriteria = initialCriteria;
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
-			     				{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
 			     				try {
-									a.addValue(selectedStudy.getStudyInstanceUID());
+			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+			     						a.addValue("");
+			     						updatedCriteria.put(t,a);}			     					 			     									     						
+			     					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+				     				try {
+										a.addValue(selectedStudy.getStudyInstanceUID());
+									} catch (DicomException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									} 
+									updatedCriteria.put(t,a); }
 								} catch (DicomException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
-								} updatedCriteria.put(t,a); }
-			     				setCriteriaList(updatedCriteria);				
+								} 
+			     				//setCriteriaList(updatedCriteria);				
 			     				Boolean bln = criteriaPanel.verifyCriteria(updatedCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
