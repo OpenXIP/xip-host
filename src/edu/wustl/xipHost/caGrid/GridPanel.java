@@ -324,14 +324,29 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
-			progressBar.updateUI();	
+			progressBar.updateUI();				
 			setCriteriaList(criteriaPanel.getFilterList());				
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);
 			if(bln && selectedGridTypeDicomService != null){											
 				GridUtil gridUtil = gridMgr.getGridUtil();
 				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);	
-				//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);				
-				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService);				
+				
+				DicomDictionary dictionary = AttributeList.getDictionary();
+			    Iterator iter = dictionary.getTagIterator();        
+			    String strAtt = null;
+			    String attValue = null;
+			    while(iter.hasNext()){
+			    	AttributeTag attTag  = (AttributeTag)iter.next();					    	
+			    	strAtt = attTag.toString();									
+					attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);
+					if(!attValue.isEmpty()){
+						System.out.println("GridPanel l. 344 " + strAtt + " " + attValue);				
+					}
+			    }	  
+				
+				
+				
+				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, null, null);				
 				gridQuery.addGridSearchListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();									
@@ -453,10 +468,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 		if(e.getSource().getClass() == GridQuery.class){
 			GridQuery gridQuery = (GridQuery)e.getSource();
 			result = gridQuery.getSearchResult();			
-		}else if(e.getSource().getClass() == GridQueryNBIA.class){
-			GridQueryNBIA gridQuery = (GridQueryNBIA)e.getSource();
-			result = gridQuery.getSearchResult();			
-		}			
+		}		
 		if(selectedNode instanceof Patient){
 			rightPanel.getGridJTreePanel().updateNodes(result);
 		}else{
@@ -621,7 +633,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
 			     					CQLQuery cql = gridUtil.convertToCQLStatement(updatedCriteria, CQLTargetName.STUDY);				
-			     					GridQueryNBIA gridQuery = new GridQueryNBIA(cql, selectedGridTypeDicomService, result, selectedNode);
+			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addGridSearchListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
@@ -664,7 +676,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
 			     					CQLQuery cql = gridUtil.convertToCQLStatement(updatedCriteria, CQLTargetName.SERIES);	
 			     					//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);				
-			     					GridQueryNBIA gridQuery = new GridQueryNBIA(cql, selectedGridTypeDicomService, result, selectedNode);
+			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addGridSearchListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									

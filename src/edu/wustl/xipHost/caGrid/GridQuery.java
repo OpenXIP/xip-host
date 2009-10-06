@@ -19,20 +19,29 @@ import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
  *
  */
 public class GridQuery implements Runnable {
-	CQLQuery cqlQuery;
-	GridLocation gridLoc;
+	CQLQuery cql;
+	GridLocation gridLocation;
+	SearchResult previousSearchResult;
+	Object queriedObject;
 	
-	public GridQuery(CQLQuery cql, GridLocation gridLocation){
-		cqlQuery = cql;
-		gridLoc = gridLocation;
+	/**
+	 * @param cql - CQL query statement
+	 * @param gridLocation - GRID location e.g. caGRID or NBIA 
+	 * @param previousSearchResult - null with first query call 
+	 * @param queriedObject - null with first query call
+	 */
+	public GridQuery(CQLQuery cql, GridLocation gridLocation, SearchResult previousSearchResult, Object queriedObject){
+		this.cql = cql;
+		this.gridLocation = gridLocation;
+		this.previousSearchResult = previousSearchResult;
+		this.queriedObject = queriedObject;
 	}
 		
 	SearchResult searchResult;
 	public void run() {
 		try {		 
-			searchResult = query(cqlQuery, gridLoc);
-			fireUpdateUI();
-			//System.out.println("Grid Query number of studies: " + dicomSearchResult.getStudies().size());			
+			searchResult = query(cql, gridLocation, previousSearchResult, queriedObject);
+			fireUpdateUI();			
 		} catch (MalformedURIException e) {
 			searchResult = null;
 			fireUpdateUI();
@@ -48,12 +57,18 @@ public class GridQuery implements Runnable {
 		}		
 	}
 	
-	/* (non-Javadoc)
-	 * @see edu.wustl.xipHost.caGrid.GridManager#query(gov.nih.nci.cagrid.cqlquery.CQLQuery, edu.wustl.xipHost.caGrid.GridLocation)
+	DataServiceClient dicomClient = null;
+	NCIACoreServiceClient nciaClient = null;
+
+	/**
+	 * Method used to perform progressive GRID query. 
+	 * @param cql - CQL query statement
+	 * @param gridLocation - GRID location e.g. caGRID or NBIA 
+	 * @param previousSearchResult - null with first query call 
+	 * @param queriedObject - null with first query call
+	 * @return SearchResult object, that becomes previousSearchResult in subsequent query calls.
 	 */
-	public SearchResult query(CQLQuery query, GridLocation location) throws MalformedURIException, RemoteException, ConnectException{		
-		DataServiceClient dicomClient = null;
-		NCIACoreServiceClient nciaClient = null;
+	public SearchResult query(CQLQuery query, GridLocation location, SearchResult previousSearchResult, Object queriedObject) throws MalformedURIException, RemoteException, ConnectException{			
 		CQLQueryResultsIterator iter;		
 		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 			dicomClient = new DataServiceClient(location.getAddress());			
@@ -70,35 +85,10 @@ public class GridQuery implements Runnable {
 			results = nciaClient.query(fcqlq);
 		}						
         iter = new CQLQueryResultsIterator(results);        
-        /*
-        int ii = 0;
-		while (iter.hasNext()) {
-			System.out.println(ii++);
-			java.lang.Object obj = iter.next();
-			if (obj == null) {
-				System.out.println("something not right.  obj is null");
-				continue;
-			}				
-			if(obj instanceof gov.nih.nci.ncia.domain.Patient){
-				gov.nih.nci.ncia.domain.Patient patient = gov.nih.nci.ncia.domain.Patient.class.cast(obj);
-				System.out.println("Patient Id: " + patient.getPatientId());							
-				System.out.println("Patient name: " + patient.getPatientName());
-			}else if(obj instanceof gov.nih.nci.ncia.domain.Study){
-				//gov.nih.nci.ncia.domain.Study study = gov.nih.nci.ncia.domain.Study.class.cast(obj);
-				//System.out.println("studyInstanceUID: " + study.getStudyInstanceUID());
-				//System.out.println("Study description: " + study.getStudyDescription());
-			}else if(obj instanceof gov.nih.nci.ncia.domain.Series){
-				//gov.nih.nci.ncia.domain.Series series = gov.nih.nci.ncia.domain.Series.class.cast(obj);			
-				//System.out.println("SeriesInstanceUID: " + series.getSeriesInstanceUID());				
-			}			
-		} 
-		*/               
-        //SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	        
-        SearchResult result = GridUtil.convertNCIACQLQueryResultsIteratorToSearchResult(iter, location);
+        //SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	                
+        SearchResult result = GridUtil.convertNCIACQLQueryResultsIteratorToSearchResult(iter, location, previousSearchResult, queriedObject);
         return result;			
-	}	
-	
-	
+	}		
 	
 	
 	public SearchResult getSearchResult(){
@@ -113,5 +103,4 @@ public class GridQuery implements Runnable {
 		GridSearchEvent event = new GridSearchEvent(this);         		
         listener.searchResultAvailable(event);
 	}	
-
 }

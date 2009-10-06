@@ -293,7 +293,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 			CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.SERIES);
 			if(cql == null){return false;}
 			for(int i = 0 ; i < gridLocs.size(); i++){								
-				GridQuery gridQuery = new GridQuery(cql, gridLocs.get(i));				
+				GridQuery gridQuery = new GridQuery(cql, gridLocs.get(i), null, null);				
 				gridQuery.addGridSearchListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();	

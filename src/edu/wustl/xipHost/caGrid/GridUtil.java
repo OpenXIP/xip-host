@@ -273,7 +273,12 @@ public class GridUtil {
 	}		
 	
 	public static SearchResult convertNCIACQLQueryResultsIteratorToSearchResult(CQLQueryResultsIterator iter, GridLocation location, SearchResult initialSearchResult, Object selectedObject){
-		SearchResult resultGrid = initialSearchResult;
+		SearchResult resultGrid = null;
+		if(initialSearchResult == null){
+			resultGrid = new SearchResult(location.getShortName());
+		}else{
+			resultGrid = initialSearchResult;
+		}	
 		Patient patientFromGrid = null;
 		Study studyFromGrid = null;
 		Series seriesFromGrid = null;
@@ -284,7 +289,28 @@ public class GridUtil {
 				continue;
 			}
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/mm/yyyy");
-			if(selectedObject instanceof Patient){
+			//selectedObject == null means it is a first query in a progressive query process 
+			if(selectedObject == null){
+				if(obj instanceof gov.nih.nci.ncia.domain.Patient){
+					gov.nih.nci.ncia.domain.Patient patientGrid = gov.nih.nci.ncia.domain.Patient.class.cast(obj);			
+					String patientName = patientGrid.getPatientName(); if(patientName == null){patientName = "";}
+					String patientID = patientGrid.getPatientId(); if(patientID == null){patientID = "";}
+					Calendar patientBirthDate = patientGrid.getPatientBirthDate();				
+					String strPatientBirthDate = null;
+					if(patientBirthDate != null){
+						strPatientBirthDate = sdf.format(patientBirthDate.getTime());
+						if(strPatientBirthDate == null){strPatientBirthDate = "";}
+			        }else{
+			        	strPatientBirthDate = "";
+			        }
+					if(resultGrid.contains(patientID) == false){
+						patientFromGrid = new Patient(patientName, patientID, strPatientBirthDate);
+						resultGrid.addPatient(patientFromGrid);
+					}
+				}else{
+					
+				}
+			} else if(selectedObject instanceof Patient){
 				patientFromGrid = Patient.class.cast(selectedObject);
 				gov.nih.nci.ncia.domain.Study studyGrid = gov.nih.nci.ncia.domain.Study.class.cast(obj);				
 				Calendar calendar = studyGrid.getStudyDate(); 			
