@@ -68,7 +68,6 @@ import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
-import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
 
@@ -324,7 +323,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
-			progressBar.updateUI();				
+			progressBar.updateUI();							
 			setCriteriaList(criteriaPanel.getFilterList());				
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);
 			if(bln && selectedGridTypeDicomService != null){											
@@ -589,7 +588,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	     }
 	     
 	     public void mouseClicked(MouseEvent e) {	        
-		        if (e.getClickCount() == 2) {
+		        if (e.getClickCount() == 1) {
 		        	int x = e.getX();
 			     	int y = e.getY();
 			     	int row = resultTree.getRowForLocation(x, y);
@@ -602,7 +601,6 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     		if (!node.isRoot()) {																	
 			     			selectedNode = node.getUserObject();
 			     			AttributeList initialCriteria = criteriaPanel.getFilterList();
-		     				AttributeList updatedCriteria = initialCriteria;
 			     			if(selectedNode instanceof Patient){
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);
 			     				//System.out.println(selectedNode.toString());
@@ -616,23 +614,27 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
 			     				//Clear previous study criteria
-			     				try {
-			     					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
-			     						a.addValue("");
-			     						updatedCriteria.put(t,a);}
+			     				try {			     					
 			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
 			     						a.addValue(selectedPatient.getPatientID());
-			     						updatedCriteria.put(t,a); }
+			     						initialCriteria.put(t,a); }
 								} catch (DicomException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
-								} 
-								
+								} 								
 			     				//setCriteriaList(updatedCriteria);				
-			     				Boolean bln = criteriaPanel.verifyCriteria(updatedCriteria);
+			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
-			     					CQLQuery cql = gridUtil.convertToCQLStatement(updatedCriteria, CQLTargetName.STUDY);				
+			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.STUDY);				
+			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+		     							try {
+											a.addValue("");
+										} catch (DicomException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+		     							initialCriteria.put(t,a);}
 			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addGridSearchListener(l);
 			     					Thread t = new Thread(gridQuery); 					
@@ -654,28 +656,28 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				progressBar.updateUI();	
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
-			     				try {
-			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
-			     						a.addValue("");
-			     						updatedCriteria.put(t,a);}			     					 			     									     						
+			     				try {			     								     					 			     									     						
 			     					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
-				     				try {
-										a.addValue(selectedStudy.getStudyInstanceUID());
-									} catch (DicomException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									} 
-									updatedCriteria.put(t,a); }
+				     					a.addValue(selectedStudy.getStudyInstanceUID());									 
+				     					initialCriteria.put(t,a); }
 								} catch (DicomException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								} 
 			     				//setCriteriaList(updatedCriteria);				
-			     				Boolean bln = criteriaPanel.verifyCriteria(updatedCriteria);
+			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
-			     					CQLQuery cql = gridUtil.convertToCQLStatement(updatedCriteria, CQLTargetName.SERIES);	
-			     					//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);				
+			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.SERIES);	
+			     					//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);
+			     					try {
+			     						{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     							
+											a.addValue("");										
+											initialCriteria.put(t,a);}
+										} catch (DicomException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}		     						
 			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addGridSearchListener(l);
 			     					Thread t = new Thread(gridQuery); 					
