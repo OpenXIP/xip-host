@@ -41,7 +41,6 @@ public class MakeCQLTest extends TestCase {
 		catch (Exception e) {
 			e.printStackTrace(System.err);			
 		}
-		//CQLQuery cql = nciaHelper.makeCQLQueryFromDICOMAttributes(attList);
 		CQLQuery cql = gridUtil.convertToCQLStatement(attList, CQLTargetName.SERIES);
 		/*try {
 			System.err.println(ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
@@ -49,29 +48,5 @@ public class MakeCQLTest extends TestCase {
 			e.printStackTrace();
 		}*/	
 		assertNotNull("AttributeList is valid but system unble to make CQL.", cql);		
-	}
-	
-	//MakeCQLTest 1B alternative flow. 
-	//Creating CQLQuery with NCIA helper
-	public void testMakeCQLFromAttributeList1B() {	
-		AttributeList attList = new AttributeList();
-		try {
-			String[] characterSets = { "ISO_IR 100" };
-			SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);			
-			{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("TCGA-08-0514"); attList.put(t,a); }
-			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); a.addValue(characterSets[0]); attList.put(t,a); }			
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);			
-		}
-		NCIADataServiceHelper nciaHelper = new NCIADataServiceHelper();
-		CQLQuery cql = nciaHelper.makeCQLQueryFromDICOMAttributes(attList);
-		try {
-			System.err.println(ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
-		} catch (SerializationException e) {			
-			e.printStackTrace();
-		}	
-		assertNotNull("AttributeList is valid but system unble to make CQL.", cql);				
-	}
-	
+	}		
 }
