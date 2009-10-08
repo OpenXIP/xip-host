@@ -39,7 +39,7 @@ public class GridRetrieve implements Runnable {
 	public void run(){		
 		try {
 			files = retrieveDicomData(cqlQuery, gridLoc, importDir);
-			fireUpdateUI();
+			notifyDicomAvailable();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,13 +54,13 @@ public class GridRetrieve implements Runnable {
     public void addGridRetrieveListener(GridRetrieveListener l) {        
         listener = l;          
     }
-	void fireUpdateUI(){
+	void notifyDicomAvailable(){
 		GridRetrieveEvent event = new GridRetrieveEvent(this);         		
         listener.importedFilesAvailable(event);
 	}
 	
 	DICOMDataServiceHelper dicomHelper = new DICOMDataServiceHelper();					
-	NCIADataServiceHelper nciaHelper = new NCIADataServiceHelper();
+	//NCIADataServiceHelper nciaHelper = new NCIADataServiceHelper();
 	public List<File> retrieveDicomData(CQLQuery cqlQuery, GridLocation location, File importDir) throws IOException {						
 		if(importDir == null){
 			throw new NullPointerException();
@@ -82,7 +82,8 @@ public class GridRetrieve implements Runnable {
 			if(location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 				dicomHelper.retrieveDICOMData(cqlQuery, location.getAddress(), inputDir.getCanonicalPath());				
 			}else if(location.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
-				nciaHelper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());
+				//nciaHelper does not retrieve data as of 10/08/2009
+				//nciaHelper.retrieveDICOMData(cqlQuery, location.getAddress(), importDir.getCanonicalPath());
 			}else{
 				
 			}			
