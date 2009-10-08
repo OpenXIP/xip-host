@@ -19,20 +19,8 @@
     <protocolVersion>AIM-TCGA</protocolVersion>
   </grid_location>
   <grid_location>
-    <gridAddress>http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService</gridAddress>
-    <shortName>DICOM Server Ohio State University caGrid 1.2</shortName>
-    <type>DICOM</type>
-    <protocolVersion>DICOM</protocolVersion>
-  </grid_location>
-  <grid_location>
-    <gridAddress>http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService</gridAddress>
-    <shortName>AIM Server Ohio State University AIM_1_rv_1.9</shortName>
-    <type>AIM</type>
-    <protocolVersion>AIM-0.9</protocolVersion>
-  </grid_location>
-  <grid_location>
-    <gridAddress>http://140.254.80.50:50020/wsrf/services/cagrid/DICOMDataService</gridAddress>
-    <shortName>DICOM Server Ohio State University</shortName>
+    <gridAddress>http://node05.cci.emory.edu:8081/wsrf/services/cagrid/DICOMDataService</gridAddress>
+    <shortName>DICOM Server Emory</shortName>
     <type>DICOM</type>
     <protocolVersion>DICOM</protocolVersion>
   </grid_location>
