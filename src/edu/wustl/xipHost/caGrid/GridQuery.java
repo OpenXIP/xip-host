@@ -86,7 +86,7 @@ public class GridQuery implements Runnable {
 		}						
         iter = new CQLQueryResultsIterator(results);        
         //SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	                
-        SearchResult result = GridUtil.convertNCIACQLQueryResultsIteratorToSearchResult(iter, location, previousSearchResult, queriedObject);
+        SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location, previousSearchResult, queriedObject);
         return result;			
 	}		
 	
