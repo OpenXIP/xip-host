@@ -68,7 +68,7 @@ public class GridQuery implements Runnable {
 	 * @param queriedObject - null with first query call
 	 * @return SearchResult object, that becomes previousSearchResult in subsequent query calls.
 	 */
-	public SearchResult query(CQLQuery query, GridLocation location, SearchResult previousSearchResult, Object queriedObject) throws MalformedURIException, RemoteException, ConnectException{			
+	public SearchResult query(CQLQuery query, GridLocation location, SearchResult previousSearchResult, Object queriedObject) throws MalformedURIException, RemoteException, ConnectException{		
 		CQLQueryResultsIterator iter;		
 		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 			dicomClient = new DataServiceClient(location.getAddress());			

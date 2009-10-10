@@ -99,7 +99,7 @@ public class RightPanel extends JPanel {
 		add(btnRetrieve);
 		buildLayout();		
 	}
-			
+	
 	public SearchResultTreeGrid getGridJTreePanel(){
 		return gridJTree;
 	}		

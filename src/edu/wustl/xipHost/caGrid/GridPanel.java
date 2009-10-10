@@ -10,11 +10,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,9 +36,11 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.namespace.QName;
 import org.globus.wsrf.encoding.ObjectSerializer;
@@ -450,9 +455,16 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			GridQuery gridQuery = (GridQuery)e.getSource();
 			result = gridQuery.getSearchResult();			
 		}				
-		rightPanel.getGridJTreePanel().updateNodes(result);
+		rightPanel.getGridJTreePanel().updateNodes(result);								
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				resultTree.scrollRowToVisible(queryNodeIndex);
+				int visibleRows = resultTree.getVisibleRowCount();
+				resultTree.scrollRowToVisible(queryNodeIndex + visibleRows);
+			}			 
+		});	
 	}
-	
 	
 	List<CQLQuery> getDicomRetrieveCriteria() {
 		List<CQLQuery> retrieveCriterias = new ArrayList<CQLQuery>();
@@ -499,6 +511,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	}
 	
 	Object selectedNode;
+	int queryNodeIndex = 0;
 	MouseListener ml = new MouseAdapter(){
 	     public void mousePressed(MouseEvent e) {
 	    	 if(resultTree.getSelectedSeries().size() > 0){
@@ -514,6 +527,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	    	 }
 	     }
 	     
+	    
 	     public void mouseClicked(MouseEvent e) {	        
 		        if (e.getClickCount() == 1) {
 		        	int x = e.getX();
@@ -521,12 +535,13 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     	int row = resultTree.getRowForLocation(x, y);
 			     	TreePath  path = resultTree.getPathForRow(row);    	
 			     	if (path != null) {    		
-			     		DefaultMutableTreeNode node = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();							
-			     		//System.out.println(this.getRowForPath(new TreePath(node.getPath())));
+			     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();										     					     					     		
+			     		//System.out.println(resultTree.getRowForPath(new TreePath(queryNode.getPath())));
 			     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
-			     		if (node == null) return;		 
-			     		if (!node.isRoot()) {																	
-			     			selectedNode = node.getUserObject();
+			     		if (queryNode == null) return;		 
+			     		if (!queryNode.isRoot()) {
+			     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
+			     			selectedNode = queryNode.getUserObject();			     			
 			     			AttributeList initialCriteria = criteriaPanel.getFilterList();
 			     			if(selectedNode instanceof Patient){
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);

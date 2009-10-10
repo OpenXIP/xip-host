@@ -6,8 +6,6 @@ package edu.wustl.xipHost.caGrid;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -15,7 +13,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -42,8 +39,8 @@ public class SearchResultTreeGrid extends SearchResultTree{
 			treeModel.reload(rootNode);
 			return;
 		}
-			rootNode.removeAllChildren();
-			treeModel.reload(rootNode);
+		rootNode.removeAllChildren();
+		treeModel.reload(rootNode);
 		
 		results.add(result);				    	    	    	      		   	    	    				
 		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.toString());
@@ -105,7 +102,7 @@ public class SearchResultTreeGrid extends SearchResultTree{
 		rootNode.add(locationNode);				
 		treeModel.nodeChanged(rootNode);
 		treeModel.reload(rootNode);
-		expandAll();
+		expandAll();		
 	}
 	
 	
