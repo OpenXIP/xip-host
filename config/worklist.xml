@@ -2,155 +2,10 @@
 <items>
 	<item>
 		<Subject>
-			<Subject_Name>Jaroslaw Krych</Subject_Name>
+			<Subject_Name>Anonymous1</Subject_Name>
 			<Subject_ID>1234</Subject_ID>
 		</Subject>
-		<Study_Date>09/03/2008</Study_Date>
-		<Data>
-			<Previous>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.20034</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.20035</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.20036</SeriesInstanceUID>
-			</Previous>
-			<Current>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.20034</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.20035</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.20036</SeriesInstanceUID>
-			</Current>			
-		</Data>
-		<RetrieveAETitle>
-			<RetrieveDicomURI>http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService</RetrieveDicomURI>
-			<RetrieveAimURI>http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService</RetrieveAimURI>
-		</RetrieveAETitle>			
-		<Task>
-			<Description>Test WG23 File Access</Description>
-		</Task>
-		<Application>TestApp_WG23FileAccess</Application>
-	</item>
-	<item>
-		<Subject>
-			<Subject_Name>Jarek Krych</Subject_Name>
-			<Subject_ID>2345</Subject_ID>
-		</Subject>
-		<Study_Date>11/22/2008</Study_Date>
-		<Data>
-			<Previous>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.20034</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.20035</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.20036</SeriesInstanceUID>
-			</Previous>
-			<Current>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.20034</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.20035</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.20036</SeriesInstanceUID>
-			</Current>			
-		</Data>
-		<RetrieveAETitle>
-			<RetrieveDicomURI>http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService</RetrieveDicomURI>
-			<RetrieveAimURI>http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService</RetrieveAimURI>
-		</RetrieveAETitle>		
-		<Task>
-			<Description>Test WG23 Native Model</Description>
-		</Task>
-		<Application>TestApp_WG23NativeModel</Application>
-	</item>
-	<item>
-		<Subject>
-			<Subject_Name>Jaroslaw Krych</Subject_Name>
-			<Subject_ID>1234</Subject_ID>
-		</Subject>
-		<Study_Date>11/22/2008</Study_Date>
-		<Data>
-			<Previous>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.20034</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.20035</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.20036</SeriesInstanceUID>
-			</Previous>
-			<Current>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.20034</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.20035</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.20036</SeriesInstanceUID>
-			</Current>			
-		</Data>
-		<RetrieveAETitle>
-			<RetrieveDicomURI>http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService</RetrieveDicomURI>
-			<RetrieveAimURI>http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService</RetrieveAimURI>
-		</RetrieveAETitle>		
-		<Task>
-			<Description>RECIST Analysis</Description>
-		</Task>
-		<Application>RECIST</Application>
-	</item>
-	<item>
-		<Subject>
-			<Subject_Name>Jaroslaw Krych</Subject_Name>
-			<Subject_ID>6789</Subject_ID>
-		</Subject>
-		<Study_Date>11/22/2008</Study_Date>
-		<Data>
-			<Previous>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.11065</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.10934</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.11018</SeriesInstanceUID>
-			</Previous>
-			<Current>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.11065</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.10934</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.11018</SeriesInstanceUID>
-			</Current>			
-		</Data>
-		<RetrieveAETitle>
-			<RetrieveDicomURI>http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService</RetrieveDicomURI>
-			<RetrieveAimURI>http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService</RetrieveAimURI>
-		</RetrieveAETitle>		
-		<Task>
-			<Description>Test AIM</Description>
-		</Task>
-		<Application>TestApp_WG23NativeModel</Application>
-	</item>
-	<item>
-		<Subject>
-			<Subject_Name>Jaroslaw Krych</Subject_Name>
-			<Subject_ID>6789</Subject_ID>
-		</Subject>
-		<Study_Date>11/22/2008</Study_Date>
-		<Data>
-			<Previous>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.10717</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.10607</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.10697</SeriesInstanceUID>
-			</Previous>
-			<Current>
-				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
-				<SOPInstanceUID>1.3.6.1.4.1.9328.50.1.10884</SOPInstanceUID>
-				<StudyInstanceUID>1.3.6.1.4.1.9328.50.1.10733</StudyInstanceUID>
-				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.1.10857</SeriesInstanceUID>
-			</Current>		
-		</Data>
-		<RetrieveAETitle>
-			<RetrieveDicomURI>http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService</RetrieveDicomURI>
-			<RetrieveAimURI>http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService</RetrieveAimURI>
-		</RetrieveAETitle>		
-		<Task>
-			<Description>Test RECIST Adjudicator</Description>
-		</Task>
-		<Application>RECIST_Adjudicator</Application>
-	</item>
-	<item>
-		<Subject>
-			<Subject_Name>Jaroslaw Krych</Subject_Name>
-			<Subject_ID>1234</Subject_ID>
-		</Subject>
-		<Study_Date>11/25/2008</Study_Date>
+		<Study_Date>10/10/2009</Study_Date>
 		<Data>
 			<Previous>
 				<SOPClassUID>1.2.840.10008.5.1.4.1.1.2</SOPClassUID>
@@ -166,11 +21,40 @@
 			</Current>		
 		</Data>
 		<RetrieveAETitle>
-			<RetrieveDicomURI>http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService</RetrieveDicomURI>
-			<RetrieveAimURI>http://ividemo.bmi.ohio-state.edu:8081/wsrf/services/cagrid/AIMDataService</RetrieveAimURI>
+			<RetrieveDicomURI>http://node05.cci.emory.edu:8081/wsrf/services/cagrid/DICOMDataServic</RetrieveDicomURI>
+			<RetrieveAimURI>http://node01.cci.emory.edu:8080/wsrf/services/cagrid/AIMTCGADataService</RetrieveAimURI>
 		</RetrieveAETitle>		
 		<Task>
-			<Description>Test NCIA connection</Description>
+			<Description>Test Emory connection</Description>
+		</Task>
+		<Application>RECIST_Adjudicator</Application>
+	</item>
+	<item>
+		<Subject>
+			<Subject_Name>Anonymous2</Subject_Name>
+			<Subject_ID>1235</Subject_ID>
+		</Subject>
+		<Study_Date>10/10/2009</Study_Date>
+		<Data>
+			<Previous>
+				<SOPClassUID></SOPClassUID>
+				<SOPInstanceUID></SOPInstanceUID>
+				<StudyInstanceUID>1.3.6.1.4.1.9328.50.45.273389198429841178231063667361881976500</StudyInstanceUID>
+				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.45.55796302524980655421304131490884128366</SeriesInstanceUID>
+			</Previous>
+			<Current>
+				<SOPClassUID></SOPClassUID>
+				<SOPInstanceUID></SOPInstanceUID>
+				<StudyInstanceUID>1.3.6.1.4.1.9328.50.45.134751864157845422184115556870767775015</StudyInstanceUID>
+				<SeriesInstanceUID>1.3.6.1.4.1.9328.50.45.9069737752249597180412180471261113388</SeriesInstanceUID>
+			</Current>		
+		</Data>
+		<RetrieveAETitle>
+			<RetrieveDicomURI>http://imaging.nci.nih.gov/wsrf/services/cagrid/NCIACoreService</RetrieveDicomURI>
+			<RetrieveAimURI>http://node01.cci.emory.edu:8080/wsrf/services/cagrid/AIMTCGADataService</RetrieveAimURI>
+		</RetrieveAETitle>		
+		<Task>
+			<Description>Test NBIA connection</Description>
 		</Task>
 		<Application>RECIST_Adjudicator</Application>
 	</item>

@@ -4,10 +4,8 @@
 package edu.wustl.xipHost.worklist;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
@@ -22,23 +20,29 @@ import org.nema.dicom.wg23.Patient;
 import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uid;
 import org.nema.dicom.wg23.Uuid;
+import com.pixelmed.dicom.Attribute;
+import com.pixelmed.dicom.AttributeList;
+import com.pixelmed.dicom.AttributeTag;
+import com.pixelmed.dicom.CodeStringAttribute;
+import com.pixelmed.dicom.ShortStringAttribute;
+import com.pixelmed.dicom.SpecificCharacterSet;
+import com.pixelmed.dicom.TagFromName;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.caGrid.AimRetrieve;
+import edu.wustl.xipHost.caGrid.CQLTargetName;
 import edu.wustl.xipHost.caGrid.GridLocation;
+import edu.wustl.xipHost.caGrid.GridManager;
+import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.caGrid.GridRetrieve;
 import edu.wustl.xipHost.caGrid.GridRetrieveEvent;
 import edu.wustl.xipHost.caGrid.GridRetrieveListener;
-import edu.wustl.xipHost.caGrid.GridLocation.Type;
+import edu.wustl.xipHost.caGrid.GridRetrieveNCIA;
+import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dicom.BasicDicomParser2;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.cagrid.data.MalformedQueryException;
-import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
-import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
-import gov.nih.nci.ncia.domain.Series;
+import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
 /**
  * @author Jaroslaw Krych
@@ -60,11 +64,13 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 	String seriesInstanceUIDCurr;
 	String dicomServiceURI;
 	String aimServiceURI;
+	GridManager gridMgr = GridManagerFactory.getInstance();
+	GridUtil gridUtil;
 	/**
 	 * 
 	 */
 	public WorklistEntry() {
-		// TODO Auto-generated constructor stub
+		 gridUtil = gridMgr.getGridUtil();
 	}
 	public String getSubjectName(){
 		return subjectName;
@@ -163,56 +169,43 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 	 * i = 2 would be for current data set
 	 */
 	public CQLQuery makeCQLforDICOM(int i){
-		CQLQuery cqlq = null;
-		try {
-			HashMap<String, String> query = null;
-			query = new HashMap<String, String>();
-			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap());;			
-			if(i == 1){
-				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, Series.class.getCanonicalName());																								
-				query.put("gov.nih.nci.ncia.domain.Image.sopClassUID", this.getSOPClassUIDPrev());
-				query.put("gov.nih.nci.ncia.domain.Image.sopInstanceUID", this.getSOPInstanceUIDPrev());
-				query.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", this.getStudyInstanceUIDPrev());
-				query.put("gov.nih.nci.ncia.domain.Series.seriesInstanceUID", this.getSeriesInstanceUIDPrev());				
-			} else if(i == 2){
-				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, Series.class.getCanonicalName());																								
-				query.put("gov.nih.nci.ncia.domain.Image.sopClassUID", this.getSOPClassUIDCurr());
-				query.put("gov.nih.nci.ncia.domain.Image.sopInstanceUID", this.getSOPInstanceUIDCurr());
-				query.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", this.getStudyInstanceUIDCurr());
-				query.put("gov.nih.nci.ncia.domain.Series.seriesInstanceUID", this.getSeriesInstanceUIDCurr());
+		CQLQuery cqlq = null;				
+		if(i == 1){
+			AttributeList attList = new AttributeList();
+			try {
+				String[] characterSets = { "ISO_IR 100" };
+				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);			
+				{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(this.getStudyInstanceUIDPrev()); attList.put(t,a); }
+				{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(this.getSeriesInstanceUIDPrev()); attList.put(t,a); }
+				{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); a.addValue(characterSets[0]); attList.put(t,a); }			
 			}
-			if (query.isEmpty()) {					
-				System.out.println("Query was empty");
-				query = new HashMap<String, String>();
-				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, Series.class.getCanonicalName());
+			catch (Exception e) {
+				e.printStackTrace(System.err);			
 			}
-			cqlq = h2cql.makeCQLQuery(query);			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ModelMapException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedQueryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
+			cqlq = gridUtil.convertToCQLStatement(attList, CQLTargetName.SERIES);
+		} else if(i == 2){
+			AttributeList attList = new AttributeList();
+			try {
+				String[] characterSets = { "ISO_IR 100" };
+				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);			
+				{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(this.getStudyInstanceUIDCurr()); attList.put(t,a); }
+				{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(this.getSeriesInstanceUIDCurr()); attList.put(t,a); }
+				{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); a.addValue(characterSets[0]); attList.put(t,a); }			
+			}
+			catch (Exception e) {
+				e.printStackTrace(System.err);			
+			}
+			cqlq = gridUtil.convertToCQLStatement(attList, CQLTargetName.SERIES);
+		}
 		return cqlq;
 	}
 	
 	public CQLQuery makeCQLforAIM(int i){		
 		CQLQuery aimCQL = null;
 		if(i == 1){
-			aimCQL = AIMDataServiceHelper.generateImageAnnotationQuery(this.getStudyInstanceUIDPrev(), this.getSeriesInstanceUIDPrev(), null);
-			
+			aimCQL = AIMTCGADataServiceHelper.generateImageAnnotationQuery(this.getStudyInstanceUIDPrev(), this.getSeriesInstanceUIDPrev(), null);			
 		} else if(i == 2){
-			aimCQL = AIMDataServiceHelper.generateImageAnnotationQuery(this.getStudyInstanceUIDCurr(), this.getSeriesInstanceUIDCurr(), null);			
+			aimCQL = AIMTCGADataServiceHelper.generateImageAnnotationQuery(this.getStudyInstanceUIDCurr(), this.getSeriesInstanceUIDCurr(), null);			
 		}		
 		return aimCQL;
 	}
@@ -232,12 +225,16 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 	GridRetrieve gridRetrieveCurr;
 	AimRetrieve aimRetrievePrev;
 	AimRetrieve aimRetrieveCurr;
+	GridRetrieveNCIA nbiaRetrievePrev;
+	GridRetrieveNCIA nbiaRetrieveCurr;
 	public void execute(File importLocation){						
 		System.out.println("Executing worklist entry ...");										
 		dicomPrevRetrieved = false;
 		dicomCurrRetrieved = false;
 		aimPrevRetrieved = false;
 		aimCurrRetrieved = false;
+		nbiaPrevRetrieved = false;
+		nbiaCurrRetrieved = false;
 		//1.Make CQL statement for:
 		// a. dicomPrev
 		// b. aimPrev
@@ -246,58 +243,96 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 		//2. Retrieve data sets
 		//3. Arrange data sets
 		//4. Launch assigned application and passe appropriate data set
-		/*-------------- For DICOM prev ------------*/
-		CQLQuery cqlDicomPrev = makeCQLforDICOM(1);
-		GridLocation gridLoc = new GridLocation(getDicomServiceURI(), Type.DICOM, "DICOM", "Worklist DICOM Service URI - previous dataset");		
-		try {
-			gridRetrievePrev = new GridRetrieve(cqlDicomPrev, gridLoc, importLocation);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		/*-------------- For DICOM prev ------------*/		
+		List<GridLocation> dicomLocs = gridMgr.getGridTypeDicomLocations();
+		GridLocation gridLocDICOM = null;
+		for(int i = 0; i < dicomLocs.size(); i++){			
+			if(dicomLocs.get(i).getAddress().equalsIgnoreCase(getDicomServiceURI())){
+				gridLocDICOM = dicomLocs.get(i);
+			}
 		}
-		gridRetrievePrev.addGridRetrieveListener(this);		
-		Thread t = new Thread(gridRetrievePrev);
-		t.start();
-		/*-------------- For AIM prev ------------*/
-		CQLQuery cqlAimPrev = makeCQLforAIM(1);
-		GridLocation aimLoc = new GridLocation(getAimServiceURI(), Type.AIM, "AIM-TCGA", "Worklist AIM Service URI - previous dataset");
-		try {
-			aimRetrievePrev = new AimRetrieve(cqlAimPrev, aimLoc, importLocation);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		if(gridLocDICOM.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
+			nbiaRetrievePrev = new GridRetrieveNCIA(getSeriesInstanceUIDPrev(), gridLocDICOM, importLocation);
+			nbiaRetrievePrev.addGridRetrieveListener(this);
+			Thread t1 = new Thread(nbiaRetrievePrev);
+			t1.start();
+			nbiaRetrieveCurr = new GridRetrieveNCIA(getSeriesInstanceUIDCurr(), gridLocDICOM, importLocation);
+			nbiaRetrieveCurr.addGridRetrieveListener(this);
+			Thread t2 = new Thread(nbiaRetrieveCurr);
+			t2.start();			
+		}else if(gridLocDICOM.getProtocolVersion().equalsIgnoreCase("DICOM")){
+			/*-------------- For DICOM prev ------------*/			
+			CQLQuery cqlDicomPrev = makeCQLforDICOM(1);
+			if(cqlDicomPrev != null){
+				try {
+					gridRetrievePrev = new GridRetrieve(cqlDicomPrev, gridLocDICOM, importLocation);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				gridRetrievePrev.addGridRetrieveListener(this);		
+				Thread t = new Thread(gridRetrievePrev);
+				t.start();
+				
+			}			
+			/*-------------- For DICOM curr ------------*/
+			CQLQuery cqlDicomCurr = makeCQLforDICOM(2);				
+			if(cqlDicomCurr != null){	
+				try {
+					gridRetrieveCurr = new GridRetrieve(cqlDicomCurr, gridLocDICOM, importLocation);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				gridRetrieveCurr.addGridRetrieveListener(this);		
+				Thread t2 = new Thread(gridRetrieveCurr);
+				t2.start();
+			}
+		}else{
+			
 		}
-		aimRetrievePrev.addGridRetrieveListener(this);
-		Thread t1AIM = new Thread(aimRetrievePrev);
-		t1AIM.start();
-		/*-------------- For DICOM curr ------------*/
-		CQLQuery cqlDicomCurr = makeCQLforDICOM(2);				
-		try {
-			gridRetrieveCurr = new GridRetrieve(cqlDicomCurr, gridLoc, importLocation);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		GridLocation gridLocAIM = null;
+		List<GridLocation> aimLocs = gridMgr.getGridTypeAimLocations();
+		for(int i = 0; i < aimLocs.size(); i++){			
+			if(aimLocs.get(i).getAddress().equalsIgnoreCase(getAimServiceURI())){
+				gridLocAIM = aimLocs.get(i);
+			}
 		}
-		gridRetrieveCurr.addGridRetrieveListener(this);		
-		Thread t2 = new Thread(gridRetrieveCurr);
-		t2.start();
-		/*-------------- For AIM curr ------------*/
-		CQLQuery cqlAimCurr = makeCQLforAIM(2);
-		try {
-			aimRetrieveCurr = new AimRetrieve(cqlAimCurr, aimLoc, importLocation);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		aimRetrieveCurr.addGridRetrieveListener(this);
-		Thread t2AIM = new Thread(aimRetrieveCurr);
-		t2AIM.start();				
+		if(gridLocAIM.getProtocolVersion().equalsIgnoreCase("AIM-TCGA")){
+			/*-------------- For AIM prev ------------*/
+			CQLQuery cqlAimPrev = makeCQLforAIM(1);
+			try {
+				aimRetrievePrev = new AimRetrieve(cqlAimPrev, gridLocAIM, importLocation);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			aimRetrievePrev.addGridRetrieveListener(this);
+			Thread t1AIM = new Thread(aimRetrievePrev);
+			t1AIM.start();
+			
+			/*-------------- For AIM curr ------------*/
+			CQLQuery cqlAimCurr = makeCQLforAIM(2);
+			try {
+				aimRetrieveCurr = new AimRetrieve(cqlAimCurr, gridLocAIM, importLocation);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			aimRetrieveCurr.addGridRetrieveListener(this);
+			Thread t2AIM = new Thread(aimRetrieveCurr);
+			t2AIM.start();
+		}else{
+			//TODO
+		}						
 	}
 
 	boolean dicomPrevRetrieved;
 	boolean dicomCurrRetrieved;
 	boolean aimPrevRetrieved;
 	boolean aimCurrRetrieved;
+	boolean nbiaPrevRetrieved;
+	boolean nbiaCurrRetrieved;
 	List<File> prev = new ArrayList<File>();
 	List<File> curr = new ArrayList<File>();
 	public void importedFilesAvailable(GridRetrieveEvent e) {		
@@ -312,7 +347,16 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 				curr.addAll(gridRetrieveCurr.getRetrievedFiles());					
 				dicomCurrRetrieved = true;
 			}						
-		}else if(e.getSource() instanceof AimRetrieve){
+		}else if(e.getSource() instanceof GridRetrieveNCIA){
+			GridRetrieveNCIA source = (GridRetrieveNCIA)e.getSource();			
+			if(source == nbiaRetrievePrev){				
+				prev.addAll(nbiaRetrievePrev.getRetrievedFiles());				
+				nbiaPrevRetrieved = true;
+			}else if(source == nbiaRetrieveCurr){
+				curr.addAll(nbiaRetrieveCurr.getRetrievedFiles());					
+				nbiaCurrRetrieved = true;
+			}			
+		} else if(e.getSource() instanceof AimRetrieve){
 			AimRetrieve source = (AimRetrieve) e.getSource();
 			if(source == aimRetrievePrev){
 				if(aimRetrievePrev.getRetrievedFiles() != null){
@@ -326,7 +370,13 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 				aimCurrRetrieved = true;
 			}			
 		}
-		if(dicomPrevRetrieved == true && dicomCurrRetrieved == true && aimPrevRetrieved == true && aimCurrRetrieved == true){																	
+		boolean retrieveCompleted = false;
+		if(dicomPrevRetrieved == true && dicomCurrRetrieved == true && aimPrevRetrieved == true && aimCurrRetrieved == true){
+			retrieveCompleted = true;
+		}else if(nbiaPrevRetrieved == true && nbiaCurrRetrieved == true && aimPrevRetrieved == true && aimCurrRetrieved == true){
+			retrieveCompleted = true;
+		}
+		if(retrieveCompleted){																	
 			//long t1 = System.currentTimeMillis();
 			dm = makeWG23DataModel(prev, curr);
 			//long t2 = System.currentTimeMillis();
