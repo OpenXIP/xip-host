@@ -25,7 +25,7 @@ import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomDictionary;
 import edu.wustl.xipHost.dicom.DicomUtil;
-import edu.wustl.xipHost.dicom.FilterPanel;
+import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
@@ -39,7 +39,7 @@ public class XDSSearchCriteriaPanel extends JPanel implements ActionListener {
 	JButton btnSearchPatientID = new JButton("Search patients");
 	JButton btnSearch = new JButton("Search Documents");	
 	JButton btnCancel = new JButton("Cancel");
-	FilterPanel panel;
+	AttributePanel panel;
 	JScrollPane attEntryPanel;
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
@@ -52,7 +52,7 @@ public class XDSSearchCriteriaPanel extends JPanel implements ActionListener {
 	public XDSSearchCriteriaPanel(){		
 		//ApplicationFrameQuery appFrame = new ApplicationFrameQuery(null);
 		AttributeList list = DicomUtil.constructEmptyPatientAttributeList();		
-		panel = new FilterPanel(list);
+		panel = new AttributePanel(list);
 		panel.setBackground(new Color(156, 162, 189));
 		panel.setForeground(Color.WHITE);
 		attEntryPanel = new JScrollPane(panel);		
