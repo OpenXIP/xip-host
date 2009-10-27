@@ -21,7 +21,6 @@ import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.TimeAttribute;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-
 import edu.wustl.xipHost.dicom.server.Workstation2;
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -114,7 +113,7 @@ public class TestServerSetup extends TestSetup{
 		catch (Exception e) {
 			e.printStackTrace(System.err);			
 		}
-		FilterPanel mFP = new FilterPanel(filter);
+		AttributePanel mFP = new AttributePanel(filter);
 		criteria = mFP.getFilterList();				
 		Workstation2.startHSQLDB();
 		Workstation2.startPixelmedServer();	

@@ -24,12 +24,11 @@ import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.TimeAttribute;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
+import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.dicom.DicomManager;
 import edu.wustl.xipHost.dicom.DicomManagerFactory;
-import edu.wustl.xipHost.dicom.FilterPanel;
 import edu.wustl.xipHost.dicom.server.Workstation2;
 import junit.framework.TestCase;
 
@@ -126,7 +125,7 @@ public class SearchAllPacsLocationsInParallelTest extends TestCase {
 		catch (Exception e) {
 			e.printStackTrace(System.err);			
 		}
-		FilterPanel mFP = new FilterPanel(filter);
+		AttributePanel mFP = new AttributePanel(filter);
 		criteria = mFP.getFilterList();	
 		if(!ws2.isRunning()){
 			ws2.run();

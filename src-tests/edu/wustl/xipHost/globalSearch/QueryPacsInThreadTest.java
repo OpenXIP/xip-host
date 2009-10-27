@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.globalSearch;
 
@@ -21,9 +21,9 @@ import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.TimeAttribute;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
+import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.dicom.DicomManager;
 import edu.wustl.xipHost.dicom.DicomManagerFactory;
-import edu.wustl.xipHost.dicom.FilterPanel;
 import edu.wustl.xipHost.dicom.PacsLocation;
 import junit.framework.TestCase;
 
@@ -115,7 +115,7 @@ public class QueryPacsInThreadTest extends TestCase {
 		catch (Exception e) {
 			e.printStackTrace(System.err);			
 		}
-		FilterPanel mFP = new FilterPanel(filter);
+		AttributePanel mFP = new AttributePanel(filter);
 		criteria = mFP.getFilterList();		
 		dicomMgr = DicomManagerFactory.getInstance();	
 	}	
