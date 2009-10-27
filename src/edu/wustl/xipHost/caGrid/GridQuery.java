@@ -1,11 +1,12 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.caGrid;
 
 import java.net.ConnectException;
 import java.rmi.RemoteException;
 import org.apache.axis.types.URI.MalformedURIException;
+import org.apache.log4j.Logger;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
@@ -19,6 +20,7 @@ import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
  *
  */
 public class GridQuery implements Runnable {
+	final static Logger logger = Logger.getLogger(GridQuery.class);
 	CQLQuery cql;
 	GridLocation gridLocation;
 	SearchResult previousSearchResult;
@@ -39,18 +41,23 @@ public class GridQuery implements Runnable {
 		
 	SearchResult searchResult;
 	public void run() {
+		logger.info("Executing GRID query.");
 		try {		 
 			searchResult = query(cql, gridLocation, previousSearchResult, queriedObject);
+			logger.info("GRID query finished.");
 			fireUpdateUI();			
 		} catch (MalformedURIException e) {
+			logger.error(e, e);
 			searchResult = null;
 			fireUpdateUI();
 			return;
 		} catch (RemoteException e) {
+			logger.error(e, e);
 			searchResult = null;
 			fireUpdateUI();
 			return;
 		} catch (ConnectException e) {
+			logger.error(e, e);
 			searchResult = null;
 			fireUpdateUI();
 			return;

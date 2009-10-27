@@ -18,6 +18,8 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.xml.ws.Endpoint;
+
+import org.apache.log4j.xml.DOMConfigurator;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -355,6 +357,7 @@ public class HostConfigurator {
 		}		        				
 		//Turn off commons loggin for better performance
 		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");		
+		DOMConfigurator.configure("log4j.xml");
 		hostConfigurator = new HostConfigurator();
 		boolean startupOK = hostConfigurator.runHostStartupSequence();
 		if(startupOK == false){			
@@ -497,5 +500,5 @@ public class HostConfigurator {
 			preferredHeight = 800;
 		}
 		return preferredHeight;		
-	}		
+	}
 }

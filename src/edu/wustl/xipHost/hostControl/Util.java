@@ -6,7 +6,6 @@ package edu.wustl.xipHost.hostControl;
 import java.io.File;
 import java.io.IOException;
 
-
 /**
  * <font  face="Tahoma" size="2" color="Black">
  * Allows for creating/deleting TmpXIP and OutXIP directories, MIMEType checking.<br></br>

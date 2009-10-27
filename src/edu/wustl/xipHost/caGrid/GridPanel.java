@@ -10,14 +10,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,9 +37,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.namespace.QName;
+
+import org.apache.log4j.Logger;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
 import com.pixelmed.dicom.Attribute;
@@ -58,6 +56,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -72,7 +71,7 @@ import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
  *
  */
 public class GridPanel extends JPanel implements ActionListener, GridSearchListener, GridRetrieveListener {	
-
+	final static Logger logger = Logger.getLogger(GridPanel.class);
 	JPanel locationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select caGRID DICOM Service Location:");		
 	ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");	
@@ -314,6 +313,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
 			selectedGridTypeAimService = (GridLocation)item;			
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){
+			logger.info("Starting GRID query.");
 			rightPanel.btnRetrieve.setEnabled(false);
 			rightPanel.cbxAnnot.setEnabled(false);
 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
@@ -324,21 +324,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);
 			if(bln && selectedGridTypeDicomService != null){											
 				GridUtil gridUtil = gridMgr.getGridUtil();
-				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);	
-				/*
-				DicomDictionary dictionary = AttributeList.getDictionary();
-			    Iterator iter = dictionary.getTagIterator();        
-			    String strAtt = null;
-			    String attValue = null;
-			    while(iter.hasNext()){
-			    	AttributeTag attTag  = (AttributeTag)iter.next();					    	
-			    	strAtt = attTag.toString();									
-					attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);
-					if(!attValue.isEmpty()){
-						System.out.println("GridPanel l. 344 " + strAtt + " " + attValue);				
-					}
-			    }	  
-				*/								
+				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);							
 				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, null, null);				
 				gridQuery.addGridSearchListener(this);
 				Thread t = new Thread(gridQuery); 					
@@ -543,9 +529,9 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
 			     			selectedNode = queryNode.getUserObject();			     			
 			     			AttributeList initialCriteria = criteriaPanel.getFilterList();
-			     			if(selectedNode instanceof Patient){
+			     			if(selectedNode instanceof Patient){			     				
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);
-			     				//System.out.println(selectedNode.toString());
+			     				logger.info("Staring node query: " + selectedPatient.toString());
 			     				//Retrieve studies for selected patient
 			     				rightPanel.btnRetrieve.setEnabled(false);
 			     				rightPanel.cbxAnnot.setEnabled(false);
@@ -588,7 +574,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				repaint();
 			     			}else if(selectedNode instanceof Study){
 			     				Study selectedStudy = Study.class.cast(selectedNode);
-			     				//System.out.println(selectedNode.toString());
+			     				logger.info("Staring node query: " + selectedStudy.toString());
 			     				//Retrieve studies for selected patient
 			     				rightPanel.btnRetrieve.setEnabled(false);
 			     				rightPanel.cbxAnnot.setEnabled(false);
