@@ -34,12 +34,12 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.namespace.QName;
-
 import org.apache.log4j.Logger;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
@@ -56,7 +56,6 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -452,6 +451,26 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 		});	
 	}
 	
+	@Override
+	public void notifyException(String message) {		
+		progressBar.setIndeterminate(false);
+		progressBar.invalidate();
+		progressBar.setForeground(Color.RED);
+		progressBar.validate();
+		progressBar.setString("Exception: " + message);
+		result = null;							
+		rightPanel.getGridJTreePanel().updateNodes(result);								
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				resultTree.scrollRowToVisible(queryNodeIndex);
+				int visibleRows = resultTree.getVisibleRowCount();
+				resultTree.scrollRowToVisible(queryNodeIndex + visibleRows);
+			}			 
+		});
+		
+	}
+	
 	List<CQLQuery> getDicomRetrieveCriteria() {
 		List<CQLQuery> retrieveCriterias = new ArrayList<CQLQuery>();
 		Map<Series, Study> map = resultTree.getSelectedSeries();
@@ -655,6 +674,6 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			FileManager fileMgr = FileManagerFactory.getInstance();						
 	        fileMgr.run(files);
 		}			
-	}
+	}	
 }
 

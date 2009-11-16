@@ -49,17 +49,20 @@ public class GridQuery implements Runnable {
 		} catch (MalformedURIException e) {
 			logger.error(e, e);
 			searchResult = null;
-			fireUpdateUI();
+			//fireUpdateUI();
+			notifyException(e.getMessage());
 			return;
 		} catch (RemoteException e) {
 			logger.error(e, e);
 			searchResult = null;
-			fireUpdateUI();
+			notifyException(e.getMessage());
+			//fireUpdateUI();
 			return;
 		} catch (ConnectException e) {
 			logger.error(e, e);
 			searchResult = null;
-			fireUpdateUI();
+			//fireUpdateUI();
+			notifyException(e.getMessage());
 			return;
 		}		
 	}
@@ -109,5 +112,8 @@ public class GridQuery implements Runnable {
 	void fireUpdateUI(){
 		GridSearchEvent event = new GridSearchEvent(this);         		
         listener.searchResultAvailable(event);
-	}	
+	}
+	void notifyException(String message){         		
+        listener.notifyException(message);
+	}
 }
