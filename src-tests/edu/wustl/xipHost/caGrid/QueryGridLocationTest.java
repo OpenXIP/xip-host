@@ -208,5 +208,11 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
