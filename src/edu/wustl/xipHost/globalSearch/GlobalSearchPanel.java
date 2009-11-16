@@ -330,5 +330,11 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 			progressBar.setString("GlobalSearch finished");
 			progressBar.setIndeterminate(false);
 		}			
+	}
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
 	}	
 }
