@@ -3,6 +3,8 @@ package edu.wustl.xipHost.avt;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
@@ -16,20 +18,23 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 
 public class AVTQuery implements Runnable{
+	final static Logger logger = Logger.getLogger(AVTQuery.class);
 	ADFacade adService;	
 	HashMap<Integer, Object> adDicomCriteria;
 	public AVTQuery(HashMap<Integer, Object> adDicomCriteria){
 		this.adDicomCriteria = adDicomCriteria;
 		adService = AVTFactory.getADServiceInstance();
 		if(adService == null){
-			System.out.println("Connection problem");
+			logger.warn("Client to AD database cannot be created. adService=null.");
 		}
 	}
 	
 	SearchResult result;
 	public void run() {											
+		logger.info("Executing AVT query.");
 		List<DicomObject> foundDICOMs = adService.retrieveDicomObjsWithoutPixel(adDicomCriteria, null);		
-		result = resolveToSearchResult(foundDICOMs);			
+		result = resolveToSearchResult(foundDICOMs);
+		logger.info("AVT query finished.");
 		fireResultsAvailable(result);
 	}	
 		
