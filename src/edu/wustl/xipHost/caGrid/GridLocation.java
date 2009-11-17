@@ -57,4 +57,7 @@ public class GridLocation {
 	public enum Type {
 		DICOM, AIM;
 	}	
+	public String toString(){
+		return address + " " + type.toString() + " "+ protocolVersion + " " + shortName;
+	}
 }
