@@ -199,7 +199,7 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 			e.printStackTrace();
 		}
 		SearchResult result = gridQuery.getSearchResult();		
-		Boolean isLocDescValid = new Boolean(result.toString() != null && !result.toString().isEmpty());
+		Boolean isLocDescValid = new Boolean(result.getDataSourceDescription() != null && !result.getDataSourceDescription().isEmpty());
 		assertTrue("Location description is missing in teh returned value.", isLocDescValid);
 	}
 
