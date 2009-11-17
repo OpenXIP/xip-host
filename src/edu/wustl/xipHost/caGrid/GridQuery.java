@@ -7,8 +7,14 @@ import java.net.ConnectException;
 import java.rmi.RemoteException;
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.log4j.Logger;
+import org.globus.wsrf.encoding.ObjectSerializer;
+import org.globus.wsrf.encoding.SerializationException;
+
+import javax.xml.namespace.QName;
 import edu.wustl.xipHost.caGrid.GridLocation;
+import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.Study;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
 import gov.nih.nci.cagrid.data.client.DataServiceClient;
@@ -37,6 +43,30 @@ public class GridQuery implements Runnable {
 		this.gridLocation = gridLocation;
 		this.previousSearchResult = previousSearchResult;
 		this.queriedObject = queriedObject;
+		if(logger.isDebugEnabled()){
+			String strCQL = "";
+			try {
+				strCQL = ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery"));
+			} catch (SerializationException e) {			
+				logger.error(e, e);
+			}
+			logger.debug("CQL query statement: " + strCQL);
+			logger.debug("Grid location: " + gridLocation.toString());
+			if(previousSearchResult == null){
+				logger.debug("Previous search result: " + previousSearchResult);
+			}else{
+				logger.debug("Previous search result: " + previousSearchResult.toString());
+			}
+			if(queriedObject == null){
+				logger.debug("Queried object: " + queriedObject);
+			}else if(queriedObject instanceof Patient){
+				Patient patient = Patient.class.cast(queriedObject);
+				logger.debug("Queried object: " + patient.toString());
+			}else if(queriedObject instanceof Study){
+				Study study = Study.class.cast(queriedObject);
+				logger.debug("Queried object: " + study.toString());
+			}
+		}		
 	}
 		
 	SearchResult searchResult;
