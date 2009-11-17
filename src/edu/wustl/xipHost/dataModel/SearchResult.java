@@ -19,8 +19,12 @@ public class SearchResult {
 		this.datasoureDescription = datasoureDescription;
 	}
 	
-	public String toString(){
+	public String getDataSourceDescription(){
 		return new String("Search Result:" + this.datasoureDescription);
+	}
+	
+	public String toString(){						
+		return String.valueOf(patients.size()) + " patients and " + String.valueOf(items.size()) + " items.";
 	}
 	
 	public void addPatient(Patient patient){

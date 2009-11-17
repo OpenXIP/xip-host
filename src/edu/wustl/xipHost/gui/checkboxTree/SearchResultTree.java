@@ -73,7 +73,7 @@ public class SearchResultTree extends JTree {
 		}
 		results.add(result);				    	    	    	      		   	    
 	    //getting new nodes	    				
-		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.toString());
+		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
 		for(int i = 0; i < result.getPatients().size(); i++){
 			Patient patient = result.getPatients().get(i);	
 			final String patientDesc = patient.toString();						

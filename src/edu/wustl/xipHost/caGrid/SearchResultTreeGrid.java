@@ -43,7 +43,7 @@ public class SearchResultTreeGrid extends SearchResultTree{
 		treeModel.reload(rootNode);
 		
 		results.add(result);				    	    	    	      		   	    	    				
-		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.toString());
+		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
 		for(int i = 0; i < result.getPatients().size(); i++){
 			final Patient patient = result.getPatients().get(i);
 			DefaultMutableTreeNode patientNode = new DefaultMutableTreeNode(patient){

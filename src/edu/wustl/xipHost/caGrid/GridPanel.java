@@ -34,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
