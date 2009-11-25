@@ -10,18 +10,14 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.AttributeTag;
-import com.pixelmed.dicom.DicomDictionary;
+import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.dicom.DicomUtil;
-import edu.wustl.xipHost.dicom.FilterPanel;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 /**
@@ -29,12 +25,12 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
  *
  */
 public class SearchCriteriaPanel extends JPanel implements ActionListener{
-	private static final long serialVersionUID = 1L;
 	private SearchCriteriaVerifier searchCriteriaVerifier;
 	JPanel btnPanel = new JPanel();
 	JButton btnSearch = new JButton("Search");
 	JButton btnCancel = new JButton("Cancel");
-	FilterPanel panel;
+	//FilterPanel panel;
+	AttributePanel panel;
 	JScrollPane attEntryPanel;
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
@@ -44,7 +40,8 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 		searchCriteriaVerifier = new BasicSearchCriteriaVerifier();
 		//ApplicationFrameQuery appFrame = new ApplicationFrameQuery(null);
 		AttributeList list = DicomUtil.constructEmptyAttributeList();		
-		panel = new FilterPanel(list);
+		//panel = new FilterPanel(list);
+		panel = new AttributePanel(list);
 		panel.setBackground(new Color(156, 162, 189));
 		panel.setForeground(Color.WHITE);
 		attEntryPanel = new JScrollPane(panel);
@@ -121,15 +118,7 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 	
 	
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == btnSearch){						
-			AttributeList criteria = getFilterList();										
-			if(verifyCriteria(criteria)){																									
-				//setVisible(false);
-			} else {
-				//if no criteria specified do ...
-				
-			}
-		}else if(e.getSource() == btnCancel){
+		if(e.getSource() == btnCancel){
 			new UnderDevelopmentDialog(btnCancel.getLocationOnScreen());
 		}
 	}

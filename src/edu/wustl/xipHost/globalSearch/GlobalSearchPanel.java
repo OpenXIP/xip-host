@@ -23,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.caGrid.CQLTargetName;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
@@ -288,10 +289,11 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 				
 			}												
 			//2.Create arguments for runnable query(CQL, Location)			
-			CQLQuery cql = GridUtil.convertToCQLStatement(criteria);
+			GridUtil gridUtil = gridMgr.getGridUtil();
+			CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.SERIES);
 			if(cql == null){return false;}
 			for(int i = 0 ; i < gridLocs.size(); i++){								
-				GridQuery gridQuery = new GridQuery(cql, gridLocs.get(i));				
+				GridQuery gridQuery = new GridQuery(cql, gridLocs.get(i), null, null);				
 				gridQuery.addGridSearchListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();	
@@ -328,5 +330,11 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 			progressBar.setString("GlobalSearch finished");
 			progressBar.setIndeterminate(false);
 		}			
+	}
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
 	}	
 }

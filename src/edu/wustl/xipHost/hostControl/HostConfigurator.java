@@ -18,6 +18,8 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.xml.ws.Endpoint;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -40,6 +42,7 @@ import edu.wustl.xipHost.worklist.Worklist;
 import edu.wustl.xipHost.worklist.WorklistFactory;
 
 public class HostConfigurator {
+	final static Logger logger = Logger.getLogger(HostConfigurator.class);
 	Login login = new Login();		 
 	File hostTmpDir;
 	File hostOutDir;
@@ -54,6 +57,7 @@ public class HostConfigurator {
 	String userName;	 	
 	
 	public boolean runHostStartupSequence(){		
+		logger.info("Staring XIPHost");
 		//DisplayLoginDialog
 		LoginDialog loginDialog = new LoginDialog();
 		loginDialog.setLogin(login);
@@ -355,9 +359,11 @@ public class HostConfigurator {
 		}		        				
 		//Turn off commons loggin for better performance
 		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");		
+		DOMConfigurator.configure("log4j.xml");
 		hostConfigurator = new HostConfigurator();
 		boolean startupOK = hostConfigurator.runHostStartupSequence();
 		if(startupOK == false){			
+			logger.fatal("XIPHost startup error. System exits.");
 			System.exit(0);
 		}		
 		/*final long MEGABYTE = 1024L * 1024L;
@@ -389,7 +395,7 @@ public class HostConfigurator {
 				}
 			}
 		}		
-		System.out.println("XIP Host is shutting down ...");
+		logger.info("Shutting down XIP Host.");
 		//Store Host configuration parameters
 		storeHostConfigParameters(hostConfig);
 		//Store Applications		
@@ -413,7 +419,7 @@ public class HostConfigurator {
 		//Clear Xindice directory. Ensures all documents and collections are cleared even when application
 		//does not terminate properly
 		Util.delete(new File("./db"));
-		System.out.println("Thank you for using XIP Host.");
+		logger.info("XIPHost exits. Thank you for using XIP Host.");
 		System.exit(0);		
 	}
 	
@@ -497,5 +503,5 @@ public class HostConfigurator {
 			preferredHeight = 800;
 		}
 		return preferredHeight;		
-	}		
+	}
 }

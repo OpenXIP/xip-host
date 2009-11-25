@@ -10,6 +10,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -38,7 +40,9 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
 	Color selectionBorderColor, selectionForeground, selectionBackground, textForeground, textBackground;
 	
 	public CheckBoxTreeRenderer() {		   				   
-	    selectionBorderColor = UIManager.getColor("Tree.selectionBorderColor");
+		Icon icon = new ImageIcon("./gif/arrow_icon.gif");
+    	defaultRenderer.setLeafIcon(icon);
+		selectionBorderColor = UIManager.getColor("Tree.selectionBorderColor");
 	    selectionForeground = UIManager.getColor("Tree.selectionForeground");
 	    selectionBackground = UIManager.getColor("Tree.selectionBackground");
 	    //textForeground = UIManager.getColor("Tree.textForeground");
@@ -85,10 +89,10 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
 	        	checkBox.setEnabled(tree.isEnabled());		        		
 	        	returnValue = checkBox;
 	        	return returnValue;
-	        } else{		        		        			        	
+	        } else{		        		        			        		        		        	     	
 	        	return defaultRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 	        }
-    	}	    		    		    	
+    	}	    		    		    	    	    	    	
     	return defaultRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 	}
 	

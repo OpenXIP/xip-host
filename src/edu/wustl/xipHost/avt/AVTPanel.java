@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
+import org.apache.log4j.Logger;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -38,6 +39,7 @@ import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 
 public class AVTPanel extends JPanel implements ActionListener, AVTListener {
+	final static Logger logger = Logger.getLogger(AVTPanel.class);
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);
@@ -92,6 +94,7 @@ public class AVTPanel extends JPanel implements ActionListener, AVTListener {
 	
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == criteriaPanel.getQueryButton()){												
+			logger.info("Starting AVT query.");
 			resultTree.rootNode.removeAllChildren();
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);			

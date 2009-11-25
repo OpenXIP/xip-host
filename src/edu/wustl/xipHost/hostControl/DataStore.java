@@ -31,26 +31,36 @@ public class DataStore implements Runnable {
 	}
 	
 	public void run() {
-		//1. It is excpected for IA application that AIM object will is added to the top AvailableData descriptors list.
-		//2. DICOM attachemnt objects are excpected to be added to the series of the AvailableData
-		//3. When storing AIM pairs of AIM plus DICOM degmentation objects are expected
-		
-		ObjectDescriptor aimDesc = availableData.getObjectDescriptors().getObjectDescriptor().get(0);		
-		ObjectDescriptor dicomSegDesc = availableData.getPatients().getPatient().get(0).getStudies().getStudy().get(0).getSeries().getSeries().get(0).getObjectDescriptors().getObjectDescriptor().get(0);
+		//1. It is expected for IA application that AIM object will is added to the top AvailableData descriptors list.
+		//2. DICOM attachment objects are expected to be added to the series of the AvailableData
+		//3. When storing AIM, pairs of AIM plus DICOM segmentation objects are expected		
 		ArrayOfUUID arrayUUIDs = new ArrayOfUUID();
 		List<Uuid> listUUIDs = arrayUUIDs.getUuid();		
-		listUUIDs.add(aimDesc.getUuid());
-		listUUIDs.add(dicomSegDesc.getUuid());
+		List<ObjectDescriptor> aimDescs = availableData.getObjectDescriptors().getObjectDescriptor();
+		for(int i = 0; i < aimDescs.size(); i++){
+			ObjectDescriptor aimDesc = availableData.getObjectDescriptors().getObjectDescriptor().get(i);		
+			listUUIDs.add(aimDesc.getUuid());
+		}		
+		ObjectDescriptor dicomSegDesc;
+		if(availableData.getPatients().getPatient().get(0).getStudies().getStudy().get(0).getSeries().getSeries().get(0).getObjectDescriptors().getObjectDescriptor().size() == 0){
+		
+		}else{
+			dicomSegDesc = availableData.getPatients().getPatient().get(0).getStudies().getStudy().get(0).getSeries().getSeries().get(0).getObjectDescriptors().getObjectDescriptor().get(0);
+			listUUIDs.add(dicomSegDesc.getUuid());
+		}				
 		ArrayOfObjectLocator arrayOfObjectLocator = app.getClientToApplication().getDataAsFile(arrayUUIDs, false);
 		if(arrayOfObjectLocator == null){
 			return;
 		}else{
 			List<ObjectLocator> objLocs = arrayOfObjectLocator.getObjectLocator();
-			AVTStore avtStore = new AVTStore(objLocs);
-			Thread t = new Thread(avtStore);
-			t.start();
-			boolean submitToOSU = false;
-			if(submitToOSU){
+			boolean submitToAVT = true;
+			if(submitToAVT){
+				AVTStore avtStore = new AVTStore(objLocs);
+				Thread t = new Thread(avtStore);
+				t.start();
+			}			
+			boolean submitToAIME = true;
+			if(submitToAIME){
 				AimStore aimStore = new AimStore(objLocs, null);
 				Thread t2 = new Thread(aimStore);
 				t2.start();

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 20078 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.gui;
 
@@ -14,7 +14,6 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import edu.wustl.xipHost.localFileSystem.HostFileChooser;
-import edu.wustl.xipHost.nci.NCIPanel;
 import edu.wustl.xipHost.worklist.WorklistPanel;
 import edu.wustl.xipHost.xds.XDSPanel;
 import java.awt.*;
@@ -47,7 +46,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
 	GridPanel gridPanel;
 	GlobalSearchPanel globalSearchPanel;
 	AVTPanel avtPanel;
-	NCIPanel nciPanel;
 	XDSPanel xdsPanel;
 	
 	static Dimension screenSize;	
@@ -59,7 +57,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		gridPanel = new GridPanel();
 		globalSearchPanel = new GlobalSearchPanel();
 		avtPanel = new AVTPanel();
-		nciPanel = new NCIPanel();
 		xdsPanel = new XDSPanel();
 		if(HostConfigurator.OS.contains("Windows")){
 			setUndecorated(true);
@@ -85,11 +82,10 @@ public class HostMainWindow extends JFrame implements ActionListener {
                 
         //Add tabs        
         ImageIcon icon = null;
-        tabPaneCenter.addTab("AVT AD", icon, avtPanel, null);                
-        tabPaneCenter.addTab("caGrid OSU", icon, gridPanel, null);	   
+        tabPaneCenter.addTab("caGrid", icon, gridPanel, null);
+        tabPaneCenter.addTab("AVT AD", icon, avtPanel, null);                        	   
         tabPaneCenter.addTab("PACS", icon, dicomPanel, null);	   
         tabPaneCenter.addTab("GlobalSearch", icon, globalSearchPanel, null);        
-        tabPaneCenter.addTab("NCIA", icon, nciPanel, null);
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
         tabPaneCenter.addTab("Worklist", icon, worklistPanel, null);
         tabPaneCenter.setFont(font);

@@ -126,7 +126,7 @@ public class QueryPacsLocationTest extends TestCase {
 		}*/
 		int numSeries = patient.getStudies().get(0).getSeries().size();	//should be 1
 		int numImages = patient.getStudies().get(0).getSeries().get(0).getItems().size(); //should be 1
-		Boolean isLocValid = new Boolean(result.toString() != null && !result.toString().isEmpty());
+		Boolean isLocValid = new Boolean(result.getDataSourceDescription() != null && !result.getDataSourceDescription().isEmpty());
 		Boolean bln = numStudies == 1 && numSeries == 1 && numImages == 1 && isLocValid;
 		assertTrue("System did not return correct number of patients, studies or series.", bln);		
 	}

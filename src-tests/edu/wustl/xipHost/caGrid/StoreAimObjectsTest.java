@@ -43,13 +43,14 @@ public class StoreAimObjectsTest extends TestCase {
 		Uuid objUUID = new Uuid();
 		objUUID.setUuid(UUID.randomUUID().toString());
 		objLoc.setUuid(objUUID);
-		File file = new File("./src-tests/edu/wustl/xipHost/avt/0022FollowupA.xml");
+		File file = new File("./test-content/AIM_2/Vasari-TCGA6330140190470283886.xml");
 		String uri = file.toURI().toURL().toExternalForm();
 		objLoc.setUri(uri);
 		objLocs.add(objLoc);
 		AimStore aimStore = new AimStore(objLocs, null);
-		Thread t = new Thread(aimStore);
-		t.start();
+		//Thread t = new Thread(aimStore);
+		//t.start();
+		aimStore.run();
 	}
 
 }

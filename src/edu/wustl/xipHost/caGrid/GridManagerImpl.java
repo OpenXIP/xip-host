@@ -27,6 +27,8 @@ import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
 import gov.nih.nci.cagrid.data.client.DataServiceClient;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
+import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
+import gov.nih.nci.ivi.dicomdataservice.client.DICOMDataServiceClient;
 
 
 /**
@@ -50,11 +52,12 @@ public class GridManagerImpl implements GridManager {
 			String address = (((Element)children.get(i)).getChildText("gridAddress"));
 			String shortName = (((Element)children.get(i)).getChildText("shortName"));
 			String type = (((Element)children.get(i)).getChildText("type"));
+			String protocolVersion = (((Element)children.get(i)).getChildText("protocolVersion"));
 			try{
 				if(type != null && type.equalsIgnoreCase("DICOM")){
-					gridLocations.add(new GridLocation(address, Type.DICOM, shortName));
+					gridLocations.add(new GridLocation(address, Type.DICOM, protocolVersion, shortName));
 				}else if (type != null && type.equalsIgnoreCase("AIM")){
-					gridLocations.add(new GridLocation(address, Type.AIM, shortName));
+					gridLocations.add(new GridLocation(address, Type.AIM, protocolVersion, shortName));
 				} else{
 					System.out.println("Invalid " + address + " " + type + " " + shortName + " - check location's 'type' attribute.");
 				}
@@ -79,13 +82,16 @@ public class GridManagerImpl implements GridManager {
 			Element gridAddressElem = new Element("gridAddress");
 			Element shortNameElem = new Element("shortName");
 			Element typeElem = new Element("type");
+			Element protocolVersionElem = new Element("protocolVersion");
 			rootSave.addContent(gridLocationElem);
 			gridLocationElem.addContent(gridAddressElem);
 			gridLocationElem.addContent(shortNameElem);
 			gridLocationElem.addContent(typeElem);
+			gridLocationElem.addContent(protocolVersionElem);
 			gridAddressElem.addContent(locations.get(i).getAddress());
 			shortNameElem.addContent(locations.get(i).getShortName());			
-			typeElem.addContent(locations.get(i).getType().toString());									
+			typeElem.addContent(locations.get(i).getType().toString());
+			protocolVersionElem.addContent(locations.get(i).getProtocolVersion().toString());
 		}		
 		try {
 			FileOutputStream outStream = new FileOutputStream(file);
@@ -99,41 +105,6 @@ public class GridManagerImpl implements GridManager {
 		}
 		return true;
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see edu.wustl.xipHost.caGrid.GridManager#query(gov.nih.nci.cagrid.cqlquery.CQLQuery, edu.wustl.xipHost.caGrid.GridLocation)
-	 */
-	public SearchResult query(CQLQuery query, GridLocation location) throws MalformedURIException, RemoteException, ConnectException{		
-		DataServiceClient dicomclient = null;		
-		CQLQueryResultsIterator iter;		
-		if(location != null){
-			dicomclient = new DataServiceClient(location.getAddress());			
-		}else{
-			return null;
-		}
-		final CQLQuery fcqlq = query;		
-		CQLQueryResults results = dicomclient.query(fcqlq);				
-        iter = new CQLQueryResultsIterator(results);        
-        
-        /*int ii = 0;
-		while (iter.hasNext()) {
-			System.out.println(ii++);
-			java.lang.Object obj = iter.next();
-			if (obj == null) {
-				System.out.println("something not right.  obj is null");
-				continue;
-			}
-			Patient patient = Patient.class.cast(obj);						
-			System.out.println("Patient Id: " + patient.getPatientId());							
-			System.out.println("Patient name: " + patient.getPatientName());
-		}*/
-        
-        
-        
-        SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	        
-        return result;			
-	}	
 		
 	/* (non-Javadoc)
 	 * @see edu.wustl.xipHost.caGrid.GridManager#getGridLocations()

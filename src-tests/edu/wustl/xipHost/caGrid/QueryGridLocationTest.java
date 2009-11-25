@@ -22,10 +22,9 @@ import junit.framework.TestCase;
  * @author Jaroslaw Krych
  *
  */
-public class QueryGridLocationTest extends TestCase {
-	GridManager gridMgr;
+public class QueryGridLocationTest extends TestCase implements GridSearchListener {
 	//GridLocation gridLoc = new GridLocation("http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "OSU");
-	GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "OSU");
+	GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "OSU");
 	CQLQuery cqlQuery = null;
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -33,7 +32,6 @@ public class QueryGridLocationTest extends TestCase {
 	protected void setUp() throws Exception {
 		//try to simulate gid in form of stub or mock object
 		super.setUp();
-		gridMgr = new GridManagerImpl();
 		 
 		/* Create CQL for grid query */
 		HashMap<String, String> queryHashMap = new HashMap<String, String>();																		
@@ -73,7 +71,16 @@ public class QueryGridLocationTest extends TestCase {
 	//CQL statement and GridLocation are valid and network is on.
 	public void testQueryGridLocation1A() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              				
 		SearchResult result = null;
-		result = gridMgr.query(cqlQuery, gridLoc);		
+		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		gridQuery.addGridSearchListener(this);
+		Thread t = new Thread(gridQuery);
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
+		}
+		result = gridQuery.getSearchResult();		
 		//Check if return type is an instance of DicomSearchResult and is not null						                
         Boolean blnType = result instanceof SearchResult; //blnType will be false when result would be null        	         		
 		assertTrue("Expected returned value should be CQLQueryResultsIterator but system did not define it this way.", blnType);
@@ -109,13 +116,17 @@ public class QueryGridLocationTest extends TestCase {
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}		
-		try{
-			gridMgr.query(cqlQuery, gridLoc);
-			//assertNull("CQL statement was invalid. Returned result should be null but system did not define it this way.", result);
-			fail("CQL statement was invalid but system failed to report an error.");
-		}catch(RemoteException e){
-			assertTrue(true);
-		}				
+		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		gridQuery.addGridSearchListener(this);
+		Thread t = new Thread(gridQuery);
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
+		}
+		//assertNull("CQL statement was invalid. Returned result should be null but system did not define it this way.", result);
+		fail("CQL statement was invalid but system failed to report an error.");				
 	}
 	
 	//GridManagerImpl - query grid 1C - alternative flow. 
@@ -130,40 +141,78 @@ public class QueryGridLocationTest extends TestCase {
 	//GridManagerImpl - query grid 1D - alternative flow. 
 	//CQL statement is valid but GridLocation does not exist and network is on.
 	public void testQueryGridLocation1D() throws RemoteException, ConnectException {										              
-		gridLoc = new GridLocation("http://127.0.0.1", Type.DICOM, "Test Location");	//There is no repository at http://127.0.0.1 		
-		try{
-			gridMgr.query(cqlQuery, gridLoc);
-			fail("Invalid GridLocation.");
-		}catch (org.apache.axis.types.URI.MalformedURIException e) {
-			assertTrue(true);
-		} 		
+		gridLoc = new GridLocation("http://127.0.0.1", Type.DICOM, "DICOM", "Test Location");	//There is no repository at http://127.0.0.1 		
+		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		gridQuery.addGridSearchListener(this);
+		Thread t = new Thread(gridQuery);
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
+		}
+		fail("Invalid GridLocation."); 		
 	}
 	
 	//GridManagerImpl - query grid 1E - alternative flow. 
 	//CQL statement is null and GridLocation is valid.
 	public void testQueryGridLocation1E() throws org.apache.axis.types.URI.MalformedURIException, ConnectException {										              
-		try{
-			gridMgr.query(null, gridLoc);
-			//assertNull("CQL statement was invalid. Returned result should be null but system did not define it this way.", result);
-			fail("CQL statement is null but system failed to report an error.");
-		}catch(RemoteException e){
-			assertTrue(true);
+		GridQuery gridQuery = new GridQuery(null, gridLoc, null, null);
+		gridQuery.addGridSearchListener(this);
+		Thread t = new Thread(gridQuery);
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
 		}
+		//assertNull("CQL statement was invalid. Returned result should be null but system did not define it this way.", result);
+		fail("CQL statement is null but system failed to report an error.");
 	}
 	
 	//GridManagerImpl - query grid 1F - alternative flow. 
 	//CQL statement is valid but GridLocation is null.
 	public void testQueryGridLocation1F() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              		
-		SearchResult result = gridMgr.query(cqlQuery, null);
+		GridQuery gridQuery = new GridQuery(cqlQuery, null, null, null);
+		gridQuery.addGridSearchListener(this);
+		Thread t = new Thread(gridQuery);
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
+		}
+		SearchResult result = gridQuery.getSearchResult();	
 		assertNull("GridLocation was null. Returned value should be null but is not.", result);
 	}
 	
 	//GridManagerImpl - query grid 1G - alternative flow. 
 	//CQL statement is valid and GridLocation is valid. Test if location desc is not null and not empty string.
 	public void testQueryGridLocation1G() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              		
-		SearchResult result = gridMgr.query(cqlQuery, gridLoc);
-		Boolean isLocDescValid = new Boolean(result.toString() != null && !result.toString().isEmpty());
+		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		gridQuery.addGridSearchListener(this);
+		Thread t = new Thread(gridQuery);
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
+		}
+		SearchResult result = gridQuery.getSearchResult();		
+		Boolean isLocDescValid = new Boolean(result.getDataSourceDescription() != null && !result.getDataSourceDescription().isEmpty());
 		assertTrue("Location description is missing in teh returned value.", isLocDescValid);
+	}
+
+	@Override
+	public void searchResultAvailable(GridSearchEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

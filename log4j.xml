@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration threshold="debug" xmlns:log4j="http://jakarta.apache.org/log4j/">
+  <!-- Order of child elements is appender, logger, root. -->
+
+  <!-- Appenders control how logging is output. -->
+  <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+    </layout>
+  </appender>
+  
+  <appender name="HostMain_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/xiphost-main.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+  	</layout>  
+  </appender>
+  
+  <appender name="Grid_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/xiphost-grid.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+  	</layout>
+  </appender>
+  <appender name="Dicom_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/xiphost-dicom.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+	</layout>
+  </appender>
+   <appender name="AVT_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/xiphost-avt.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+	</layout>
+  </appender>
+  
+  <logger name="edu.wustl.xipHost.caGrid.GridQuery">
+	 <appender-ref ref="Grid_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.caGrid.GridPanel">
+	<appender-ref ref="Grid_Appender" />
+  </logger>
+  <logger name="edu.wustl.xipHost.gui.BasicSearchCriteriaVerifier">
+	<appender-ref ref="Grid_Appender"/>
+  </logger>
+  
+  <logger name="edu.wustl.xipHost.dicom.AttributePanel">
+	<appender-ref ref="Dicom_Appender"/>
+  </logger>
+
+  <logger name="edu.wustl.xipHost.avt.AVTPanel">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>	
+  <logger name="edu.wustl.xipHost.avt.AVTQuery">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>
+  
+  <logger name="edu.wustl.xipHost.avt.AVTQuery">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>
+  
+  <logger name="edu.wustl.xipHost.hostControl.HostConfigurator">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>		
+	
+  <root>
+    <!-- level value="debug"/-->
+    <appender-ref ref="stdout"/>   
+  </root>
+
+</log4j:configuration>

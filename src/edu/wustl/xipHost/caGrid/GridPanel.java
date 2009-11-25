@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.caGrid;
 
@@ -16,10 +16,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,15 +33,25 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import javax.xml.namespace.QName;
-
+import org.apache.log4j.Logger;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
-
+import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
+import com.pixelmed.dicom.AttributeTag;
+import com.pixelmed.dicom.CodeStringAttribute;
+import com.pixelmed.dicom.DicomException;
+import com.pixelmed.dicom.ShortStringAttribute;
+import com.pixelmed.dicom.SpecificCharacterSet;
+import com.pixelmed.dicom.TagFromName;
 import edu.wustl.xipHost.caGrid.GridUtil;
+import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
@@ -53,11 +61,7 @@ import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.cagrid.data.MalformedQueryException;
-import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
-import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
+import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
 
 /**
@@ -65,7 +69,7 @@ import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
  *
  */
 public class GridPanel extends JPanel implements ActionListener, GridSearchListener, GridRetrieveListener {	
-
+	final static Logger logger = Logger.getLogger(GridPanel.class);
 	JPanel locationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select caGRID DICOM Service Location:");		
 	ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");	
@@ -83,8 +87,10 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	Color xipBtn = new Color(56, 73, 150);
 	Color xipLightBlue = new Color(156, 162, 189);
 	GridManager gridMgr;
+	GridSearchListener l;
 	
 	public GridPanel(){
+		l = this;
 		setBackground(xipColor);							
 		comboModel = new DefaultComboBoxModel();
 		list = new JComboBox(comboModel);
@@ -100,16 +106,22 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 		ComboBoxRenderer renderer = new ComboBoxRenderer();		
 		list.setRenderer(renderer);
 		list.setMaximumRowCount(10);
-		list.setSelectedIndex(-1);
+		//list.setSelectedIndex(-1);
+		list.setSelectedIndex(0);
+		GridLocation itemDICOM = (GridLocation)list.getSelectedItem();
+		selectedGridTypeDicomService = (GridLocation)itemDICOM;
 		list.setPreferredSize(new Dimension(465, 25));
 		list.setFont(font_2);
 		list.setEditable(false);		
 		list.addActionListener(this);
-		rightPanel.list.setSelectedIndex(-1);
+		//rightPanel.list.setSelectedIndex(-1);
+		rightPanel.list.setSelectedIndex(0);
+		GridLocation itemAIM = (GridLocation)rightPanel.list.getSelectedItem();
+		selectedGridTypeAimService = (GridLocation)itemAIM;			
 		rightPanel.list.addActionListener(this);
 		rightPanel.btnRetrieve.addActionListener(this);
 		resultTree = rightPanel.getGridJTreePanel(); 
-		//resultTree.addTreeSelectionListener(this);
+		//resultTree.addTreeSelectionListener(this);		
 		resultTree.addMouseListener(ml);
 		rightPanel.lblGlobus.addMouseListener(
 			new MouseAdapter(){
@@ -299,18 +311,19 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
 			selectedGridTypeAimService = (GridLocation)item;			
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){
+			logger.info("Starting GRID query.");
 			rightPanel.btnRetrieve.setEnabled(false);
 			rightPanel.cbxAnnot.setEnabled(false);
 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
-			progressBar.updateUI();	
+			progressBar.updateUI();							
 			setCriteriaList(criteriaPanel.getFilterList());				
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);
-			if(bln && selectedGridTypeDicomService != null){
-				CQLQuery cql = GridUtil.convertToCQLStatement(criteria);								
-				//CQLQueryResultsIterator iter = gridMgr.queryDicomData(cql, selectedGridService);
-				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService);				
+			if(bln && selectedGridTypeDicomService != null){											
+				GridUtil gridUtil = gridMgr.getGridUtil();
+				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);							
+				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, null, null);				
 				gridQuery.addGridSearchListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();									
@@ -334,33 +347,56 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 				criteriaPanel.getQueryButton().setEnabled(false);
 				rightPanel.btnRetrieve.setBackground(Color.GRAY);
 				rightPanel.btnRetrieve.setEnabled(false);
-				rightPanel.cbxAnnot.setEnabled(false);												
-				for(int i = 0; i < criteriasDicom.size(); i++){
-					CQLQuery cqlQuery = criteriasDicom.get(i);
-					CQLQuery aimCQL = criteriasAim.get(i);	
-					try {
-						//Retrieve Dicom
-						GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-						gridRetrieve.addGridRetrieveListener(this);						
-						Thread t1 = new Thread(gridRetrieve);
-						t1.start();
+				rightPanel.cbxAnnot.setEnabled(false);																
+				if(selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("DICOM")){					
+					for(int i = 0; i < criteriasDicom.size(); i++){
+						CQLQuery cqlQuery = criteriasDicom.get(i);
+						try {
+							//Retrieve Dicom						
+							GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
+							gridRetrieve.addGridRetrieveListener(this);						
+							Thread t = new Thread(gridRetrieve);
+							t.start();						
+							numRetrieveThreadsStarted++;							
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							//TODO
+							//Set to mumber of threads to terminate retrieve
+						}																				
+					}
+				}else if (selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
+					//Retrieve DICOM from NBIA
+					Map<Series, Study> map = resultTree.getSelectedSeries();
+					Set<Series> seriesSet = map.keySet();
+					Iterator<Series> iter = seriesSet.iterator();
+					while (iter.hasNext()){
+						Series series = iter.next();
+						String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
+						GridRetrieveNCIA nciaRetrieve = new GridRetrieveNCIA(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
+						nciaRetrieve.addGridRetrieveListener(this);
+						Thread t = new Thread(nciaRetrieve);
+						t.start();
 						numRetrieveThreadsStarted++;
-						//Retrieve AIM
-						if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){							
-								AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
-								aimRetrieve.addGridRetrieveListener(this);
-								Thread t2 = new Thread(aimRetrieve);
-								t2.start();
-								numRetrieveThreadsStarted++;
-						} 
+					}
+				}												
+			}
+			//Retrieve AIM				
+			if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){
+				for(int i = 0; i < criteriasAim.size(); i++){
+					CQLQuery aimCQL = criteriasAim.get(i);						
+					try {
+						AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
+						aimRetrieve.addGridRetrieveListener(this);
+						Thread t = new Thread(aimRetrieve);
+						t.start();
+						numRetrieveThreadsStarted++;
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
-						//TODO
-						//Set to mumber of threads to terminate retrieve
-					}																
-				}				
-			}						
+					}					
+				}					
+			} 								
 		}
 	}	
 	
@@ -394,12 +430,44 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			  }
 		
 	}
+	
+	SearchResult result;
 	public void searchResultAvailable(GridSearchEvent e) {
 		progressBar.setString("GridSearch finished");
 		progressBar.setIndeterminate(false);
-		GridQuery gridQuery = (GridQuery)e.getSource();
-		SearchResult result = gridQuery.getSearchResult();							
-		rightPanel.getGridJTreePanel().updateNodes(result);
+		if(e.getSource().getClass() == GridQuery.class){
+			GridQuery gridQuery = (GridQuery)e.getSource();
+			result = gridQuery.getSearchResult();			
+		}				
+		rightPanel.getGridJTreePanel().updateNodes(result);								
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				resultTree.scrollRowToVisible(queryNodeIndex);
+				int visibleRows = resultTree.getVisibleRowCount();
+				resultTree.scrollRowToVisible(queryNodeIndex + visibleRows);
+			}			 
+		});	
+	}
+	
+	@Override
+	public void notifyException(String message) {		
+		progressBar.setIndeterminate(false);
+		progressBar.invalidate();
+		progressBar.setForeground(Color.RED);
+		progressBar.validate();
+		progressBar.setString("Exception: " + message);
+		result = null;							
+		rightPanel.getGridJTreePanel().updateNodes(result);								
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				resultTree.scrollRowToVisible(queryNodeIndex);
+				int visibleRows = resultTree.getVisibleRowCount();
+				resultTree.scrollRowToVisible(queryNodeIndex + visibleRows);
+			}			 
+		});
+		
 	}
 	
 	List<CQLQuery> getDicomRetrieveCriteria() {
@@ -411,46 +479,24 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			Series series = iter.next();
 			String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
 			String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();
-			//Create CQL statement for retrieve
-			HashMap<String, String> query = new HashMap<String, String>();						
-			if(selectedStudyInstanceUID != null && selectedSeriesInstanceUID != null){
-				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
-				query.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", selectedStudyInstanceUID);
-				query.put("gov.nih.nci.ncia.domain.Series.seriesInstanceUID", selectedSeriesInstanceUID);
-			}else if(selectedStudyInstanceUID != null && selectedSeriesInstanceUID == null){				
-				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Study.class.getCanonicalName());
-				query.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", selectedStudyInstanceUID);
-			}else{
-				
-			}
-			/* Convert hash map to SQL */
-			HashmapToCQLQuery h2cql;
 			CQLQuery cqlQuery = null;	
+			GridUtil gridUtil = gridMgr.getGridUtil();
+			AttributeList attList = new AttributeList();
 			try {
-				h2cql = new HashmapToCQLQuery(new ModelMap());							
-				cqlQuery = h2cql.makeCQLQuery(query);
-				/*System.err.println(ObjectSerializer.toString(cqlQuery, 
-						new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));*/
-				retrieveCriterias.add(cqlQuery);
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModelMapException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (MalformedQueryException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}																				
+				String[] characterSets = { "ISO_IR 100" };
+				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);			
+				{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(selectedStudyInstanceUID); attList.put(t,a); }
+				{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(selectedSeriesInstanceUID); attList.put(t,a); }
+				{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); a.addValue(characterSets[0]); attList.put(t,a); }			
+			}
+			catch (Exception e) {
+				e.printStackTrace(System.err);			
+			}
+			cqlQuery = gridUtil.convertToCQLStatement(attList, CQLTargetName.SERIES);
+			retrieveCriterias.add(cqlQuery);
 		}
-		return retrieveCriterias;																													
-	}
+		return retrieveCriterias;
+	}	
 	
 	List<CQLQuery> getAimRetrieveCriteria() {
 		List<CQLQuery> retrieveCriterias = new ArrayList<CQLQuery>();
@@ -461,26 +507,137 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			Series series = iter.next();
 			String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
 			String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();			
-			CQLQuery aimCQL = AIMDataServiceHelper.generateImageAnnotationQuery(selectedStudyInstanceUID, selectedSeriesInstanceUID, null);;
+			//CQLQuery aimCQL = AIMDataServiceHelper.generateImageAnnotationQuery(selectedStudyInstanceUID, selectedSeriesInstanceUID, null);;
+			CQLQuery aimCQL = AIMTCGADataServiceHelper.generateImageAnnotationQuery(selectedStudyInstanceUID, selectedSeriesInstanceUID, null);
 			retrieveCriterias.add(aimCQL);
 		}
 		return retrieveCriterias;
 	}
 	
-	
-	MouseListener ml = new MouseAdapter() {
+	Object selectedNode;
+	int queryNodeIndex = 0;
+	MouseListener ml = new MouseAdapter(){
 	     public void mousePressed(MouseEvent e) {
 	    	 if(resultTree.getSelectedSeries().size() > 0){
 	    		rightPanel.btnRetrieve.setEnabled(true);	    		 	    			
 	 			rightPanel.btnRetrieve.setBackground(xipBtn);
-	 			rightPanel.btnRetrieve.setForeground(Color.WHITE);
+	 			//rightPanel.btnRetrieve.setForeground(Color.WHITE);
+	 			rightPanel.btnRetrieve.setForeground(Color.BLACK);
 	 			rightPanel.cbxAnnot.setEnabled(true);
 	    	 }else{
 	    		rightPanel.btnRetrieve.setEnabled(false);	    		 	    		 
 	 			rightPanel.cbxAnnot.setEnabled(false);
 	 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 	    	 }
-	     }	     	
+	     }
+	     
+	    
+	     public void mouseClicked(MouseEvent e) {	        
+		        if (e.getClickCount() == 1) {
+		        	int x = e.getX();
+			     	int y = e.getY();
+			     	int row = resultTree.getRowForLocation(x, y);
+			     	TreePath  path = resultTree.getPathForRow(row);    	
+			     	if (path != null) {    		
+			     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();										     					     					     		
+			     		//System.out.println(resultTree.getRowForPath(new TreePath(queryNode.getPath())));
+			     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
+			     		if (queryNode == null) return;		 
+			     		if (!queryNode.isRoot()) {
+			     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
+			     			selectedNode = queryNode.getUserObject();			     			
+			     			AttributeList initialCriteria = criteriaPanel.getFilterList();
+			     			if(selectedNode instanceof Patient){			     				
+			     				Patient selectedPatient = Patient.class.cast(selectedNode);
+			     				logger.info("Staring node query: " + selectedPatient.toString());
+			     				//Retrieve studies for selected patient
+			     				rightPanel.btnRetrieve.setEnabled(false);
+			     				rightPanel.cbxAnnot.setEnabled(false);
+			     				rightPanel.btnRetrieve.setBackground(Color.GRAY);
+			     				progressBar.setString("Processing search request ...");
+			     				progressBar.setIndeterminate(true);
+			     				progressBar.updateUI();				     				
+			     				String[] characterSets = { "ISO_IR 100" };
+			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			     				//Clear previous study criteria
+			     				try {			     					
+			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+			     						a.addValue(selectedPatient.getPatientID());
+			     						initialCriteria.put(t,a); }
+								} catch (DicomException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								} 								
+			     				//setCriteriaList(updatedCriteria);				
+			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
+			     				if(bln && selectedGridTypeDicomService != null){											
+			     					GridUtil gridUtil = gridMgr.getGridUtil();
+			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.STUDY);				
+			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+		     							try {
+											a.addValue("");
+										} catch (DicomException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+		     							initialCriteria.put(t,a);}
+			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
+			     					gridQuery.addGridSearchListener(l);
+			     					Thread t = new Thread(gridQuery); 					
+			     					t.start();									
+			     				}else{
+			     					progressBar.setString("");
+			     					progressBar.setIndeterminate(false);
+			     				}			     				
+			     				repaint();
+			     			}else if(selectedNode instanceof Study){
+			     				Study selectedStudy = Study.class.cast(selectedNode);
+			     				logger.info("Staring node query: " + selectedStudy.toString());
+			     				//Retrieve studies for selected patient
+			     				rightPanel.btnRetrieve.setEnabled(false);
+			     				rightPanel.cbxAnnot.setEnabled(false);
+			     				rightPanel.btnRetrieve.setBackground(Color.GRAY);
+			     				progressBar.setString("Processing search request ...");
+			     				progressBar.setIndeterminate(true);
+			     				progressBar.updateUI();	
+			     				String[] characterSets = { "ISO_IR 100" };
+			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			     				try {			     								     					 			     									     						
+			     					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+				     					a.addValue(selectedStudy.getStudyInstanceUID());									 
+				     					initialCriteria.put(t,a); }
+								} catch (DicomException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								} 
+			     				//setCriteriaList(updatedCriteria);				
+			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
+			     				if(bln && selectedGridTypeDicomService != null){											
+			     					GridUtil gridUtil = gridMgr.getGridUtil();
+			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.SERIES);	
+			     					//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);
+			     					try {
+			     						{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     							
+											a.addValue("");										
+											initialCriteria.put(t,a);}
+										} catch (DicomException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}		     						
+			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
+			     					gridQuery.addGridSearchListener(l);
+			     					Thread t = new Thread(gridQuery); 					
+			     					t.start();									
+			     				}else{
+			     					progressBar.setString("");
+			     					progressBar.setIndeterminate(false);
+			     				}			     				
+			     				repaint();
+			     			}
+			     		}
+			     	}
+		        } 
+		    }
 	};	
 	
 	//TODO check if allRetrieveFiles must be synchronized
@@ -492,13 +649,17 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			GridRetrieve dicomRetrieve = (GridRetrieve)e.getSource();
 			List<File> result = dicomRetrieve.getRetrievedFiles();
 			allRetrivedFiles.addAll(result);
-		}else if(e.getSource() instanceof AimRetrieve){
+		} else if(e.getSource() instanceof GridRetrieveNCIA){
+			GridRetrieveNCIA dicomRetrieve = (GridRetrieveNCIA)e.getSource();
+			List<File> result = dicomRetrieve.getRetrievedFiles();
+			allRetrivedFiles.addAll(result);
+		} else if(e.getSource() instanceof AimRetrieve){
 			AimRetrieve aimRetrieve = (AimRetrieve)e.getSource();
 			List<File> result = aimRetrieve.getRetrievedFiles();
 			if(result != null){
 				allRetrivedFiles.addAll(result);
 			}
-		}		
+		}
 		numRetrieveThreadsReturned++;
 		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
 			progressBar.setString("GridRetrieve finished");

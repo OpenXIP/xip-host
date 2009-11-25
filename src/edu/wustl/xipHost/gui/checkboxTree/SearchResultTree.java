@@ -36,7 +36,7 @@ import edu.wustl.xipHost.dataModel.Study;
 public class SearchResultTree extends JTree {	
 
 	public DefaultMutableTreeNode rootNode;
-	DefaultTreeModel treeModel;			
+	protected DefaultTreeModel treeModel;			
 	CheckBoxTreeRenderer renderer;
 	
 	Font font = new Font("Tahoma", 0, 12);
@@ -73,10 +73,10 @@ public class SearchResultTree extends JTree {
 		}
 		results.add(result);				    	    	    	      		   	    
 	    //getting new nodes	    				
-		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.toString());
+		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
 		for(int i = 0; i < result.getPatients().size(); i++){
 			Patient patient = result.getPatients().get(i);	
-			final String patientDesc = patient.toString();			
+			final String patientDesc = patient.toString();						
 			for(int j = 0; j < patient.getStudies().size(); j++){
 				final Study study = patient.getStudies().get(j);
 				DefaultMutableTreeNode studyNode = new DefaultMutableTreeNode(study){
@@ -93,6 +93,7 @@ public class SearchResultTree extends JTree {
 						return study;
 					}					
 				};
+				
 				locationNode.add(studyNode);
 				for(int k = 0; k < study.getSeries().size(); k++){
 					final Series series = study.getSeries().get(k);
@@ -135,8 +136,7 @@ public class SearchResultTree extends JTree {
 			treeModel.nodeChanged(rootNode);
 			treeModel.reload(rootNode);				
 		}
-	}
-	
+	}		
 	
 	
 	/**
@@ -202,6 +202,7 @@ public class SearchResultTree extends JTree {
 	public void expandAll() {
 		expandSubTree(getPathForRow(0));
     }
+	
 	private void expandSubTree(TreePath path) {
 		expandPath(path);
 		Object node = path.getLastPathComponent();

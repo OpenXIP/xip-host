@@ -53,13 +53,13 @@ public class ConvertToCQLTest extends TestCase {
 		CQLQuery expectedCQL = h2cql.makeCQLQuery(queryHashMap); 
 		/*System.err.println(ObjectSerializer.toString(expectedCQL, 
 				new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));*/		
-        assertEquals("Attribute list valid but unable to convert to CQL", expectedCQL, util.convertToCQLStatement(attList));		
+        assertEquals("Attribute list valid but unable to convert to CQL", expectedCQL, util.convertToCQLStatement(attList, CQLTargetName.SERIES));		
 	}
 
 	//GridUtil 1B - alternative flow. AttributeList is null. 	
 	public void testConvertToCQL1B() throws DicomException, FileNotFoundException, ModelMapException, IOException, ClassNotFoundException, MalformedQueryException  {						
 		AttributeList attList = null;		                       
-        assertNull("Attribute list is null but convertToCQL did not return null.", util.convertToCQLStatement(attList));		
+        assertNull("Attribute list is null but convertToCQL did not return null.", util.convertToCQLStatement(attList, CQLTargetName.SERIES));		
 	}
 
 	

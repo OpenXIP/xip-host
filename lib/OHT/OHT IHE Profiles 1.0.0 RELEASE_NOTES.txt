@@ -1,0 +1,74 @@
+/**
+ * OHT IHE Profiles Release 1.0.0 Notes
+ * https://iheprofiles.projects.openhealthtools.org
+ *
+ * August 21, 2009
+ * 
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *
+ **************************************************************************
+ 
+
+  Release 1.0.0 of the OHT IHE Profiles Project has three distribution packages - 
+
+  1) IHE Profiles Core Plug-ins containing IHE Profiles ATNA, PDQ, PIX, and XDS Components
+  2) The Bridge Installation Package containing configuration files, binaries for RPC-style web services (SPECIAL NOTE: Release 1.0.0 does not officially support Document/literal style web services)
+  3) The Bridge Standalone Plugins containing just the Bridge core logic plus the IHE core plug-ins
+
+  Javadoc for Release 1.0.0 can be found in doc/
+
+  
+  Issues closed by this Release:
+Issue  Type  Priority Platform  Owner		State	Resolution	Summary
+1	TASK	P3	All	mattadav	CLOSED	FIXED	Initial re-architected ATNA component
+2	TASK	P3	All	mattadav	CLOSED	FIXED	Implementation of CPs
+3	TASK	P3	All	srrenly		CLOSED	FIXED	Implementation of CPs
+4	TASK	P3	All	srrenly		CLOSED	FIXED	Impementation of pediatric demograpics option
+5	TASK	P3	All	srrenly		CLOSED	FIXED	Implementation of CPs
+6	TASK	P3	All	seknoop		CLOSED	FIXED	Implementation of CPs
+7	TASK	P3	All	mattadav	CLOSED	FIXED	Implementation of XDM w/ bridge
+8	DEFECT	P3	All	srrenly		CLOSED	FIXED	Remove productOf Extension in CDA Model
+10	TASK	P3	All	seknoop		CLOSED	FIXED	add Glossary to Wiki
+12	TASK	P3	All	seknoop		CLOSED	FIXED	Ensure XDS Metadata Extraction consistent with PCC
+13	DEFECT	P1	All	seknoop		CLOSED	FIXED	XDS.a URI Slot is not split correctly
+14	DEFECT	P3	All	seknoop		CLOSED	FIXED	Metadata extraction not extraction Submission set author
+15	DEFECT	P1	All	seknoop		CLOSED	FIXED	Evaluation of registered metadata (P&R XDS.a/XDS.b) fails
+16	DEFECT	P2	All	srrenly		CLOSED	WORKSFORME	MesaTest 11350 not working
+17	ENHANC	P3	All	mattadav	CLOSED	FIXED	Re-Loading of RhioConfig.xml while Bridge is running.
+18	ENHANC	P3	All	mattadav	CLOSED	FIXED	Ability to specify java key stores on a per-RHIO basis
+19	DEFECT	P4	All	mattadav	CLOSED	FIXED	RetrieveDocumentSet must use MTOM/XOP-wrapped outbound request
+20	DEFECT	P1	All	mattadav	CLOSED	INVALID	cannot submit a document to any repository
+21	ENHANC	P3	All	srrenly		CLOSED	FIXED	New bridge support for applications already creating PIX ADT Feeds
+22	DEFECT	P2	All	mattadav	CLOSED	WORKSFORME	FindDocumentsQuery not working with latest NIST registry
+23	TASK	P2	All	mattadav	CLOSED	WONTFIX	OHT Plugin xerces jar conflicts with JBOSS xerces
+24	DEFECT	P1	All	seknoop		CLOSED	DUPLICATE	XDS single doc submission not working
+25	DEFECT	P2	All	mattadav	CLOSED	INVALID	secure pdq using OHF
+26	DEFECT	P3	All	mattadav	CLOSED	FIXED	Reloading of rhioConfig.xml
+27	DEFECT	P1	All	mattadav	CLOSED	INVALID	XDS doc submission issue
+28	DEFECT	P1	All	seknoop		CLOSED	INVALID	ATNA - How to set EventIdentification values?
+29	DEFECT	P1	All	mattadav	CLOSED	FIXED	Date error when doing PDQ
+30	DEFECT	P1	All	mattadav	CLOSED	FIXED	Bridge Error in SearchPatients
+31	DEFECT	P3	All	mattadav	CLOSED	INVALID	AuditRetrieveDocument Event not getting generated correctly
+32	ENHANC	P3	All	mattadav	CLOSED	FIXED	Add a switch to enable Java proxy support for non-TLS
+33	DEFECT	P3	All	srrenly		CLOSED	FIXED	Metadata transformation not using correct uuid for folder
+34	DEFECT	P3	All	mattadav	CLOSED	FIXED	audituserauthentication event  not having RoleIdCode
+35	DEFECT	P2	All	mattadav	CLOSED	FIXED	Use of byte arrays in handling XDS attachments
+36	DEFECT	P2	All	mattadav	CLOSED	FIXED	NullPointerException on SubmitDocument(...)
+38	DEFECT	P3	All	seknoop		CLOSED	FIXED	Folder Title incorrectly set
+39	DEFECT	P3	All	seknoop		CLOSED	FIXED	NA 2009: SVS consumer using wrong SOAP Action
+40	DEFECT	P1	All	seknoop		CLOSED	FIXED	NA 2009: can not get folder from XDSResponse
+42	DEFECT	P3	All	srrenly		CLOSED	FIXED	NA 2009: PDQ query by patient id incomplete
+45	DEFECT	P3	All	mattadav	CLOSED	FIXED	Error exporting EMF-based ihe projects as plugins from workspace
+50	DEFECT	P3	All	mattadav	CLOSED	DUPLICATE	wrong variable referenced
+52	DEFECT	P3	All	jpangburn	CLOSED	FIXED	Participant Object Detail audit entries appear to be b64 encoded twice
+53	DEFECT	P3	All	jpangburn	CLOSED	FIXED	ATNA repository auditing logs doc Id where it should be repo id
+  
+*/
+
+
