@@ -20,42 +20,47 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.SequenceDiagram</type><coordinates><x>0</x><y>0</y><w>2050</w><h>1220</h></coordinates><panel_attributes>title: SSD #268 &amp; #271
-_User_~id8_|_Panel~id1_|_Query~id2_|_ApplicationManager~id3_|_Application~id4_|_RetrieveManager~id5_|_Retrieve~id6_|_DataSource~id7_|_Util~id9_
-id8-&gt;id1:clickBtnQuery()
-id1-&gt;id1:id1:actionPerformed(btnQuery)
-id1-&gt;id1:id1:criteriaPanel.getFilterList()
-id1-&gt;id1:id1:verifyCriteria
-id1-&gt;id1:id1:convertToQueryStatement
-id1-&gt;&gt;id2:id1,id2:query(queryStatement)
-id2-&gt;id2:id2:run()
-id2-&gt;id7:query(paremeters)
+// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.SequenceDiagram</type><coordinates><x>0</x><y>0</y><w>1920</w><h>1370</h></coordinates><panel_attributes>title: SSD #268 &amp; #271
+_User_~id8_|_Panel~id1_|_Query~id2_|_ApplicationManager~id3_|_Application~id4_|_RetrieveManager~id5_|_Retrieve~id6_|_DataSource~id7_|_Util~id9_|_XIPApplication~id10_
+id8-&gt;&gt;&gt;id1:clickBtnQuery()
+id1-&gt;&gt;&gt;id1:id1:actionPerformed(btnQuery)
+id1-&gt;&gt;&gt;id1:id1:criteriaPanel.getFilterList()
+id1-&gt;&gt;&gt;id1:id1:verifyCriteria
+id1-&gt;&gt;&gt;id1:id1:convertToQueryStatement
+id1-&gt;&gt;&gt;id2:id1,id2:query(queryStatement)
+id2-&gt;&gt;&gt;id2:id2:run()
+id2-&gt;&gt;&gt;id7:query(paremeters)
 id7./&gt;id2:returnQuery
-id2-&gt;id2:id2:convertToSearchResult
+id2-&gt;&gt;&gt;id2:id2:convertToSearchResult
 id2.&gt;id1:id2:fireUpdateUI(searchResult)
-id1-&gt;id1:id1:JTreePanel().updateNodes(searchResult)
-id1-&gt;id8:displaySearcgResult()
+id1-&gt;&gt;&gt;id1:id1:JTreePanel().updateNodes(searchResult)
+id1-&gt;&gt;&gt;id8:displaySearchResult()
 id8-&gt;id1:selectSeries
 id1./&gt;id8:void
-id8-&gt;id1:id1:clickApplicationIcon
-id1-&gt;id3:initiateApplication(searchResult, applicationUUID)
-id3-&gt;id4:id3:getApplicationConfigParams()
+id8-&gt;&gt;&gt;id1:id1:clickApplicationIcon
+id1-&gt;&gt;&gt;id3:initiateApplicationStartup(searchResult, applicationUUID)
+id3-&gt;&gt;&gt;id4:id3:getApplicationConfigParams()
 id4./&gt;id3:id3:returnConfigParams()
-id3-&gt;id3:id3:getIterationTarget()
-id3-&gt;id9:id9:createIterator()
-id9-&gt;id9:id9:createElementCriteria()
-id9-&gt;id9:id9:createElementDestination()
-id9-&gt;id9:id9:assambleIteratorElement()
-id9-&gt;id9:id9:assambleIterator()
+id3-&gt;&gt;&gt;id4:id3,id4:launch(URL, URL)
+id4-&gt;id10:id4:Runtime.exec(Path, URL, URL)
+id3-&gt;&gt;&gt;id3:id3:getIterationTarget()
+id3-&gt;&gt;&gt;id9:id9:createIterator(SearchResult, IterationTarget)
+id9-&gt;&gt;&gt;id9:id9:createElementCriteria()
+id9-&gt;&gt;&gt;id9:id9:createElementDestination()
+id9-&gt;&gt;&gt;id9:id9:assambleIteratorElement()
+id9-&gt;&gt;&gt;id9:id9:assambleIterator()
 id9./&gt;id3:id9:returnIterator()
-id3-&gt;id3:id3:createDirectoryStructure()
-id3-&gt;id5:id5:submitJobToRetrieveManager(iterator)
+id3-&gt;&gt;&gt;id3:id3:createDirectoryStructure()
+id3-&gt;&gt;&gt;id5:id5:submitJobToRetrieveManager(iterator)
 iframe{:Loop
-id5-&gt;id5:id5:getIteratorElement(next, destination)
-id5-&gt;id6:id5,id6:retrieve(criteria, destination)
-id6-&gt;id7:id6,id7:retrieve(criteria, destination)
+id5-&gt;&gt;&gt;id5:id5:getIteratorElement(next)
+id5-&gt;&gt;&gt;id6:id5,id6:retrieve(criteria, destination)
+id6-&gt;&gt;&gt;id7:id6,id7:retrieve(criteria, destination)
 id7./&gt;id6:id7,id6
 id6./&gt;id5:id6,id5
 id5.&gt;id3:id5:notifyRetrieveDataAvailable()
-id3.&gt;id4:notifyDataAvailable(AvailableData, false)
+id3.&gt;&gt;&gt;id4:updateRetrievedData(List&lt;File&gt;, false)
+id4-&gt;&gt;&gt;id9:id9:convertToAvailableData(List&lt;File&gt;)
+id9./&gt;id4:id9:returnAvailableData
+id4-&gt;id10:id4:notifyDataAvailable(AvailableData, false)
 iframe}</panel_attributes><additional_attributes/></element></umlet_diagram>
