@@ -62,13 +62,14 @@ public class AttributePanel extends JPanel implements FocusListener {
 		super();
 		layout = new GridBagLayout();
 		setLayout(layout);
-		filterList = list;
+		filterList = list;	
+		setBackground(new Color(156, 162, 189));
+		setForeground(Color.WHITE);
 		addAttributesToPanel();
 	}
 	
 	private void addAttributesToPanel() {
 		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.anchor = GridBagConstraints.NORTHWEST;
 		DicomDictionary dictionary = AttributeList.getDictionary();
 		
 		int rowCountInPanel = 0;
@@ -93,7 +94,7 @@ public class AttributePanel extends JPanel implements FocusListener {
 			while (i.hasNext()) {
 				addAttributeToPanel(rowCountInPanel++, (String)i.next(), constraints);
 			}
-		}
+		}				
 	}
 	
 	Font font_1 = new Font("Tahoma", 0, 12); 
@@ -110,7 +111,7 @@ public class AttributePanel extends JPanel implements FocusListener {
 		layout.setConstraints(label, constraints);
 		add(label);
 	}
-		
+		 
 	private void addAttributeToPanel(int row, String name, GridBagConstraints constraints) {
 		DicomDictionary dictionary = AttributeList.getDictionary();
 		AttributeTag t = dictionary.getTagFromName(name);
@@ -159,7 +160,7 @@ public class AttributePanel extends JPanel implements FocusListener {
 		void replaceAttributeValue(String text) {
 			try {
 				attribute.removeValues();
-				if (text != null && text.length() > 0) {
+				if (text != null) {
 					attribute.addValue(text);
 					//Update filter list
 					AttributeTag t = attribute.getTag();

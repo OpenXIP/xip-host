@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.dicom;
 
@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+
 import org.dcm4che2.data.Tag;
 import com.pixelmed.dicom.AgeStringAttribute;
 import com.pixelmed.dicom.Attribute;
@@ -155,7 +157,15 @@ public class DicomUtil {
 			{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.SOPClassUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
-			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue(characterSets[0]); }			
+			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue(characterSets[0]); }
+			
+			{ AttributeTag t = TagFromName.Exposure; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.SpiralPitchFactor; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.SingleCollimationWidth; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.TotalCollimationWidth; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.SliceThickness; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.ConvolutionKernel; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			
 		}catch (Exception e) {
 			return null;
 		}
@@ -180,20 +190,20 @@ public class DicomUtil {
 		return filter;
 	}
 	
-	public static HashMap<Integer, Object> convertToADDicomCriteria(AttributeList criteria){
-		HashMap<Integer, Object> adCriteria = new HashMap<Integer, Object>();
-		DicomDictionary dictionary = AttributeList.getDictionary();
-	    Iterator iter = dictionary.getTagIterator();        
+	public static Map<Integer, Object> convertToADDicomCriteria(AttributeList criteria){
+		Map<Integer, Object> adCriteria = new HashMap<Integer, Object>();
+		/*DicomDictionary dictionary = AttributeList.getDictionary();
+	    Iterator<?> iter = dictionary.getTagIterator();        
 	    String strAtt = null;
 	    String attValue = null;
 	    while(iter.hasNext()){
 	    	AttributeTag attTag  = (AttributeTag)iter.next();					    	
 	    	strAtt = attTag.toString();									
-			attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);
+			attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);			
 			if(!attValue.isEmpty()){
 				System.out.println(strAtt + " " + attValue);				
 			}
-	    }	    	    
+	    }*/	    	    
 	    String patientName = criteria.get(TagFromName.PatientName).getDelimitedStringValuesOrEmptyString();
 	    if(!patientName.isEmpty()){adCriteria.put(Tag.PatientName, patientName);}			
 	    String patientID = criteria.get(TagFromName.PatientID).getDelimitedStringValuesOrEmptyString();
@@ -307,7 +317,19 @@ public class DicomUtil {
 		String SOPInstanceUID = criteria.get(TagFromName.SOPInstanceUID).getDelimitedStringValuesOrEmptyString();
 		if(!SOPInstanceUID.isEmpty()){adCriteria.put(Tag.SOPInstanceUID, SOPInstanceUID);}
 		String SOPClassUID = criteria.get(TagFromName.SOPClassUID).getDelimitedStringValuesOrEmptyString();
-		if(!SOPClassUID.isEmpty()){adCriteria.put(Tag.SOPClassUID, SOPClassUID);}	    
+		if(!SOPClassUID.isEmpty()){adCriteria.put(Tag.SOPClassUID, SOPClassUID);}	    		
+		String exposure = criteria.get(TagFromName.Exposure).getDelimitedStringValuesOrEmptyString();
+		if(!exposure.isEmpty()){adCriteria.put(Tag.Exposure, exposure);}
+		String  spiralPitchFactor = criteria.get(TagFromName.SpiralPitchFactor).getDelimitedStringValuesOrEmptyString();
+		if(!spiralPitchFactor.isEmpty()){adCriteria.put(Tag.SpiralPitchFactor, spiralPitchFactor);}		
+		String  singleCollimationWidth = criteria.get(TagFromName.SingleCollimationWidth).getDelimitedStringValuesOrEmptyString();
+		if(!singleCollimationWidth.isEmpty()){adCriteria.put(Tag.SingleCollimationWidth, singleCollimationWidth);}		
+		String  totalCollimationWidth = criteria.get(TagFromName.TotalCollimationWidth).getDelimitedStringValuesOrEmptyString();
+		if(!totalCollimationWidth.isEmpty()){adCriteria.put(Tag.TotalCollimationWidth, totalCollimationWidth);}		
+		String  sliceThickness = criteria.get(TagFromName.SliceThickness).getDelimitedStringValuesOrEmptyString();
+		if(!sliceThickness.isEmpty()){adCriteria.put(Tag.SliceThickness, sliceThickness);}		
+		String  convolutionKernel = criteria.get(TagFromName.ConvolutionKernel).getDelimitedStringValuesOrEmptyString();
+		if(!convolutionKernel.isEmpty()){adCriteria.put(Tag.ConvolutionKernel, convolutionKernel);}
 		return adCriteria;
 	}	
 }

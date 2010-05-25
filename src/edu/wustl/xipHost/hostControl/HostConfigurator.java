@@ -57,7 +57,7 @@ public class HostConfigurator {
 	String userName;	 	
 	
 	public boolean runHostStartupSequence(){		
-		logger.info("Staring XIPHost");
+		logger.info("Launching XIPHost");
 		//DisplayLoginDialog
 		LoginDialog loginDialog = new LoginDialog();
 		loginDialog.setLogin(login);
@@ -135,7 +135,6 @@ public class HostConfigurator {
 		try {
 			xm.startup();
 		} catch (XMLDBException e) {
-			// TODO Auto-generated catch block
 			//TODO Auto-generated catch block
 			//Q: what to do if Xindice is not launched
 			//1. Go with no native model support or 

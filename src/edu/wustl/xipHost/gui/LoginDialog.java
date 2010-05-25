@@ -17,7 +17,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-
 import edu.wustl.xipHost.hostControl.Login;
 import edu.wustl.xipHost.hostControl.NewUserEvent;
 import edu.wustl.xipHost.hostControl.NewUserListener;

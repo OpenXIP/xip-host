@@ -8,6 +8,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -26,6 +31,7 @@ import javax.swing.border.Border;
  * </font>
  */
 public class LoginPanel extends JPanel {
+	JLabel lblWelcome = new JLabel("<html><font color=yellow>Welcome!</font></html>");
 	JLabel lblTitle = new JLabel("Login to XIP Host");	
 	JLabel lblUser = new JLabel("Username");
 	JLabel lblPass = new JLabel("Password");
@@ -43,7 +49,24 @@ public class LoginPanel extends JPanel {
 	String user;
 	String password;	
 		
-	public LoginPanel(){				
+	public LoginPanel(){
+		File welcome = new File("./config/welcome.html");
+		if ( welcome.exists() ){
+			int size = (int) welcome.length();
+			byte[] message = new byte[size];
+			try {
+				FileInputStream in = new FileInputStream(welcome);
+				in.read(message);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}
+			String messageString = new String(message);
+			lblWelcome.setText(messageString);
+		} 			
 		lblImage.setIcon(icon);
 		//lblImage.setBorder(border2);
 		btnOK.setPreferredSize(new Dimension(100, 25));		
@@ -56,6 +79,7 @@ public class LoginPanel extends JPanel {
 		txtPass.setEchoChar('*');		
 		//txtUser.setBorder(border1);
 		//txtPass.setBorder(border1);
+		loginPanel.add(lblWelcome);		
 		loginPanel.add(lblTitle);		
 		loginPanel.add(lblUser);
 		loginPanel.add(lblPass);
@@ -74,16 +98,26 @@ public class LoginPanel extends JPanel {
         GridBagConstraints constraints = new GridBagConstraints();
         loginPanel.setLayout(layout);        
 
+        constraints.fill = GridBagConstraints.BOTH;        
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.insets.top = 5;
+        constraints.insets.left = 5;
+        constraints.insets.right = 5;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(lblWelcome, constraints);              
+
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
-        constraints.gridy = 0;        
+        constraints.gridy = 1;        
         constraints.insets.top = 20;
         constraints.insets.left = 20;
         constraints.insets.right = 20;
         constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblTitle, constraints);              
-        
+
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 2;        
@@ -115,7 +149,7 @@ public class LoginPanel extends JPanel {
         constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(txtPass, constraints);
-        
+
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 6;        

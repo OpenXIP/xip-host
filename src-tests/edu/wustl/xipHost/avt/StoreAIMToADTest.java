@@ -18,6 +18,9 @@ import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.io.AnnotationIO;
 import com.siemens.scr.avt.ad.util.HibernateUtil;
 
+import edu.wustl.xipHost.avt2ext.AVTFactory;
+import edu.wustl.xipHost.avt2ext.AVTStore;
+
 import junit.framework.TestCase;
 
 /**
@@ -60,7 +63,7 @@ public class StoreAIMToADTest extends TestCase {
 	//Expected result: boolean true
 	public void testStoreAimToAD_1A() throws IOException, JDOMException, InterruptedException, SAXException{
 		File[] aims = new File[1];		
-		File aim1 = new File("./test-content/AIM_rv9_Test/0022BaselineA.xml");		
+		File aim1 = new File("./test-content/AIM_2/Vasari-TCGA6330140190470283886.xml");		
 		aims[0] = aim1;			
 		ImageAnnotation annotation = AnnotationIO.loadAnnotationFromFile(aim1);
 		String annotationUID = annotation.getDescriptor().getUID();
@@ -84,8 +87,7 @@ public class StoreAIMToADTest extends TestCase {
 				System.out.println(expected.getAIM());				
 				//assertXMLEqual(expected.getAIM(), actual.getAIM());
 				return true;
-			}
-			else{
+			} else{
 				fail("expected = " + expected + " while actual is null!");
 				return false;
 			}

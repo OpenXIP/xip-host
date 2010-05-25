@@ -60,7 +60,7 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 			FileRunner runner = new FileRunner(items[i]);
 			runner.addDicomParseListener(this);						
 			//new Thread(runner).start();
-			exeService.execute(runner);			
+			exeService.execute(runner);
 		}		
 	}	
 	
@@ -69,7 +69,7 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 	
 	int j = 0;		
 	boolean isParsingCompleted = false;
-	public void dicomAvailable(DicomParseEvent e) {					
+	public synchronized void dicomAvailable(DicomParseEvent e) {					
 		inputDialog.setCursor(hourglassCursor);
 		FileRunner source = (FileRunner)e.getSource();
 		File file = source.getItem();
@@ -85,7 +85,7 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 		}
 	}		
 		
-	public void nondicomAvailable(DicomParseEvent e) {
+	public synchronized void nondicomAvailable(DicomParseEvent e) {
 		FileRunner source = (FileRunner)e.getSource();
 		File file = source.getItem();
 		inputDialog.setParsingResult(file.toURI(), null);		
@@ -133,14 +133,13 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 		inputDialog.display();
 	}	
 		
-	//TODO ID#919 and ID#887
 	void displayItems(File[] items){
 		this.items = items;		
 		inputDialog.setItems(items);
 		inputDialog.updateUI();
 	}
 	
-	public WG23DataModel makeWG23DataModel(List<File> files){		
+	public WG23DataModel makeWG23DataModel(List<File> files){
 		if(files == null){return null;}										
 		if(getParsedResults() == null){
 			AvailableData availableData = new AvailableData();

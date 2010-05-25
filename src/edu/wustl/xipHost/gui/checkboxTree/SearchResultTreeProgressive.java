@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.caGrid;
+package edu.wustl.xipHost.gui.checkboxTree;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -13,6 +13,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -24,9 +26,9 @@ import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
  * @author Jaroslaw Krych
  *
  */
-public class SearchResultTreeGrid extends SearchResultTree{
+public class SearchResultTreeProgressive extends SearchResultTree{
 
-	public SearchResultTreeGrid(){
+	public SearchResultTreeProgressive(){
 		super();
 	}
 	
@@ -36,6 +38,7 @@ public class SearchResultTreeGrid extends SearchResultTree{
 		results = new ArrayList<SearchResult>();
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
+			rootNode.removeAllChildren();
 			treeModel.reload(rootNode);
 			return;
 		}
@@ -93,6 +96,25 @@ public class SearchResultTreeGrid extends SearchResultTree{
 							return series;
 						}
 					};
+					
+					for(int m = 0; m < series.getItems().size(); m++){
+						final Item item = series.getItems().get(m);
+						DefaultMutableTreeNode itemNode = new DefaultMutableTreeNode(item){
+							public String toString(){															
+								String itemDesc = item.toString();
+								if(itemDesc == null){
+									itemDesc = "";
+								}else{
+									
+								}	
+								return itemDesc;						
+							}
+							public Object getUserObject(){
+								return item;
+							}
+						};
+						seriesNode.add(itemNode);
+					}										
 					studyNode.add(seriesNode);
 				}	
 				patientNode.add(studyNode);			
@@ -140,7 +162,7 @@ public class SearchResultTreeGrid extends SearchResultTree{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}		  
-			SearchResultTreeGrid searchTree = new SearchResultTreeGrid();
+			SearchResultTreeProgressive searchTree = new SearchResultTreeProgressive();
 			JFrame frame = new JFrame();
 			frame.getContentPane().add(searchTree, BorderLayout.CENTER);		
 			frame.setSize(650, 300);

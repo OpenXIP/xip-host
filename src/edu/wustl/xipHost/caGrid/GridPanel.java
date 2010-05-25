@@ -55,6 +55,8 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dicom.AttributePanel;
+import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -174,7 +176,6 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 		locationSelectionPanel.add(lblGlobus);		
 		locationSelectionPanel.setBackground(xipColor);		
 		buildLayoutLocationSelectionPanel();
-		
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search");		
 		leftPanel.add(criteriaPanel);
@@ -558,8 +559,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				progressBar.setIndeterminate(true);
 			     				progressBar.updateUI();				     				
 			     				String[] characterSets = { "ISO_IR 100" };
-			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
-			     				//Clear previous study criteria
+			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);			  
 			     				try {			     					
 			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
 			     						a.addValue(selectedPatient.getPatientID());
@@ -567,8 +567,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 								} catch (DicomException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
-								} 								
-			     				//setCriteriaList(updatedCriteria);				
+								} 											     						
 			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();

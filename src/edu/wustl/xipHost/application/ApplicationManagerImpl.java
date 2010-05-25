@@ -221,7 +221,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			url = new URL(str1 + portNum + str2);
 		} catch (MalformedURLException e) {
 			return url;
-		}					
+		}
 		return url;
 	}	
 	
@@ -238,7 +238,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			url = new URL(str1 + portNum + str2);
 		} catch (MalformedURLException e) {
 			return url;
-		}					
+		}
 		return url;
 	}	
 	

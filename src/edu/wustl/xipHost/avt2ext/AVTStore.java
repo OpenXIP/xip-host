@@ -1,19 +1,25 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.avt;
+package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import org.apache.log4j.Logger;
+import org.dcm4che2.data.DicomObject;
 import org.jdom.JDOMException;
 import org.nema.dicom.wg23.ObjectLocator;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
+import com.siemens.scr.avt.ad.api.User;
 import com.siemens.scr.avt.ad.io.AnnotationIO;
+import com.siemens.scr.avt.ad.util.DicomParser;
 import edu.wustl.xipHost.dicom.DicomUtil;
 
 /**
@@ -21,6 +27,7 @@ import edu.wustl.xipHost.dicom.DicomUtil;
  *
  */
 public class AVTStore implements Runnable {
+	final static Logger logger = Logger.getLogger(AVTStore.class);
 	ADFacade adService = AVTFactory.getADServiceInstance();
 	List<File> aimToStore;	
 	List<File> attachmentsToStore;
@@ -38,10 +45,11 @@ public class AVTStore implements Runnable {
 	
 	public AVTStore(List<ObjectLocator> objectLocs){
 		attachmentsToStore = new ArrayList<File>();
-		//1. Check if objecLocs are AIM (xml) or DICOM (dcm)
-		//aimToStore = new File[objectLocs.size()];
 		aimToStore = new ArrayList<File>();
 		for(ObjectLocator objLoc : objectLocs){						
+			if(logger.isDebugEnabled()){
+				logger.debug(objLoc.getUuid().getUuid() + " " + objLoc.getUri());
+			}
 			try {
 				URI uri = new URI(objLoc.getUri());
 				File file = new File(uri);
@@ -49,60 +57,59 @@ public class AVTStore implements Runnable {
 				mimeType = DicomUtil.mimeType(file);
 				if(mimeType.equalsIgnoreCase("text/xml")){
 					aimToStore.add(file);	
-				}else if(!mimeType.equalsIgnoreCase("text/xml")){
+				}else if(mimeType.equalsIgnoreCase("application/dicom")){
 					attachmentsToStore.add(file);
 				}
-			} catch (URISyntaxException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				else if(!mimeType.equalsIgnoreCase("text/xml")){
+					logger.warn(file.getCanonicalPath() + " is not DICOM nor AIM XML file and cannot be stored in AD.");
+				}
+			} catch (URISyntaxException e) {
+				logger.error(e, e);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e, e);
 			}
-			
 		}						
 	}
 	
-	boolean bln;
 	public void run() {						
-		/* used with old version of IA and AD
-		if(aimToStore != null && attachmentsToStore != null){
-				File aimFile = aimToStore.get(0);
-				File dicomFile = attachmentsToStore.get(0);			
-				try {				
-					ImageAnnotation imageAnnotation = AnnotationIO.loadAnnotationWithAttachment(aimFile, dicomFile);
-					AnnotationIO.saveOrUpdateAnnotation(imageAnnotation);
+		if(attachmentsToStore != null){				
+			Iterator<File> iter = attachmentsToStore.iterator();
+			List<DicomObject> dicomSegObjs = new ArrayList<DicomObject>();
+			while(iter.hasNext()){					
+				try {
+					File file = iter.next();
+					DicomObject seg = DicomParser.read(file);
+					dicomSegObjs.add(seg);												
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JDOMException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}*/
+					logger.error(e, e);
+				}							
+			}				
+			adService.saveDicoms(dicomSegObjs);
+		}		
 		if(aimToStore != null){
+			User user = new User();
+			String username = System.getProperty("user.name");
+			user.setUserName(username);
+			user.setRoleInt(1);	
+			String comment = "Stored " + new Date().toString();
+			List<ImageAnnotation> annotationsToStore = new ArrayList<ImageAnnotation>();
 			for(int i = 0; i < aimToStore.size(); i++){
 				File aimFile = aimToStore.get(i);			
 				try {				
 					ImageAnnotation imageAnnotation = AnnotationIO.loadAnnotationFromFile(aimFile);
-					AnnotationIO.saveOrUpdateAnnotation(imageAnnotation);
+					annotationsToStore.add(imageAnnotation);										
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e, e);
 				} catch (JDOMException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e, e);
 				}
-			}			
-		}
+			}
+			adService.saveAnnotations(annotationsToStore, user, null, comment);
+		}	
 		notifyStoreResult(true);
 	}
 
-	public boolean getStoreResult(){
-		return bln;
-	}
-	
 	void notifyStoreResult(boolean bln){
-		
+		logger.info("Finished 'store to AD'");
 	}
 }

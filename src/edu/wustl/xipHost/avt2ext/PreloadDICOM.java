@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2009 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.avt;
+package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +20,6 @@ import edu.wustl.xipHost.localFileSystem.HostFileChooser;
 public class PreloadDICOM extends DicomBatchLoader {
 	
 	public PreloadDICOM() throws IOException{
-		//this.loadFromDirectory(new File("C:/WUSTL/XIP_SVN/XIPHost/dicom-dataset-demo"));
 		
 		HostFileChooser fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
 		fileChooser.setVisible(true);
@@ -40,10 +39,14 @@ public class PreloadDICOM extends DicomBatchLoader {
 				e.printStackTrace();
 			}
 		}				
-		adService.saveDicoms(dicomObjects, null, null);
+		adService.saveDicoms(dicomObjects);
 		long time2 = System.currentTimeMillis();
 		System.out.println("*********** DICOM preload SUCCESSFUL *****************");
 		System.out.println("Total load time: " + (time2 - time1)/1000+ " s");
+		
+		/*ADFacade adService = AVTFactory.getADServiceInstance();							 
+		DicomObject dicomObj = DicomParser.read(new File("1.3.6.1.4.1.9328.50.1.10698.dcm"));									
+		adService.saveDicom(dicomObj);*/
 	}
 	
 	/**

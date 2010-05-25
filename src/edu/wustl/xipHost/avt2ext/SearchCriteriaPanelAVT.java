@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2007 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.gui;
+package edu.wustl.xipHost.avt2ext;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,38 +10,62 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import org.apache.log4j.Logger;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.dicom.DicomUtil;
+import edu.wustl.xipHost.gui.BasicSearchCriteriaVerifier;
+import edu.wustl.xipHost.gui.SearchCriteriaVerifier;
+import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class SearchCriteriaPanel extends JPanel implements ActionListener{
-	private SearchCriteriaVerifier searchCriteriaVerifier;
+public class SearchCriteriaPanelAVT extends JPanel implements ActionListener{
+	final static Logger logger = Logger.getLogger(SearchCriteriaPanelAVT.class);
+	SearchCriteriaVerifier searchCriteriaVerifier;
 	JPanel btnPanel = new JPanel();
 	JButton btnSearch = new JButton("Search");
 	JButton btnCancel = new JButton("Cancel");
 	//FilterPanel panel;
-	AttributePanel panel;	
+	AttributePanelAIM panelAVT;
+	AttributePanel panelDICOM;
+	AttributePanelPrivateTag panelPrivateTag;
 	JScrollPane attEntryPanel;
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
+	GridBagLayout layout = new GridBagLayout();
 	
-	public SearchCriteriaPanel(){
-		// default criteria verifier is basic one unless different one is set.
-		searchCriteriaVerifier = new BasicSearchCriteriaVerifier();
+	public SearchCriteriaPanelAVT(){
+		panelAVT = new AttributePanelAIM();
 		AttributeList list = DicomUtil.constructEmptyAttributeList();		
-		panel = new AttributePanel(list);
+		panelDICOM = new AttributePanel(list);
+		panelPrivateTag = new AttributePanelPrivateTag();
+		// default criteria verifier is basic one unless different one is set.
+		searchCriteriaVerifier = new BasicSearchCriteriaVerifier();		
+		panelAVT.setBackground(new Color(156, 162, 189));
+		panelAVT.setForeground(Color.WHITE);
+		panelDICOM.setBackground(new Color(156, 162, 189));
+		panelDICOM.setForeground(Color.WHITE);
+		panelPrivateTag.setBackground(new Color(156, 162, 189));
+		panelPrivateTag.setForeground(Color.WHITE);
+		JPanel panel = new JPanel();
+		buildAttributePanelLayout();
+		panel.setLayout(layout);
+		panel.add(panelAVT);
+		panel.add(panelDICOM);
+		panel.add(panelPrivateTag);
 		panel.setBackground(new Color(156, 162, 189));
-		panel.setForeground(Color.WHITE);
 		attEntryPanel = new JScrollPane(panel);
 		attEntryPanel.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));		
 		add(attEntryPanel);
@@ -89,13 +113,26 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
         layout.setConstraints(btnPanel, constraints);
 	}
 	
-	public AttributeList getFilterList(){
-		return panel.getFilterList();
+	void buildAttributePanelLayout(){
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridy = 1;
+		constraints.gridx = 1;
+		constraints.anchor = GridBagConstraints.EAST;
+		constraints.insets.left = 10;
+        constraints.insets.right = 10;
+        constraints.insets.top = 2;
+        constraints.insets.bottom = 2;
+		layout.setConstraints(panelAVT, constraints);
+		constraints.gridy = 2;
+		constraints.gridx = 1;
+		layout.setConstraints(panelDICOM, constraints);
+		constraints.gridy = 3;
+		constraints.gridx = 1;
+		layout.setConstraints(panelPrivateTag, constraints);
 	}
 	
-	
 	public static void main(String args[]){
-		SearchCriteriaPanel panel = new SearchCriteriaPanel();
+		SearchCriteriaPanelAVT panel = new SearchCriteriaPanelAVT();
 		JDialog dialog = new JDialog(new JFrame(), "Criteria", true);
 		dialog.getContentPane().add(panel);		
 		dialog.setPreferredSize(new Dimension(550, 900));
@@ -112,8 +149,32 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 		}
 	}
 	
-	public boolean verifyCriteria(AttributeList list){
-		return searchCriteriaVerifier.verifyCriteria(list);
+	public boolean verifyCriteria(AttributeList list, Map<String, Object> aimCriteria){		
+		boolean blnAimCriteria = false;
+		Set<String> keys = aimCriteria.keySet();
+		Iterator<String> iter = keys.iterator();
+		boolean isAimCriteriaEmpty = true;
+		while(iter.hasNext()){
+			String key = iter.next();
+			String value = (String) aimCriteria.get(key);
+			if(value.equalsIgnoreCase("null")){
+				logger.warn("Verification result - NULL query criteria - INVALID.");
+				return false;
+			} else if (isAimCriteriaEmpty == true && !value.isEmpty()){
+				logger.debug(key + ": " + aimCriteria.get(key));
+				isAimCriteriaEmpty = false;
+			}
+		}			
+		if(isAimCriteriaEmpty == false){
+			logger.debug("Verification result - AIM query criteria - VALID.");
+			blnAimCriteria = true;
+		}
+		boolean blnDicomCriteria = searchCriteriaVerifier.verifyCriteria(list);
+		boolean criteria = false;
+		if(blnAimCriteria == true || blnDicomCriteria == true){
+			criteria = true;
+		}
+		return criteria;
 	}
 	
 	public void setQueryButtonText(String text){
@@ -122,4 +183,9 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 	public JButton getQueryButton(){
 		return btnSearch;
 	}
+	
+	public AttributeList getFilterList(){
+		return panelDICOM.getFilterList();
+	}
+	
 }

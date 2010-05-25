@@ -168,9 +168,9 @@ public class SearchResultTree extends JTree {
 		SearchResult result = new SearchResult("WashU Test");
 	    Patient patient1 = new Patient("Jaroslaw Krych", "1010101", "19730718");
 	    Patient patient2 = new Patient("Jarek Krych", "2020202", "19730718");
-	    OtherItem otherItem1 = new OtherItem("1234", "XDS 1");	    
-	    OtherItem otherItem2 = new OtherItem("2345", "XDS 2");
-	    OtherItem otherItem3 = new OtherItem("3456", "XDS 3");
+	    Item otherItem1 = new OtherItem("1234", "XDS 1");	    
+	    Item otherItem2 = new OtherItem("2345", "XDS 2");
+	    Item otherItem3 = new OtherItem("3456", "XDS 3");
 	    result.addPatient(patient1);
 	    result.addPatient(patient2);
 	    result.addItem(otherItem1);
@@ -180,12 +180,12 @@ public class SearchResultTree extends JTree {
 		Series series1 = new Series("12345", "CT", "Test Series 1", "1.2.3.4.5");
 		series1.addItem(otherItem3);
 		Series series2 = new Series("23456", "CT", "Test Series 2", "1.2.3.4.6");
-	    ImageItem imageItem1 = new ImageItem("1");
-	    ImageItem imageItem2 = new ImageItem("2");
-	    ImageItem imageItem3 = new ImageItem("3");
-	    ImageItem imageItem4 = new ImageItem("4");
-	    ImageItem imageItem5 = new ImageItem("5");
-	    AIMItem aimItem1 = new AIMItem("Baseline", "01/13/2009", "Jarek Krych", "123456789");
+	    Item imageItem1 = new ImageItem("1");
+	    Item imageItem2 = new ImageItem("2");
+	    Item imageItem3 = new ImageItem("3");
+	    Item imageItem4 = new ImageItem("4");
+	    Item imageItem5 = new ImageItem("5");
+	    Item aimItem1 = new AIMItem("Baseline", "01/13/2009", "Jarek Krych", "123456789");
 		series1.addItem(imageItem1);
 		series1.addItem(imageItem2);
 		series1.addItem(imageItem3);
@@ -220,53 +220,61 @@ public class SearchResultTree extends JTree {
 		return selectedSeries;
 	}
 	
+	public void clearSelectedSeries(){
+		selectedSeries.clear();
+	}
+	
 	MouseListener ml = new MouseAdapter() {
 	    @SuppressWarnings("unchecked")
-		public void mousePressed(MouseEvent e) {
-	    	int x = e.getX();
-	     	int y = e.getY();
-	     	int row = getRowForLocation(x, y);
-	     	TreePath  path = getPathForRow(row);    	
-	     	if (path != null) {    		
-	     		DefaultMutableTreeNode node = (DefaultMutableTreeNode)getLastSelectedPathComponent();							
-	     		//System.out.println(this.getRowForPath(new TreePath(node.getPath())));
-	     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
-	     		if (node == null) return;		 
-	     		if (!node.isRoot()) {																	
-	     			Object selectedNode = node.getUserObject();
-	     			if(selectedNode instanceof Study){
-	     				System.out.println(selectedNode.toString());	     				
-	     				repaint();
-	     			}else if(selectedNode instanceof Series){				
-	     				SeriesNode seriesNode = (SeriesNode)node;
-	     				DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();				
-	     				Study study = null;
-	     				if(parentNode.getUserObject() instanceof Study){
-	     					study = (Study)parentNode.getUserObject();
-	     				}	     				
-	     				if(seriesNode.isSelected){
-	     					seriesNode.setSelected(false);
-	     					((SeriesNode)node).getCheckBox().setSelected(false);	     					
-	     					selectedSeries.remove((Series)selectedNode);
-	     				}else if(seriesNode.isSelected == false){    					
-	     					seriesNode.setSelected(true);	     					
-	     					selectedSeries.put((Series)selectedNode, study);
-	     					((SeriesNode)node).getCheckBox().setSelected(true);
-	     				}    				
-	     				repaint();	     				   				
-	     				Set<Entry<Series, Study>> set = selectedSeries.entrySet();
-	     				Iterator iter = set.iterator();
-	     				while(iter.hasNext()){
-	     		    		Entry<Series, Study> next = (Entry<Series, Study>)iter.next();
-							System.out.println("Series: " + next.getKey().getSeriesInstanceUID());
-							System.out.println("Study: " + next.getValue().getStudyInstanceUID());							
-	     		    	}
-	     			}
-	     		} else {
+		public void mousePressed(MouseEvent e) {	    	
+	    	if(e.getClickCount() == 1){
+	    		int x = e.getX();
+		     	int y = e.getY();
+		     	int row = getRowForLocation(x, y);
+		     	TreePath  path = getPathForRow(row);    	
+		     	if (path != null) {    		
+		     		DefaultMutableTreeNode node = (DefaultMutableTreeNode)getLastSelectedPathComponent();							
+		     		//System.out.println(this.getRowForPath(new TreePath(node.getPath())));
+		     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
+		     		if (node == null) return;		 
+		     		if (!node.isRoot()) {																	
+		     			Object selectedNode = node.getUserObject();
+		     			if(selectedNode instanceof Study){
+		     				//System.out.println(selectedNode.toString());	     				
+		     				repaint();
+		     			}else if(selectedNode instanceof Series){				
+		     				SeriesNode seriesNode = (SeriesNode)node;
+		     				DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();				
+		     				Study study = null;
+		     				if(parentNode.getUserObject() instanceof Study){
+		     					study = (Study)parentNode.getUserObject();
+		     				}	     				
+		     				if(seriesNode.isSelected){
+		     					seriesNode.setSelected(false);
+		     					((SeriesNode)node).getCheckBox().setSelected(false);	     					
+		     					selectedSeries.remove((Series)selectedNode);
+		     				}else if(seriesNode.isSelected == false){    					
+		     					seriesNode.setSelected(true);	     					
+		     					selectedSeries.put((Series)selectedNode, study);
+		     					((SeriesNode)node).getCheckBox().setSelected(true);
+		     				}    				
+		     				repaint();	     				   				
+		     				Set<Entry<Series, Study>> set = selectedSeries.entrySet();
+		     				Iterator iter = set.iterator();
+		     				while(iter.hasNext()){
+		     		    		Entry<Series, Study> next = (Entry<Series, Study>)iter.next();
+								//System.out.println("Series: " + next.getKey().getSeriesInstanceUID());
+								//System.out.println("Study: " + next.getValue().getStudyInstanceUID());							
+		     		    	}
+		     			}
+		     		} else {
 
-	     		}
-	     		System.out.println("-------------------------------");
-	     	}    	
+		     		}
+		     		//System.out.println("-------------------------------");
+		     	}    	
+	    	} else if(e.getClickCount() == 2){
+	    		selectedSeries.clear();
+	    	}
 	     }
 	 };		
 }

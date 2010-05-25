@@ -28,8 +28,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-
-import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 /**
@@ -37,7 +36,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
  */
 public class RightPanel extends JPanel {	
 	//SearchResultTree gridJTree;	
-	SearchResultTreeGrid gridJTree;
+	SearchResultTreeProgressive gridJTree;
 	JScrollPane treeView;
     JCheckBox cbxAnnot;
     DefaultComboBoxModel comboModel;	
@@ -57,7 +56,7 @@ public class RightPanel extends JPanel {
 	public RightPanel(){		
 		setBackground(xipColor);
 		//gridJTree = new SearchResultTree();			    
-		gridJTree = new SearchResultTreeGrid();
+		gridJTree = new SearchResultTreeProgressive();
 		treeView = new JScrollPane(gridJTree);
 		cbxAnnot = new JCheckBox("with annotations", true);
 		comboModel = new DefaultComboBoxModel();
@@ -100,7 +99,7 @@ public class RightPanel extends JPanel {
 		buildLayout();		
 	}
 	
-	public SearchResultTreeGrid getGridJTreePanel(){
+	public SearchResultTreeProgressive getGridJTreePanel(){
 		return gridJTree;
 	}		
 	

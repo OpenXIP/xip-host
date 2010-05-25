@@ -8,7 +8,6 @@ import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.PersonNameAttribute;
 import com.pixelmed.dicom.TagFromName;
-
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import junit.framework.TestCase;
 

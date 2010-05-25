@@ -6,24 +6,15 @@ package edu.wustl.xipHost.gui.checkboxTree;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.util.EventObject;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JTree;
 import javax.swing.UIManager;
-import javax.swing.event.CellEditorListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreePath;
-
 import edu.wustl.xipHost.dataModel.Series;
-import edu.wustl.xipHost.dataModel.Study;
 
 /**
  * @author Jaroslaw Krych
@@ -63,23 +54,24 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
 		Component returnValue = null;		    			
     	String stringValue = tree.convertValueToText(value, selected, expanded, leaf, row, false);		    	
     	JCheckBox checkBox = null;
+    	//JPanel panelCheckBox = null;
     	if(((DefaultMutableTreeNode)value).getUserObject() instanceof Series){
     		checkBox = ((SeriesNode)value).getCheckBox();
+    		//panelCheckBox = ((SeriesNode)value).getPanel();
         	checkBox.setFont(font);
         	Boolean booleanValue = (Boolean) UIManager.get("Tree.drawsFocusBorderAroundIcon");
-     	    checkBox.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
+     	    checkBox.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));     	   
     	}
     		       	
     	if (selected && checkBox != null) {
-    		//checkBox.setForeground(selectionForeground);
-    		//checkBox.setBackground(selectionBackground);
     		checkBox.setBackground(xipColor);
     		checkBox.setForeground(Color.WHITE);
     	} else if (selected == false && checkBox != null) {
-    		//checkBox.setForeground(textForeground);
-    		//checkBox.setBackground(textBackground);
     		checkBox.setBackground(xipLightBlue);
     		checkBox.setForeground(xipColor);
+       		
+    		//panelCheckBox.setBackground(xipLightBlue);
+    		//panelCheckBox.setForeground(xipColor);
     	}
     	if ((value != null) && (value instanceof DefaultMutableTreeNode)) {
         Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
@@ -88,6 +80,7 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
 	        	checkBox.setSelected(checkBox.isSelected());
 	        	checkBox.setEnabled(tree.isEnabled());		        		
 	        	returnValue = checkBox;
+	        	//returnValue = panelCheckBox;
 	        	return returnValue;
 	        } else{		        		        			        		        		        	     	
 	        	return defaultRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);

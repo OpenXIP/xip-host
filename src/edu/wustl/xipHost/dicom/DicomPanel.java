@@ -40,7 +40,6 @@ import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.CodeStringAttribute;
-import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
@@ -151,7 +150,7 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 					new UnderDevelopmentDialog(lblGlobus2.getLocationOnScreen());
 				}
 			}
-		);
+		);			
 		criteriaPanel.getQueryButton().addActionListener(this);			
 		criteriaPanel.setQueryButtonText("Query");		
 		leftPanel.add(calledLocationSelectionPanel);

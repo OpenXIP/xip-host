@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
-<log4j:configuration threshold="debug" xmlns:log4j="http://jakarta.apache.org/log4j/">
+<log4j:configuration threshold="warn" xmlns:log4j="http://jakarta.apache.org/log4j/">
   <!-- Order of child elements is appender, logger, root. -->
 
-  <!-- Appenders control how logging is output. -->
+  <!-- Appenders control output destination. -->
+  <!-- Layout controls message format. -->
   <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
@@ -59,20 +60,28 @@
 	<appender-ref ref="Dicom_Appender"/>
   </logger>
 
-  <logger name="edu.wustl.xipHost.avt.AVTPanel">
+  <logger name="edu.wustl.xipHost.avt2ext.AVTPanel">
 	<appender-ref ref="AVT_Appender"/>
   </logger>	
-  <logger name="edu.wustl.xipHost.avt.AVTQuery">
+  <logger name="edu.wustl.xipHost.avt2ext.AVTQuery">
 	<appender-ref ref="AVT_Appender"/>
   </logger>
-  
-  <logger name="edu.wustl.xipHost.avt.AVTQuery">
+   <logger name="edu.wustl.xipHost.avt2ext.AVTRetrieve">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.avt2ext.AVTStore">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.avt2ext.SearchCriteriaPanelAVT">
 	<appender-ref ref="AVT_Appender"/>
   </logger>
   
   <logger name="edu.wustl.xipHost.hostControl.HostConfigurator">
 	<appender-ref ref="HostMain_Appender"/>
-  </logger>		
+  </logger>	
+  <logger name="edu.wustl.xipHost.hostControl.DataStore">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>			
 	
   <root>
     <!-- level value="debug"/-->

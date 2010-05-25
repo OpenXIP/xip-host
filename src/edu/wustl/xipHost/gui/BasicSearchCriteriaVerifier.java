@@ -39,10 +39,10 @@ public class BasicSearchCriteriaVerifier implements SearchCriteriaVerifier {
 				}
 			}			
 			if(isEmpty == false){
-				logger.debug("Verification result - query criteria - VALID.");
+				logger.debug("Verification result - DICOM query criteria - VALID.");
 				return true;
 			}else{
-				logger.warn("Verification result - EMPTY query criteria - INVALID.");
+				logger.warn("Verification result - EMPTY DICOM query criteria - (If no AIM criteria used, empty DICOM criteria is INVALID.");
 				return false;
 			}
 		} else {

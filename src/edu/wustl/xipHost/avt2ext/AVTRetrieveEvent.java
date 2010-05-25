@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.avt;
+package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
 import java.util.EventObject;

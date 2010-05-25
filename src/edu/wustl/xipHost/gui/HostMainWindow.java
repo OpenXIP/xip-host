@@ -6,7 +6,7 @@ package edu.wustl.xipHost.gui;
 import javax.swing.*;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
-import edu.wustl.xipHost.avt.AVTPanel;
+import edu.wustl.xipHost.avt2ext.AVTPanel;
 import edu.wustl.xipHost.caGrid.GridPanel;
 import edu.wustl.xipHost.dicom.DicomPanel;
 import edu.wustl.xipHost.globalSearch.GlobalSearchPanel;
@@ -45,8 +45,8 @@ public class HostMainWindow extends JFrame implements ActionListener {
 	DicomPanel dicomPanel;
 	GridPanel gridPanel;
 	GlobalSearchPanel globalSearchPanel;
-	AVTPanel avtPanel;
 	XDSPanel xdsPanel;
+	AVTPanel avt2extPanel;
 	
 	static Dimension screenSize;	
 	
@@ -56,7 +56,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		dicomPanel = new DicomPanel();
 		gridPanel = new GridPanel();
 		globalSearchPanel = new GlobalSearchPanel();
-		avtPanel = new AVTPanel();
+		avt2extPanel = new AVTPanel();
 		xdsPanel = new XDSPanel();
 		if(HostConfigurator.OS.contains("Windows")){
 			setUndecorated(true);
@@ -82,8 +82,8 @@ public class HostMainWindow extends JFrame implements ActionListener {
                 
         //Add tabs        
         ImageIcon icon = null;
-        tabPaneCenter.addTab("caGrid", icon, gridPanel, null);
-        tabPaneCenter.addTab("AVT AD", icon, avtPanel, null);                        	   
+        tabPaneCenter.addTab("AVT AD", icon, avt2extPanel, null);
+        tabPaneCenter.addTab("caGrid", icon, gridPanel, null);                      	   
         tabPaneCenter.addTab("PACS", icon, dicomPanel, null);	   
         tabPaneCenter.addTab("GlobalSearch", icon, globalSearchPanel, null);        
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
