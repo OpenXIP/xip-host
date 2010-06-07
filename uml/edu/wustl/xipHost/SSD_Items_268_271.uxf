@@ -40,7 +40,7 @@ id1-&gt;&gt;&gt;id1:id1:convertToSelectedDataSearchResult
 id1./&gt;id8:id1:void
 id8-&gt;&gt;&gt;id1:clickApplicationIcon
 id1-&gt;&gt;&gt;id3:initiateApplicationStartup(selectedDataSearchResult, applicationUUID)
-id3-&gt;&gt;&gt;id4:id3:setData(searchResult)
+id3-&gt;&gt;&gt;id4:id3:setData(selectedDataSearchResult)
 id4./&gt;id3:id3:void()
 id3-&gt;&gt;&gt;id4:id3:getApplicationConfigParams()
 id4./&gt;id3:id3:returnConfigParams()
