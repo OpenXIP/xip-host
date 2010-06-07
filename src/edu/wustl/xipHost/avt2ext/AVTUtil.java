@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
@@ -119,6 +120,17 @@ public class AVTUtil {
 			}
 		}	
 		return resultAD;
+	}
+	
+	
+	Iterator<Map<String, List<String>>> createIterator(SearchResult selectedDataSearchResult, IterationTarget target){
+		//TODO Matt implementation
+		return null;
+	}
+	
+	
+	enum IterationTarget{
+		PATIENT, STUDY, SERIES
 	}
 	
 	
