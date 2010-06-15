@@ -10,6 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MultiHashMap;
+import org.apache.commons.collections.MultiMap;
+
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -122,14 +125,28 @@ public class AVTUtil {
 		return resultAD;
 	}
 	
-	
-	Iterator<Map<String, List<String>>> createIterator(SearchResult selectedDataSearchResult, IterationTarget target){
+
+	public Iterator<TargetElement> createIterator(SearchResult selectedDataSearchResult, IterationTarget target){
 		//TODO Matt implementation
-		return null;
+		
+		Iterator<TargetElement> iter = null;
+		return iter;
+	}
+	
+	public class TargetElement{
+		String id;
+		List<SubElement> subElements;
+		IterationTarget target;
 	}
 	
 	
-	enum IterationTarget{
+	public class SubElement{
+		//criteia data type to be redefined. It is going to be a combination of Map(s) for AVT
+		String[] criteria;
+		String location;
+	}
+	
+	public enum IterationTarget{
 		PATIENT, STUDY, SERIES
 	}
 	
