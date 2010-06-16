@@ -3,6 +3,7 @@
  */
 package edu.wustl.xipHost.dataModel;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class Patient {
 	String patientBirthDate;
 	List<Study> studies = new ArrayList<Study>();
 	List<Item> items = new ArrayList<Item>();
+	Timestamp lastUpdated = null;
 	
 	public Patient(String patientName, String patientID, String patientBirthDate){
 		this.patientName = patientName;
@@ -63,5 +65,13 @@ public class Patient {
 			if(items.get(i).getItemID().equalsIgnoreCase(itemID)){return true;}
 		}			
 		return false;
+	}
+
+	public Timestamp getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Timestamp lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 }

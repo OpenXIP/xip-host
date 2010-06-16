@@ -3,6 +3,7 @@
  */
 package edu.wustl.xipHost.dataModel;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,6 +19,7 @@ public class Series {
 	String seriesDesc;
 	String seriesInstanceUID;	
 	List<Item> items = new ArrayList<Item>();
+	Timestamp lastUpdated = null;
 	
 	public Series(String seriesNumber, String modality, String seriesDesc, String seriesInstanceUID){
 		this.seriesNumber = seriesNumber;
@@ -70,5 +72,12 @@ public class Series {
 			return o1.getItemID().compareTo(o2.getItemID());
 		}
 		
+	}
+
+	public Timestamp getLastUpdated() {
+		return lastUpdated;
+	}
+	public void setLastUpdated(Timestamp lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 }

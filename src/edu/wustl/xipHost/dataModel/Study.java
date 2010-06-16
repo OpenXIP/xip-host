@@ -3,19 +3,21 @@
  */
 package edu.wustl.xipHost.dataModel;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 /**
  * @author Jaroslaw Krych
  *
  */
-public class Study extends org.nema.dicom.wg23.Patient {
+public class Study {
 	String studyDate;
 	String studyID;
 	String studyDesc;
 	String studyInstanceUID;
 	List<Series> series = new ArrayList<Series>();
 	List<Item> items = new ArrayList<Item>();
+	Timestamp lastUpdated = null;
 	
 	public Study(String studyDate, String studyID, String studyDesc, String studyInstanceUID){
 		this.studyDate = studyDate;
@@ -77,5 +79,13 @@ public class Study extends org.nema.dicom.wg23.Patient {
 			if(items.get(i).getItemID().equalsIgnoreCase(itemID)){return true;}
 		}			
 		return false;
+	}
+
+	public Timestamp getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Timestamp lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 }
