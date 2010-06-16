@@ -3,16 +3,12 @@
  */
 package edu.wustl.xipHost.avt2ext;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections.MultiHashMap;
-import org.apache.commons.collections.MultiMap;
-
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -66,6 +62,8 @@ public class AVTUtil {
 			        }
 					if(resultAD.contains(patientID) == false){
 						patientFromAD = new Patient(patientName, patientID, strPatientBirthDate);
+						Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+						patientFromAD.setLastUpdated(lastUpdated);
 						resultAD.addPatient(patientFromAD);
 					}
 				}else{
@@ -134,29 +132,21 @@ public class AVTUtil {
 	}
 	
 	public class TargetElement{
+		//id is patientId, studyInstanceUID or seriesInstanceUID
 		String id;
 		List<SubElement> subElements;
 		IterationTarget target;
 	}
 	
 	
-	public class SubElement{
-		//criteia data type to be redefined. It is going to be a combination of Map(s) for AVT
-		String[] criteria;
-		String location;
+	class SubElement{
+		Criteria criteria;
+		String path;
 	}
+	
 	
 	public enum IterationTarget{
 		PATIENT, STUDY, SERIES
 	}
 	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 }
