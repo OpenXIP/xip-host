@@ -6,7 +6,13 @@ package edu.wustl.xipHost.dataModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wustl.xipHost.avt2ext.Criteria;
+
 /**
+ * SearchResult is a data structure that holds results of a query.
+ * Initially query result is received in a proprietary format and that is converted to SearchResult.
+ * It is thought that SearchResult is gradually growing and new information is added to it. The SearchResult assembly reflects the concept of the progressive query.
+ * Nodes are updated gradually depending on the JTree selection and SearchResult is updated as new subqueries result in nodes updates.
  * @author Jaroslaw Krych
  *
  */
@@ -14,6 +20,7 @@ public class SearchResult {
 	String datasoureDescription;
 	List<Patient> patients = new ArrayList<Patient>();
 	List<Item> items = new ArrayList<Item>();
+	Criteria originalCriteria;
 	
 	public SearchResult(String datasoureDescription){
 		this.datasoureDescription = datasoureDescription;
@@ -51,5 +58,13 @@ public class SearchResult {
 			if(items.get(i).getItemID().equalsIgnoreCase(itemID)){return true;}
 		}			
 		return false;
+	}
+
+	public Criteria getOriginalCriteria() {
+		return originalCriteria;
+	}
+
+	public void setOriginalCriteria(Criteria originalCriteria) {
+		this.originalCriteria = originalCriteria;
 	}
 }
