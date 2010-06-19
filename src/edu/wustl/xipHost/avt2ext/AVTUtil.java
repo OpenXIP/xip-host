@@ -10,6 +10,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
+import edu.wustl.xipHost.avt2ext.iterator.Criteria;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -166,24 +169,6 @@ public class AVTUtil {
 		
 		Iterator<TargetElement> iter = null;
 		return iter;
-	}
-	
-	public class TargetElement{
-		//id is patientId, studyInstanceUID or seriesInstanceUID
-		String id;
-		List<SubElement> subElements;
-		IterationTarget target;
-	}
-	
-	
-	class SubElement{
-		Criteria criteria;
-		String path;
-	}
-	
-	
-	public enum IterationTarget{
-		PATIENT, STUDY, SERIES
 	}
 	
 }

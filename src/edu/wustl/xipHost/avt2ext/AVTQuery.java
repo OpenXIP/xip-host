@@ -15,6 +15,7 @@ import com.siemens.scr.avt.ad.dicom.GeneralImage;
 import com.siemens.scr.avt.ad.dicom.GeneralSeries;
 import com.siemens.scr.avt.ad.dicom.GeneralStudy;
 import com.siemens.scr.avt.ad.dicom.Patient;
+import edu.wustl.xipHost.avt2ext.iterator.Criteria;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
 public class AVTQuery implements Runnable{
