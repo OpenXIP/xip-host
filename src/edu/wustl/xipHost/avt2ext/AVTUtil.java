@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.log4j.Logger;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -22,7 +23,7 @@ import edu.wustl.xipHost.dataModel.Study;
  *
  */
 public class AVTUtil {
-
+	final static Logger logger = Logger.getLogger(AVTUtil.class);
 	//Object could be list of patients, studies or series
 	public static SearchResult convertToSearchResult(Object object, SearchResult initialSearchResult, Object selectedObject){
 		SearchResult resultAD = null;
@@ -62,8 +63,6 @@ public class AVTUtil {
 			        }
 					if(resultAD.contains(patientID) == false){
 						patientFromAD = new Patient(patientName, patientID, strPatientBirthDate);
-						Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
-						patientFromAD.setLastUpdated(lastUpdated);
 						resultAD.addPatient(patientFromAD);
 					}
 				}else{
@@ -89,6 +88,8 @@ public class AVTUtil {
 					studyFromAD = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
 					patientFromAD.addStudy(studyFromAD);
 				}
+				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+				patientFromAD.setLastUpdated(lastUpdated);
 			} else if(selectedObject instanceof Study){
 				studyFromAD = Study.class.cast(selectedObject);
 				com.siemens.scr.avt.ad.dicom.GeneralSeries seriesAD = com.siemens.scr.avt.ad.dicom.GeneralSeries.class.cast(obj);
@@ -101,6 +102,8 @@ public class AVTUtil {
 					seriesFromAD = new Series(seriesNumber.toString(), modality, seriesDesc, seriesInstanceUID);	
 					studyFromAD.addSeries(seriesFromAD);
 				}
+				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+				studyFromAD.setLastUpdated(lastUpdated);
 			} else if(selectedObject instanceof Series){
 				seriesFromAD = Series.class.cast(selectedObject);
 				if(obj instanceof com.siemens.scr.avt.ad.dicom.GeneralImage){
@@ -118,8 +121,42 @@ public class AVTUtil {
 					itemFromAD = new AIMItem(imageAnnotationType, dateTime, authorName, aimUID);
 				}
 				seriesFromAD.addItem(itemFromAD);
+				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+				seriesFromAD.setLastUpdated(lastUpdated);
 			}
 		}	
+		if(logger.isDebugEnabled()){
+			 Iterator<Patient> patients = resultAD.getPatients().iterator();
+			 while(patients.hasNext()){
+				 Patient patient = patients.next();
+				 Timestamp patientLastUpdated = patient.getLastUpdated();
+				 String strPatientLastUpdated = null;
+				 if(patientLastUpdated != null){
+					 strPatientLastUpdated = patientLastUpdated.toString();
+				 }
+				 logger.debug(patient.toString() + " Last updated: " + strPatientLastUpdated);
+				 Iterator<Study> studies = patient.getStudies().iterator();
+				 while(studies.hasNext()){
+					 Study study = studies.next();
+					 Timestamp studyLastUpdated = study.getLastUpdated();
+					 String strStudyLastUpdated = null;
+					 if(studyLastUpdated != null){
+						 strStudyLastUpdated = studyLastUpdated.toString();
+					 }
+					 logger.debug(study.toString() + " Last updated: " + strStudyLastUpdated);
+					 Iterator<Series> series = study.getSeries().iterator();
+					 while(series.hasNext()){
+						 Series oneSeries = series.next();
+						 Timestamp seriesLastUpdated = oneSeries.getLastUpdated();
+						 String strSeriesLastUpdated = null;
+						 if(seriesLastUpdated != null){
+							 strSeriesLastUpdated = seriesLastUpdated.toString();
+						 }
+						 logger.debug(oneSeries.toString() + " Last updated: " + strSeriesLastUpdated);
+					 }
+				 }
+			 }
+		}
 		return resultAD;
 	}
 	
