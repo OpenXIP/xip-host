@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
-<log4j:configuration threshold="warn" xmlns:log4j="http://jakarta.apache.org/log4j/">
+<log4j:configuration threshold="debug" xmlns:log4j="http://jakarta.apache.org/log4j/">
   <!-- Order of child elements is appender, logger, root. -->
 
   <!-- Appenders control output destination. -->
@@ -73,6 +73,9 @@
 	<appender-ref ref="AVT_Appender"/>
   </logger>
   <logger name="edu.wustl.xipHost.avt2ext.SearchCriteriaPanelAVT">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.avt2ext.AVTUtil">
 	<appender-ref ref="AVT_Appender"/>
   </logger>
   
