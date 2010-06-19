@@ -150,6 +150,42 @@ public class AVTQuery implements Runnable{
 				break;
 			default: logger.warn("Unidentified ADQueryTarget");break;
 		}		
+		//Set original criteria on SearchResult.
+		if(previousSearchResult == null){
+			Criteria originalCriteria = new Criteria(adDicomCriteria, adAimCriteria);
+			result.setOriginalCriteria(originalCriteria);
+		}
+		if(logger.isDebugEnabled()){
+			Criteria criteria = result.getOriginalCriteria();
+			Map<Integer, Object> dicomCriteria = criteria.getDICOMCriteria();
+			Map<String, Object> aimCriteria = criteria.getAIMCriteria();
+			if(dicomCriteria == null){
+				logger.debug("AD original DICOM criteria: " + adDicomCriteria);
+			}else{
+				logger.debug("AD original DICOM criteria:");				
+				Set<Integer> keySet = dicomCriteria.keySet();
+				Iterator<Integer> iter = keySet.iterator();
+				while(iter.hasNext()){
+					Integer key = iter.next();					
+					logger.debug("Hex Key: " + Integer.toHexString(key) + " Value: " + (String)dicomCriteria.get(key));					
+					logger.debug("Integer Key: " + key + " Value: " + (String)dicomCriteria.get(key));
+				}					
+			}
+			if(adAimCriteria == null){
+				logger.debug("AD original AIM criteria: " + aimCriteria);
+			}else{
+				logger.debug("AD original AIM criteria:");
+				Set<String> keys = aimCriteria.keySet();
+				Iterator<String> iter = keys.iterator();
+				while(iter.hasNext()){
+					String key = iter.next();
+					String value = (String) aimCriteria.get(key);
+					if(!value.isEmpty()){
+						logger.debug("Key: " + key + " Value: " + value);
+					}					
+				}				
+			}
+		}
 		long time2 = System.currentTimeMillis();
 		logger.info("AVT query finished in: " + (time2 - time1) + " ms");
 		fireResultsAvailable(result);
