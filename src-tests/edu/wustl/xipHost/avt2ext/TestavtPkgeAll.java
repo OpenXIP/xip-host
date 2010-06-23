@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.avt;
+package edu.wustl.xipHost.avt2ext;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

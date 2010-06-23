@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.avt;
+package edu.wustl.xipHost.avt2ext;
 
 import org.nema.dicom.wg23.ArrayOfObjectLocator;
 import org.nema.dicom.wg23.ArrayOfUUID;

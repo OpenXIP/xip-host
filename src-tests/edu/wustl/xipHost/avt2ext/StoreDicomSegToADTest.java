@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2009 Washington University in Saint Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.avt;
+package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
 import java.io.IOException;

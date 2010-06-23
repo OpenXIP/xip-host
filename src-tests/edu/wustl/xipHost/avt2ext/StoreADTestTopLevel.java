@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.avt;
+package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,13 +12,9 @@ import org.dcm4che2.data.Tag;
 import org.jdom.JDOMException;
 import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
 import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.ArrayOfPatient;
-import org.nema.dicom.wg23.ArrayOfStudy;
 import org.nema.dicom.wg23.AvailableData;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Patient;
-import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uuid;
 import org.xml.sax.SAXException;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
@@ -34,7 +30,7 @@ import junit.framework.TestCase;
  * @author Jaroslaw Krych
  *
  */
-public class StoreADTestStudyLevel extends TestCase {
+public class StoreADTestTopLevel extends TestCase {
 	ADFacade adService = AVTFactory.getADServiceInstance();
 	AvailableData availableData;
 	
@@ -47,20 +43,13 @@ public class StoreADTestStudyLevel extends TestCase {
 	}
 	
 	//CAUTION: all AVTStore test should be run on empty AD database.
-	//AVTStore 1B - basic flow. Perfect conditions. AIM objects to store are valid XML strings.
+	//AVTStore 1A - basic flow. Perfect conditions. AIM objects to store are valid XML strings.
 	//DICOM SEG object are valid. There is one txt file (txt file are not stored). 
-	//AvailableData contains objects descriptors at the study level.
-	public void testStoreAimToAD_1B() throws IOException, JDOMException, InterruptedException, SAXException{
+	//AvailableData contains objects descriptors at the top level.
+	public void testStoreAimToAD_1A() throws IOException, JDOMException, InterruptedException, SAXException{
 		availableData = new AvailableData();
-		ArrayOfPatient arrayOfPatient = new ArrayOfPatient();
-		List<Patient> listPatients = arrayOfPatient.getPatient();
-		Patient patient = new Patient();
-		patient.setName("PatientTest");		
-		ArrayOfStudy arrayOfStudy = new ArrayOfStudy();
-		List<Study> listStudies = arrayOfStudy.getStudy();
-		Study study = new Study();
-		ArrayOfObjectDescriptor arrayOfObjectDescStudy = new ArrayOfObjectDescriptor();
-		List<ObjectDescriptor> listObjectDescs = arrayOfObjectDescStudy.getObjectDescriptor();
+		ArrayOfObjectDescriptor arrayOfObjectDesc = new ArrayOfObjectDescriptor();
+		List<ObjectDescriptor> listObjectDescs = arrayOfObjectDesc.getObjectDescriptor();
 		//ObjectDescriptor for AIM
 		ObjectDescriptor objDesc1 = new ObjectDescriptor();					
 		Uuid objDescUUID1 = new Uuid();
@@ -81,11 +70,7 @@ public class StoreADTestStudyLevel extends TestCase {
 		objDesc3.setUuid(objDescUUID2);																																				
 		listObjectDescs.add(objDesc3);
 				
-		study.setObjectDescriptors(arrayOfObjectDescStudy);
-		listStudies.add(study);
-		patient.setStudies(arrayOfStudy);
-		listPatients.add(patient);
-		availableData.setPatients(arrayOfPatient);
+		availableData.setObjectDescriptors(arrayOfObjectDesc);
 		
 		ArrayOfObjectLocator arrayObjLocs = new ArrayOfObjectLocator();
 		List<ObjectLocator> objLocs = arrayObjLocs.getObjectLocator();
