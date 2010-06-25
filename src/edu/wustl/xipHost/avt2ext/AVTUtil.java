@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import edu.wustl.xipHost.avt2ext.iterator.Criteria;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
+import edu.wustl.xipHost.avt2ext.iterator.TargetIterator;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -167,7 +168,7 @@ public class AVTUtil {
 	public Iterator<TargetElement> createIterator(SearchResult selectedDataSearchResult, IterationTarget target){
 		//TODO Matt implementation
 		
-		Iterator<TargetElement> iter = null;
+		Iterator<TargetElement> iter = new TargetIterator(selectedDataSearchResult, target);
 		return iter;
 	}
 	
