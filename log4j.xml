@@ -78,6 +78,9 @@
   <logger name="edu.wustl.xipHost.avt2ext.AVTUtil">
 	<appender-ref ref="AVT_Appender"/>
   </logger>
+  <logger name="edu.wustl.xipHost.avt2ext.CreateIteratorTest">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>
   
   <logger name="edu.wustl.xipHost.hostControl.HostConfigurator">
 	<appender-ref ref="HostMain_Appender"/>
