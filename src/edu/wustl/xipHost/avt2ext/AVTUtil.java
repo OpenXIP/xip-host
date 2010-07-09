@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
-import edu.wustl.xipHost.avt2ext.iterator.Criteria;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIterator;

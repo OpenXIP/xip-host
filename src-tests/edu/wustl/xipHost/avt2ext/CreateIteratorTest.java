@@ -74,28 +74,31 @@ public class CreateIteratorTest extends TestCase {
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
 				//original criteria size = 1
-				//Should we check for patientID or patient business key
+				//patientID and patientName (patientName is overwritten)
 				//Plus plus studyInstanceUID plus seriesInstanceUID
-				//total size = 3
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 3);
+				//total size = 4
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient1, subelement 1. Expected 3, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient1, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
-				Object value2 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
-				Object value3 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path1 = subElement1.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
-				boolean blnValue2 = value2.toString().equalsIgnoreCase("101.101");
-				boolean blnValue3 = value3.toString().equalsIgnoreCase("101.101.1");
-				if(blnValue1 == false || blnValue2 == false || blnValue3 == false){
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("111");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek1");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("101.101");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("101.101.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
-					logger.warn("StudyInstanceUID: expected '101.101', actual " + "'" + value2 + "'");
-					logger.warn("SeriesInstanceUID: expected '101.101.1', actual " + "'" + value3 + "'");
+					logger.warn("PatientID: expected '111', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek1', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '101.101', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '101.101.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -110,24 +113,27 @@ public class CreateIteratorTest extends TestCase {
 				//original criteria size = 1
 				//Plus plus studyInstanceUID plus seriesInstanceUID
 				//total size = 3
-				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 3);
+				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 4);
 				if(blnDicomCriteriaSize2 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient1, subelement 2. Expected 3, actual " + dicomCriteria2.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient1, subelement 2. Expected 4, actual " + dicomCriteria2.size());
 				}
-				Object value4 = dicomCriteria2.get(new Integer(10001));	//patientName
-				Object value5 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
-				Object value6 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
+				Object value5 = dicomCriteria2.get(new Integer(1048608));	//patientId
+				Object value6 = dicomCriteria2.get(new Integer(1048592));	//patientName
+				Object value7 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
+				Object value8 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
 				String path2 = subElement2.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue4 = value4.toString().equalsIgnoreCase("*");
-				boolean blnValue5 = value5.toString().equalsIgnoreCase("202.202");
-				boolean blnValue6 = value6.toString().equalsIgnoreCase("202.202.1");
-				if(blnValue4 == false || blnValue5 == false || blnValue6 == false){
+				boolean blnValue5 = value5.toString().equalsIgnoreCase("111");
+				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek1");
+				boolean blnValue7 = value7.toString().equalsIgnoreCase("202.202");
+				boolean blnValue8 = value8.toString().equalsIgnoreCase("202.202.1");
+				if(blnValue5 == false || blnValue6 == false || blnValue7 == false || blnValue8 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value4 + "'");
-					logger.warn("StudyInstanceUID: expected '202.202', actual " + "'" + value5 + "'");
-					logger.warn("SeriesInstanceUID: expected '202.202.1', actual " + "'" + value6 + "'");
+					logger.warn("PatientName: expected '111', actual " + "'" + value5 + "'");
+					logger.warn("PatientName: expected 'Jarek1', actual " + "'" + value6 + "'");
+					logger.warn("StudyInstanceUID: expected '202.202', actual " + "'" + value7 + "'");
+					logger.warn("SeriesInstanceUID: expected '202.202.1', actual " + "'" + value8 + "'");
 				}
 				
 				Map<String, Object> aimCriteria2 = criteria2.getAIMCriteria();
@@ -145,8 +151,8 @@ public class CreateIteratorTest extends TestCase {
 				//assert number of elements
 				
 				blnPatient1Atts = (blnId1 == true && blnNumOfSubElementsPatient1 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnAimCriteriaSize1 == true &&
-						blnDicomCriteriaSize2 == true && blnValue4 == true && blnValue5 == true && blnValue6 == true && blnAimCriteriaSize2 == true && 
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true &&
+						blnDicomCriteriaSize2 == true && blnValue5 == true && blnValue6 == true && blnValue7 == true && blnValue8 == true && blnAimCriteriaSize2 == true && 
 						blnTarget == true);
 				
 			} else if(id.equalsIgnoreCase("222") ){
@@ -162,21 +168,24 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 3);
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient2, subelement 1. Expected 3, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient2, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
-				Object value2 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
-				Object value3 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
-				boolean blnValue2 = value2.toString().equalsIgnoreCase("303.303");
-				boolean blnValue3 = value3.toString().equalsIgnoreCase("303.303.1");
-				if(blnValue1 == false || blnValue2 == false || blnValue3 == false){
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("222");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek2");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("303.303");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("303.303.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
-					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value2 + "'");
-					logger.warn("SeriesInstanceUID: expected '303.303.1', actual " + "'" + value3 + "'");
+					logger.warn("PatientId: expected '222', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek2', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '303.303.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -188,21 +197,24 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement2 = subElements.get(1);
 				Criteria criteria2 = subElement2.getCriteria();
 				Map<Integer, Object> dicomCriteria2 = criteria2.getDICOMCriteria();
-				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 3);
+				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 4);
 				if(blnDicomCriteriaSize2 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient2, subelement 2. Expected 3, actual " + dicomCriteria2.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient2, subelement 2. Expected 4, actual " + dicomCriteria2.size());
 				}
-				Object value4 = dicomCriteria2.get(new Integer(10001));	//patientName
-				Object value5 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
-				Object value6 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
-				boolean blnValue4 = value4.toString().equalsIgnoreCase("*");
-				boolean blnValue5 = value5.toString().equalsIgnoreCase("303.303");
-				boolean blnValue6 = value6.toString().equalsIgnoreCase("404.404.1");
-				if(blnValue4 == false || blnValue5 == false || blnValue6 == false){
+				Object value5 = dicomCriteria2.get(new Integer(1048608));	//patientName
+				Object value6 = dicomCriteria2.get(new Integer(1048592));	//patientName
+				Object value7 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
+				Object value8 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
+				boolean blnValue5 = value5.toString().equalsIgnoreCase("222");
+				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek2");
+				boolean blnValue7 = value7.toString().equalsIgnoreCase("303.303");
+				boolean blnValue8 = value8.toString().equalsIgnoreCase("404.404.1");
+				if(blnValue5 == false || blnValue6 == false || blnValue7 == false || blnValue8 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value4 + "'");
-					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value5 + "'");
-					logger.warn("SeriesInstanceUID: expected '404.404.1', actual " + "'" + value6 + "'");
+					logger.warn("PatientId: expected '222', actual " + "'" + value5 + "'");
+					logger.warn("PatientName: expected 'Jarek2', actual " + "'" + value6 + "'");
+					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value7 + "'");
+					logger.warn("SeriesInstanceUID: expected '404.404.1', actual " + "'" + value8 + "'");
 				}
 				
 				Map<String, Object> aimCriteria2 = criteria2.getAIMCriteria();
@@ -214,21 +226,24 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement3 = subElements.get(2);
 				Criteria criteria3 = subElement3.getCriteria();
 				Map<Integer, Object> dicomCriteria3 = criteria3.getDICOMCriteria();
-				boolean blnDicomCriteriaSize3 = (dicomCriteria3.size() == 3);
+				boolean blnDicomCriteriaSize3 = (dicomCriteria3.size() == 4);
 				if(blnDicomCriteriaSize3 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient2, subelement 3. Expected 3, actual " + dicomCriteria3.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient2, subelement 3. Expected 4, actual " + dicomCriteria3.size());
 				}
-				Object value7 = dicomCriteria3.get(new Integer(10001));	//patientName
-				Object value8 = dicomCriteria3.get(new Integer(2097165));	//studyInstanceUID
-				Object value9 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
-				boolean blnValue7 = value7.toString().equalsIgnoreCase("*");
-				boolean blnValue8 = value8.toString().equalsIgnoreCase("303.303");
-				boolean blnValue9 = value9.toString().equalsIgnoreCase("505.505.1");
-				if(blnValue7 == false || blnValue8 == false || blnValue9 == false){
+				Object value9 = dicomCriteria3.get(new Integer(1048608));	//patientId
+				Object value10 = dicomCriteria3.get(new Integer(1048592));	//patientName
+				Object value11 = dicomCriteria3.get(new Integer(2097165));	//studyInstanceUID
+				Object value12 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
+				boolean blnValue9 = value9.toString().equalsIgnoreCase("222");
+				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek2");
+				boolean blnValue11 = value11.toString().equalsIgnoreCase("303.303");
+				boolean blnValue12 = value12.toString().equalsIgnoreCase("505.505.1");
+				if(blnValue9 == false || blnValue10 == false || blnValue11 == false || blnValue12 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value7 + "'");
-					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value8 + "'");
-					logger.warn("SeriesInstanceUID: expected '505.505.1', actual " + "'" + value9 + "'");
+					logger.warn("PatientId: expected '222', actual " + "'" + value9 + "'");
+					logger.warn("PatientName: expected 'Jarek2', actual " + "'" + value10 + "'");
+					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value11 + "'");
+					logger.warn("SeriesInstanceUID: expected '505.505.1', actual " + "'" + value12 + "'");
 				}
 				
 				Map<String, Object> aimCriteria3 = criteria3.getAIMCriteria();
@@ -244,9 +259,9 @@ public class CreateIteratorTest extends TestCase {
 				}
 				
 				blnPatient2Atts = (blnId2 == true && blnNumOfSubElementsPatient2 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnAimCriteriaSize1 == true &&
-						blnDicomCriteriaSize2 == true && blnValue4 == true && blnValue5 == true && blnValue6 == true && blnAimCriteriaSize2 == true && 
-						blnDicomCriteriaSize3 == true && blnValue7 == true && blnValue8 == true && blnValue9 == true && blnAimCriteriaSize3 == true && 
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true &&
+						blnDicomCriteriaSize2 == true && blnValue5 == true && blnValue6 == true && blnValue7 == true && blnValue8 == true && blnAimCriteriaSize2 == true && 
+						blnDicomCriteriaSize3 == true && blnValue9 == true && blnValue10 == true && blnValue11 == true && blnValue12 == true && blnAimCriteriaSize3 == true && 
 						blnTarget == true);
 			
 			} else if (id.equalsIgnoreCase("333")){
@@ -260,21 +275,24 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 3);
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient3, subelement 1. Expected 3, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient3, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
-				Object value2 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
-				Object value3 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
-				boolean blnValue2 = value2.toString().equalsIgnoreCase("404.404");
-				boolean blnValue3 = value3.toString().equalsIgnoreCase("606.606.1");
-				if(blnValue1 == false || blnValue2 == false || blnValue3 == false){
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("333");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek3");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("404.404");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("606.606.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
-					logger.warn("StudyInstanceUID: expected '404.404', actual " + "'" + value2 + "'");
-					logger.warn("SeriesInstanceUID: expected '606.606.1', actual " + "'" + value3 + "'");
+					logger.warn("PatientId: expected '333', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek3', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '404.404', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '606.606.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -286,21 +304,24 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement6 = subElements.get(5);
 				Criteria criteria6 = subElement6.getCriteria();
 				Map<Integer, Object> dicomCriteria6 = criteria6.getDICOMCriteria();
-				boolean blnDicomCriteriaSize6 = (dicomCriteria6.size() == 3);
+				boolean blnDicomCriteriaSize6 = (dicomCriteria6.size() == 4);
 				if(blnDicomCriteriaSize6 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient3, subelement 6. Expected 3, actual " + dicomCriteria6.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient3, subelement 6. Expected 4, actual " + dicomCriteria6.size());
 				}
-				Object value4 = dicomCriteria6.get(new Integer(10001));	//patientName
-				Object value5 = dicomCriteria6.get(new Integer(2097165));	//studyInstanceUID
-				Object value6 = dicomCriteria6.get(new Integer(2097166));	//seriesInstanceUID
-				boolean blnValue4 = value4.toString().equalsIgnoreCase("*");
-				boolean blnValue5 = value5.toString().equalsIgnoreCase("505.505");
-				boolean blnValue6 = value6.toString().equalsIgnoreCase("11.11.1");
-				if(blnValue4 == false || blnValue5 == false || blnValue6 == false){
+				Object value5 = dicomCriteria6.get(new Integer(1048608));	//patientName
+				Object value6 = dicomCriteria6.get(new Integer(1048592));	//patientName
+				Object value7 = dicomCriteria6.get(new Integer(2097165));	//studyInstanceUID
+				Object value8 = dicomCriteria6.get(new Integer(2097166));	//seriesInstanceUID
+				boolean blnValue5 = value5.toString().equalsIgnoreCase("333");
+				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek3");
+				boolean blnValue7 = value7.toString().equalsIgnoreCase("505.505");
+				boolean blnValue8 = value8.toString().equalsIgnoreCase("11.11.1");
+				if(blnValue5 == false || blnValue6 == false || blnValue7 == false || blnValue8 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value4 + "'");
-					logger.warn("StudyInstanceUID: expected '505.505', actual " + "'" + value5 + "'");
-					logger.warn("SeriesInstanceUID: expected '11.11.1', actual " + "'" + value6 + "'");
+					logger.warn("PatientId: expected '333', actual " + "'" + value5 + "'");
+					logger.warn("PatientName: expected 'Jarek3', actual " + "'" + value6 + "'");
+					logger.warn("StudyInstanceUID: expected '505.505', actual " + "'" + value7 + "'");
+					logger.warn("SeriesInstanceUID: expected '11.11.1', actual " + "'" + value8 + "'");
 				}
 				
 				Map<String, Object> aimCriteria6 = criteria6.getAIMCriteria();
@@ -312,21 +333,24 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement9 = subElements.get(8);
 				Criteria criteria9 = subElement9.getCriteria();
 				Map<Integer, Object> dicomCriteria9 = criteria9.getDICOMCriteria();
-				boolean blnDicomCriteriaSize9 = (dicomCriteria9.size() == 3);
+				boolean blnDicomCriteriaSize9 = (dicomCriteria9.size() == 4);
 				if(blnDicomCriteriaSize9 == false){
-					logger.warn("Incorrect number of DICOM criteria for Patient3, subelement 9. Expected 3, actual " + dicomCriteria9.size());
+					logger.warn("Incorrect number of DICOM criteria for Patient3, subelement 9. Expected 4, actual " + dicomCriteria9.size());
 				}
-				Object value7 = dicomCriteria9.get(new Integer(10001));	//patientName
-				Object value8 = dicomCriteria9.get(new Integer(2097165));	//studyInstanceUID
-				Object value9 = dicomCriteria9.get(new Integer(2097166));	//seriesInstanceUID
-				boolean blnValue7 = value7.toString().equalsIgnoreCase("*");
-				boolean blnValue8 = value8.toString().equalsIgnoreCase("606.606");
-				boolean blnValue9 = value9.toString().equalsIgnoreCase("14.14.1");
-				if(blnValue7 == false || blnValue8 == false || blnValue9 == false){
+				Object value9 = dicomCriteria9.get(new Integer(1048608));	//patientId
+				Object value10 = dicomCriteria9.get(new Integer(1048592));	//patientName
+				Object value11 = dicomCriteria9.get(new Integer(2097165));	//studyInstanceUID
+				Object value12 = dicomCriteria9.get(new Integer(2097166));	//seriesInstanceUID
+				boolean blnValue9 = value9.toString().equalsIgnoreCase("333");
+				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek3");
+				boolean blnValue11 = value11.toString().equalsIgnoreCase("606.606");
+				boolean blnValue12 = value12.toString().equalsIgnoreCase("14.14.1");
+				if(blnValue9 == false || blnValue10 == false || blnValue11 == false || blnValue12 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value7 + "'");
-					logger.warn("StudyInstanceUID: expected '606.606', actual " + "'" + value8 + "'");
-					logger.warn("SeriesInstanceUID: expected '14.14.1', actual " + "'" + value9 + "'");
+					logger.warn("PatientId: expected '333', actual " + "'" + value9 + "'");
+					logger.warn("PatientName: expected 'Jarek3', actual " + "'" + value10 + "'");
+					logger.warn("StudyInstanceUID: expected '606.606', actual " + "'" + value11 + "'");
+					logger.warn("SeriesInstanceUID: expected '14.14.1', actual " + "'" + value12 + "'");
 				}
 				
 				Map<String, Object> aimCriteria9 = criteria9.getAIMCriteria();
@@ -342,9 +366,9 @@ public class CreateIteratorTest extends TestCase {
 				}
 				
 				blnPatient2Atts = (blnId3 == true && blnNumOfSubElementsPatient3 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnAimCriteriaSize1 == true &&
-						blnDicomCriteriaSize6 == true && blnValue4 == true && blnValue5 == true && blnValue6 == true && blnAimCriteriaSize6 == true && 
-						blnDicomCriteriaSize9 == true && blnValue7 == true && blnValue8 == true && blnValue9 == true && blnAimCriteriaSize9 == true && 
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true &&
+						blnDicomCriteriaSize6 == true && blnValue5 == true && blnValue6 == true && blnValue7 == true && blnValue8 == true && blnAimCriteriaSize6 == true && 
+						blnDicomCriteriaSize9 == true && blnValue9 == true && blnValue10 == true && blnValue11 == true && blnValue12 == true && blnAimCriteriaSize9 == true && 
 						blnTarget == true);
 				
 			} else {
@@ -390,25 +414,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				//original criteria size = 1
-				//Plus seriesInstanceUID
-				//total size = 2
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 2);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Study1, subelement 1. Expected 2, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Study1, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
-				Object value2 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studySeriesUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path1 = subElement1.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
-				boolean blnValue2 = value2.toString().equalsIgnoreCase("101.101.1");
-				if(blnValue1 == false || blnValue2 == false){
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("111");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek1");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("101.101");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("101.101.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
-					logger.warn("SeriesInstanceUID: expected '101.101.1', actual " + "'" + value2 + "'");
+					logger.warn("PatientId: expected '111', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek1', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '101.101', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '101.101.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -425,7 +457,7 @@ public class CreateIteratorTest extends TestCase {
 				
 				//assert number of elements
 				blnStudy1Atts = (blnId1 == true && blnNumOfSubElementsStudy1 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnValue2 == true && blnAimCriteriaSize1 == true && blnTarget == true);
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true && blnTarget == true);
 				if(blnStudy1Atts == false){
 					logger.warn("Invalid attributes in Study1.");
 				}
@@ -442,25 +474,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				//original criteria size = 1
-				//Plus seriesInstanceUID
-				//total size = 2
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 2);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Study3, subelement 1. Expected 2, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Study3, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
-				Object value2 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path1 = subElement1.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
-				boolean blnValue2 = value2.toString().equalsIgnoreCase("303.303.1");
-				if(blnValue1 == false || blnValue2 == false){
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("222");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek2");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("303.303");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("303.303.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
-					logger.warn("SeriesInstanceUID: expected '303.303.1', actual " + "'" + value2 + "'");
+					logger.warn("PatientId: expected '222', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek2', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '303.303.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -472,27 +512,35 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement2 = subElements.get(1);	
 				Criteria criteria2 = subElement2.getCriteria();
 				Map<Integer, Object> dicomCriteria2 = criteria2.getDICOMCriteria();
-				//original criteria size = 1
-				//Plus seriesInstanceUID
-				//total size = 2
-				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 2);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 4);
 				if(blnDicomCriteriaSize2 == false){
-					logger.warn("Incorrect number of DICOM criteria for Study3, subelement 2. Expected 2, actual " + dicomCriteria2.size());
+					logger.warn("Incorrect number of DICOM criteria for Study3, subelement 2. Expected 4, actual " + dicomCriteria2.size());
 				}
-				Object value3 = dicomCriteria2.get(new Integer(10001));	//patientName
-				Object value4 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
+				Object value5 = dicomCriteria2.get(new Integer(1048608));	//patientId
+				Object value6 = dicomCriteria2.get(new Integer(1048592));	//patientName
+				Object value7 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
+				Object value8 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path2 = subElement2.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue3 = value3.toString().equalsIgnoreCase("*");
-				boolean blnValue4 = value4.toString().equalsIgnoreCase("404.404.1");
-				if(blnValue3 == false || blnValue4 == false){
+				boolean blnValue5 = value5.toString().equalsIgnoreCase("222");
+				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek2");
+				boolean blnValue7 = value7.toString().equalsIgnoreCase("303.303");
+				boolean blnValue8 = value8.toString().equalsIgnoreCase("404.404.1");
+				if(blnValue5 == false || blnValue5 == false || blnValue7 == false || blnValue8 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value3 + "'");
-					logger.warn("SeriesInstanceUID: expected '404.404.1', actual " + "'" + value4 + "'");
+					logger.warn("PatientId: expected '222', actual " + "'" + value5 + "'");
+					logger.warn("PatientName: expected 'Jarek2', actual " + "'" + value6 + "'");
+					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value7 + "'");
+					logger.warn("SeriesInstanceUID: expected '404.404.1', actual " + "'" + value8 + "'");
 				}
-				
+				//last
 				Map<String, Object> aimCriteria2 = criteria2.getAIMCriteria();
 				boolean blnAimCriteriaSize2 = (aimCriteria2.size() == 0);
 				if(blnAimCriteriaSize2 == false){
@@ -502,25 +550,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement3 = subElements.get(2);	
 				Criteria criteria3 = subElement3.getCriteria();
 				Map<Integer, Object> dicomCriteria3 = criteria3.getDICOMCriteria();
-				//original criteria size = 1
-				//Plus seriesInstanceUID
-				//total size = 2
-				boolean blnDicomCriteriaSize3 = (dicomCriteria3.size() == 2);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize3 = (dicomCriteria3.size() == 4);
 				if(blnDicomCriteriaSize3 == false){
-					logger.warn("Incorrect number of DICOM criteria for Study3, subelement 3. Expected 2, actual " + dicomCriteria3.size());
+					logger.warn("Incorrect number of DICOM criteria for Study3, subelement 3. Expected 4, actual " + dicomCriteria3.size());
 				}
-				Object value5 = dicomCriteria3.get(new Integer(10001));	//patientName
-				Object value6 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
+				Object value9 = dicomCriteria3.get(new Integer(1048608));	//patientId
+				Object value10 = dicomCriteria3.get(new Integer(1048592));	//patientName
+				Object value11 = dicomCriteria3.get(new Integer(2097165));	//studyInstanceUID
+				Object value12 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path3 = subElement3.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue5 = value5.toString().equalsIgnoreCase("*");
-				boolean blnValue6 = value6.toString().equalsIgnoreCase("505.505.1");
-				if(blnValue5 == false || blnValue6 == false){
+				boolean blnValue9 = value9.toString().equalsIgnoreCase("222");
+				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek");
+				boolean blnValue11 = value11.toString().equalsIgnoreCase("303.303");
+				boolean blnValue12 = value12.toString().equalsIgnoreCase("505.505.1");
+				if(blnValue9 == false || blnValue10 == false || blnValue11 == false || blnValue12 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value5 + "'");
-					logger.warn("SeriesInstanceUID: expected '505.505.1', actual " + "'" + value6 + "'");
+					logger.warn("PatientId: expected '222', actual " + "'" + value9 + "'");
+					logger.warn("PatientName: expected 'Jarek2', actual " + "'" + value10 + "'");
+					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value11 + "'");
+					logger.warn("SeriesInstanceUID: expected '505.505.1', actual " + "'" + value12 + "'");
 				}
 				
 				Map<String, Object> aimCriteria3 = criteria3.getAIMCriteria();
@@ -537,9 +593,9 @@ public class CreateIteratorTest extends TestCase {
 				
 				//assert number of elements
 				blnStudy3Atts = (blnId3 == true && blnNumOfSubElementsStudy3 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnValue2 == true && blnAimCriteriaSize1 == true && 
-						blnDicomCriteriaSize2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize2 == true &&
-						blnDicomCriteriaSize3 == true && blnValue5 == true && blnValue6 == true && blnAimCriteriaSize3 == true &&
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true && 
+						blnDicomCriteriaSize2 == true && blnValue5 == true && blnValue6 == true && blnValue7 == true && blnValue8 == true && blnAimCriteriaSize2 == true &&
+						blnDicomCriteriaSize3 == true && blnValue9 == true && blnValue10 == true && blnValue11 == true && blnValue12 == true && blnAimCriteriaSize3 == true &&
 						blnTarget == true);
 				if(blnStudy3Atts == false){
 					logger.warn("Invalid attributes in Study3.");
@@ -557,25 +613,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				//original criteria size = 1
-				//Plus seriesInstanceUID
-				//total size = 2
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 2);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Study6, subelement 1. Expected 2, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Study6, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
-				Object value2 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path1 = subElement1.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
-				boolean blnValue2 = value2.toString().equalsIgnoreCase("12.12.1");
-				if(blnValue1 == false || blnValue2 == false){
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("333");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek3");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("606.606");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("12.12.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
-					logger.warn("SeriesInstanceUID: expected '12.12.1', actual " + "'" + value2 + "'");
+					logger.warn("PatientId: expected '333', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek3', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '606.606', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '12.12.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -587,25 +651,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement2 = subElements.get(1);	
 				Criteria criteria2 = subElement2.getCriteria();
 				Map<Integer, Object> dicomCriteria2 = criteria2.getDICOMCriteria();
-				//original criteria size = 1
-				//Plus seriesInstanceUID
-				//total size = 2
-				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 2);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize2 = (dicomCriteria2.size() == 4);
 				if(blnDicomCriteriaSize2 == false){
-					logger.warn("Incorrect number of DICOM criteria for Study6, subelement 2. Expected 2, actual " + dicomCriteria2.size());
+					logger.warn("Incorrect number of DICOM criteria for Study6, subelement 2. Expected 4, actual " + dicomCriteria2.size());
 				}
-				Object value3 = dicomCriteria2.get(new Integer(10001));	//patientName
-				Object value4 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
+				Object value5 = dicomCriteria2.get(new Integer(1048608));	//patientId
+				Object value6 = dicomCriteria2.get(new Integer(1048592));	//patientName
+				Object value7 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
+				Object value8 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path2 = subElement2.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue3 = value3.toString().equalsIgnoreCase("*");
-				boolean blnValue4 = value4.toString().equalsIgnoreCase("13.13.1");
-				if(blnValue3 == false || blnValue4 == false){
+				boolean blnValue5 = value5.toString().equalsIgnoreCase("333");
+				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek3");
+				boolean blnValue7 = value7.toString().equalsIgnoreCase("606.606");
+				boolean blnValue8 = value8.toString().equalsIgnoreCase("13.13.1");
+				if(blnValue5 == false || blnValue6 == false || blnValue7 == false || blnValue8 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value3 + "'");
-					logger.warn("SeriesInstanceUID: expected '13.13.1', actual " + "'" + value4 + "'");
+					logger.warn("PatientId: expected '333', actual " + "'" + value5 + "'");
+					logger.warn("PatientName: expected 'Jarek3', actual " + "'" + value6 + "'");
+					logger.warn("StudyInstanceUID: expected '606.606', actual " + "'" + value7 + "'");
+					logger.warn("SeriesInstanceUID: expected '13.13.1', actual " + "'" + value8 + "'");
 				}
 				
 				Map<String, Object> aimCriteria2 = criteria2.getAIMCriteria();
@@ -617,25 +689,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement3 = subElements.get(2);	
 				Criteria criteria3 = subElement3.getCriteria();
 				Map<Integer, Object> dicomCriteria3 = criteria3.getDICOMCriteria();
-				//original criteria size = 1
-				//Plus seriesInstanceUID
-				//total size = 2
-				boolean blnDicomCriteriaSize3 = (dicomCriteria3.size() == 2);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize3 = (dicomCriteria3.size() == 4);
 				if(blnDicomCriteriaSize3 == false){
-					logger.warn("Incorrect number of DICOM criteria for Study6, subelement 3. Expected 2, actual " + dicomCriteria3.size());
+					logger.warn("Incorrect number of DICOM criteria for Study6, subelement 3. Expected 4, actual " + dicomCriteria3.size());
 				}
-				Object value5 = dicomCriteria3.get(new Integer(10001));	//patientName
-				Object value6 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
+				Object value9 = dicomCriteria3.get(new Integer(1048608));	//patientId
+				Object value10 = dicomCriteria3.get(new Integer(1048592));	//patientName
+				Object value11 = dicomCriteria3.get(new Integer(2097165));	//studyInstanceUID
+				Object value12 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path3 = subElement3.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue5 = value5.toString().equalsIgnoreCase("*");
-				boolean blnValue6 = value6.toString().equalsIgnoreCase("14.14.1");
-				if(blnValue5 == false || blnValue6 == false){
+				boolean blnValue9 = value9.toString().equalsIgnoreCase("333");
+				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek3");
+				boolean blnValue11 = value11.toString().equalsIgnoreCase("606.606");
+				boolean blnValue12 = value12.toString().equalsIgnoreCase("14.14.1");
+				if(blnValue9 == false || blnValue10 == false || blnValue11 == false || blnValue12 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value5 + "'");
-					logger.warn("SeriesInstanceUID: expected '14.14.1', actual " + "'" + value6 + "'");
+					logger.warn("PatientId: expected '333', actual " + "'" + value9 + "'");
+					logger.warn("PatientName: expected 'Jarek3', actual " + "'" + value10 + "'");
+					logger.warn("StudyInstanceUID: expected '606.606', actual " + "'" + value11 + "'");
+					logger.warn("SeriesInstanceUID: expected '14.14.1', actual " + "'" + value12 + "'");
 				}
 				
 				Map<String, Object> aimCriteria3 = criteria3.getAIMCriteria();
@@ -652,9 +732,9 @@ public class CreateIteratorTest extends TestCase {
 				
 				//assert number of elements
 				blnStudy6Atts = (blnId6 == true && blnNumOfSubElementsStudy6 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnValue2 == true && blnAimCriteriaSize1 == true && 
-						blnDicomCriteriaSize2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize2 == true &&
-						blnDicomCriteriaSize3 == true && blnValue5 == true && blnValue6 == true && blnAimCriteriaSize3 == true &&
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true && 
+						blnDicomCriteriaSize2 == true && blnValue5 == true && blnValue5 == true && blnValue7 == true && blnValue8 == true && blnAimCriteriaSize2 == true &&
+						blnDicomCriteriaSize3 == true && blnValue9 == true && blnValue10 == true && blnValue11 == true && blnValue12 == true && blnAimCriteriaSize3 == true &&
 						blnTarget == true);
 				if(blnStudy6Atts == false){
 					logger.warn("Invalid attributes in Study6.");
@@ -700,23 +780,35 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				//original criteria size = 1
-				//total size = 1
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Series1, subelement 1. Expected 1, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Series1, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path1 = subElement1.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");;
-				if(blnValue1 == false){
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("111");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek1");
+				boolean blnValue3 = value1.toString().equalsIgnoreCase("101.101");
+				boolean blnValue4 = value1.toString().equalsIgnoreCase("101.101.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+					logger.warn("PatientId: expected '111', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek1', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '101.101', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '101.101.1', actual " + "'" + value4 + "'");
 				}
-				
+				//last
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
 				boolean blnAimCriteriaSize1 = (aimCriteria1.size() == 0);
 				if(blnAimCriteriaSize1 == false){
@@ -731,7 +823,7 @@ public class CreateIteratorTest extends TestCase {
 				
 				//assert number of elements
 				blnSeries1Atts = (blnId1 == true && blnNumOfSubElementsSeries1 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true);
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true && blnTarget == true);
 				if(blnSeries1Atts == false){
 					logger.warn("Invalid attributes in Series1.");
 				} 
@@ -745,21 +837,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				//original criteria size = 1
-				//total size = 1
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Series4, subelement 1. Expected 1, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Series4, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path1 = subElement1.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");;
-				if(blnValue1 == false){
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("222");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek2");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("303.303");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("404.404.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false ){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+					logger.warn("PatientId: expected '222', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek2', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '303.303', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '404.404.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -776,7 +880,7 @@ public class CreateIteratorTest extends TestCase {
 				
 				//assert number of elements
 				blnSeries4Atts = (blnId4 == true && blnNumOfSubElementsSeries4 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true);
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true && blnTarget == true);
 				if(blnSeries1Atts == false){
 					logger.warn("Invalid attributes in Series4.");
 				} 
@@ -790,21 +894,33 @@ public class CreateIteratorTest extends TestCase {
 				SubElement subElement1 = subElements.get(0);	
 				Criteria criteria1 = subElement1.getCriteria();
 				Map<Integer, Object> dicomCriteria1 = criteria1.getDICOMCriteria();
-				//original criteria size = 1
-				//total size = 1
-				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				//original criteria size = 1 overwritten by patientName
+				//plus patientId
+				//plus studyInstanceUID
+				//plus seriesInstanceUID
+				//total size = 4
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 4);
 				if(blnDicomCriteriaSize1 == false){
-					logger.warn("Incorrect number of DICOM criteria for Series13, subelement 1. Expected 1, actual " + dicomCriteria1.size());
+					logger.warn("Incorrect number of DICOM criteria for Series13, subelement 1. Expected 4, actual " + dicomCriteria1.size());
 				}
-				Object value1 = dicomCriteria1.get(new Integer(10001));	//patientName
+				Object value1 = dicomCriteria1.get(new Integer(1048608));	//patientId
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
+				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
 				String path1 = subElement1.getPath();
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
-				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");;
-				if(blnValue1 == false){
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("333");
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek3");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("606.606");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("13.13.1");
+				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false ){
 					logger.warn("Incorrect criteria values");
-					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+					logger.warn("PatientId: expected '333', actual " + "'" + value1 + "'");
+					logger.warn("PatientName: expected 'Jarek3', actual " + "'" + value2 + "'");
+					logger.warn("StudyInstanceUID: expected '606.606', actual " + "'" + value3 + "'");
+					logger.warn("SeriesInstanceUID: expected '13.13.1', actual " + "'" + value4 + "'");
 				}
 				
 				Map<String, Object> aimCriteria1 = criteria1.getAIMCriteria();
@@ -821,7 +937,7 @@ public class CreateIteratorTest extends TestCase {
 				
 				//assert number of elements
 				blnSeries1Atts = (blnId13 == true && blnNumOfSubElementsSeries13 == true && blnDicomCriteriaSize1 == true &&
-						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true);
+						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true && blnTarget == true);
 				if(blnSeries1Atts == false){
 					logger.warn("Invalid attributes in Series13.");
 				} 
