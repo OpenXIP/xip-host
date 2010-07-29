@@ -217,7 +217,30 @@ public class TargetIterator implements Iterator<TargetElement> {
 			
 			// ** SERIES TARGET ** //
 			else if(this.target == IterationTarget.SERIES) {
-				// Finish series next() method
+				// Update Item list in series
+				Series series = seriesIt.next();
+				UpdateSeries(series);
+				
+				// Build Criteria for Series
+				List<SubElement> subElements = new ArrayList<SubElement>();
+				Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+				seriesCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
+				seriesCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
+				if(this.currentPatient.getPatientName() != null && !this.currentPatient.getPatientName().isEmpty()) {
+					seriesCriteria.getDICOMCriteria().put(Tag.PatientName, this.currentPatient.getPatientName());
+				}
+				if(this.currentPatient.getPatientID() != null && !this.currentPatient.getPatientID().isEmpty()) {
+					seriesCriteria.getDICOMCriteria().put(Tag.PatientID, this.currentPatient.getPatientID());
+				}
+				if(this.currentStudy.getStudyInstanceUID() != null && !this.currentStudy.getStudyInstanceUID().isEmpty()) {
+					seriesCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, this.currentStudy.getStudyInstanceUID());
+				}
+				if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
+					seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+				}
+				SubElement seriesSubElement = new SubElement(seriesCriteria, null);
+				subElements.add(seriesSubElement);
+				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target);
 			}
 			else
 				throw new NoSuchElementException();
