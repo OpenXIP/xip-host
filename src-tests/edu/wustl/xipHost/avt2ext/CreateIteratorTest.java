@@ -799,8 +799,8 @@ public class CreateIteratorTest extends TestCase {
 				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("111");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek1");
-				boolean blnValue3 = value1.toString().equalsIgnoreCase("101.101");
-				boolean blnValue4 = value1.toString().equalsIgnoreCase("101.101.1");
+				boolean blnValue3 = value3.toString().equalsIgnoreCase("101.101");
+				boolean blnValue4 = value4.toString().equalsIgnoreCase("101.101.1");
 				if(blnValue1 == false || blnValue2 == false || blnValue3 == false || blnValue4 == false){
 					logger.warn("Incorrect criteria values");
 					logger.warn("PatientId: expected '111', actual " + "'" + value1 + "'");
