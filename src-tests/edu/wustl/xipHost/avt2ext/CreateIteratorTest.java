@@ -568,7 +568,7 @@ public class CreateIteratorTest extends TestCase {
 				//check if path exists
 				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue9 = value9.toString().equalsIgnoreCase("222");
-				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek");
+				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek2");
 				boolean blnValue11 = value11.toString().equalsIgnoreCase("303.303");
 				boolean blnValue12 = value12.toString().equalsIgnoreCase("505.505.1");
 				if(blnValue9 == false || blnValue10 == false || blnValue11 == false || blnValue12 == false){
