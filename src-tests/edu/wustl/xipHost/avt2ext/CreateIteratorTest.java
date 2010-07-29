@@ -936,9 +936,9 @@ public class CreateIteratorTest extends TestCase {
 				}
 				
 				//assert number of elements
-				blnSeries1Atts = (blnId13 == true && blnNumOfSubElementsSeries13 == true && blnDicomCriteriaSize1 == true &&
+				blnSeries13Atts = (blnId13 == true && blnNumOfSubElementsSeries13 == true && blnDicomCriteriaSize1 == true &&
 						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true && blnTarget == true);
-				if(blnSeries1Atts == false){
+				if(blnSeries13Atts == false){
 					logger.warn("Invalid attributes in Series13.");
 				} 
 			}
