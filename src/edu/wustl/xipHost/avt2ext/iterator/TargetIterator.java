@@ -24,7 +24,9 @@ public class TargetIterator implements Iterator<TargetElement> {
 	SearchResult selectedDataSearchResult;
 	
 	IterationTarget target;
+	Patient currentPatient = null;
 	Iterator<Patient> patientIt = null;
+	Study currentStudy;
 	Iterator<Study> studyIt = null;
 	Iterator<Series> seriesIt = null;
 	
@@ -84,9 +86,9 @@ public class TargetIterator implements Iterator<TargetElement> {
 			}
 			// end of study list for this patient, load list from next (or first) patient
 			else if(patientIt.hasNext() == true) {
-				Patient currentPatient = patientIt.next();
-				UpdatePatient(currentPatient);
-				studyIt = currentPatient.getStudies().iterator();
+				this.currentPatient = patientIt.next();
+				UpdatePatient(this.currentPatient);
+				studyIt = this.currentPatient.getStudies().iterator();
 				return studyIt.hasNext();
 			}
 			// no additional entries in study list, no further patients in results
@@ -100,19 +102,19 @@ public class TargetIterator implements Iterator<TargetElement> {
 			}
 			// end of series list for this study, load list from next (or first) study
 			else if(studyIt != null && studyIt.hasNext()) {
-				Study currentStudy = studyIt.next();
-				UpdateStudy(currentStudy);
-				seriesIt = currentStudy.getSeries().iterator();
+				this.currentStudy = studyIt.next();
+				UpdateStudy(this.currentStudy);
+				seriesIt = this.currentStudy.getSeries().iterator();
 				return seriesIt.hasNext();
 			}
 			// end of series list for this patient, load list from next (or first) patient/study
 			else if(patientIt.hasNext() == true) {
-				Patient currentPatient = patientIt.next();
-				UpdatePatient(currentPatient);
-				studyIt = currentPatient.getStudies().iterator();
-				Study currentStudy = studyIt.next();
-				UpdateStudy(currentStudy);
-				seriesIt = currentStudy.getSeries().iterator();
+				this.currentPatient = patientIt.next();
+				UpdatePatient(this.currentPatient);
+				studyIt = this.currentPatient.getStudies().iterator();
+				this.currentStudy = studyIt.next();
+				UpdateStudy(this.currentStudy);
+				seriesIt = this.currentStudy.getSeries().iterator();
 				return seriesIt.hasNext();
 				// TODO Need logic to support skipping empty series lists in intermediate Patient, etc.
 				// TODO hasNext() currently returns false 
@@ -145,8 +147,9 @@ public class TargetIterator implements Iterator<TargetElement> {
 					}
 				}
 				// Build criteria for patient
-				Criteria patientCriteria = new Criteria(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria(),
-						selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
+				Criteria patientCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+				patientCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
+				patientCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(patient.getPatientName() != null && !patient.getPatientName().isEmpty()) {
 					patientCriteria.getDICOMCriteria().put(Tag.PatientName, patient.getPatientName());
 				}
@@ -160,12 +163,16 @@ public class TargetIterator implements Iterator<TargetElement> {
 					Criteria studyCriteria= new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());					
 					studyCriteria.getDICOMCriteria().putAll(patientCriteria.getDICOMCriteria());
 					studyCriteria.getAIMCriteria().putAll(patientCriteria.getAIMCriteria());
-					studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
+					if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
+						studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
+					}
 					for(Series series : study.getSeries()) {
 						Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
 						seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
 						seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
-						seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+						if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
+							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+						}
 						SubElement seriesSubElement = new SubElement(seriesCriteria, null);
 						subElements.add(seriesSubElement);
 					}
@@ -181,10 +188,31 @@ public class TargetIterator implements Iterator<TargetElement> {
 				for(Series series : study.getSeries()) {
 					UpdateSeries(series);
 				}
-				// Build criteria for study
-				Criteria studyCriteria = new Criteria(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria(),
-						selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
-				// TODO Finish building criteria for study
+				// Build Criteria for Study/Series
+				List<SubElement> subElements = new ArrayList<SubElement>();
+				Criteria studyCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+				studyCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
+				studyCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
+				if(this.currentPatient.getPatientName() != null && !this.currentPatient.getPatientName().isEmpty()) {
+					studyCriteria.getDICOMCriteria().put(Tag.PatientName, this.currentPatient.getPatientName());
+				}
+				if(this.currentPatient.getPatientID() != null && !this.currentPatient.getPatientID().isEmpty()) {
+					studyCriteria.getDICOMCriteria().put(Tag.PatientID, this.currentPatient.getPatientID());
+				}
+				if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
+					studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
+				}
+				for(Series series : study.getSeries()) {
+					Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+					seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
+					seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
+					if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
+						seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+					}
+					SubElement seriesSubElement = new SubElement(seriesCriteria, null);
+					subElements.add(seriesSubElement);
+				}
+				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target);
 			}
 			
 			// ** SERIES TARGET ** //
