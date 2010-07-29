@@ -365,7 +365,7 @@ public class CreateIteratorTest extends TestCase {
 					logger.warn("Invalid IterationTarget. Expected PATIENT, actual " + target.toString());
 				}
 				
-				blnPatient2Atts = (blnId3 == true && blnNumOfSubElementsPatient3 == true && blnDicomCriteriaSize1 == true &&
+				blnPatient3Atts = (blnId3 == true && blnNumOfSubElementsPatient3 == true && blnDicomCriteriaSize1 == true &&
 						blnValue1 == true && blnValue2 == true && blnValue3 == true && blnValue4 == true && blnAimCriteriaSize1 == true &&
 						blnDicomCriteriaSize6 == true && blnValue5 == true && blnValue6 == true && blnValue7 == true && blnValue8 == true && blnAimCriteriaSize6 == true && 
 						blnDicomCriteriaSize9 == true && blnValue9 == true && blnValue10 == true && blnValue11 == true && blnValue12 == true && blnAimCriteriaSize9 == true && 
