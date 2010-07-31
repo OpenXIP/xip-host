@@ -23,6 +23,9 @@ public class SearchResultSetup {
 	
 	public SearchResultSetup(){
 			dicomCriteria.put(Tag.PatientName, "*");
+			//System.out.println("Patient id int: " + Tag.PatientID);
+			//System.out.println("Modality int: " + Tag.Modality);
+			//dicomCriteria.put(Tag.Modality, "MR");
 			Criteria criteria = new Criteria(dicomCriteria, aimCriteria);
 			result.setOriginalCriteria(criteria);
 			
