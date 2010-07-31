@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import edu.wustl.xipHost.avt2ext.AVTQuery;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -22,8 +23,8 @@ import org.dcm4che2.data.Tag;
 public class TargetIterator implements Iterator<TargetElement> {
 	
 	SearchResult selectedDataSearchResult;
-	
 	IterationTarget target;
+	AVTQuery avtQuery;
 	Patient currentPatient = null;
 	Iterator<Patient> patientIt = null;
 	Study currentStudy;
@@ -31,14 +32,16 @@ public class TargetIterator implements Iterator<TargetElement> {
 	Iterator<Series> seriesIt = null;
 	
 		
-	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target) throws NullPointerException {
+	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, AVTQuery avtQuery) throws NullPointerException {
 		if(selectedDataSearchResult == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null SearchResult pointer");
 		if(target == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null IterationTarget");
-		
+		if(avtQuery == null)
+			throw new NullPointerException("Cannot initialize TargetIterator with null AVTQuery");
 		this.selectedDataSearchResult = selectedDataSearchResult;
 		this.target = target;
+		this.avtQuery = avtQuery;
 		
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
@@ -254,5 +257,4 @@ public class TargetIterator implements Iterator<TargetElement> {
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
-	
 }
