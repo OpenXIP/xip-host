@@ -369,7 +369,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		progressBar.setBackground(Color.GREEN);
 		progressBar.setString("Exception: " + message);
 		result = null;							
-		resultTree.updateNodes(result);								
+		resultTree.updateNodes(result);
+		resultTree.clearSelectedSeries();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -377,8 +378,17 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 				int visibleRows = resultTree.getVisibleRowCount();
 				resultTree.scrollRowToVisible(queryNodeIndex + visibleRows);
 			}			 
-		});		
-	}	
+		});
+		criteriaPanel.getQueryButton().setBackground(xipBtn);
+		criteriaPanel.getQueryButton().setEnabled(true);		
+		btnRetrieve.setBackground(Color.GRAY);
+		btnRetrieve.setEnabled(false);
+		btnRetrieveAll.setEnabled(false);	    		 	    		 
+		btnRetrieveAll.setBackground(Color.GRAY);
+		cbxSeries.setSelected(false);
+		cbxAimSeg.setSelected(false);
+	}
+	
 	
 	Object selectedNode;
 	int queryNodeIndex = 0;

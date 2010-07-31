@@ -5,6 +5,7 @@ package edu.wustl.xipHost.avt2ext;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ public class AVTRetrieve implements Runnable{
 			logger.error(e, e);
 			notifyException(e.getMessage());
 			return;
-		}					
+		}
 	}
 	
 	SAXBuilder builder = new SAXBuilder();
@@ -145,13 +146,19 @@ public class AVTRetrieve implements Runnable{
 		    		//Check of segDicom was not serialized in reference to another AIM
 		    		if(!segDicomInstances.contains(sopInstanceUID)){
 		    			segDicomInstances.add(sopInstanceUID);
-		    			DicomObject segDicom = adService.getDicomObject(sopInstanceUID);		    		
-						String fileName = dirPath + sopInstanceUID + ".dcm";
-						File file = new File(fileName);
-						DicomOutputStream dout = new DicomOutputStream(new FileOutputStream(fileName));
-						dout.writeDicomFile(segDicom);
-						dout.close();
-						files.add(file);
+		    			DicomObject segDicom = adService.getDicomObject(sopInstanceUID);
+		    			if(segDicom == null){
+		    				files.clear();
+		    				String message = "DICOM SEG " + sopInstanceUID + " cannot be loaded from file system!";
+		    				throw new FileNotFoundException(message);
+		    			} else {
+		    				String fileName = dirPath + sopInstanceUID + ".dcm";
+							File file = new File(fileName);
+							DicomOutputStream dout = new DicomOutputStream(new FileOutputStream(fileName));
+							dout.writeDicomFile(segDicom);
+							dout.close();
+							files.add(file);
+		    			}
 		    		}
 		    	}		  
 			}				
@@ -201,13 +208,19 @@ public class AVTRetrieve implements Runnable{
 		    		//Check of segDicom was not serialized in reference to another AIM
 		    		if(!segDicomInstances.contains(sopInstanceUID)){
 		    			segDicomInstances.add(sopInstanceUID);
-		    			DicomObject segDicom = adService.getDicomObject(sopInstanceUID);		    		
-						String fileName = dirPath + sopInstanceUID + ".dcm";
-						File file = new File(fileName);
-						DicomOutputStream dout = new DicomOutputStream(new FileOutputStream(fileName));
-						dout.writeDicomFile(segDicom);
-						dout.close();
-						files.add(file);
+		    			DicomObject segDicom = adService.getDicomObject(sopInstanceUID);
+		    			if(segDicom == null){
+		    				files.clear();
+		    				String message = "DICOM SEG " + sopInstanceUID + " cannot be loaded from file system!";
+		    				throw new FileNotFoundException(message);
+		    			} else {
+		    				String fileName = dirPath + sopInstanceUID + ".dcm";
+							File file = new File(fileName);
+							DicomOutputStream dout = new DicomOutputStream(new FileOutputStream(fileName));
+							dout.writeDicomFile(segDicom);
+							dout.close();
+							files.add(file);
+		    			}
 		    		}
 		    	}		    		
 			}
