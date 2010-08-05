@@ -7,9 +7,14 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
-
-import edu.wustl.xipHost.avt2ext.AVTQuery;
+import edu.wustl.xipHost.avt2ext.ADQueryTarget;
+import edu.wustl.xipHost.avt2ext.AVTListener;
+import edu.wustl.xipHost.avt2ext.AVTRetrieveEvent;
+import edu.wustl.xipHost.avt2ext.AVTSearchEvent;
+import edu.wustl.xipHost.avt2ext.Query;
+import edu.wustl.xipHost.avt2ext.SearchResultSetupSubqueries;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -20,11 +25,11 @@ import org.dcm4che2.data.Tag;
  * @author Matthew Kelsey
  *
  */
-public class TargetIterator implements Iterator<TargetElement> {
+public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 	
 	SearchResult selectedDataSearchResult;
 	IterationTarget target;
-	AVTQuery avtQuery;
+	Query query;
 	Patient currentPatient = null;
 	Iterator<Patient> patientIt = null;
 	Study currentStudy;
@@ -32,16 +37,16 @@ public class TargetIterator implements Iterator<TargetElement> {
 	Iterator<Series> seriesIt = null;
 	
 		
-	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, AVTQuery avtQuery) throws NullPointerException {
+	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query) throws NullPointerException {
 		if(selectedDataSearchResult == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null SearchResult pointer");
 		if(target == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null IterationTarget");
-		if(avtQuery == null)
+		if(query == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null AVTQuery");
 		this.selectedDataSearchResult = selectedDataSearchResult;
 		this.target = target;
-		this.avtQuery = avtQuery;
+		this.query = query;
 		
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
@@ -63,9 +68,22 @@ public class TargetIterator implements Iterator<TargetElement> {
 	}
 	
 	private boolean UpdateStudy(Study study) {
+		Thread t = null;
 		if(study.getLastUpdated() == null) {
 			// Query for Study
 			// success &= Query()
+			//Jarek example
+			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
+			Map<String, Object> aimCriteria = new HashMap<String, Object>();
+			dicomCriteria.put(Tag.PatientName, "Jarek1");
+			dicomCriteria.put(Tag.PatientID, "111");
+			dicomCriteria.put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
+			SearchResultSetupSubqueries resultForSubqueries = new SearchResultSetupSubqueries();
+			SearchResult selectedDataSearchResultForSubqueries = resultForSubqueries.getSearchResult();
+			query.setAVTQuery(dicomCriteria, aimCriteria, ADQueryTarget.STUDY, selectedDataSearchResultForSubqueries, study);
+			query.addAVTListener(this);
+			t = new Thread((Runnable) query);
+			t.start();	
 		}
 		return true;
 	}
@@ -256,5 +274,24 @@ public class TargetIterator implements Iterator<TargetElement> {
 
 	public void remove() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void retriveResultsAvailable(AVTRetrieveEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	SearchResult result;
+	@Override
+	public void searchResultsAvailable(AVTSearchEvent e) {
+		result = (SearchResult) e.getSource();	
+		
 	}
 }
