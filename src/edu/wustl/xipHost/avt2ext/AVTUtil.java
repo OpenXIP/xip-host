@@ -164,7 +164,7 @@ public class AVTUtil {
 	}
 	
 
-	public Iterator<TargetElement> createIterator(SearchResult selectedDataSearchResult, IterationTarget target, AVTQuery avtQuery){
+	public Iterator<TargetElement> createIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query avtQuery){
 		Iterator<TargetElement> iter = new TargetIterator(selectedDataSearchResult, target, avtQuery);
 		return iter;
 	}

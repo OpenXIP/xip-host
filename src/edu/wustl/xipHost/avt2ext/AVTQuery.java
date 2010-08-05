@@ -18,7 +18,7 @@ import com.siemens.scr.avt.ad.dicom.Patient;
 import edu.wustl.xipHost.avt2ext.iterator.Criteria;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
-public class AVTQuery implements Runnable{
+public class AVTQuery implements Runnable, Query{
 	final static Logger logger = Logger.getLogger(AVTQuery.class);
 	ADFacade adService;	
 	Map<Integer, Object> adDicomCriteria;
@@ -26,6 +26,18 @@ public class AVTQuery implements Runnable{
 	ADQueryTarget target;
 	SearchResult previousSearchResult;
 	Object queriedObject;
+	
+	public AVTQuery(){
+		
+	}
+	
+	public void setAVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject){
+		this.adDicomCriteria = adDicomCriteria; 
+		this.adAimCriteria = adAimCriteria; 
+		this.target = target; 
+		this.previousSearchResult = previousSearchResult;
+		this.queriedObject = queriedObject; 
+	}
 	
 	public AVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject){
 		this.adDicomCriteria = adDicomCriteria;
@@ -91,6 +103,7 @@ public class AVTQuery implements Runnable{
 	
 	SearchResult result;
 	public void run() {											
+		System.out.println("This should not be printed");
 		long time1 = System.currentTimeMillis();
 		logger.info("Executing AVT query.");		
 		switch (target) {
