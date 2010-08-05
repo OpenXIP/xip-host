@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 import edu.wustl.xipHost.avt2ext.iterator.Criteria;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
@@ -15,15 +16,23 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 
-public class AVTQueryStub extends AVTQuery {
+public class AVTQueryStub implements Query, Runnable {
+	final static Logger logger = Logger.getLogger(AVTQueryStub.class);
 	SearchResultSetup resultSetup = new SearchResultSetup();
 	SearchResult fullSearchResult;
+	Map<Integer, Object> adDicomCriteria;
+	Map<String, Object> adAimCriteria;
+	ADQueryTarget target;
+	SearchResult previousSearchResult;
+	Object queriedObject;
+	
 	public AVTQueryStub(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
-		super(adDicomCriteria, adAimCriteria, target, previousSearchResult, queriedObject);
 		fullSearchResult = resultSetup.getSearchResult();
 	}
 	
+	SearchResult result;
 	public void run(){
+		System.out.println("Testing AVTQueryStub");
 		switch (target) {
     	case PATIENT:
     		//List of patients would be given at least        		
@@ -91,7 +100,7 @@ public class AVTQueryStub extends AVTQuery {
 	}
 	
 	
-	public static SearchResult convertToSearchResult(Object object, SearchResult initialSearchResult, Object selectedObject){
+	public SearchResult convertToSearchResult(Object object, SearchResult initialSearchResult, Object selectedObject){
 		SearchResult resultAD = null;
 		if(initialSearchResult == null){
 			resultAD = new SearchResult("AD Database");
@@ -208,6 +217,31 @@ public class AVTQueryStub extends AVTQuery {
 			 }
 		}
 		return resultAD;
+	}
+
+	AVTListener listener;
+	@Override
+	public void addAVTListener(AVTListener l) {
+		listener = l;
+		
+	}
+
+	@Override
+	public void setAVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+		this.adDicomCriteria = adDicomCriteria; 
+		this.adAimCriteria = adAimCriteria; 
+		this.target = target; 
+		this.previousSearchResult = previousSearchResult;
+		this.queriedObject = queriedObject; 
+	}
+	
+	void fireResultsAvailable(SearchResult searchResult){
+		AVTSearchEvent event = new AVTSearchEvent(searchResult);         		
+        listener.searchResultsAvailable(event);
+	}
+	
+	void notifyException(String message){         		
+        listener.notifyException(message);
 	}
 
 }
