@@ -32,7 +32,6 @@ public class AVTQueryStub implements Query, Runnable {
 	
 	SearchResult result;
 	public void run(){
-		System.out.println("Testing AVTQueryStub");
 		switch (target) {
     	case PATIENT:
     		//List of patients would be given at least        		
