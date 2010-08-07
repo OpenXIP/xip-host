@@ -37,9 +37,11 @@ public class SearchResult {
 	public void addPatient(Patient patient){
 		this.patients.add(patient);
 	}
+	
 	public List<Patient> getPatients(){
 		return patients;
 	}
+	
 	public boolean contains(String patientID){		
 		for(int i = 0; i < patients.size(); i++){
 			if(patients.get(i).getPatientID().equalsIgnoreCase(patientID)){return true;}
@@ -47,12 +49,23 @@ public class SearchResult {
 		return false;
 	}
 	
+	public Patient getPatient(String patientId){
+		for(Patient patient : patients){
+			if(patient.getPatientID().equalsIgnoreCase(patientId)){
+				return patient;
+			} 
+		}
+		return null;
+	}
+	
 	public void addItem(Item item){
 		this.items.add(item);
 	}
+	
 	public List<Item> getItems(){
 		return items;
 	}
+	
 	public boolean containsItem(String itemID){
 		for(int i = 0; i < items.size(); i++){
 			if(items.get(i).getItemID().equalsIgnoreCase(itemID)){return true;}

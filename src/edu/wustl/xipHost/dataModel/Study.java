@@ -68,6 +68,15 @@ public class Study {
 		return false;
 	}
 	
+	public Series getSeries(String seriesInstanceUID){
+		for(Series oneSeries : series){
+			if(oneSeries.getSeriesInstanceUID().equalsIgnoreCase(seriesInstanceUID)){
+				return oneSeries;
+			}
+		}
+		return null;
+	}
+	
 	public void addItem(Item item){
 		this.items.add(item);
 	}

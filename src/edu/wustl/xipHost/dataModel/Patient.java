@@ -54,6 +54,15 @@ public class Patient {
 		return false;
 	}
 	
+	public Study getStudy(String studyInstanceUID){
+		for(Study study : studies){
+			if(study.getStudyInstanceUID().equalsIgnoreCase(studyInstanceUID)){
+				return study;
+			} 
+		}
+		return null;
+	}
+	
 	public void addItem(Item item){
 		this.items.add(item);
 	}
