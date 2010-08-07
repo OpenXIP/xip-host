@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.avt2ext.iterator;
 
@@ -14,11 +14,11 @@ import edu.wustl.xipHost.avt2ext.AVTListener;
 import edu.wustl.xipHost.avt2ext.AVTRetrieveEvent;
 import edu.wustl.xipHost.avt2ext.AVTSearchEvent;
 import edu.wustl.xipHost.avt2ext.Query;
-import edu.wustl.xipHost.avt2ext.SearchResultSetupSubqueries;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 
 /**
@@ -26,7 +26,7 @@ import org.dcm4che2.data.Tag;
  *
  */
 public class TargetIterator implements Iterator<TargetElement>, AVTListener {
-	
+	final static Logger logger = Logger.getLogger(TargetIterator.class);
 	SearchResult selectedDataSearchResult;
 	IterationTarget target;
 	Query query;
@@ -35,7 +35,6 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 	Study currentStudy;
 	Iterator<Study> studyIt = null;
 	Iterator<Series> seriesIt = null;
-	
 		
 	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query) throws NullPointerException {
 		if(selectedDataSearchResult == null)
@@ -47,14 +46,13 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		this.selectedDataSearchResult = selectedDataSearchResult;
 		this.target = target;
 		this.query = query;
-		
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
 				List<Patient> patients = this.selectedDataSearchResult.getPatients();
 				patientIt = patients.iterator();
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e, e);
 		}
 	}
 	
@@ -63,27 +61,65 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		if(patient.getLastUpdated() == null) {
 			// Query for patient
 			// success &= Query()
+			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
+			Map<String, Object> aimCriteria = new HashMap<String, Object>();
+			dicomCriteria.put(Tag.PatientName, patient.getPatientName());
+			dicomCriteria.put(Tag.PatientID, patient.getPatientID());
+			query.setAVTQuery(dicomCriteria, aimCriteria, ADQueryTarget.STUDY, selectedDataSearchResult, patient);
+			query.addAVTListener(this);
+			Thread t = new Thread((Runnable) query);
+			t.start();	
+			try {
+				t.join();
+				Patient updatedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+				if(updatedPatient != null){
+					if(updatedPatient.getLastUpdated() != null){
+						return true;
+					}
+				}
+			} catch (InterruptedException e) {
+				logger.error(e, e);
+				return false;
+			}
 		}
 		return true;
 	}
 	
 	private boolean UpdateStudy(Study study) {
-		Thread t = null;
 		if(study.getLastUpdated() == null) {
 			// Query for Study
 			// success &= Query()
-			//Jarek example
+			String patientId = null;
+			String patientName = null;
+			for (Patient patient : selectedDataSearchResult.getPatients()){
+				if(patient.contains(study.getStudyInstanceUID())){
+					patientId = patient.getPatientID();
+					patientName = patient.getPatientName();
+				}
+			}
 			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
 			Map<String, Object> aimCriteria = new HashMap<String, Object>();
-			dicomCriteria.put(Tag.PatientName, "Jarek1");
-			dicomCriteria.put(Tag.PatientID, "111");
+			dicomCriteria.put(Tag.PatientID, patientId);
+			dicomCriteria.put(Tag.PatientName, patientName);
 			dicomCriteria.put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
-			SearchResultSetupSubqueries resultForSubqueries = new SearchResultSetupSubqueries();
-			SearchResult selectedDataSearchResultForSubqueries = resultForSubqueries.getSearchResult();
-			query.setAVTQuery(dicomCriteria, aimCriteria, ADQueryTarget.STUDY, selectedDataSearchResultForSubqueries, study);
+			query.setAVTQuery(dicomCriteria, aimCriteria, ADQueryTarget.SERIES, selectedDataSearchResult, study);
 			query.addAVTListener(this);
-			t = new Thread((Runnable) query);
-			t.start();	
+			Thread t = new Thread((Runnable) query);
+			t.start();
+			try {
+				t.join();
+				for(Patient patient : selectedDataSearchResult.getPatients()){
+					Study updatedStudy = patient.getStudy(study.getStudyInstanceUID());
+					if(updatedStudy != null){
+						if(updatedStudy.getLastUpdated() != null){
+							return true;
+						}
+					}
+				}
+			} catch (InterruptedException e) {
+				logger.error(e, e);
+				return false;
+			}
 		}
 		return true;
 	}
@@ -92,6 +128,44 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		if(series.getLastUpdated() == null) {
 			// Query for Series/Items
 			// success &= Query()
+			String patientId = null;
+			String patientName = null;
+			String studyInstanceUID = null;
+			for (Patient patient : selectedDataSearchResult.getPatients()){
+				for(Study study : patient.getStudies()){
+					if(study.contains(series.getSeriesInstanceUID())){
+						patientId = patient.getPatientID();
+						patientName = patient.getPatientName();
+						studyInstanceUID = study.getStudyInstanceUID();
+					}
+				}
+			}
+			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
+			Map<String, Object> aimCriteria = new HashMap<String, Object>();
+			dicomCriteria.put(Tag.PatientID, patientId);
+			dicomCriteria.put(Tag.PatientName, patientName);
+			dicomCriteria.put(Tag.StudyInstanceUID, studyInstanceUID);
+			dicomCriteria.put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+			query.setAVTQuery(dicomCriteria, aimCriteria, ADQueryTarget.ITEM, selectedDataSearchResult, series);
+			query.addAVTListener(this);
+			Thread t = new Thread((Runnable) query);
+			t.start();
+			try {
+				t.join();
+				for(Patient patient : selectedDataSearchResult.getPatients()){
+					for(Study study : patient.getStudies()){
+						Series updatedSeries = study.getSeries(series.getSeriesInstanceUID());
+						if(updatedSeries != null){
+							if(updatedSeries.getLastUpdated() != null){
+								return true;
+							}
+						}
+					}
+				}
+			} catch (InterruptedException e) {
+				logger.error(e, e);
+				return false;
+			}
 		}
 		return true;
 	}
@@ -288,10 +362,49 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		
 	}
 
-	SearchResult result;
 	@Override
-	public void searchResultsAvailable(AVTSearchEvent e) {
-		result = (SearchResult) e.getSource();	
-		
+	synchronized public void searchResultsAvailable(AVTSearchEvent e) {
+		selectedDataSearchResult = (SearchResult) e.getSource();
+		//SearchResult updatedDataSearchResult = (SearchResult) e.getSource();
+		//mergeUpdate(updatedDataSearchResult);
+	}
+	
+	synchronized void mergeUpdate(SearchResult updatedDataSearchResult){
+		List<Patient> initialPatients = selectedDataSearchResult.getPatients();
+		List<Patient> updatedPatients = updatedDataSearchResult.getPatients();
+		System.out.println(initialPatients.equals(updatedPatients));
+		if(initialPatients.size() != updatedPatients.size()){
+			for(Patient patient : updatedPatients){
+				if(!selectedDataSearchResult.contains(patient.getPatientID())){
+					selectedDataSearchResult.addPatient(patient);
+				}
+			}
+		} else if (initialPatients.size() == updatedPatients.size() ){
+			for(Patient patient : updatedPatients){
+				Patient initialPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+				List<Study> initialStudies = initialPatient.getStudies();
+				List<Study> updatedStudies = patient.getStudies();
+				if(initialStudies.size() != updatedStudies.size()){
+					for(Study study : updatedStudies){
+						if(!initialPatient.contains(study.getStudyInstanceUID())){
+							initialPatient.addStudy(study);
+						}
+					}
+				} else if (initialStudies.size() == updatedStudies.size()){
+					for(Study study : updatedStudies){
+						Study initialStudy = selectedDataSearchResult.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID());
+						List<Series> initialSeries = initialStudy.getSeries();
+						List<Series> updatedSeries = study.getSeries();
+						if(initialSeries.size() != updatedSeries.size()){
+							for(Series series : updatedSeries){
+								if(!initialStudy.contains(series.getSeriesInstanceUID())){
+									initialStudy.addSeries(series);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
