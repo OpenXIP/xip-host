@@ -57,10 +57,9 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 	}
 	
 	// ** If not up to date, query for study list in patient target ** //
-	private boolean UpdatePatient(Patient patient) {
+	private boolean updatePatient(Patient patient) {
 		if(patient.getLastUpdated() == null) {
 			// Query for patient
-			// success &= Query()
 			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
 			Map<String, Object> aimCriteria = new HashMap<String, Object>();
 			dicomCriteria.put(Tag.PatientName, patient.getPatientName());
@@ -85,10 +84,9 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		return true;
 	}
 	
-	private boolean UpdateStudy(Study study) {
+	private boolean updateStudy(Study study) {
 		if(study.getLastUpdated() == null) {
 			// Query for Study
-			// success &= Query()
 			String patientId = null;
 			String patientName = null;
 			for (Patient patient : selectedDataSearchResult.getPatients()){
@@ -124,10 +122,9 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		return true;
 	}
 
-	private boolean UpdateSeries(Series series) {
+	private boolean updateSeries(Series series) {
 		if(series.getLastUpdated() == null) {
 			// Query for Series/Items
-			// success &= Query()
 			String patientId = null;
 			String patientName = null;
 			String studyInstanceUID = null;
@@ -173,49 +170,49 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 	public boolean hasNext() {
 		if(target == IterationTarget.PATIENT) {
 			return this.patientIt.hasNext();
-		}
-		else if(target == IterationTarget.STUDY) {
+		
+		} else if(target == IterationTarget.STUDY) {
 			// study list defined and contains additional entries
 			if(this.studyIt != null && this.studyIt.hasNext()) {
 				return true;
-			}
+			
 			// end of study list for this patient, load list from next (or first) patient
-			else if(patientIt.hasNext() == true) {
+			} else if(patientIt.hasNext() == true) {
 				this.currentPatient = patientIt.next();
-				UpdatePatient(this.currentPatient);
+				updatePatient(this.currentPatient);
 				studyIt = this.currentPatient.getStudies().iterator();
 				return studyIt.hasNext();
-			}
+			
 			// no additional entries in study list, no further patients in results
-			else
+			} else
 				return false;
-		}
-		else if(target == IterationTarget.SERIES) {
+		
+		} else if(target == IterationTarget.SERIES) {
 			// series list defined and contains additional entries
 			if(this.seriesIt != null && this.seriesIt.hasNext()) {
 				return true;
-			}
+			
 			// end of series list for this study, load list from next (or first) study
-			else if(studyIt != null && studyIt.hasNext()) {
+			} else if(studyIt != null && studyIt.hasNext()) {
 				this.currentStudy = studyIt.next();
-				UpdateStudy(this.currentStudy);
+				updateStudy(this.currentStudy);
 				seriesIt = this.currentStudy.getSeries().iterator();
 				return seriesIt.hasNext();
-			}
+			
 			// end of series list for this patient, load list from next (or first) patient/study
-			else if(patientIt.hasNext() == true) {
+			} else if(patientIt.hasNext() == true) {
 				this.currentPatient = patientIt.next();
-				UpdatePatient(this.currentPatient);
+				updatePatient(this.currentPatient);
 				studyIt = this.currentPatient.getStudies().iterator();
 				this.currentStudy = studyIt.next();
-				UpdateStudy(this.currentStudy);
+				updateStudy(this.currentStudy);
 				seriesIt = this.currentStudy.getSeries().iterator();
 				return seriesIt.hasNext();
 				// TODO Need logic to support skipping empty series lists in intermediate Patient, etc.
 				// TODO hasNext() currently returns false 
-			}
+			
 			// no additional entries in series list, no further patients/studies in results
-			else
+			} else
 				return false;
 			
 		}
@@ -234,11 +231,11 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 			if(this.target == IterationTarget.PATIENT) {
 				// Update all elements below current patient
 				Patient patient = patientIt.next();
-				UpdatePatient(patient);
+				updatePatient(patient);
 				for(Study study : patient.getStudies()) {
-					UpdateStudy(study);
+					updateStudy(study);
 					for(Series series : study.getSeries()) {
-						UpdateSeries(series);
+						updateSeries(series);
 					}
 				}
 				// Build criteria for patient
@@ -273,15 +270,15 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 					}
 				}
 				targetElement = new TargetElement(patient.getPatientID(), subElements, target);
-			}
+			
 			
 			// ** STUDY TARGET ** //
-			else if(this.target == IterationTarget.STUDY) {
+			} else if(this.target == IterationTarget.STUDY) {
 				// Update all elements below current study
 				Study study = studyIt.next();
-				UpdateStudy(study);
+				updateStudy(study);
 				for(Series series : study.getSeries()) {
-					UpdateSeries(series);
+					updateSeries(series);
 				}
 				// Build Criteria for Study/Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
@@ -308,13 +305,13 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 					subElements.add(seriesSubElement);
 				}
 				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target);
-			}
+			
 			
 			// ** SERIES TARGET ** //
-			else if(this.target == IterationTarget.SERIES) {
+			} else if(this.target == IterationTarget.SERIES) {
 				// Update Item list in series
 				Series series = seriesIt.next();
-				UpdateSeries(series);
+				updateSeries(series);
 				
 				// Build Criteria for Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
@@ -336,11 +333,10 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				SubElement seriesSubElement = new SubElement(seriesCriteria, null);
 				subElements.add(seriesSubElement);
 				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target);
-			}
-			else
+			
+			} else
 				throw new NoSuchElementException();
-		}
-		else {
+		} else {
 			throw new NoSuchElementException();
 		}
 			return targetElement;
