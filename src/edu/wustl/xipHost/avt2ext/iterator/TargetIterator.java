@@ -3,6 +3,7 @@
  */
 package edu.wustl.xipHost.avt2ext.iterator;
 
+import java.io.File;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 	Study currentStudy;
 	Iterator<Study> studyIt = null;
 	Iterator<Series> seriesIt = null;
+	
+	String pathRoot;
 		
 	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query) throws NullPointerException {
 		if(selectedDataSearchResult == null)
@@ -46,6 +49,8 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		this.selectedDataSearchResult = selectedDataSearchResult;
 		this.target = target;
 		this.query = query;
+		//TODO Set pathRoot to something reasonable
+		pathRoot = File.separator + "tmp";
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
 				List<Patient> patients = this.selectedDataSearchResult.getPatients();
@@ -238,8 +243,9 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 						updateSeries(series);
 					}
 				}
-				// Build criteria for patient
+				// Build Criteria and path for patient
 				Criteria patientCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+				String patientPath = File.separator + pathRoot;
 				patientCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				patientCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(patient.getPatientName() != null && !patient.getPatientName().isEmpty()) {
@@ -247,25 +253,30 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				}
 				if(patient.getPatientID() != null && !patient.getPatientID().isEmpty()) {
 					patientCriteria.getDICOMCriteria().put(Tag.PatientID, patient.getPatientID());
+					patientPath += File.separator + patient.getPatientID();
 				}
 	
-				// Build Criteria for each Patient/Study/Series SubElement
+				// Build Criteria and path for each Patient/Study/Series SubElement
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				for(Study study : patient.getStudies()) {
-					Criteria studyCriteria= new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());					
+					Criteria studyCriteria= new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());		
+					String studyPath = patientPath;
 					studyCriteria.getDICOMCriteria().putAll(patientCriteria.getDICOMCriteria());
 					studyCriteria.getAIMCriteria().putAll(patientCriteria.getAIMCriteria());
 					if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
 						studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
+						studyPath += File.separator + study.getStudyInstanceUID();
 					}
 					for(Series series : study.getSeries()) {
 						Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+						String seriesPath = studyPath;
 						seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
 						seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
 						if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+							seriesPath += File.separator + series.getSeriesInstanceUID();
 						}
-						SubElement seriesSubElement = new SubElement(seriesCriteria, null);
+						SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 						subElements.add(seriesSubElement);
 					}
 				}
@@ -280,28 +291,33 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				for(Series series : study.getSeries()) {
 					updateSeries(series);
 				}
-				// Build Criteria for Study/Series
+				// Build Criteria and path for Study/Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				Criteria studyCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+				String studyPath = File.separator + pathRoot;
 				studyCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				studyCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
-				if(this.currentPatient.getPatientName() != null && !this.currentPatient.getPatientName().isEmpty()) {
-					studyCriteria.getDICOMCriteria().put(Tag.PatientName, this.currentPatient.getPatientName());
+				if(currentPatient.getPatientName() != null && !currentPatient.getPatientName().isEmpty()) {
+					studyCriteria.getDICOMCriteria().put(Tag.PatientName, currentPatient.getPatientName());
 				}
-				if(this.currentPatient.getPatientID() != null && !this.currentPatient.getPatientID().isEmpty()) {
-					studyCriteria.getDICOMCriteria().put(Tag.PatientID, this.currentPatient.getPatientID());
+				if(currentPatient.getPatientID() != null && !currentPatient.getPatientID().isEmpty()) {
+					studyCriteria.getDICOMCriteria().put(Tag.PatientID, currentPatient.getPatientID());
+					studyPath += File.separator + currentPatient.getPatientID();
 				}
 				if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
 					studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
+					studyPath += File.separator + study.getStudyInstanceUID();
 				}
 				for(Series series : study.getSeries()) {
 					Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+					String seriesPath = studyPath;
 					seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
 					seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
 					if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 						seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+						seriesPath += File.separator + series.getSeriesInstanceUID();
 					}
-					SubElement seriesSubElement = new SubElement(seriesCriteria, null);
+					SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 					subElements.add(seriesSubElement);
 				}
 				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target);
@@ -316,6 +332,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				// Build Criteria for Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
+				String seriesPath = File.separator + pathRoot;
 				seriesCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				seriesCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(this.currentPatient.getPatientName() != null && !this.currentPatient.getPatientName().isEmpty()) {
@@ -323,14 +340,17 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				}
 				if(this.currentPatient.getPatientID() != null && !this.currentPatient.getPatientID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.PatientID, this.currentPatient.getPatientID());
+					seriesPath += File.separator + currentPatient.getPatientID();
 				}
 				if(this.currentStudy.getStudyInstanceUID() != null && !this.currentStudy.getStudyInstanceUID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, this.currentStudy.getStudyInstanceUID());
+					seriesPath += File.separator + currentStudy.getStudyInstanceUID();
 				}
 				if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+					seriesPath += File.separator + series.getSeriesInstanceUID();
 				}
-				SubElement seriesSubElement = new SubElement(seriesCriteria, null);
+				SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 				subElements.add(seriesSubElement);
 				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target);
 			
