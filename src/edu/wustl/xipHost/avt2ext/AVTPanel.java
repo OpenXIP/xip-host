@@ -309,6 +309,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		progressBar.setString("AVT AD Search finished");
 		progressBar.setIndeterminate(false);				
 	}
+	
 	List<File> retrivedFiles;
 	List<File> allRetrivedFiles;
 	int numRetrieveThreadsStarted;
