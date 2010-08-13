@@ -127,10 +127,13 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 		}
 		Collection<Application> values = appMap.values();			
 		inputDialog.setApplications(new ArrayList<Application>(values));
+		
 		//inputDialog.display();				
 		//parse(items);
+		
 		displayItems(items);
-		inputDialog.display();
+		/* modified on May 18th, 2010
+		inputDialog.display();*/
 	}	
 		
 	void displayItems(File[] items){

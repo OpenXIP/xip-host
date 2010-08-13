@@ -4,6 +4,7 @@
 package edu.wustl.xipHost.avt2ext;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -19,11 +20,14 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -36,6 +40,7 @@ import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
+import org.nema.dicom.wg23.State;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -43,25 +48,34 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.ShortStringAttribute;
 import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
+import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.application.ApplicationEvent;
+import edu.wustl.xipHost.application.ApplicationListener;
+import edu.wustl.xipHost.application.ApplicationManager;
+import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
+import edu.wustl.xipHost.gui.ApplicationBar;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
+import edu.wustl.xipHost.gui.ApplicationBar.AppButton;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
+import edu.wustl.xipHost.wg23.WG23DataModel;
 
-public class AVTPanel extends JPanel implements ActionListener, ItemListener, AVTListener {
+public class AVTPanel extends JPanel implements ActionListener, ItemListener, AVTListener, ApplicationListener {
 	final static Logger logger = Logger.getLogger(AVTPanel.class);
 	SearchCriteriaPanelAVT criteriaPanel = new SearchCriteriaPanelAVT();	
 	SearchResultTree resultTree = new SearchResultTreeProgressive();
 	JScrollPane treeView = new JScrollPane(resultTree);
 	JPanel leftPanel = new JPanel();
 	JPanel rightPanel = new JPanel();
+	ApplicationBar appBar = new ApplicationBar();
 	JProgressBar progressBar = new JProgressBar();	
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
@@ -75,7 +89,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	JButton btnRetrieveAll;
 	JPanel btnPanel = new JPanel();
 	AVTListener l;
-	
+	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
+	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);	
 	
 	public AVTPanel(){
 		l = this;
@@ -123,6 +138,19 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		rightPanel.setBackground(xipColor);
 		add(leftPanel);
 		add(rightPanel);
+		
+		List<Application> allApps = ApplicationManagerFactory.getInstance().getApplications();
+		Map<String, Application> appMap = new LinkedHashMap<String, Application>();
+		for(int i = 0; i < allApps.size(); i++){
+			Application app = allApps.get(i);
+			String name = app.getName();
+			appMap.put(name, app);
+		}
+		Collection<Application> values = appMap.values();					
+		appBar.setApplications(new ArrayList<Application>(values));
+		appBar.setBackground(xipColor);
+		appBar.addApplicationListener(this);
+		add(appBar);
 		progressBar.setIndeterminate(false);
 	    progressBar.setString("");	    
 	    progressBar.setStringPainted(true);	    
@@ -214,7 +242,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		} else if(e.getSource() == btnRetrieveAll){
 			new UnderDevelopmentDialog(btnRetrieveAll.getLocationOnScreen());
 		}
-	}	
+	}
 	
 	void buildLayout(){				
 		GridBagLayout layout = new GridBagLayout();
@@ -241,9 +269,361 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(rightPanel, constraints);
         
-        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 1; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
+        constraints.gridwidth = 2;
+        constraints.insets.top = 10;
+        constraints.insets.left = 0;
+        constraints.insets.right = 0;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(appBar, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 2; 
         constraints.gridwidth = 2;
         constraints.insets.top = 10;
         constraints.insets.left = 0;
@@ -350,19 +730,47 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 			String filePath = filePaths.get(key);
 			allRetrivedFiles.add(new File(filePath));
 		}
-		//
-		
 		File[] files = new File[allRetrivedFiles.size()];		 
 		allRetrivedFiles.toArray(files);		
 		FileManager fileMgr = FileManagerFactory.getInstance();						
-        fileMgr.run(files);	
+        fileMgr.run(files);
+		launchApplication();	
         criteriaPanel.getQueryButton().setBackground(xipBtn);
 		criteriaPanel.getQueryButton().setEnabled(true);		
 		btnRetrieve.setEnabled(true);
 		btnRetrieve.setBackground(xipBtn);					
 	}
 	
-
+	AppButton btn;
+	void launchApplication(){
+		UUID uuid = btn.getApplicationUUID();
+		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+		Application app = appMgr.getApplication(uuid);
+		//Check if application to be launched is not running.
+		//If yes, create new application instance
+		State state = app.getState();		
+		WG23DataModel data = FileManagerFactory.getInstance().getWG23DataModel();
+		if(state != null && !state.equals(State.EXIT)){
+			String instanceName = app.getName();
+			File instanceExePath = app.getExePath();
+			String instanceVendor = app.getVendor();
+			String instanceVersion = app.getVersion();
+			File instanceIconFile = app.getIconFile();
+			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+					instanceVersion, instanceIconFile);
+			instanceApp.setDoSave(false);
+			appMgr.addApplication(instanceApp);
+			instanceApp.setData(data);			
+			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+		}else{
+			app.setData(data);			
+			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
+		}					
+		setCursor(normalCursor);
+	}
+	
+	
+	
 	@Override
 	public void notifyException(String message) {
 		progressBar.setIndeterminate(false);		
@@ -389,7 +797,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		cbxSeries.setSelected(false);
 		cbxAimSeg.setSelected(false);
 	}
-	
 	
 	Object selectedNode;
 	int queryNodeIndex = 0;
@@ -605,5 +1012,49 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
  			btnRetrieveAll.setEnabled(false);	    		 	    		 
  			btnRetrieveAll.setBackground(Color.GRAY);
     	 }
+	}
+
+	@Override
+	public void launchApplication(ApplicationEvent event) {
+		btn = (AppButton)event.getSource();
+		allRetrivedFiles = new ArrayList<File>();
+		numRetrieveThreadsStarted = 0;
+		numRetrieveThreadsReturned = 0;
+		File importDir = HostConfigurator.getHostConfigurator().getHostTmpDir();						
+		progressBar.setString("Processing retrieve request ...");
+		progressBar.setIndeterminate(true);
+		progressBar.updateUI();	
+		criteriaPanel.getQueryButton().setBackground(Color.GRAY);
+		criteriaPanel.getQueryButton().setEnabled(false);
+		btnRetrieve.setBackground(Color.GRAY);
+		btnRetrieve.setEnabled(false);												
+		Map<Series, Study> map = resultTree.getSelectedSeries();
+		Set<Series> seriesSet = map.keySet();
+		Iterator<Series> iter = seriesSet.iterator();
+		while (iter.hasNext()){
+			Series series = iter.next();
+			String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
+			String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();
+			try {
+				ADRetrieveTarget retrieveTarget = null;
+				if(cbxSeries.isSelected() && cbxAimSeg.isSelected()){
+					retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
+				}else if(cbxSeries.isSelected() && !cbxAimSeg.isSelected()){
+					retrieveTarget = ADRetrieveTarget.SERIES;
+				}else if(!cbxSeries.isSelected() && cbxAimSeg.isSelected()){
+					retrieveTarget = ADRetrieveTarget.AIM_SEG;
+				}
+				Map<String, Object> adAimCriteria = criteriaPanel.panelAVT.getSearchCriteria();
+				AVTRetrieve avtRetrieve = new AVTRetrieve(selectedStudyInstanceUID, selectedSeriesInstanceUID, adAimCriteria, importDir, retrieveTarget);
+				avtRetrieve.addAVTListener(this);					
+				Thread t = new Thread(avtRetrieve);
+				t.start();
+				numRetrieveThreadsStarted++;
+			} catch (IOException e1) {
+				logger.error(e1, e1);
+				notifyException(e1.getMessage());
+			}	
+		}
+		
 	}
 }
