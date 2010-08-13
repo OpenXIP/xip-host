@@ -3,6 +3,7 @@
  */
 package edu.wustl.xipHost.avt2ext;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.SubElement;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.hostControl.Util;
 import junit.framework.TestCase;
 
 /**
@@ -25,6 +27,7 @@ public class CreateIteratorTest extends TestCase {
 	final static Logger logger = Logger.getLogger(CreateIteratorTest.class);
 	SearchResult selectedDataSearchResult;
 	SearchResult selectedDataSearchResultForSubqueries;
+	File tmpDir;
 	
 	AVTUtil util;
 	public CreateIteratorTest(String name){
@@ -38,10 +41,16 @@ public class CreateIteratorTest extends TestCase {
 		SearchResultSetupSubqueries resultForSubqueries = new SearchResultSetupSubqueries();
 		selectedDataSearchResultForSubqueries = resultForSubqueries.getSearchResult();
 		util = new AVTUtil();
+		tmpDir = new File("./test-content", "TmpAVTTest");		
+		if(tmpDir.exists() == false){
+			tmpDir.mkdir();
+		}
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		//tmpDir.delete();
+		Util.delete(tmpDir);
 	}
 	
 	//AVUtil - createIterator. Basic flow
@@ -50,7 +59,7 @@ public class CreateIteratorTest extends TestCase {
 	//IterationTarget.PATIENT
 	public void testCreateIterator_1A(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery);	
+		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, tmpDir);	
 		assertTrue("", assertIteratorTargetPatient(iter));
 	}
 	
@@ -60,7 +69,7 @@ public class CreateIteratorTest extends TestCase {
 	//IterationTarget.STUDY
 	public void testCreateIterator_1B(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.STUDY, avtQuery);
+		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, tmpDir);
 		assertTrue("", assertIteratorTargetStudy(iter));	
 	}
 	
@@ -70,7 +79,7 @@ public class CreateIteratorTest extends TestCase {
 	//IterationTarget.SERIES
 	public void testCreateIterator_1C(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.SERIES, avtQuery);
+		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, tmpDir);
 		assertTrue("", assertIteratorTargetSeries(iter));
 	}
 	
@@ -80,7 +89,7 @@ public class CreateIteratorTest extends TestCase {
 	//IterationTarget: PATIENT
 	public void testCreateIterator_2A(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery);
+		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir);
 		assertTrue("", assertIteratorTargetPatient(iter));
 	}
 	
@@ -90,7 +99,7 @@ public class CreateIteratorTest extends TestCase {
 	//IterationTarget: STUDY
 	public void testCreateIterator_2B(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery);
+		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery, tmpDir);
 		assertTrue("", assertIteratorTargetStudy(iter));
 	}
 	
@@ -101,7 +110,7 @@ public class CreateIteratorTest extends TestCase {
 	//IterationTarget: SERIES
 	public void testCreateIterator_2C(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery);
+		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir);
 		assertTrue("", assertIteratorTargetSeries(iter));
 		
 	}
