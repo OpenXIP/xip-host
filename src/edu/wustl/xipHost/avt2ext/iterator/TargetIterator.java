@@ -4,6 +4,7 @@
 package edu.wustl.xipHost.avt2ext.iterator;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -39,18 +40,27 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 	
 	String pathRoot;
 		
-	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query) throws NullPointerException {
+	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir) throws NullPointerException {
 		if(selectedDataSearchResult == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null SearchResult pointer");
 		if(target == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null IterationTarget");
 		if(query == null)
-			throw new NullPointerException("Cannot initialize TargetIterator with null AVTQuery");
+			throw new NullPointerException("Cannot initialize TargetIterator with null Query");
+		if(pathTmpDir == null)
+			throw new NullPointerException("Cannot initialize TargetIterator with null value of path Tmp directory");
+		if(pathTmpDir.exists() == false){
+				throw new IllegalArgumentException("Tmporary Directory: " + pathTmpDir.getAbsolutePath() + " doesn't exists");
+		}
 		this.selectedDataSearchResult = selectedDataSearchResult;
 		this.target = target;
 		this.query = query;
-		//TODO Set pathRoot to something reasonable
-		pathRoot = File.separator + "tmp";
+		try {
+			pathRoot = pathTmpDir.getCanonicalPath();
+			logger.debug("TargetIterator temp directory is: " + pathRoot );
+		} catch (IOException e) {
+			logger.error(e, e);
+		}
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
 				List<Patient> patients = this.selectedDataSearchResult.getPatients();
@@ -148,6 +158,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 			dicomCriteria.put(Tag.PatientName, patientName);
 			dicomCriteria.put(Tag.StudyInstanceUID, studyInstanceUID);
 			dicomCriteria.put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+			//dicomCriteria.put(Tag.Modality, series.getModality());
 			query.setAVTQuery(dicomCriteria, aimCriteria, ADQueryTarget.ITEM, selectedDataSearchResult, series);
 			query.addAVTListener(this);
 			Thread t = new Thread((Runnable) query);
@@ -245,7 +256,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				}
 				// Build Criteria and path for patient
 				Criteria patientCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-				String patientPath = File.separator + pathRoot;
+				String patientPath = pathRoot;
 				patientCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				patientCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(patient.getPatientName() != null && !patient.getPatientName().isEmpty()) {
@@ -254,6 +265,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				if(patient.getPatientID() != null && !patient.getPatientID().isEmpty()) {
 					patientCriteria.getDICOMCriteria().put(Tag.PatientID, patient.getPatientID());
 					patientPath += File.separator + patient.getPatientID();
+					new File(patientPath).mkdir();
 				}
 	
 				// Build Criteria and path for each Patient/Study/Series SubElement
@@ -266,6 +278,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 					if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
 						studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
 						studyPath += File.separator + study.getStudyInstanceUID();
+						new File(studyPath).mkdir();
 					}
 					for(Series series : study.getSeries()) {
 						Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
@@ -274,7 +287,9 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 						seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
 						if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+							//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
 							seriesPath += File.separator + series.getSeriesInstanceUID();
+							new File(seriesPath).mkdir();
 						}
 						SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 						subElements.add(seriesSubElement);
@@ -294,7 +309,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				// Build Criteria and path for Study/Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				Criteria studyCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-				String studyPath = File.separator + pathRoot;
+				String studyPath = pathRoot;
 				studyCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				studyCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(currentPatient.getPatientName() != null && !currentPatient.getPatientName().isEmpty()) {
@@ -303,10 +318,12 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				if(currentPatient.getPatientID() != null && !currentPatient.getPatientID().isEmpty()) {
 					studyCriteria.getDICOMCriteria().put(Tag.PatientID, currentPatient.getPatientID());
 					studyPath += File.separator + currentPatient.getPatientID();
+					new File(studyPath).mkdir();
 				}
 				if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
 					studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
 					studyPath += File.separator + study.getStudyInstanceUID();
+					new File(studyPath).mkdir();
 				}
 				for(Series series : study.getSeries()) {
 					Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
@@ -315,7 +332,9 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 					seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
 					if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 						seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+						//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
 						seriesPath += File.separator + series.getSeriesInstanceUID();
+						new File(seriesPath).mkdir();
 					}
 					SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 					subElements.add(seriesSubElement);
@@ -332,7 +351,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				// Build Criteria for Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-				String seriesPath = File.separator + pathRoot;
+				String seriesPath = pathRoot;
 				seriesCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				seriesCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(this.currentPatient.getPatientName() != null && !this.currentPatient.getPatientName().isEmpty()) {
@@ -341,14 +360,19 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				if(this.currentPatient.getPatientID() != null && !this.currentPatient.getPatientID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.PatientID, this.currentPatient.getPatientID());
 					seriesPath += File.separator + currentPatient.getPatientID();
+					new File(seriesPath).mkdir();
 				}
 				if(this.currentStudy.getStudyInstanceUID() != null && !this.currentStudy.getStudyInstanceUID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, this.currentStudy.getStudyInstanceUID());
+					//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
 					seriesPath += File.separator + currentStudy.getStudyInstanceUID();
+					new File(seriesPath).mkdir();
 				}
 				if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
+					//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
 					seriesPath += File.separator + series.getSeriesInstanceUID();
+					new File(seriesPath).mkdir();
 				}
 				SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 				subElements.add(seriesSubElement);
