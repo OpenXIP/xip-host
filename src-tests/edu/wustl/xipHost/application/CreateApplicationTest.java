@@ -35,7 +35,7 @@ public class CreateApplicationTest extends TestCase {
 	public void testCreateApplication1Ba() throws IllegalArgumentException {				
 		try{
 			new Application("", exePath, "", "", iconFile);
-			fail("Application name si empty");
+			fail("Application name is empty");
 		}catch(IllegalArgumentException e){
 			assertTrue(true);
 		}				
@@ -46,7 +46,7 @@ public class CreateApplicationTest extends TestCase {
 	public void testCreateApplication1Bb() {				
 		try{
 			new Application(null, exePath, "", "", iconFile);
-			fail("Application name si empty");
+			fail("Application name is empty");
 		}catch(IllegalArgumentException e){
 			assertTrue(true);
 		}				

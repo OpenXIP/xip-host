@@ -77,8 +77,6 @@ public class LoginPanel extends JPanel {
 		lblUser.setForeground(Color.WHITE);
 		lblPass.setForeground(Color.WHITE);
 		txtPass.setEchoChar('*');		
-		//txtUser.setBorder(border1);
-		//txtPass.setBorder(border1);
 		loginPanel.add(lblWelcome);		
 		loginPanel.add(lblTitle);		
 		loginPanel.add(lblUser);

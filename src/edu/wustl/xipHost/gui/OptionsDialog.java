@@ -51,13 +51,13 @@ public class OptionsDialog extends JDialog implements ActionListener{
 			btnHostSet.setPreferredSize(new Dimension(150, 25));
 			btnGridSecur.setPreferredSize(new Dimension(150, 25));
 			btnAdd.setBackground(xipBtn);
-			btnAdd.setForeground(Color.WHITE);
+			btnAdd.setForeground(Color.BLACK);
 			btnView.setBackground(xipBtn);
-			btnView.setForeground(Color.WHITE);
+			btnView.setForeground(Color.BLACK);
 			btnHostSet.setBackground(xipBtn);
-			btnHostSet.setForeground(Color.WHITE);
+			btnHostSet.setForeground(Color.BLACK);
 			btnGridSecur.setBackground(xipBtn);
-			btnGridSecur.setForeground(Color.WHITE);
+			btnGridSecur.setForeground(Color.BLACK);
 		    btnPanel.add(btnAdd);				
 		    btnPanel.add(btnView);			       							   			    
 		    btnPanel.add(btnHostSet);

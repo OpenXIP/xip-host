@@ -17,6 +17,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import edu.wustl.xipHost.hostControl.HostConfigurator;
+
 public class VerticalTextIcon implements Icon, SwingConstants{ 
     //private Font font = UIManager.getFont("Label.font"); 
     Font font = new Font("Tahoma", 0, 12);
@@ -70,8 +72,13 @@ public class VerticalTextIcon implements Icon, SwingConstants{
         switch(tabPlacement){ 
             case JTabbedPane.LEFT: 
             case JTabbedPane.RIGHT:                 
-            	tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.RIGHT), comp);                 
-            	return; 
+            	if(HostConfigurator.OS.contains("Mac OS X")){
+            		tabPane.addTab("Host", null, comp);
+            		return;
+            	} else {
+            		tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.RIGHT), comp);                	
+                	return;
+            	} 
             default: 
                 tabPane.addTab(text, null, comp); 
         } 

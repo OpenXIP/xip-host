@@ -220,6 +220,8 @@ public class HostImpl implements Host{
 		}
 		//When INPROGRESS from IDLE
 		else if(priorState != null && priorState.equals(State.IDLE) && app.getState().equals(State.INPROGRESS)){
+			//replace with notifyDataAvailable after Iterator element created
+			
 			AvailableData availableData = new AvailableData();
 			wg23dm = app.getWG23DataModel();
 			availableData = wg23dm.getAvailableData();			            			

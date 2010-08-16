@@ -55,7 +55,13 @@ public class HostIconBar extends JToolBar {
         	btns[i].setRolloverEnabled(true);
         	btns[i].setPreferredSize(new Dimension((int)btns[i].getPreferredSize().getWidth(), 30));
     	}    	
-    	//addSeparator();
+    	btnHost.setForeground(Color.BLACK);
+    	btnLocal.setForeground(Color.BLACK);
+    	btnOptions.setForeground(Color.BLACK);
+    	btnExit.setForeground(Color.BLACK);
+    	btnSuspend.setForeground(Color.BLACK);
+    	btnCancel.setForeground(Color.BLACK);
+    	btnExitApp.setForeground(Color.BLACK);
     	hostPanel.add(btnHost);
     	hostPanel.add(lblHelp);
     	hostPanel.add(lblAbout);
