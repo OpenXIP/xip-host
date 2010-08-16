@@ -16,6 +16,7 @@ import edu.wustl.xipHost.avt2ext.AVTListener;
 import edu.wustl.xipHost.avt2ext.AVTRetrieveEvent;
 import edu.wustl.xipHost.avt2ext.AVTSearchEvent;
 import edu.wustl.xipHost.avt2ext.Query;
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -69,6 +70,21 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		} catch(Exception e) {
 			logger.error(e, e);
 		}
+	}
+	
+	TargetIteratorListener listener;
+	public void addTargetIteratorListener(TargetIteratorListener l){
+		listener = l;
+	}
+	
+	void notifyTargetIteratorElementAvailable(TargetElement element){
+		IteratorElementEvent event = new IteratorElementEvent(element);
+		listener.targetElementAvailable(event);
+	}
+	
+	void notifyIteratorComplete(){
+		IteratorEvent event = new IteratorEvent(this);
+		listener.fullIteratorAvailable(event);
 	}
 	
 	// ** If not up to date, query for study list in patient target ** //
@@ -269,6 +285,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 				}
 	
 				// Build Criteria and path for each Patient/Study/Series SubElement
+				// Plus create empty files for all items found in Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				for(Study study : patient.getStudies()) {
 					Criteria studyCriteria= new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());		
@@ -290,14 +307,22 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 							//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
 							seriesPath += File.separator + series.getSeriesInstanceUID();
 							new File(seriesPath).mkdir();
+							List<Item> items = series.getItems();
+							for(Item item : items){
+								try {
+									File.createTempFile(item.getItemID() + "_", ".tmp", new File(seriesPath));
+								} catch (IOException e) {
+									logger.error(e, e);
+								}
+							}	
 						}
 						SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 						subElements.add(seriesSubElement);
 					}
 				}
 				targetElement = new TargetElement(patient.getPatientID(), subElements, target);
-			
-			
+				notifyTargetIteratorElementAvailable(targetElement);
+					
 			// ** STUDY TARGET ** //
 			} else if(this.target == IterationTarget.STUDY) {
 				// Update all elements below current study
@@ -335,12 +360,20 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 						//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
 						seriesPath += File.separator + series.getSeriesInstanceUID();
 						new File(seriesPath).mkdir();
+						List<Item> items = series.getItems();
+						for(Item item : items){
+							try {
+								File.createTempFile(item.getItemID() + "_", ".tmp", new File(seriesPath));
+							} catch (IOException e) {
+								logger.error(e, e);
+							}
+						}	
 					}
 					SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 					subElements.add(seriesSubElement);
 				}
 				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target);
-			
+				notifyTargetIteratorElementAvailable(targetElement);
 			
 			// ** SERIES TARGET ** //
 			} else if(this.target == IterationTarget.SERIES) {
@@ -374,10 +407,18 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 					seriesPath += File.separator + series.getSeriesInstanceUID();
 					new File(seriesPath).mkdir();
 				}
+				List<Item> items = series.getItems();
+				for(Item item : items){
+					try {
+						File.createTempFile(item.getItemID() + "_", ".tmp", new File(seriesPath));
+					} catch (IOException e) {
+						logger.error(e, e);
+					}
+				}	
 				SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 				subElements.add(seriesSubElement);
 				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target);
-			
+				notifyTargetIteratorElementAvailable(targetElement);
 			} else
 				throw new NoSuchElementException();
 		} else {
