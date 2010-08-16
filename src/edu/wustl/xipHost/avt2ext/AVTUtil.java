@@ -4,6 +4,7 @@
 package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,6 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
 import org.nema.dicom.wg23.ArrayOfPatient;
@@ -35,6 +39,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.localFileSystem.WG23DataModelFileSystemImpl;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
 /**
@@ -185,7 +190,9 @@ public class AVTUtil {
 		return iter;
 	}
 	
-	public WG23DataModel getWG23DataModel(TargetElement targetElement){
+	
+	@SuppressWarnings("unchecked")
+	public synchronized WG23DataModel getWG23DataModel(TargetElement targetElement){
 		if(targetElement == null){return null;}										
 		AvailableData availableData = new AvailableData();		
 		ArrayOfPatient arrayOfPatient = new ArrayOfPatient();
@@ -206,6 +213,9 @@ public class AVTUtil {
 			ArrayOfSeries arrayOfSeries = null;
 			for(SubElement subElement : subElements){
 				String studyInstanceUID = subElement.getCriteria().getDICOMCriteria().get(new Integer(2097165)).toString(); //studyInstanceUID
+				String path = subElement.getPath();
+				IOFileFilter fileFilter = FileFilterUtils.trueFileFilter();
+				Iterator<File> files = FileUtils.iterateFiles(new File(path), fileFilter, null);
 				if(currentStudyInstanceUID == null || !currentStudyInstanceUID.equalsIgnoreCase(studyInstanceUID)){
 					currentStudyInstanceUID = studyInstanceUID;
 					org.nema.dicom.wg23.Study study = new org.nema.dicom.wg23.Study();
@@ -220,28 +230,34 @@ public class AVTUtil {
 					ArrayOfObjectDescriptor arrayOfObjectDesc = new ArrayOfObjectDescriptor();
 					List<ObjectDescriptor> listObjectDescs = arrayOfObjectDesc.getObjectDescriptor();	
 					//create list of objDescs and add them to each series
-					ObjectDescriptor objDesc = new ObjectDescriptor();					
-					Uuid objDescUUID = new Uuid();
-					objDescUUID.setUuid(UUID.randomUUID().toString());
-					objDesc.setUuid(objDescUUID);													
-					//check mime type
-					String mimeType = null;
-					objDesc.setMimeType(mimeType);			
-					Uid uid = new Uid();
-					String classUID = "";
-					uid.setUid(classUID);
-					objDesc.setClassUID(uid);
-					String modCode = "";						
-					Modality modality = new Modality();
-					modality.setModality(modCode);
-					objDesc.setModality(modality);	
-					listObjectDescs.add(objDesc);
-					
-					ObjectLocator objLoc = new ObjectLocator();				
-					objLoc.setUuid(objDescUUID);				
-					objLoc.setUri(""); //getURI from the iterator
-					objLocators.add(objLoc);
-					
+					while(files.hasNext()){
+						File file = files.next();
+						ObjectDescriptor objDesc = new ObjectDescriptor();					
+						Uuid objDescUUID = new Uuid();
+						objDescUUID.setUuid(UUID.randomUUID().toString());
+						objDesc.setUuid(objDescUUID);													
+						//check mime type
+						String mimeType = null;
+						objDesc.setMimeType(mimeType);			
+						Uid uid = new Uid();
+						String classUID = "";
+						uid.setUid(classUID);
+						objDesc.setClassUID(uid);
+						String modCode = "";						
+						Modality modality = new Modality();
+						modality.setModality(modCode);
+						objDesc.setModality(modality);	
+						listObjectDescs.add(objDesc);
+						
+						ObjectLocator objLoc = new ObjectLocator();				
+						objLoc.setUuid(objDescUUID);				
+						try {
+							objLoc.setUri(file.toURI().toURL().toExternalForm()); //getURI from the iterator
+						} catch (MalformedURLException e) {
+							logger.error(e, e);
+						} 
+						objLocators.add(objLoc);
+					}
 					series.setObjectDescriptors(arrayOfObjectDesc);
 					listOfSeries.add(series);
 					study.setSeries(arrayOfSeries);
@@ -254,34 +270,37 @@ public class AVTUtil {
 					ArrayOfObjectDescriptor arrayOfObjectDesc = new ArrayOfObjectDescriptor();
 					List<ObjectDescriptor> listObjectDescs = arrayOfObjectDesc.getObjectDescriptor();	
 					//create list of objDescs and add them to each series
-					ObjectDescriptor objDesc = new ObjectDescriptor();					
-					Uuid objDescUUID = new Uuid();
-					objDescUUID.setUuid(UUID.randomUUID().toString());
-					objDesc.setUuid(objDescUUID);													
-					//check mime type
-					objDesc.setMimeType("application/dicom");			
-					Uid uid = new Uid();
-					String classUID = "";
-					uid.setUid(classUID);
-					objDesc.setClassUID(uid);
-					String modCode = "";						
-					Modality modality = new Modality();
-					modality.setModality(modCode);
-					objDesc.setModality(modality);	
-					listObjectDescs.add(objDesc);
-					
-					ObjectLocator objLoc = new ObjectLocator();				
-					objLoc.setUuid(objDescUUID);				
-					objLoc.setUri(""); //getURI from the iterator
-					objLocators.add(objLoc);
-					
+					while(files.hasNext()){
+						File file = files.next();
+						ObjectDescriptor objDesc = new ObjectDescriptor();					
+						Uuid objDescUUID = new Uuid();
+						objDescUUID.setUuid(UUID.randomUUID().toString());
+						objDesc.setUuid(objDescUUID);													
+						//check mime type
+						objDesc.setMimeType("application/dicom");			
+						Uid uid = new Uid();
+						String classUID = "";
+						uid.setUid(classUID);
+						objDesc.setClassUID(uid);
+						String modCode = "";						
+						Modality modality = new Modality();
+						modality.setModality(modCode);
+						objDesc.setModality(modality);	
+						listObjectDescs.add(objDesc);
+						
+						ObjectLocator objLoc = new ObjectLocator();				
+						objLoc.setUuid(objDescUUID);				
+						try {
+							objLoc.setUri(file.toURI().toURL().toExternalForm()); //getURI from the iterator
+						} catch (MalformedURLException e) {
+							logger.error(e, e);
+						} 
+						objLocators.add(objLoc);
+					}
 					series.setObjectDescriptors(arrayOfObjectDesc);
 					listOfSeries.add(series);
 				}
-				
-				
 			}
-			
 			patient.setStudies(arrayOfStudy);
 			listPatients.add(patient);
 			availableData.setPatients(arrayOfPatient);
@@ -297,11 +316,72 @@ public class AVTUtil {
 			List<org.nema.dicom.wg23.Series> listOfSeries = arrayOfSeries.getSeries();
 			for(SubElement subElement : subElements){	
 				String seriesInstanceUID = subElement.getCriteria().getDICOMCriteria().get(new Integer(2097166)).toString(); //seriesInstanceUID
+				String path = subElement.getPath();
+				IOFileFilter fileFilter = FileFilterUtils.trueFileFilter();
+				Iterator<File> files = FileUtils.iterateFiles(new File(path), fileFilter, null);
 				org.nema.dicom.wg23.Series series = new org.nema.dicom.wg23.Series();
 				series.setSeriesUID(seriesInstanceUID);
 				ArrayOfObjectDescriptor arrayOfObjectDesc = new ArrayOfObjectDescriptor();
 				List<ObjectDescriptor> listObjectDescs = arrayOfObjectDesc.getObjectDescriptor();	
 				//create list of objDescs and add them to each series
+				while(files.hasNext()){
+					File file = files.next();
+					ObjectDescriptor objDesc = new ObjectDescriptor();					
+					Uuid objDescUUID = new Uuid();
+					objDescUUID.setUuid(UUID.randomUUID().toString());
+					objDesc.setUuid(objDescUUID);													
+					//check mime type
+					objDesc.setMimeType("application/dicom");			
+					Uid uid = new Uid();
+					String classUID = "";
+					uid.setUid(classUID);
+					objDesc.setClassUID(uid);
+					String modCode = "";						
+					Modality modality = new Modality();
+					modality.setModality(modCode);
+					objDesc.setModality(modality);	
+					listObjectDescs.add(objDesc);
+						
+					ObjectLocator objLoc = new ObjectLocator();				
+					objLoc.setUuid(objDescUUID);				
+					try {
+						objLoc.setUri(file.toURI().toURL().toExternalForm()); //getURI from the iterator
+					} catch (MalformedURLException e) {
+						logger.error(e, e);
+					} 
+					objLocators.add(objLoc);
+				}	
+				series.setObjectDescriptors(arrayOfObjectDesc);
+				listOfSeries.add(series);
+			}
+			study.setSeries(arrayOfSeries);
+			listOfStudies.add(study);
+			
+			patient.setStudies(arrayOfStudy);
+			listPatients.add(patient);
+			availableData.setPatients(arrayOfPatient);
+			ArrayOfObjectDescriptor arrayOfObjectDescTopLevel = new ArrayOfObjectDescriptor();					 					
+			availableData.setObjectDescriptors(arrayOfObjectDescTopLevel);
+			
+		} else if(targetElement.getTarget().equals(IterationTarget.SERIES)) {
+			String studyInstanceUID = subElements.get(0).getCriteria().getDICOMCriteria().get(new Integer(2097165)).toString(); //studyInstanceUID
+			String path = subElements.get(0).getPath();
+			IOFileFilter fileFilter = FileFilterUtils.trueFileFilter();
+			Iterator<File> files = FileUtils.iterateFiles(new File(path), fileFilter, null);
+			org.nema.dicom.wg23.Study study = new org.nema.dicom.wg23.Study();
+			study.setStudyUID(studyInstanceUID);
+			ArrayOfObjectDescriptor arrayOfObjectDescStudy = new ArrayOfObjectDescriptor();					 					
+			study.setObjectDescriptors(arrayOfObjectDescStudy);		
+			ArrayOfSeries arrayOfSeries = new ArrayOfSeries();
+			List<org.nema.dicom.wg23.Series> listOfSeries = arrayOfSeries.getSeries();
+			org.nema.dicom.wg23.Series series = new org.nema.dicom.wg23.Series();
+			String seriesInstanceUID = subElements.get(0).getCriteria().getDICOMCriteria().get(new Integer(2097166)).toString(); //seriesInstanceUID
+			series.setSeriesUID(seriesInstanceUID);
+			ArrayOfObjectDescriptor arrayOfObjectDesc = new ArrayOfObjectDescriptor();
+			List<ObjectDescriptor> listObjectDescs = arrayOfObjectDesc.getObjectDescriptor();	
+			//create list of objDescs and add them to each series
+			while(files.hasNext()){
+				File file = files.next();
 				ObjectDescriptor objDesc = new ObjectDescriptor();					
 				Uuid objDescUUID = new Uuid();
 				objDescUUID.setUuid(UUID.randomUUID().toString());
@@ -317,58 +397,16 @@ public class AVTUtil {
 				modality.setModality(modCode);
 				objDesc.setModality(modality);	
 				listObjectDescs.add(objDesc);
-					
+				
 				ObjectLocator objLoc = new ObjectLocator();				
 				objLoc.setUuid(objDescUUID);				
-				objLoc.setUri(""); //getURI from the iterator
-				objLocators.add(objLoc);
-					
-				series.setObjectDescriptors(arrayOfObjectDesc);
-				listOfSeries.add(series);
-			}
-			study.setSeries(arrayOfSeries);
-			listOfStudies.add(study);
-			
-			patient.setStudies(arrayOfStudy);
-			listPatients.add(patient);
-			availableData.setPatients(arrayOfPatient);
-			ArrayOfObjectDescriptor arrayOfObjectDescTopLevel = new ArrayOfObjectDescriptor();					 					
-			availableData.setObjectDescriptors(arrayOfObjectDescTopLevel);
-			
-		} else if(targetElement.getTarget().equals(IterationTarget.SERIES)) {
-			String studyInstanceUID = subElements.get(0).getCriteria().getDICOMCriteria().get(new Integer(2097165)).toString(); //studyInstanceUID
-			org.nema.dicom.wg23.Study study = new org.nema.dicom.wg23.Study();
-			study.setStudyUID(studyInstanceUID);
-			ArrayOfObjectDescriptor arrayOfObjectDescStudy = new ArrayOfObjectDescriptor();					 					
-			study.setObjectDescriptors(arrayOfObjectDescStudy);		
-			ArrayOfSeries arrayOfSeries = new ArrayOfSeries();
-			List<org.nema.dicom.wg23.Series> listOfSeries = arrayOfSeries.getSeries();
-			org.nema.dicom.wg23.Series series = new org.nema.dicom.wg23.Series();
-			String seriesInstanceUID = subElements.get(0).getCriteria().getDICOMCriteria().get(new Integer(2097166)).toString(); //seriesInstanceUID
-			series.setSeriesUID(seriesInstanceUID);
-			ArrayOfObjectDescriptor arrayOfObjectDesc = new ArrayOfObjectDescriptor();
-			List<ObjectDescriptor> listObjectDescs = arrayOfObjectDesc.getObjectDescriptor();	
-			//create list of objDescs and add them to each series
-			ObjectDescriptor objDesc = new ObjectDescriptor();					
-			Uuid objDescUUID = new Uuid();
-			objDescUUID.setUuid(UUID.randomUUID().toString());
-			objDesc.setUuid(objDescUUID);													
-			//check mime type
-			objDesc.setMimeType("application/dicom");			
-			Uid uid = new Uid();
-			String classUID = "";
-			uid.setUid(classUID);
-			objDesc.setClassUID(uid);
-			String modCode = "";						
-			Modality modality = new Modality();
-			modality.setModality(modCode);
-			objDesc.setModality(modality);	
-			listObjectDescs.add(objDesc);
-			
-			ObjectLocator objLoc = new ObjectLocator();				
-			objLoc.setUuid(objDescUUID);				
-			objLoc.setUri(""); //getURI from the iterator
-			objLocators.add(objLoc);		
+				try {
+					objLoc.setUri(file.toURI().toURL().toExternalForm()); //getURI from the iterator
+				} catch (MalformedURLException e) {
+					logger.error(e, e);
+				} 
+				objLocators.add(objLoc);	
+			}	
 			series.setObjectDescriptors(arrayOfObjectDesc);
 			listOfSeries.add(series);
 			study.setSeries(arrayOfSeries);
@@ -380,9 +418,13 @@ public class AVTUtil {
 			ArrayOfObjectDescriptor arrayOfObjectDescTopLevel = new ArrayOfObjectDescriptor();					 					
 			availableData.setObjectDescriptors(arrayOfObjectDescTopLevel);
 		}
-		
-		
-		return null;
+		WG23DataModelFileSystemImpl dataModel = new WG23DataModelFileSystemImpl();
+		dataModel.setAvailableData(availableData);
+		ObjectLocator[] objLocs = new ObjectLocator[objLocators.size()];
+		objLocators.toArray(objLocs);
+		dataModel.setObjectLocators(objLocs);
+		WG23DataModel wg23DataModel = dataModel;		
+		return wg23DataModel;
 	}
 	
 }
