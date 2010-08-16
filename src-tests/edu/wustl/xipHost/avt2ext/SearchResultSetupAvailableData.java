@@ -10,6 +10,9 @@ import javax.swing.JFrame;
 
 import org.dcm4che2.data.Tag;
 import edu.wustl.xipHost.avt2ext.iterator.Criteria;
+import edu.wustl.xipHost.dataModel.AIMItem;
+import edu.wustl.xipHost.dataModel.ImageItem;
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -71,7 +74,11 @@ public class SearchResultSetupAvailableData {
 			Timestamp series14LastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
 			series14.setLastUpdated(series14LastUpdated);
 			
-			//Are items needed?
+			Item item1 = new ImageItem("606.606.1.0.1");
+			series6.addItem(item1);
+			Item item2 = new AIMItem(null, null, null, "606.606.1.0.2");
+			series6.addItem(item2);
+			
 			study4.addSeries(series6);
 			study4.addSeries(series7);
 			study4.addSeries(series8);
