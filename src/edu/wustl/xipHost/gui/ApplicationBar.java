@@ -22,6 +22,9 @@ import javax.swing.JPanel;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
+import edu.wustl.xipHost.application.ApplicationManager;
+import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.gui.InputDialog.AppButton;
 
 /**
  * @author Jaroslaw Krych
@@ -102,6 +105,11 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	void fireApplication(AppButton btn){
 		ApplicationEvent event = new ApplicationEvent(btn);
 		listener.launchApplication(event);
+		
+		UUID uuid = btn.getApplicationUUID();
+		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+		Application app = appMgr.getApplication(uuid);		
+		app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());		
 	}
 	
 	ApplicationListener listener;

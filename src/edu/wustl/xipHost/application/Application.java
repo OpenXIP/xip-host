@@ -17,6 +17,7 @@ import javax.xml.ws.Endpoint;
 import org.jdom.Document;
 import org.nema.dicom.wg23.ArrayOfString;
 import org.nema.dicom.wg23.ArrayOfUUID;
+import org.nema.dicom.wg23.AvailableData;
 import org.nema.dicom.wg23.Host;
 import org.nema.dicom.wg23.ModelSetDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
@@ -25,6 +26,12 @@ import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
 
+import edu.wustl.xipHost.avt2ext.AVTUtil;
+import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
+import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
+import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
+import edu.wustl.xipHost.avt2ext.iterator.TargetIterator;
+import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.hostControl.Util;
@@ -36,7 +43,7 @@ import edu.wustl.xipHost.wg23.NativeModelListener;
 import edu.wustl.xipHost.wg23.NativeModelRunner;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
-public class Application implements NativeModelListener {	
+public class Application implements NativeModelListener, TargetIteratorListener {	
 	UUID id;
 	String name;
 	File exePath;
@@ -491,5 +498,26 @@ public class Application implements NativeModelListener {
 			}
 		}				
 		return queryResults;		
-	}	
+	}
+
+	TargetIterator iter;
+	@Override
+	public void fullIteratorAvailable(IteratorEvent e) {
+		iter = (TargetIterator)e.getSource();
+	}
+
+	
+	AVTUtil util = new AVTUtil();
+	@Override
+	public void targetElementAvailable(IteratorElementEvent e) {
+		TargetElement element = (TargetElement) e.getSource();
+		WG23DataModel wg23data = util.getWG23DataModel(element);
+		AvailableData availableData = wg23data.getAvailableData();			            			
+		if (iter == null && getClientToApplication().getState().equals(State.INPROGRESS)) {
+			getClientToApplication().notifyDataAvailable(availableData, false);
+		} else if (iter != null && getClientToApplication().getState().equals(State.INPROGRESS)) {
+			getClientToApplication().notifyDataAvailable(availableData, true);
+		}
+	}
+	
 }
