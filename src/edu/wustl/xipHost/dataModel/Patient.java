@@ -6,6 +6,7 @@ package edu.wustl.xipHost.dataModel;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Jaroslaw Krych
@@ -30,7 +31,10 @@ public class Patient {
 	}
 	
 	public String getPatientID(){
-		return this.patientID;
+		if(patientID == null || patientID.isEmpty()){
+			patientID = "xiphost-auto-" + UUID.randomUUID().toString();
+		}
+		return patientID;
 	}
 	
 	public String getPatientBirthDate(){
