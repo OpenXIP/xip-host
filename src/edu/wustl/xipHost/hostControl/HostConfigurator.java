@@ -61,14 +61,8 @@ public class HostConfigurator {
 		//DisplayLoginDialog
 		LoginDialog loginDialog = new LoginDialog();
 		loginDialog.setLogin(login);
-		Thread t = new Thread(loginDialog);
-		t.run();
-		try {
-			t.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		loginDialog.setModal(true);
+		loginDialog.setVisible(true);
 		userName = login.getUserName();		
 		hostConfig = new File("./config/xipConfig.xml");
 		if(loadHostConfigParameters(hostConfig) == false || loadPixelmedSavedImagesFolder(serverConfig) == false){		

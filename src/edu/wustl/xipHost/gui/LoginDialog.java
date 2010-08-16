@@ -21,7 +21,8 @@ import edu.wustl.xipHost.hostControl.Login;
 import edu.wustl.xipHost.hostControl.NewUserEvent;
 import edu.wustl.xipHost.hostControl.NewUserListener;
 
-public class LoginDialog extends JDialog implements ActionListener, KeyListener, NewUserListener, Runnable {				
+public class LoginDialog extends JDialog implements ActionListener, KeyListener, NewUserListener { 
+			
 	JPanel panel = new JPanel();	
 	JLabel lblWashU = new JLabel("Washington University in St. Louis");
 	JLabel lblHost = new JLabel("Starting XIP Host ");
@@ -53,13 +54,6 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener,
         setBounds((screenSize.width - windowSize.width) / 2, (screenSize.height - windowSize.height) /2,  windowSize.width, windowSize.height);
         setVisible(false);
     }
-    
-    public void run() {
-		setVisible(true);
-		while(isUserOK == false){
-			
-		}		
-	}
     
     public void setStatusHost(String strStatus){
     	lblHost.setText(strStatus);    	
