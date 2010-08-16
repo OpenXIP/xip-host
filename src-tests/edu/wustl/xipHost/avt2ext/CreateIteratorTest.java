@@ -124,12 +124,68 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		try{
 			util.createIterator(null, IterationTarget.STUDY, avtQuery, tmpDir, this);
-			fail("SearchResult value is null");
+			fail("SearchResult value is null.");
 		}catch(NullPointerException e){
 			assertTrue(true);
 		}	
 	}
 	
+	//AVTUtil - createIterator. Alternative flow.
+	//Parameters: IterationTarget is null.
+	//Subqueries needed. Connection ON.
+	//IterationTarget: null
+	public void testCreateIterator_3B(){
+		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
+		try{
+			util.createIterator(selectedDataSearchResultForSubqueries, null, avtQuery, tmpDir, this);
+			fail("IterationTarget value is null.");
+		}catch(NullPointerException e){
+			assertTrue(true);
+		}	
+	}
+	
+	//AVTUtil - createIterator. Alternative flow.
+	//Parameters: Query is null.
+	//Subqueries needed. Connection ON.
+	//IterationTarget: PATIENT
+	public void testCreateIterator_3C(){
+		AVTQueryStub avtQuery = null;
+		try{
+			util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+			fail("Query value is null.");
+		}catch(NullPointerException e){
+			assertTrue(true);
+		}	
+	}
+	
+	//AVTUtil - createIterator. Alternative flow.
+	//Parameters: File is null.
+	//Subqueries needed. Connection ON.
+	//IterationTarget: PATIENT
+	public void testCreateIterator_3D(){
+		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
+		try{
+			util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, null, this);
+			fail("File value is null.");
+		}catch(NullPointerException e){
+			assertTrue(true);
+		}	
+	}
+	
+	//AVTUtil - createIterator. Alternative flow.
+	//Parameters: File is not null but File doesn't exist.
+	//Subqueries needed. Connection ON.
+	//IterationTarget: SERIES
+	public void testCreateIterator_3E(){
+		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
+		tmpDir = new File("./test-content-no-existing", "TmpAVTTest");		
+		try{
+			util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
+			fail("File doesn't exist.");
+		}catch(IllegalArgumentException e){
+			assertTrue(true);
+		}	
+	}
 	
 	//AVTUtil - createIterator. Alternative flow.
 	//Parameters: selectedDataSearchResult, IterationTarget is valid.
