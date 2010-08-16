@@ -101,7 +101,6 @@ public class SearchResultSetup {
 			Timestamp series14LastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
 			series14.setLastUpdated(series14LastUpdated);
 			
-			//Are items needed?
 			study1.addSeries(series1);
 			study2.addSeries(series2);
 			study3.addSeries(series3);
