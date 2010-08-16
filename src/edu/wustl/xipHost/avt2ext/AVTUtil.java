@@ -32,6 +32,7 @@ import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.SubElement;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIterator;
+import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -185,8 +186,10 @@ public class AVTUtil {
 	}
 	
 
-	public Iterator<TargetElement> createIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query avtQuery, File pathTmpDir){
-		Iterator<TargetElement> iter = new TargetIterator(selectedDataSearchResult, target, avtQuery, pathTmpDir);
+	public Iterator<TargetElement> createIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query avtQuery, File pathTmpDir, TargetIteratorListener l){
+		TargetIterator targetIter = new TargetIterator(selectedDataSearchResult, target, avtQuery, pathTmpDir);
+		targetIter.addTargetIteratorListener(l);
+		Iterator<TargetElement> iter = targetIter;
 		return iter;
 	}
 	
