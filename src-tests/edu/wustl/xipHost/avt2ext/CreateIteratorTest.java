@@ -4,6 +4,7 @@
 package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	
 	//AVTUtil - createIterator. Alternative flow.
 	//Parameters: selectedDataSearchResult is null.
-	//Subqueries needed. Connection ON.
+	//Connection ON.
 	//IterationTarget: STUDY
 	public void testCreateIterator_3A(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
@@ -132,7 +133,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	
 	//AVTUtil - createIterator. Alternative flow.
 	//Parameters: IterationTarget is null.
-	//Subqueries needed. Connection ON.
+	//Connection ON.
 	//IterationTarget: null
 	public void testCreateIterator_3B(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
@@ -146,7 +147,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	
 	//AVTUtil - createIterator. Alternative flow.
 	//Parameters: Query is null.
-	//Subqueries needed. Connection ON.
+	//Connection ON.
 	//IterationTarget: PATIENT
 	public void testCreateIterator_3C(){
 		AVTQueryStub avtQuery = null;
@@ -174,7 +175,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	
 	//AVTUtil - createIterator. Alternative flow.
 	//Parameters: File is not null but File doesn't exist.
-	//Subqueries needed. Connection ON.
+	//Connection ON.
 	//IterationTarget: SERIES
 	public void testCreateIterator_3E(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
@@ -187,11 +188,47 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		}	
 	}
 	
+
+	//AVTUtil - createIterator. Alternative flow.
+	//Parameters: PatientId is empty.
+	//Subqueries not needed. Connection ON.
+	//IterationTarget: PATIENT
+	public void testCreateIterator_4A(){
+		Query avtQuery = new AVTQueryStubNoPatientID(null, null, null, null, null);
+		SearchResultSetupNoPatientID resultNoID = new SearchResultSetupNoPatientID();
+		SearchResult selectedDataSearchResultNoPatientID = resultNoID.getSearchResult();
+		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultNoPatientID, IterationTarget.PATIENT, avtQuery, tmpDir, this);	
+		int numberOfElements = 0;
+		int numberOfSubElements = 0;
+		List<String> ids = new ArrayList<String>();
+		while(iter.hasNext()){
+			TargetElement element = iter.next();
+			numberOfElements ++;
+			numberOfSubElements = element.getSubElements().size();
+			String id = element.getId();
+			logger.debug("ID: " + id);
+			ids.add(id);
+		}
+		assertTrue("Number of Iterator's elements should be 1. Actual " + numberOfElements, numberOfElements == 1);
+		assertTrue("Number of SubElements should be 9. Actual " + numberOfSubElements, numberOfSubElements == 9);
+		//All ids should be equal
+		String idFirst = ids.get(0);
+		boolean idEqual = true;
+		for(int i = 1; i < ids.size(); i++){
+			String nextId = ids.get(i);
+			if(!idFirst.equalsIgnoreCase(nextId)){
+				idEqual = false;
+			}
+		}
+		assertTrue("TargetElement IDs should are not equal.", idEqual);
+		assertTrue("Patient auto-generated ID should start with xiphost-auto-." + "Actual ID: " + idFirst, idFirst.startsWith("xiphost-auto-"));
+	}
+	
 	//AVTUtil - createIterator. Alternative flow.
 	//Parameters: selectedDataSearchResult, IterationTarget is valid.
 	//Subqueries needed. Connection lost.
 	//IterationTarget: SERIES
-	public void testCreateIterator_4A(){
+	public void testCreateIterator_5A(){
 		assertTrue(false);
 		
 	}
