@@ -4,7 +4,7 @@
 package edu.wustl.xipHost.application;
 
 import java.util.EventObject;
-import edu.wustl.xipHost.gui.ApplicationBar.AppButton;
+import edu.wustl.xipHost.application.ApplicationBar.AppButton;
 
 /**
  * @author Jaroslaw Krych
