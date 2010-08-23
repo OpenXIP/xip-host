@@ -191,7 +191,7 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		setApplicationTmpDir(ApplicationManagerFactory.getInstance().getTmpDir());
 		setApplicationPreferredSize(HostMainWindow.getApplicationPreferredSize());
 		//prepare native models
-		createNativeModels(getWG23DataModel());		
+		//createNativeModels(getWG23DataModel());		
 		//diploy host service				
 		hostEndpoint = Endpoint.publish(hostServiceURL.toString(), host);
 		// Ways of launching XIP application: exe, bat, class or jar
@@ -229,7 +229,8 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			} else if (getExePath().toURI().toURL().toExternalForm().endsWith(".sh")){
 				try {		
 					//Runtime.getRuntime().exec("/bin/sh " + getExePath().getCanonicalPath() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());					
-					Runtime.getRuntime().exec("/bin/sh " + getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
+					System.out.println(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
+					Runtime.getRuntime().exec("open " + getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
 					
 					/*List<String> command = new ArrayList<String>();																
 					command.add("/bin/sh");				
@@ -260,14 +261,24 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}			
-			} else if(((String)getExePath().getName()).endsWith(".class")){
-			
+			} else {
+				try {
+					Runtime.getRuntime().exec(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				// TODO Auto-generated catch block			
 			}
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
+		//startIterator
+		
 	}	
 	
 	public Endpoint getHostEndpoint(){
