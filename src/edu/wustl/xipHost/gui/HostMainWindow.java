@@ -28,7 +28,7 @@ import java.util.UUID;
  * 
  */
 public class HostMainWindow extends JFrame implements ActionListener {	             		    			
-    static HostIconBar toolBar = new HostIconBar();    
+    static HostIconBar toolBar = new HostIconBar();
     static JTabbedPane sideTabbedPane;
     SideTabMouseAdapter mouseAdapter = new SideTabMouseAdapter();     
     static JPanel hostPanel = new JPanel();   
@@ -63,20 +63,21 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		}else{
 			setUndecorated(false);
 			setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		}		 		
+		}
 	}	
 		
     public void display(){                
     	UIManager.put("TabbedPane.selected", xipLightBlue);    	
     	setLayout(new BorderLayout());	
         toolBar.setUserName(userName);		
-        add(toolBar, BorderLayout.NORTH);        
+        add(toolBar, BorderLayout.NORTH);
         sideTabbedPane = VerticalTextIcon.createTabbedPane(JTabbedPane.RIGHT);
-        sideTabbedPane.setBackground(xipColor);         
-        add(sideTabbedPane, BorderLayout.CENTER);
+        sideTabbedPane.setBackground(xipColor);
+        add(sideTabbedPane, BorderLayout.SOUTH);
         sideTabbedPane.addMouseListener(mouseAdapter);       
         hostPanel.add(tabPaneCenter);
         hostPanel.setBackground(xipColor);
+        //hostPanel.setBackground(Color.BLACK);
         buildHostPanelLayout();        
         VerticalTextIcon.addTab(sideTabbedPane, "Host", UUID.randomUUID(), hostPanel);   
                 
@@ -110,7 +111,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight());
-        getContentPane().setBackground(Color.BLACK);        
+        getContentPane().setBackground(xipColor);        
         setVisible(true);                        
         setAlwaysOnTop(true);
         setAlwaysOnTop(false);              
@@ -120,13 +121,10 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	GridBagLayout layout = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();
         hostPanel.setLayout(layout);
+        
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 0;	        
-        constraints.insets.top = 0;//40
-        constraints.insets.left = 0;//20
-        constraints.insets.right = 0;//20
-        constraints.insets.bottom = 0;//40        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(tabPaneCenter, constraints);  	               
     }
@@ -305,6 +303,4 @@ public class HostMainWindow extends JFrame implements ActionListener {
         state |= Frame.ICONIFIED;
         setExtendedState(state);
     }
-	
-	
 }
