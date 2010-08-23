@@ -22,7 +22,13 @@ public class Patient {
 	
 	public Patient(String patientName, String patientID, String patientBirthDate){
 		this.patientName = patientName;
-		this.patientID = patientID;
+		if(patientID == null) {
+			this.patientID = "xiphost-auto-" + UUID.randomUUID().toString();
+		} else if(patientID.isEmpty()) {
+			this.patientID = "xiphost-auto-" + UUID.randomUUID().toString();
+		} else {
+			this.patientID = patientID;
+		}
 		this.patientBirthDate = patientBirthDate;	
 	}
 	
@@ -31,9 +37,6 @@ public class Patient {
 	}
 	
 	public String getPatientID(){
-		if(patientID == null || patientID.isEmpty()){
-			patientID = "xiphost-auto-" + UUID.randomUUID().toString();
-		}
 		return patientID;
 	}
 	
