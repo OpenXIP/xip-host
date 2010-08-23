@@ -90,6 +90,9 @@
   </logger>	
   <logger name="edu.wustl.xipHost.hostControl.DataStore">
 	<appender-ref ref="HostMain_Appender"/>
+  </logger>	
+  <logger name="edu.wustl.xipHost.gui.HostIconBar">
+	<appender-ref ref="HostMain_Appender"/>
   </logger>			
 	
   <root>
