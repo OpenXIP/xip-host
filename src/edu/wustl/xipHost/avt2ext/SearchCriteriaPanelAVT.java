@@ -71,10 +71,10 @@ public class SearchCriteriaPanelAVT extends JPanel implements ActionListener{
 		add(attEntryPanel);
 		btnSearch.setPreferredSize(new Dimension(120, 25));
 		btnSearch.setBackground(xipBtn);
-		btnSearch.setForeground(Color.WHITE);
+		btnSearch.setForeground(Color.BLACK);
 		btnCancel.setPreferredSize(new Dimension(100, 25));
 		btnCancel.setBackground(xipBtn);
-		btnCancel.setForeground(Color.WHITE);
+		btnCancel.setForeground(Color.BLACK);
 		btnSearch.addActionListener(this);
 		btnCancel.addActionListener(this);
 		btnPanel.add(btnSearch);
