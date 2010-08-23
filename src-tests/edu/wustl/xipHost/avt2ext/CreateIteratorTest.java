@@ -30,6 +30,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	SearchResult selectedDataSearchResult;
 	SearchResult selectedDataSearchResultForSubqueries;
 	File tmpDir;
+	boolean iteratorThreadComplete = false;
 	
 	AVTUtil util;
 	public CreateIteratorTest(String name){
@@ -62,6 +63,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_1A(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
 		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, tmpDir, this);	
+		waitForIteratorThreadToComplete();
 		assertTrue("", assertIteratorTargetPatient(iter));
 	}
 	
@@ -72,6 +74,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_1B(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
 		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, tmpDir, this);
+		waitForIteratorThreadToComplete();
 		assertTrue("", assertIteratorTargetStudy(iter));	
 	}
 	
@@ -82,6 +85,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_1C(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
 		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, tmpDir, this);
+		waitForIteratorThreadToComplete();
 		assertTrue("", assertIteratorTargetSeries(iter));
 	}
 	
@@ -92,6 +96,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_2A(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		waitForIteratorThreadToComplete();
 		assertTrue("", assertIteratorTargetPatient(iter));
 	}
 	
@@ -102,6 +107,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_2B(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery, tmpDir, this);
+		waitForIteratorThreadToComplete();
 		assertTrue("", assertIteratorTargetStudy(iter));
 	}
 	
@@ -113,6 +119,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_2C(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		Iterator<TargetElement> iter = util.createIterator(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
+		waitForIteratorThreadToComplete();
 		assertTrue("", assertIteratorTargetSeries(iter));
 		
 	}
@@ -201,6 +208,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		int numberOfElements = 0;
 		int numberOfSubElements = 0;
 		List<String> ids = new ArrayList<String>();
+		waitForIteratorThreadToComplete();
 		while(iter.hasNext()){
 			TargetElement element = iter.next();
 			numberOfElements ++;
@@ -1138,8 +1146,22 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		}
 	}
 
+	private boolean waitForIteratorThreadToComplete(){
+		try {
+			for(int i=0; i<10; ++i){
+				Thread.sleep(10);
+				if(iteratorThreadComplete == true)
+					return true;
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	@Override
 	public void fullIteratorAvailable(IteratorEvent e) {
+		iteratorThreadComplete = true;
 		// TODO Auto-generated method stub
 		
 	}
@@ -1149,4 +1171,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 }

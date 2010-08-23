@@ -28,7 +28,7 @@ import org.dcm4che2.data.Tag;
  * @author Matthew Kelsey
  *
  */
-public class TargetIterator implements Iterator<TargetElement>, AVTListener {
+public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTListener {
 	final static Logger logger = Logger.getLogger(TargetIterator.class);
 	SearchResult selectedDataSearchResult;
 	IterationTarget target;
@@ -39,9 +39,12 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 	Iterator<Study> studyIt = null;
 	Iterator<Series> seriesIt = null;
 	
+	List<TargetElement> targetElementList = new ArrayList<TargetElement>();
+	Iterator<TargetElement> targetElementListIt = null; 
+	
 	String pathRoot;
 		
-	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir) throws NullPointerException {
+	private TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener) throws NullPointerException {
 		if(selectedDataSearchResult == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null SearchResult pointer");
 		if(target == null)
@@ -56,12 +59,32 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		this.selectedDataSearchResult = selectedDataSearchResult;
 		this.target = target;
 		this.query = query;
+		this.listener = targetListener;
 		try {
 			pathRoot = pathTmpDir.getCanonicalPath();
 			logger.debug("TargetIterator temp directory is: " + pathRoot );
 		} catch (IOException e) {
 			logger.error(e, e);
 		}
+	}
+	
+	// Initialize and start process to build TargetIterator list
+	// Return iterator to list under construction
+	public static TargetIterator buildTargetElementIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener){
+		TargetIterator targetIter = new TargetIterator(selectedDataSearchResult, target, query, pathTmpDir, targetListener);
+		try {
+			Thread t = new Thread(targetIter);
+			t.start();
+		} catch(Exception e) {
+			logger.error(e, e);
+		}
+		return targetIter;
+	}
+	
+	// Run thread to fill TargetElement list from SearchResult elements
+	@Override
+	public void run() {
+		// Set internal target iterators
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
 				List<Patient> patients = this.selectedDataSearchResult.getPatients();
@@ -70,21 +93,34 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		} catch(Exception e) {
 			logger.error(e, e);
 		}
+		// Fill targetElementsList with target elements from searchResult
+		while(hasNextSearchResult())
+		{
+			TargetElement element = loadNextSearchResult();
+			targetElementList.add(element);
+			notifyTargetIteratorElementAvailable(element);
+		}
+		targetElementListIt = targetElementList.iterator();
+		notifyIteratorComplete();		
 	}
 	
 	TargetIteratorListener listener;
-	public void addTargetIteratorListener(TargetIteratorListener l){
-		listener = l;
-	}
-	
-	void notifyTargetIteratorElementAvailable(TargetElement element){
+	private void notifyTargetIteratorElementAvailable(TargetElement element){
 		IteratorElementEvent event = new IteratorElementEvent(element);
 		listener.targetElementAvailable(event);
 	}
 	
-	void notifyIteratorComplete(){
+	private void notifyIteratorComplete(){
 		IteratorEvent event = new IteratorEvent(this);
 		listener.fullIteratorAvailable(event);
+	}
+	
+	public boolean hasNext(){
+		return targetElementListIt.hasNext();
+	}
+
+	public TargetElement next(){
+		return targetElementListIt.next();
 	}
 	
 	// ** If not up to date, query for study list in patient target ** //
@@ -199,7 +235,7 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		return true;
 	}
 	
-	public boolean hasNext() {
+	private boolean hasNextSearchResult() {
 		if(target == IterationTarget.PATIENT) {
 			return this.patientIt.hasNext();
 		
@@ -255,9 +291,9 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 		
 		
 
-	public TargetElement next() {
+	private TargetElement loadNextSearchResult() {
 		TargetElement targetElement = null;
-		if(this.hasNext() == true){
+		if(targetElementList != null){
 			
 			// ** PATIENT TARGET ** //
 			if(this.target == IterationTarget.PATIENT) {
@@ -488,4 +524,5 @@ public class TargetIterator implements Iterator<TargetElement>, AVTListener {
 			}
 		}
 	}
+
 }

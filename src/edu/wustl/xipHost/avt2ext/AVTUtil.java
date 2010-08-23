@@ -187,9 +187,7 @@ public class AVTUtil {
 	
 
 	public Iterator<TargetElement> createIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query avtQuery, File pathTmpDir, TargetIteratorListener l){
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResult, target, avtQuery, pathTmpDir);
-		targetIter.addTargetIteratorListener(l);
-		Iterator<TargetElement> iter = targetIter;
+		Iterator<TargetElement> iter = TargetIterator.buildTargetElementIterator(selectedDataSearchResult, target, avtQuery, pathTmpDir, l);
 		return iter;
 	}
 	
