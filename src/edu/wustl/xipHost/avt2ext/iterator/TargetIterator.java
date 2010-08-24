@@ -40,11 +40,11 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 	Iterator<Series> seriesIt = null;
 	
 	List<TargetElement> targetElementList = new ArrayList<TargetElement>();
-	Iterator<TargetElement> targetElementListIt = null; 
+	Iterator<TargetElement> targetIterator = null; 
 	
 	String pathRoot;
 		
-	private TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener) throws NullPointerException {
+	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener) throws NullPointerException {
 		if(selectedDataSearchResult == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null SearchResult pointer");
 		if(target == null)
@@ -68,18 +68,6 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 		}
 	}
 	
-	// Initialize and start process to build TargetIterator list
-	// Return iterator to list under construction
-	public static TargetIterator buildTargetElementIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener){
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResult, target, query, pathTmpDir, targetListener);
-		try {
-			Thread t = new Thread(targetIter);
-			t.start();
-		} catch(Exception e) {
-			logger.error(e, e);
-		}
-		return targetIter;
-	}
 	
 	// Run thread to fill TargetElement list from SearchResult elements
 	@Override
@@ -100,8 +88,8 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 			targetElementList.add(element);
 			notifyTargetIteratorElementAvailable(element);
 		}
-		targetElementListIt = targetElementList.iterator();
-		notifyIteratorComplete();		
+		targetIterator = targetElementList.iterator();
+		notifyIteratorComplete(targetIterator);		
 	}
 	
 	TargetIteratorListener listener;
@@ -110,17 +98,17 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 		listener.targetElementAvailable(event);
 	}
 	
-	private void notifyIteratorComplete(){
-		IteratorEvent event = new IteratorEvent(this);
+	private void notifyIteratorComplete(Iterator<TargetElement> iter){
+		IteratorEvent event = new IteratorEvent(iter);
 		listener.fullIteratorAvailable(event);
 	}
 	
 	public boolean hasNext(){
-		return targetElementListIt.hasNext();
+		return targetIterator.hasNext();
 	}
 
 	public TargetElement next(){
-		return targetElementListIt.next();
+		return targetIterator.next();
 	}
 	
 	// ** If not up to date, query for study list in patient target ** //
