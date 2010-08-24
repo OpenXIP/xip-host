@@ -103,7 +103,6 @@ public class AVTQuery implements Runnable, Query{
 	
 	SearchResult result;
 	public void run() {											
-		System.out.println("This should not be printed");
 		long time1 = System.currentTimeMillis();
 		logger.info("Executing AVT query.");		
 		switch (target) {

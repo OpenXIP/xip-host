@@ -73,7 +73,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         add(toolBar, BorderLayout.NORTH);
         sideTabbedPane = VerticalTextIcon.createTabbedPane(JTabbedPane.RIGHT);
         sideTabbedPane.setBackground(xipColor);
-        add(sideTabbedPane, BorderLayout.SOUTH);
+        add(sideTabbedPane, BorderLayout.CENTER);
         sideTabbedPane.addMouseListener(mouseAdapter);       
         hostPanel.add(tabPaneCenter);
         hostPanel.setBackground(xipColor);
