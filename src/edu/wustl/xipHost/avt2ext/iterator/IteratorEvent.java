@@ -4,6 +4,7 @@
 package edu.wustl.xipHost.avt2ext.iterator;
 
 import java.util.EventObject;
+import java.util.Iterator;
 
 /**
  * @author Jaroslaw Krych
@@ -11,7 +12,7 @@ import java.util.EventObject;
  */
 public class IteratorEvent extends EventObject {
 
-	public IteratorEvent(TargetIterator source) {
+	public IteratorEvent(Iterator<TargetElement> source) {
 		super(source);
 	}
 
