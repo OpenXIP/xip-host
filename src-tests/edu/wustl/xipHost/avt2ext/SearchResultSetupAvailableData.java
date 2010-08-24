@@ -76,7 +76,7 @@ public class SearchResultSetupAvailableData {
 			
 			Item item1 = new ImageItem("606.606.1.0.1");
 			series6.addItem(item1);
-			Item item2 = new AIMItem(null, null, null, "606.606.1.0.2");
+			Item item2 = new AIMItem("", "", "", "606.606.1.0.2");
 			series6.addItem(item2);
 			
 			study4.addSeries(series6);
