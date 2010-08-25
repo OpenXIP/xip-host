@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.avt2ext;
 
@@ -15,7 +15,7 @@ import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
 import edu.wustl.xipHost.avt2ext.iterator.SubElement;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
-import edu.wustl.xipHost.avt2ext.iterator.TargetIterator;
+import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.hostControl.Util;
@@ -53,13 +53,13 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		Util.delete(tmpDir);
 	}
 	
-	//AVUtil - createIterator. Basic flow
+	//TargetIteratorRunner. Basic flow
 	//Parameters: selectedDataSearchResult, IterationTarget are valid.
 	//No subqueries needed. Connection ON.
 	//IterationTarget.PATIENT
 	public void testCreateIterator_1A(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, tmpDir, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -70,13 +70,13 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		assertTrue("", assertIteratorTargetPatient(iter));
 	}
 	
-	//AVUtil - createIterator. Basic flow
+	//TargetIteratorRunner. Basic flow
 	//Parameters: selectedDataSearchResult, IterationTarget are valid.
 	//No subqueries needed. Connection ON.
 	//IterationTarget.STUDY
 	public void testCreateIterator_1B(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, tmpDir, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -87,13 +87,13 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		assertTrue("", assertIteratorTargetStudy(iter));	
 	}
 	
-	//AVUtil - createIterator. Basic flow
+	//TargetIteratorRunner. Basic flow
 	//Parameters: selectedDataSearchResult, IterationTarget are valid.
 	//No subqueries needed. Connection ON.
 	//IterationTarget.SERIES
 	public void testCreateIterator_1C(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, tmpDir, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -104,13 +104,13 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		assertTrue("", assertIteratorTargetSeries(iter));
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: selectedDataSearchResult, IterationTarget are valid.
 	//Subqueries needed. Connection ON.
 	//IterationTarget: PATIENT
 	public void testCreateIterator_2A(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -121,13 +121,13 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		assertTrue("", assertIteratorTargetPatient(iter));
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: selectedDataSearchResult, IterationTarget are valid.
 	//Subqueries needed. Connection ON.
 	//IterationTarget: STUDY
 	public void testCreateIterator_2B(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery, tmpDir, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -139,13 +139,13 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	}
 	
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: selectedDataSearchResult, IterationTarget are valid.
 	//Subqueries needed. Connection ON.
 	//IterationTarget: SERIES
 	public void testCreateIterator_2C(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -157,14 +157,14 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: selectedDataSearchResult is null.
 	//Connection ON.
 	//IterationTarget: STUDY
 	public void testCreateIterator_3A(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		try{
-			TargetIterator targetIter = new TargetIterator(null, IterationTarget.STUDY, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(null, IterationTarget.STUDY, avtQuery, tmpDir, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -178,14 +178,14 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		}	
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: IterationTarget is null.
 	//Connection ON.
 	//IterationTarget: null
 	public void testCreateIterator_3B(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		try{
-			TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, null, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, null, avtQuery, tmpDir, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -199,14 +199,14 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		}	
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: Query is null.
 	//Connection ON.
 	//IterationTarget: PATIENT
 	public void testCreateIterator_3C(){
 		AVTQueryStub avtQuery = null;
 		try{
-			TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -220,14 +220,14 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		}	
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: File is null.
 	//Subqueries needed. Connection ON.
 	//IterationTarget: PATIENT
 	public void testCreateIterator_3D(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		try{
-			TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, null, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, null, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -241,7 +241,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		}	
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: File is not null but File doesn't exist.
 	//Connection ON.
 	//IterationTarget: SERIES
@@ -249,7 +249,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		tmpDir = new File("./test-content-no-existing", "TmpAVTTest");		
 		try{
-			TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -264,7 +264,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	}
 	
 
-	//AVTUtil - createIterator. Alternative flow.
+	//TargetIteratorRunner. Alternative flow.
 	//Parameters: PatientId is empty.
 	//Subqueries not needed. Connection ON.
 	//IterationTarget: PATIENT
@@ -272,7 +272,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		Query avtQuery = new AVTQueryStubNoPatientID(null, null, null, null, null);
 		SearchResultSetupNoPatientID resultNoID = new SearchResultSetupNoPatientID();
 		SearchResult selectedDataSearchResultNoPatientID = resultNoID.getSearchResult();
-		TargetIterator targetIter = new TargetIterator(selectedDataSearchResultNoPatientID, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultNoPatientID, IterationTarget.PATIENT, avtQuery, tmpDir, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -307,14 +307,15 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		assertTrue("Patient auto-generated ID should start with xiphost-auto-." + "Actual ID: " + idFirst, idFirst.startsWith("xiphost-auto-"));
 	}
 	
-	//AVTUtil - createIterator. Alternative flow.
-	//Parameters: selectedDataSearchResult, IterationTarget is valid.
+	//TargetIteratorRunner. Alternative flow.
+	//Parameters: selectedDataSearchResult, IterationTarget are valid.
 	//Subqueries needed. Connection lost.
 	//IterationTarget: PATIENT
 	public void testCreateIterator_5A(){
-		Query avtQuery = new AVTQueryStubConnectException(null, null, null, null, null);	
+		Query avtQuery = new AVTQueryStubConnectException(null, null, null, null, null);
+		
 		try{
-			TargetIterator targetIter = new TargetIterator(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -1231,6 +1232,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	}
 
 	Iterator<TargetElement> iter;
+	@SuppressWarnings("unchecked")
 	@Override
 	public void fullIteratorAvailable(IteratorEvent e) {
 		 iter = (Iterator<TargetElement>) e.getSource();

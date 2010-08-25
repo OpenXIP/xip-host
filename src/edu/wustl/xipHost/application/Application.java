@@ -30,7 +30,7 @@ import edu.wustl.xipHost.avt2ext.AVTUtil;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
-import edu.wustl.xipHost.avt2ext.iterator.TargetIterator;
+import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
@@ -511,10 +511,10 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		return queryResults;		
 	}
 
-	TargetIterator iter;
+	TargetIteratorRunner iter;
 	@Override
 	public void fullIteratorAvailable(IteratorEvent e) {
-		iter = (TargetIterator)e.getSource();
+		iter = (TargetIteratorRunner)e.getSource();
 	}
 
 	
