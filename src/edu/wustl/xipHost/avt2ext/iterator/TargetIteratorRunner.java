@@ -28,8 +28,8 @@ import org.dcm4che2.data.Tag;
  * @author Matthew Kelsey
  *
  */
-public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTListener {
-	final static Logger logger = Logger.getLogger(TargetIterator.class);
+public class TargetIteratorRunner implements Runnable, AVTListener {
+	final static Logger logger = Logger.getLogger(TargetIteratorRunner.class);
 	SearchResult selectedDataSearchResult;
 	IterationTarget target;
 	Query query;
@@ -44,7 +44,7 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 	
 	String pathRoot;
 		
-	public TargetIterator(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener) throws NullPointerException {
+	public TargetIteratorRunner(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener) throws NullPointerException {
 		if(selectedDataSearchResult == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null SearchResult pointer");
 		if(target == null)
@@ -79,6 +79,7 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 				patientIt = patients.iterator();
 			}
 		} catch(Exception e) {
+			notifyException(e.getMessage());
 			logger.error(e, e);
 		}
 		// Fill targetElementsList with target elements from searchResult
@@ -103,14 +104,6 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 		listener.fullIteratorAvailable(event);
 	}
 	
-	public boolean hasNext(){
-		return targetIterator.hasNext();
-	}
-
-	public TargetElement next(){
-		return targetIterator.next();
-	}
-	
 	// ** If not up to date, query for study list in patient target ** //
 	private boolean updatePatient(Patient patient) {
 		if(patient.getLastUpdated() == null) {
@@ -132,6 +125,7 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 					}
 				}
 			} catch (InterruptedException e) {
+				notifyException(e.getMessage());
 				logger.error(e, e);
 				return false;
 			}
@@ -170,6 +164,7 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 					}
 				}
 			} catch (InterruptedException e) {
+				notifyException(e.getMessage());
 				logger.error(e, e);
 				return false;
 			}
@@ -216,6 +211,7 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 					}
 				}
 			} catch (InterruptedException e) {
+				notifyException(e.getMessage());
 				logger.error(e, e);
 				return false;
 			}
@@ -457,7 +453,6 @@ public class TargetIterator implements Iterator<TargetElement>, Runnable, AVTLis
 
 	@Override
 	public void notifyException(String message) {
-		// TODO Auto-generated method stub
 		
 	}
 
