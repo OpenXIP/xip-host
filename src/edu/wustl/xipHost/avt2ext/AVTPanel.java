@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -51,6 +50,7 @@ import edu.wustl.xipHost.application.ApplicationBar;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationBar.AppButton;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -78,11 +78,9 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	Color xipLightBlue = new Color(156, 162, 189);
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Border border = BorderFactory.createLoweredBevelBorder();		
-	JCheckBox cbxSeries = new JCheckBox("Series", false);
+	JCheckBox cbxSeries = new JCheckBox("DICOM", false);
 	JCheckBox cbxAimSeg = new JCheckBox("AIM plus SEG", false);
 	JPanel cbxPanel = new JPanel();
-	JButton btnRetrieve;
-	JButton btnRetrieveAll;
 	JPanel btnPanel = new JPanel();
 	AVTListener l;
 	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
@@ -163,7 +161,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}																	
-		} else if (e.getSource() == btnRetrieve){			
+		} /*else if (e.getSource() == btnRetrieve){			
 			allRetrivedFiles = new ArrayList<File>();
 			numRetrieveThreadsStarted = 0;
 			numRetrieveThreadsReturned = 0;
@@ -172,9 +170,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();	
 			criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-			criteriaPanel.getQueryButton().setEnabled(false);
-			btnRetrieve.setBackground(Color.GRAY);
-			btnRetrieve.setEnabled(false);												
+			criteriaPanel.getQueryButton().setEnabled(false);											
 			Map<Series, Study> map = resultTree.getSelectedSeries();
 			Set<Series> seriesSet = map.keySet();
 			Iterator<Series> iter = seriesSet.iterator();
@@ -201,10 +197,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 					logger.error(e1, e1);
 					notifyException(e1.getMessage());
 				}	
-			}											
-		} else if(e.getSource() == btnRetrieveAll){
-			new UnderDevelopmentDialog(btnRetrieveAll.getLocationOnScreen());
-		}
+			}									
+		}*/
 	}
 	
 	void buildLayout(){				
@@ -348,9 +342,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
         fileMgr.run(files);
 		launchApplication();	
         criteriaPanel.getQueryButton().setBackground(xipBtn);
-		criteriaPanel.getQueryButton().setEnabled(true);		
-		btnRetrieve.setEnabled(true);
-		btnRetrieve.setBackground(xipBtn);					
+		criteriaPanel.getQueryButton().setEnabled(true);						
 	}
 	
 	AppButton btn;
@@ -368,8 +360,13 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 			String instanceVendor = app.getVendor();
 			String instanceVersion = app.getVersion();
 			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			boolean requiresGUI = app.requiresGUI();
+			String wg23DataModelType = app.getWG23DataModelType();
+			int concurrentInstances = app.getConcurrentInstances();
+			IterationTarget iterationTarget = app.getIterationTarget();
 			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile);
+					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 			instanceApp.setDoSave(false);
 			appMgr.addApplication(instanceApp);
 			instanceApp.setData(data);			
@@ -380,7 +377,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		}					
 		setCursor(normalCursor);
 	}
-	
 	
 	
 	@Override
@@ -402,10 +398,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		});
 		criteriaPanel.getQueryButton().setBackground(xipBtn);
 		criteriaPanel.getQueryButton().setEnabled(true);		
-		btnRetrieve.setBackground(Color.GRAY);
-		btnRetrieve.setEnabled(false);
-		btnRetrieveAll.setEnabled(false);	    		 	    		 
-		btnRetrieveAll.setBackground(Color.GRAY);
 		cbxSeries.setSelected(false);
 		cbxAimSeg.setSelected(false);
 	}
@@ -415,17 +407,9 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	MouseListener ml = new MouseAdapter(){
 	     public void mousePressed(MouseEvent e) {
 	    	 if(resultTree.getSelectedSeries().size() > 0 && (cbxSeries.isSelected() || cbxAimSeg.isSelected())){
-	    		btnRetrieve.setEnabled(true);	    		 	    			
-	 			btnRetrieve.setBackground(xipBtn);
-	 			btnRetrieve.setForeground(Color.WHITE);
-	 			btnRetrieveAll.setEnabled(true);
-	 			btnRetrieveAll.setBackground(xipBtn);
-	 			btnRetrieveAll.setForeground(Color.WHITE);
+	    		
 	    	 }else{
-	    		btnRetrieve.setEnabled(false);	    		 	    		 
-	 			btnRetrieve.setBackground(Color.GRAY);
-	 			btnRetrieveAll.setEnabled(false);	    		 	    		 
-	 			btnRetrieveAll.setBackground(Color.GRAY);
+	    		
 	    	 }
 	     }
 	     	    
@@ -448,10 +432,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     				Patient selectedPatient = Patient.class.cast(selectedNode);
 		     				logger.info("Staring node query: " + selectedPatient.toString());
 		     				//Retrieve studies for selected patient
-		     				btnRetrieve.setEnabled(false);			     				
-		     				btnRetrieve.setBackground(Color.GRAY);
-		     				btnRetrieveAll.setEnabled(false);			     				
-		     				btnRetrieveAll.setBackground(Color.GRAY);
 		     				progressBar.setString("Processing search request ...");
 		     				progressBar.setIndeterminate(true);
 		     				progressBar.updateUI();				     				
@@ -493,10 +473,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     				Study selectedStudy = Study.class.cast(selectedNode);
 		     				logger.info("Staring node query: " + selectedStudy.toString());
 		     				//Retrieve studies for selected patient
-		     				btnRetrieve.setEnabled(false);
-		     				btnRetrieve.setBackground(Color.GRAY);		     				
-		     				btnRetrieveAll.setEnabled(false);
-		     				btnRetrieveAll.setBackground(Color.GRAY);
 		     				progressBar.setString("Processing search request ...");
 		     				progressBar.setIndeterminate(true);
 		     				progressBar.updateUI();	
@@ -554,11 +530,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     			if(selectedNode instanceof Series){
 		     				Series selectedSeries = Series.class.cast(selectedNode);
 		     				logger.info("Staring node query: " + selectedSeries.toString());
-		     				//Retrieve annotations for selected series
-		     				btnRetrieve.setEnabled(false);
-		     				btnRetrieve.setBackground(Color.GRAY);		     				
-		     				btnRetrieveAll.setEnabled(false);
-		     				btnRetrieveAll.setBackground(Color.GRAY);
+		     				//Retrieve annotations for selected series		     				
 		     				progressBar.setString("Processing search request ...");
 		     				progressBar.setIndeterminate(true);
 		     				progressBar.updateUI();
@@ -612,17 +584,9 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	    	
 	    }
 	    if(resultTree.getSelectedSeries().size() > 0 && (cbxSeries.isSelected() || cbxAimSeg.isSelected())){
-    		btnRetrieve.setEnabled(true);	    		 	    			
- 			btnRetrieve.setBackground(xipBtn);
- 			btnRetrieve.setForeground(Color.WHITE);
- 			btnRetrieveAll.setEnabled(true);
- 			btnRetrieveAll.setBackground(xipBtn);
- 			btnRetrieveAll.setForeground(Color.WHITE);
+    		
     	 }else{
-    		btnRetrieve.setEnabled(false);	    		 	    		 
- 			btnRetrieve.setBackground(Color.GRAY);
- 			btnRetrieveAll.setEnabled(false);	    		 	    		 
- 			btnRetrieveAll.setBackground(Color.GRAY);
+    		
     	 }
 	}
 }
