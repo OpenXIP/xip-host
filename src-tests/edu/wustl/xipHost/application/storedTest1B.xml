@@ -2,52 +2,51 @@
 <applications>
   <application>
     <name>Application1</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
+    <exePath>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
     <vendor />
     <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
-  </application>
-  <application>
-    <name>Application1</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
-    <vendor />
-    <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
-  </application>
-  <application>
-    <name>Application1</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
-    <vendor />
-    <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
-  </application>
-  <application>
-    <name>Application1</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
-    <vendor />
-    <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <iconFile>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <type>rendering</type>
+    <requiresGUI>true</requiresGUI>
+    <wg23DataModelType>files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
   </application>
   <application>
     <name>Application2</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
+    <exePath>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
     <vendor />
     <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <iconFile>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <type>rendering</type>
+    <requiresGUI>true</requiresGUI>
+    <wg23DataModelType>files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
   </application>
   <application>
     <name>Application1</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
+    <exePath>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
     <vendor />
     <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <iconFile>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <type>rendering</type>
+    <requiresGUI>true</requiresGUI>
+    <wg23DataModelType>files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
   </application>
   <application>
     <name>Application2</name>
-    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
+    <exePath>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.bat</exePath>
     <vendor />
     <version />
-    <iconFile>C:\WUSTL\XIP\xip-reference-impl\XIP\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <iconFile>C:\OurDocuments\SoftwareDev\XIP_SVN\XIPHostTrunk\src-tests\edu\wustl\xipHost\application\test.png</iconFile>
+    <type>rendering</type>
+    <requiresGUI>true</requiresGUI>
+    <wg23DataModelType>files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
   </application>
 </applications>
 

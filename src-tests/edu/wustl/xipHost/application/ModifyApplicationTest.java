@@ -1,11 +1,9 @@
 package edu.wustl.xipHost.application;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.UUID;
-
 import org.nema.dicom.wg23.State;
-
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import junit.framework.TestCase;
 
 public class ModifyApplicationTest extends TestCase {
@@ -25,8 +23,8 @@ public class ModifyApplicationTest extends TestCase {
 	
 	//ApplicationManager 1A - basic flow. Application UUID found, new parameters are correct.
 	public void testModifyApplication1A() {						
-		Application app = new Application("Application1", exePath, "", "", iconFile);
-		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile);
+		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		UUID uuid = app.getID();
 		mgr.addApplication(app);
 		assertTrue("UUID and modified parameters were correct, but system was unable to modify application.", mgr.modifyApplication(uuid, modifiedApp));
@@ -42,8 +40,8 @@ public class ModifyApplicationTest extends TestCase {
 
 	//ApplicationManager 1B - alternative flow. UUID not found, new parameters are correct.
 	public void testModifyApplication1B() {						
-		Application app = new Application("Application1", exePath, "", "", iconFile);
-		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile);		
+		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
 		mgr.addApplication(app);
 		assertFalse("UUID not  found, but system modified application.", mgr.modifyApplication(UUID.randomUUID(), modifiedApp));		
 	}
@@ -51,7 +49,7 @@ public class ModifyApplicationTest extends TestCase {
 	//ApplicationManager 1C - alternative flow. UUID found, but new parameters are incorrect.
 	//testing setters
 	public void testModifyApplication1C() {						
-		Application app = new Application("Application1", exePath, "", "", iconFile);		
+		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
 		try{
 			//app.setName("");
 			app.setExePath(null);
@@ -64,8 +62,8 @@ public class ModifyApplicationTest extends TestCase {
 	//ApplicationManager 1D - alternative flow. UUID found, new parameters are correct 
 	//but application State is <> null.
 	public void testModifyApplication1D() {						
-		Application app = new Application("Application1", exePath, "", "", iconFile);		
-		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile);
+		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
+		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		UUID uuid = app.getID();
 		mgr.addApplication(app);
 		app.setState(State.INPROGRESS);
@@ -74,8 +72,8 @@ public class ModifyApplicationTest extends TestCase {
 	
 	//ApplicationManager 1E - alternative flow. UUID is null, new parameters are correct 
 	public void testModifyApplication1E() {						
-		Application app = new Application("Application1", exePath, "", "", iconFile);		
-		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile);
+		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
+		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		UUID uuid = null;
 		mgr.addApplication(app);		
 		assertFalse("UUID was null but system modified application.",mgr.modifyApplication(uuid, modifiedApp));				

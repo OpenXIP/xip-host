@@ -1,6 +1,8 @@
 package edu.wustl.xipHost.application;
 
 import java.io.File;
+
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import junit.framework.TestCase;
 
 public class StoreApplicationsTest extends TestCase {
@@ -8,8 +10,10 @@ public class StoreApplicationsTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		mgr = ApplicationManagerFactory.getInstance();
-		Application app1 = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"));
-		Application app2 = new Application("Application2", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"));
+		Application app1 = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+				"rendering", true, "files", 1, IterationTarget.SERIES);
+		Application app2 = new Application("Application2", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+				"rendering", true, "files", 1, IterationTarget.SERIES);
 		mgr.addApplication(app1);
 		mgr.addApplication(app2);
 	}

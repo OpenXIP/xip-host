@@ -10,6 +10,7 @@ import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
 
 import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.HostImpl;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 import edu.wustl.xipHost.worklist.WorklistEntry;
@@ -26,7 +27,8 @@ public class GetAsFileWG23Test extends TestCase {
 	HostImpl hostImpl;
 	protected void setUp() throws Exception {
 		super.setUp();
-		app = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"));
+		app = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+				"rendering", true, "files", 1, IterationTarget.SERIES);
 		List<File> filesPrev = new ArrayList<File>();
 		List<File> filesCurr = new ArrayList<File>();
 		filesPrev.add(new File("./src-tests/edu/wustl/xipHost/worklist/1.3.6.1.4.1.9328.50.1.20034.dcm"));

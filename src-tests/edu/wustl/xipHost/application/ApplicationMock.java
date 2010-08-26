@@ -4,6 +4,8 @@
 package edu.wustl.xipHost.application;
 
 import java.io.File;
+
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.ClientToApplication;
 
 /**
@@ -15,8 +17,9 @@ import edu.wustl.xipHost.wg23.ClientToApplication;
 public class ApplicationMock extends Application {
 
 	ClientToApplicationMock clientToApplication;
-	public ApplicationMock(String name, File exePath, String vendor, String version, File iconFile) {
-		super(name, exePath, vendor, version, iconFile);	
+	public ApplicationMock(String name, File exePath, String vendor, String version, File iconFile,
+			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget) {
+		super(name, exePath, vendor, version, iconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);	
 		clientToApplication = new ClientToApplicationMock();
 		clientToApplication.setApplication(this);
 	}

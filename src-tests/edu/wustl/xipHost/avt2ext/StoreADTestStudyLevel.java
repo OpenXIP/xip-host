@@ -27,6 +27,7 @@ import com.siemens.scr.avt.ad.io.AnnotationIO;
 import com.siemens.scr.avt.ad.util.DicomParser;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.avt2ext.AVTFactory;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.DataStore;
 import junit.framework.TestCase;
 
@@ -116,7 +117,8 @@ public class StoreADTestStudyLevel extends TestCase {
 		objLoc3.setUri(uri3);
 		objLocs.add(objLoc3);
 		
-		ApplicationStub appStub = new ApplicationStub("TestApp", new File("./src-tests/edu/wustl/xipHost/avt/applicationStub.bat"), "VendorTest", "", null);
+		ApplicationStub appStub = new ApplicationStub("TestApp", new File("./src-tests/edu/wustl/xipHost/avt/applicationStub.bat"), "VendorTest", "", null, 
+				"analytical", true, "files", 1, IterationTarget.SERIES);
 		appStub.setObjectLocators(arrayObjLocs);
 		Application app = appStub;
 		DataStore ds2 = new DataStore(availableData, app);

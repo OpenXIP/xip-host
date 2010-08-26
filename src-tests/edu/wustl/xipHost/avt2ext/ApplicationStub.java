@@ -4,13 +4,9 @@
 package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
-import java.util.List;
-
 import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.ObjectLocator;
-
 import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 
 /**
  * @author Jaroslaw Krych
@@ -21,8 +17,9 @@ public class ApplicationStub extends Application {
 	/**
 	 * 
 	 */
-	public ApplicationStub(String name, File exePath, String vendor, String version, File iconFile) {
-		super(name, exePath, vendor, version, iconFile);
+	public ApplicationStub(String name, File exePath, String vendor, String version, File iconFile,
+			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget) {
+		super(name, exePath, vendor, version, iconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 	}
 
 	ClientToApplicationStub clientToApplication = new ClientToApplicationStub();

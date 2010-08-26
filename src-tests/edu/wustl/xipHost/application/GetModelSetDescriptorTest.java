@@ -12,6 +12,7 @@ import org.jdom.Element;
 import org.nema.dicom.wg23.ModelSetDescriptor;
 import org.nema.dicom.wg23.Uuid;
 
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.XindiceManager;
 import edu.wustl.xipHost.hostControl.XindiceManagerFactory;
 
@@ -36,7 +37,7 @@ public class GetModelSetDescriptorTest extends TestCase {
 		super.setUp();
 		xm = XindiceManagerFactory.getInstance(); 
 		xm.startup();
-		app = new Application("Application1", exePath, "", "", iconFile);
+		app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		collectionName = app.getID().toString();
 		xm.createCollection(collectionName);
 		Uuid uuid1 = new Uuid();

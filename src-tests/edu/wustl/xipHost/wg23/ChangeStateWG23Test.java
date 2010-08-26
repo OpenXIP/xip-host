@@ -4,6 +4,7 @@ import java.io.File;
 import org.nema.dicom.wg23.State;
 
 import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.HostImpl;
 import edu.wustl.xipHost.wg23.StateChangeException;
 import junit.framework.TestCase;
@@ -18,7 +19,8 @@ public class ChangeStateWG23Test extends TestCase {
 	HostImpl hostImpl;
 	protected void setUp() throws Exception {
 		super.setUp();
-		app = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"));
+		app = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+				"rendering", true, "files", 1, IterationTarget.SERIES);
 		hostImpl = new HostImpl(app);
 	}	
 	//Application 1Aa - basic flow. Incoming State is valid and app current state can be changed
