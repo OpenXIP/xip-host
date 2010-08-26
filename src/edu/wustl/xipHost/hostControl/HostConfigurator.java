@@ -30,6 +30,7 @@ import org.xmldb.api.base.XMLDBException;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.dicom.DicomManager;
@@ -435,7 +436,7 @@ public class HostConfigurator {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);				
-					appMgr.addApplication(new Application("TestApp_WG23FileAccess", exeFile, "", "", iconFile));
+					appMgr.addApplication(new Application("TestApp_WG23FileAccess", exeFile, "", "", iconFile, "analytical", true, "files", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -447,7 +448,7 @@ public class HostConfigurator {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
-					appMgr.addApplication(new Application("TestApp_WG23NativeModel", exeFile, "", "", iconFile));
+					appMgr.addApplication(new Application("TestApp_WG23NativeModel", exeFile, "", "", iconFile, "analytical", true, "native", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -459,7 +460,7 @@ public class HostConfigurator {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
-					appMgr.addApplication(new Application("RECIST_Adjudicator", exeFile, "", "", iconFile));
+					appMgr.addApplication(new Application("RECIST_Adjudicator", exeFile, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -472,7 +473,7 @@ public class HostConfigurator {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);				
-					appMgr.addApplication(new Application("TestApp_WG23FileAccess", exeFile, "", "", iconFile));
+					appMgr.addApplication(new Application("TestApp_WG23FileAccess", exeFile, "", "", iconFile, "analytical", true, "files", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -484,7 +485,7 @@ public class HostConfigurator {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
-					appMgr.addApplication(new Application("TestApp_WG23NativeModel", exeFile, "", "", iconFile));
+					appMgr.addApplication(new Application("TestApp_WG23NativeModel", exeFile, "", "", iconFile, "analytical", true, "native", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -27,6 +27,7 @@ import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
 
 import edu.wustl.xipHost.avt2ext.AVTUtil;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
@@ -50,12 +51,20 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	String vendor;
 	String version;
 	File iconFile;
+	String type;
+	boolean requiresGUI;
+	String wg23DataModelType;
+	int concurrentInstances;
+	IterationTarget iterationTarget;
 	
 	/* Application is a WG23 compatibile application*/	
-	public Application(String name, File exePath, String vendor, String version, File iconFile){								
-		if(name == null || exePath == null || vendor == null || version == null){
+	public Application(String name, File exePath, String vendor, String version, File iconFile,
+			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget){								
+		if(name == null || exePath == null || vendor == null || version == null ||
+				type == null || wg23DataModelType == null || iterationTarget == null){
 			throw new IllegalArgumentException("Application parameters are invalid: " + 
-					name + " , " + exePath + " , " + vendor + " , " + version);	
+					name + " , " + exePath + " , " + vendor + " , " + version + 
+					type + " , " + requiresGUI + " , " + wg23DataModelType + " , " + iterationTarget);	
 		} else if(name.isEmpty() || name.trim().length() == 0 || exePath.exists() == false){
 			try {
 				throw new IllegalArgumentException("Application parameters are invalid: " + 
@@ -75,7 +84,11 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			}else{
 				this.iconFile = null;
 			}
-			
+			this.type = type;
+			this.requiresGUI = requiresGUI;
+			this.wg23DataModelType = wg23DataModelType;
+			this.concurrentInstances = concurrentInstances;
+			this.iterationTarget = iterationTarget;
 		}		
 	}
 	
@@ -149,6 +162,45 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		}	
 	}
 	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public boolean requiresGUI() {
+		return requiresGUI;
+	}
+
+	public void setRequiresGUI(boolean requiresGUI) {
+		this.requiresGUI = requiresGUI;
+	}
+
+	public String getWG23DataModelType() {
+		return wg23DataModelType;
+	}
+
+	public void setWG23DataModelType(String wg23DataModelType) {
+		this.wg23DataModelType = wg23DataModelType;
+	}
+
+	public int getConcurrentInstances() {
+		return concurrentInstances;
+	}
+
+	public void setConcurrentInstances(int concurrentInstances) {
+		this.concurrentInstances = concurrentInstances;
+	}
+
+	public IterationTarget getIterationTarget() {
+		return iterationTarget;
+	}
+
+	public void setIterationTarget(IterationTarget iterationTarget) {
+		this.iterationTarget = iterationTarget;
+	}
 	
 	//Each application has:
 	//1. Out directories assigned

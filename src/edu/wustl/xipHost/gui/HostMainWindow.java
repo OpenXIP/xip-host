@@ -77,7 +77,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
         sideTabbedPane.addMouseListener(mouseAdapter);       
         hostPanel.add(tabPaneCenter);
         hostPanel.setBackground(xipColor);
-        //hostPanel.setBackground(Color.BLACK);
         buildHostPanelLayout();        
         VerticalTextIcon.addTab(sideTabbedPane, "Host", UUID.randomUUID(), hostPanel);   
                 
@@ -302,5 +301,9 @@ public class HostMainWindow extends JFrame implements ActionListener {
         int state = getExtendedState();
         state |= Frame.ICONIFIED;
         setExtendedState(state);
+    }
+    
+    public static HostIconBar getHostIconBar(){
+    	return toolBar;
     }
 }

@@ -30,6 +30,7 @@ import org.nema.dicom.wg23.State;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 
 /**
@@ -268,8 +269,13 @@ public class WorklistPanel extends JPanel implements WorklistEntryListener{
 			String instanceVendor = app.getVendor();
 			String instanceVersion = app.getVersion();
 			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			boolean requiresGUI = app.requiresGUI();
+			String wg23DataModelType = app.getWG23DataModelType();
+			int concurrentInstances = app.getConcurrentInstances();
+			IterationTarget iterationTarget = app.getIterationTarget();
 			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile);
+					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 			instanceApp.setDoSave(false);
 			appMgr.addApplication(instanceApp);
 			instanceApp.setData(source.getDataModel());			

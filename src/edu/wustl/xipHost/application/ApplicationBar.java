@@ -11,6 +11,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,12 +20,21 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import org.apache.log4j.Logger;
+import org.nema.dicom.wg23.State;
+
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.gui.HostIconBar;
 
 /**
  * @author Jaroslaw Krych
  *
  */
 public class ApplicationBar extends JPanel implements ActionListener {
+	final static Logger logger = Logger.getLogger(ApplicationBar.class);
+	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	
 	public ApplicationBar() {
 		setLayout(new FlowLayout(FlowLayout.LEADING));
@@ -34,21 +44,31 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		removeAll();
 		for(int i = 0; i < applications.size(); i++){
 			Application app = applications.get(i);			
-			ImageIcon iconFile;
-			if(app.getIconFile() == null){
-				iconFile = null;
-			}else{
-				iconFile = new ImageIcon(app.getIconFile().getPath());
-			}
-			AppButton btn = new AppButton(app.getName(), iconFile);
-			btn.setPreferredSize(new Dimension(150, 25));
-			//btn.setOpaque(true);			
-			btn.setApplicationUUID(app.getID());
-			btn.setForeground(Color.BLACK);			
-			btn.addActionListener(this);
-			btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			add(btn);
+			addApplicationIcon(app);
 		}
+	}
+	
+	public void addApplicationIcon(Application app){
+		ImageIcon iconFile;
+		if(app.getIconFile() == null){
+			iconFile = null;
+		}else{
+			iconFile = new ImageIcon(app.getIconFile().getPath());
+		}
+		final AppButton btn = new AppButton(app.getName(), iconFile);
+		btn.setPreferredSize(new Dimension(150, 25));
+		//btn.setOpaque(true);			
+		btn.setApplicationUUID(app.getID());
+		btn.setForeground(Color.BLACK);			
+		btn.addActionListener(this);
+		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		Runnable doWorkRunnable = new Runnable() {
+		    public void run() { 
+		    	add(btn);
+		    	repaint();
+		    }
+		};
+		SwingUtilities.invokeLater(doWorkRunnable);
 	}
 	
 	public class AppButton extends JButton{		
@@ -69,9 +89,9 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	public static void main(String[] args) {
 		List<Application> applications = new ArrayList<Application>();
 		File exePath = new File("./src-tests/edu/wustl/xipHost/application/test.bat");
-		Application test1 = new Application("Test1", exePath, "WashU", "1.0", null);
-		Application test2 = new Application("Test2", exePath, "WashU", "1.0", null);
-		Application test3 = new Application("Test3", exePath, "WashU", "1.0", null);
+		Application test1 = new Application("Test1", exePath, "WashU", "1.0", null, "analytical", true, "files", 1, IterationTarget.SERIES);
+		Application test2 = new Application("Test2", exePath, "WashU", "1.0", null, "analytical", true, "files", 1, IterationTarget.SERIES);
+		Application test3 = new Application("Test3", exePath, "WashU", "1.0", null, "analytical", true, "files", 1, IterationTarget.SERIES);
 		applications.add(test1);
 		applications.add(test2);
 		applications.add(test3);
@@ -90,21 +110,49 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		AppButton btn = (AppButton)e.getSource();
-		fireApplication(btn);
-	}
-	
-	void fireApplication(AppButton btn){
-		ApplicationEvent event = new ApplicationEvent(btn);
-		listener.launchApplication(event);
-		
-		UUID uuid = btn.getApplicationUUID();
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(uuid);		
-		app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());		
+		launchApplication(btn);
 	}
 	
 	ApplicationListener listener;
 	public void addApplicationListener(ApplicationListener l){
 		listener = l;
+	}
+	
+	AppButton btn;
+	public void launchApplication(AppButton btn) {
+		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+		Application app = appMgr.getApplication(btn.getApplicationUUID());
+		String instanceName = app.getName();
+		logger.debug("Application name: " + instanceName);
+		File instanceExePath = app.getExePath();
+		logger.debug("Exe path: " + instanceExePath);
+		String instanceVendor = app.getVendor();
+		logger.debug("Vendor: " + instanceVendor);
+		String instanceVersion = app.getVersion();
+		logger.debug("Version: " + instanceVersion);
+		File instanceIconFile = app.getIconFile();
+		String type = app.getType();
+		logger.debug("Type: " + type);
+		boolean requiresGUI = app.requiresGUI();
+		logger.debug("Requires GUI: " + requiresGUI);
+		String wg23DataModelType = app.getWG23DataModelType();
+		logger.debug("WG23 data model type: " + wg23DataModelType);
+		int concurrentInstances = app.getConcurrentInstances();
+		logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+		IterationTarget iterationTarget = app.getIterationTarget();
+		logger.debug("IterationTarget: " + iterationTarget.toString());
+		Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+				instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+		//Check if application to be launched is not running.
+		//If yes, create new application instance
+		State state = app.getState();		
+		if(state != null && !state.equals(State.EXIT)){
+			instanceApp.setDoSave(false);
+			appMgr.addApplication(instanceApp);		
+			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+		}else{
+			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
+		}					
+		this.setCursor(normalCursor);
 	}
 }

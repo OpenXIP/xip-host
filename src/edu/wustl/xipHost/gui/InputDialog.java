@@ -52,6 +52,7 @@ import org.nema.dicom.wg23.State;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.DicomParseEvent;
 import edu.wustl.xipHost.localFileSystem.DicomParseListener;
@@ -317,29 +318,6 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 		//frame.pack();
 	}
 	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();			
-		InputDialog panel = new InputDialog();
-		frame.getContentPane().add(panel);
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension windowSize = frame.getPreferredSize();
-        frame.setBounds((screenSize.width - windowSize.width) / 2, (screenSize.height - windowSize.height) /2,  windowSize.width, windowSize.height);
-		frame.pack();
-		
-		Application app = new Application("Test application 1", new File("C:/"), "", "", new File(""));
-		Application app2 = new Application("Test application2", new File("C:/"), "", "", new File(""));
-		List<Application> apps = new ArrayList<Application>();
-		apps.add(app);		
-		apps.add(app2);		
-	}
-
-	
 
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() == false) {
@@ -378,8 +356,13 @@ public class InputDialog extends JPanel implements ListSelectionListener, Action
 			String instanceVendor = app.getVendor();
 			String instanceVersion = app.getVersion();
 			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			boolean requiresGUI = app.requiresGUI();
+			String wg23DataModelType = app.getWG23DataModelType();
+			int concurrentInstances = app.getConcurrentInstances();
+			IterationTarget iterationTarget = app.getIterationTarget();
 			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile);
+					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 			instanceApp.setDoSave(false);
 			appMgr.addApplication(instanceApp);
 			instanceApp.setData(data);			

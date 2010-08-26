@@ -23,6 +23,8 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.nema.dicom.wg23.State;
 
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+
 public class ApplicationManagerImpl implements ApplicationManager{		
 	static List<Application> applications = new ArrayList<Application>();		
 	Document document;
@@ -39,6 +41,11 @@ public class ApplicationManagerImpl implements ApplicationManager{
 				String vendor = new String();
 				String version = new String();
 				String iconFile = new String();
+				String type = new String();
+				boolean requiresGUI;
+				String wg23DataModelType = new String();
+				int concurrentInstances;
+				IterationTarget iterationTarget = null;
 		        List appList = root.getChildren("application");		        
 		        Iterator iter = appList.iterator();
 		        int i= 0;
@@ -48,9 +55,16 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		        	exePath = new File(application.getChildText("exePath")).getCanonicalPath();		        	
 		        	vendor = application.getChildText("vendor");
 		        	version = application.getChildText("version");
-		        	iconFile = application.getChildText("iconFile");		        	
+		        	iconFile = application.getChildText("iconFile");
+		        	type = application.getChildText("type");
+		        	requiresGUI = Boolean.getBoolean(application.getChildText("requiresGUI"));
+		        	wg23DataModelType = application.getChildText("wg23DataModelType");
+		        	concurrentInstances = Integer.parseInt(application.getChildText("concurrentInstances"));
+		        	String strTarget = application.getChildText("iterationTarget");
+		        	iterationTarget = IterationTarget.valueOf(strTarget);
 		        	try{		        				        				        		
-		        		Application app = new Application(name, new File(exePath), vendor, version, new File(iconFile));		        			    				
+		        		Application app = new Application(name, new File(exePath), vendor, version, new File(iconFile),
+		        				type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);		        			    				
 			    		addApplication(app);		        	
 			        	i++;
 		        	}catch (IllegalArgumentException e){
@@ -73,6 +87,11 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			        Element vendor = new Element("vendor");
 			        Element version = new Element("version");
 			        Element iconFile = new Element("iconFile");
+			        Element type = new Element("type");
+			        Element requiresGUI = new Element("requiresGUI");
+			        Element wg23DataModelType = new Element("wg23DataModelType");
+			        Element concurrentInstances = new Element("concurrentInstances");
+			        Element iterationTarget = new Element("iterationTarget");
 					root.addContent(application);        	                	                                        		        
 				        application.addContent(name);
 				        	name.setText(applications.get(i).getName());
@@ -89,6 +108,16 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			        	}else {
 			        		iconFile.setText("");
 			        	}
+			        	application.addContent(type);
+			        		type.setText(applications.get(i).getType());
+			        	application.addContent(requiresGUI);
+			        		requiresGUI.setText(new Boolean(applications.get(i).requiresGUI()).toString());
+			        	application.addContent(wg23DataModelType);
+			        		wg23DataModelType.setText(applications.get(i).getWG23DataModelType());
+			        	application.addContent(concurrentInstances);
+			        		concurrentInstances.setText(String.valueOf(applications.get(i).getConcurrentInstances()));
+			        	application.addContent(iterationTarget);
+			        		iterationTarget.setText(applications.get(i).getIterationTarget().toString());
 				} catch (MalformedURLException e) {				
 					e.printStackTrace();
 				} catch (IOException e) {

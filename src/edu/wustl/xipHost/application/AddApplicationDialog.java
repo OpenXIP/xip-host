@@ -28,8 +28,11 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.FileChooser;
+import edu.wustl.xipHost.gui.HostMainWindow;
+import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 
 public class AddApplicationDialog extends JDialog implements ActionListener {
@@ -38,6 +41,11 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
 	JLabel lblVendor = new JLabel("Vendor");
 	JLabel lblVersion = new JLabel("Version");
 	JLabel lblIconFile = new JLabel("Icon");
+	JLabel lblType = new JLabel("Type");
+	JLabel lblRequiresGUI = new JLabel("Requires GUI");
+	JLabel lblWG23DataModelType = new JLabel("WG23 data model Type");
+	JLabel lblConcurrentInstances = new JLabel("Allowable concurrent Instances");
+	JLabel lblIterationTarget = new JLabel("Iteration target");
 	ImageIcon icon =  new ImageIcon("./gif/Open24.gif");
 	JLabel lblImageExePath = new JLabel(icon);
 	JLabel lblImageIconFile = new JLabel(icon);	
@@ -46,6 +54,11 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
 	JTextField txtVendor = new JTextField("", 20);
 	JTextField txtVersion = new JTextField("", 20);
 	JTextField txtIconFile = new JTextField("", 20);
+	JTextField txtType = new JTextField("", 20);
+	JTextField txtRequiresGUI = new JTextField("", 20);
+	JTextField txtWG23DataModelType = new JTextField("", 20);
+	JTextField txtConcurrentInstances = new JTextField("", 20);
+	JTextField txtIterationTarget = new JTextField("", 20);
 	JButton btnOK = new JButton("OK");
 	JPanel panel = new JPanel();
 	Application app;
@@ -68,12 +81,27 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
 		panel.add(lblIconFile);
 		panel.add(txtIconFile);
 		panel.add(lblImageIconFile);
+		panel.add(lblType);
+		panel.add(txtType);
+		panel.add(lblRequiresGUI);
+		panel.add(txtRequiresGUI);
+		panel.add(lblWG23DataModelType);
+		panel.add(txtWG23DataModelType);
+		panel.add(lblConcurrentInstances);
+		panel.add(txtConcurrentInstances);
+		panel.add(lblIterationTarget);
+		panel.add(txtIterationTarget);
 		panel.add(btnOK);
 		lblName.setForeground(Color.WHITE);
 		lblPath.setForeground(Color.WHITE);		
 		lblVendor.setForeground(Color.WHITE);
 		lblVersion.setForeground(Color.WHITE);
-		lblIconFile.setForeground(Color.WHITE);		
+		lblIconFile.setForeground(Color.WHITE);	
+		lblType.setForeground(Color.WHITE);
+		lblRequiresGUI.setForeground(Color.WHITE);
+		lblWG23DataModelType.setForeground(Color.WHITE);
+		lblConcurrentInstances.setForeground(Color.WHITE);
+		lblIterationTarget.setForeground(Color.WHITE);
 		panel.setBackground(xipBtn);
 		btnOK.setPreferredSize(new Dimension(100, 25));		
 		btnOK.addActionListener(this);
@@ -158,17 +186,19 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == btnOK){						
 			try{
-				app = new Application(txtName.getText(), new File(txtPath.getText()), txtVendor.getText(), txtVersion.getText(), new File(txtIconFile.getText()));
+				app = new Application(txtName.getText(), new File(txtPath.getText()), txtVendor.getText(), txtVersion.getText(), new File(txtIconFile.getText()), 
+						txtType.getText(), Boolean.getBoolean(txtRequiresGUI.getText()), txtWG23DataModelType.getText(), 
+						Integer.valueOf(txtConcurrentInstances.getText()), IterationTarget.valueOf(txtIterationTarget.getText()));
 				ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
 				app.setDoSave(true);
 				appMgr.addApplication(app);
+				HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
 			}catch (IllegalArgumentException e1){
 				new ExceptionDialog("Cannot create new application.", 
 						"Ensure applications parameters are valid.",
 						"Add Application Dialog");
 				return;
-			}
-						
+			}			
 			dispose();
 		}else{
 			app = null;
@@ -222,9 +252,49 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
         constraints.gridx = 0;
         constraints.gridy = 4;
         constraints.insets.top = 10;
-        constraints.insets.bottom = 20;        
+        constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.EAST;
         layout.setConstraints(lblIconFile, constraints); 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(lblType, constraints); 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(lblRequiresGUI, constraints); 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 7;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(lblWG23DataModelType, constraints); 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 8;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(lblConcurrentInstances, constraints); 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 9;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 20;        
+        constraints.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(lblIterationTarget, constraints); 
         
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 1;
@@ -263,14 +333,53 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
         constraints.gridx = 1;
         constraints.gridy = 4;
         constraints.insets.top = 10;
-        constraints.insets.bottom = 15;        
+        constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(txtIconFile, constraints);  
         
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 1;
         constraints.gridy = 5;
-        //constraints.gridwidth = 2;        
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(txtType, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 6;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(txtRequiresGUI, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 7;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(txtWG23DataModelType, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 8;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 0;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(txtConcurrentInstances, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 9;
+        constraints.insets.top = 10;
+        constraints.insets.bottom = 15;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(txtIterationTarget, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 10;      
         constraints.insets.top = 10;
         constraints.insets.bottom = 20;        
         constraints.anchor = GridBagConstraints.CENTER;
@@ -290,7 +399,7 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
         constraints.gridx = 2;
         constraints.gridy = 4;
         constraints.insets.top = 10;
-        constraints.insets.bottom = 15; 
+        constraints.insets.bottom = 0; 
         constraints.insets.left = 10; 
         constraints.insets.right = 20;
         constraints.anchor = GridBagConstraints.WEST;

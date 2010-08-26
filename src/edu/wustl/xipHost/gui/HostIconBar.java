@@ -15,6 +15,8 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationBar.AppButton;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -27,7 +29,7 @@ import java.util.Map;
 /**
  * Customized IconBar
  */
-public class HostIconBar extends JPanel implements ApplicationListener {			
+public class HostIconBar extends JPanel {			
 	final static Logger logger = Logger.getLogger(HostIconBar.class);
 	Font font = new Font("Tahoma", 0, 12);
 	Font fontBold = new Font("Tahoma", 1, 12);		
@@ -52,8 +54,6 @@ public class HostIconBar extends JPanel implements ApplicationListener {
 	
 	ApplicationBar appBar = new ApplicationBar();
 	Color xipColor = new Color(51, 51, 102);
-	
-	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	
     public HostIconBar() {                                        	    	    	
         setLayout(new BorderLayout());
@@ -113,7 +113,6 @@ public class HostIconBar extends JPanel implements ApplicationListener {
 		}
 		Collection<Application> values = appMap.values();					
 		appBar.setApplications(new ArrayList<Application>(values));
-		appBar.addApplicationListener(this);
 		appBar.setBackground(xipColor);
 		add(appBar, BorderLayout.SOUTH);
     	
@@ -171,33 +170,7 @@ public class HostIconBar extends JPanel implements ApplicationListener {
 		lblName.setText("User: " + userName);
 	}
 	
-	AppButton btn;
-    @Override
-	public void launchApplication(ApplicationEvent event) {
-		btn = (AppButton)event.getSource();
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(btn.getApplicationUUID());
-		String instanceName = app.getName();
-		logger.debug("Application name: " + instanceName);
-		File instanceExePath = app.getExePath();
-		logger.debug("Exe path: " + instanceExePath);
-		String instanceVendor = app.getVendor();
-		logger.debug("Vendor: " + instanceVendor);
-		String instanceVersion = app.getVersion();
-		logger.debug("Version: " + instanceVersion);
-		File instanceIconFile = app.getIconFile();
-		Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-				instanceVersion, instanceIconFile);
-		//Check if application to be launched is not running.
-		//If yes, create new application instance
-		State state = app.getState();		
-		if(state != null && !state.equals(State.EXIT)){
-			instanceApp.setDoSave(false);
-			appMgr.addApplication(instanceApp);		
-			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-		}else{
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
-		}					
-		this.setCursor(normalCursor);
+	public ApplicationBar getApplicationBar(){
+		return appBar;
 	}
 }
