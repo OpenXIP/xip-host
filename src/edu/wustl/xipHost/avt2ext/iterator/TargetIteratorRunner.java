@@ -341,8 +341,7 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 					}
 				}
 				targetElement = new TargetElement(patient.getPatientID(), subElements, target);
-				notifyTargetIteratorElementAvailable(targetElement);
-					
+			
 			// ** STUDY TARGET ** //
 			} else if(this.target == IterationTarget.STUDY) {
 				// Update all elements below current study
@@ -393,7 +392,6 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 					subElements.add(seriesSubElement);
 				}
 				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target);
-				notifyTargetIteratorElementAvailable(targetElement);
 			
 			// ** SERIES TARGET ** //
 			} else if(this.target == IterationTarget.SERIES) {
@@ -438,7 +436,6 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 				SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 				subElements.add(seriesSubElement);
 				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target);
-				notifyTargetIteratorElementAvailable(targetElement);
 			} else
 				throw new NoSuchElementException();
 		} else {
