@@ -21,6 +21,24 @@
   	</layout>  
   </appender>
   
+  <appender name="WG23Impl_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/wg23implhost-main.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+  	</layout>  
+  </appender>
+  
+  <appender name="ApplicationOnHost_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/applicationOnHost-main.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+  	</layout>  
+  </appender>
+  
   <appender name="Grid_Appender" class="org.apache.log4j.DailyRollingFileAppender">
 	<param name="File" value="./log/xiphost-grid.log"/>
 	<param name="DatePattern" value="'.'yyyy-ww"/>
@@ -93,8 +111,17 @@
   </logger>	
   <logger name="edu.wustl.xipHost.gui.HostIconBar">
 	<appender-ref ref="HostMain_Appender"/>
-  </logger>			
-	
+  </logger>	
+  <logger name="edu.wustl.xipHost.application.ApplicationBar">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.wg23.HostImpl">
+	<appender-ref ref="WG23Impl_Appender"/>
+  </logger>		
+  <logger name="edu.wustl.xipHost.application.Application">
+	<appender-ref ref="ApplicationOnHost_Appender"/>
+  </logger>		
+  	
   <root>
     <!-- level value="debug"/-->
     <appender-ref ref="stdout"/>   
