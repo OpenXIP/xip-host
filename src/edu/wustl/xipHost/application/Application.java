@@ -11,9 +11,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import javax.xml.ws.Endpoint;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.nema.dicom.wg23.ArrayOfString;
 import org.nema.dicom.wg23.ArrayOfUUID;
@@ -25,14 +27,17 @@ import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
-
+import edu.wustl.xipHost.avt2ext.AVTQueryStub;
 import edu.wustl.xipHost.avt2ext.AVTUtil;
+import edu.wustl.xipHost.avt2ext.Query;
+import edu.wustl.xipHost.avt2ext.SearchResultSetupAvailableData;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
+import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.hostControl.Util;
@@ -45,6 +50,7 @@ import edu.wustl.xipHost.wg23.NativeModelRunner;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
 public class Application implements NativeModelListener, TargetIteratorListener {	
+	final static Logger logger = Logger.getLogger(Application.class);
 	UUID id;
 	String name;
 	File exePath;
@@ -330,7 +336,17 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			e.printStackTrace();
 		}
 		//startIterator
-		
+		availableDataItems = new ArrayList<AvailableData>();
+		Query avtQuery = new AVTQueryStub(null, null, null, null, null);
+		SearchResultSetupAvailableData resultForSubqueries = new SearchResultSetupAvailableData();
+		SearchResult selectedDataSearchResult = resultForSubqueries.getSearchResult();
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, getApplicationTmpDir(), this);
+		try {
+			Thread t = new Thread(targetIter);
+			t.start();
+		} catch(Exception e) {
+			logger.error(e, e);
+		}
 	}	
 	
 	public Endpoint getHostEndpoint(){
@@ -370,7 +386,11 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	State state = null;
 	public void setState(State state){
 		priorState = this.state;
-		this.state = state;				
+		this.state = state;
+		logger.debug("State changed to: " + this.state);
+		if(this.state.equals(State.INPROGRESS)){
+			notifyDataAvailable();
+		}
 	}
 	public State getState(){
 		return state;
@@ -382,6 +402,11 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	WG23DataModel wg23dm = null;
 	public void setData(WG23DataModel wg23DataModel){
 		this.wg23dm = wg23DataModel;		
+	}
+	
+	SearchResult selectedDataSearchResult;
+	public void setSelectedDataSearchResult(SearchResult selectedDataSearchResult){
+		this.selectedDataSearchResult = selectedDataSearchResult;
 	}
 
 	public WG23DataModel getWG23DataModel(){
@@ -563,24 +588,46 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		return queryResults;		
 	}
 
-	TargetIteratorRunner iter;
+	Iterator<TargetElement> iter = null;
+	@SuppressWarnings("unchecked")
 	@Override
-	public void fullIteratorAvailable(IteratorEvent e) {
-		iter = (TargetIteratorRunner)e.getSource();
+	public synchronized void fullIteratorAvailable(IteratorEvent e) {
+		iter = (Iterator<TargetElement>)e.getSource();
 	}
 
+	
+	List<AvailableData> availableDataItems;
 	
 	AVTUtil util = new AVTUtil();
 	@Override
 	public void targetElementAvailable(IteratorElementEvent e) {
 		TargetElement element = (TargetElement) e.getSource();
 		WG23DataModel wg23data = util.getWG23DataModel(element);
-		AvailableData availableData = wg23data.getAvailableData();			            			
-		if (iter == null && getClientToApplication().getState().equals(State.INPROGRESS)) {
-			getClientToApplication().notifyDataAvailable(availableData, false);
-		} else if (iter != null && getClientToApplication().getState().equals(State.INPROGRESS)) {
-			getClientToApplication().notifyDataAvailable(availableData, true);
+		AvailableData availableData = wg23data.getAvailableData();
+		synchronized(availableDataItems){
+			availableDataItems.add(availableData);
 		}
 	}
+	
+	void notifyDataAvailable(){
+		// for loop need to be replaced. When state changes to INPROGRESS and 
+		// availableDataItems is empty (size = 0) notification is going to fail.
+		int size = availableDataItems.size();
+		for (int i = 0; i < size; i++){
+			AvailableData availableData = availableDataItems.get(i);
+			if(iter != null && size == i){
+				getClientToApplication().notifyDataAvailable(availableData, true);
+			} else {
+				getClientToApplication().notifyDataAvailable(availableData, false);
+			}
+			if(iter != null){
+				size = availableDataItems.size();
+			}
+			while(iter == null && size == i){
+				
+			}
+		}
+	}
+	
 	
 }

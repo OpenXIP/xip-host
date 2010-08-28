@@ -11,7 +11,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,20 +20,15 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
-
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
-import edu.wustl.xipHost.gui.HostIconBar;
-
 /**
  * @author Jaroslaw Krych
  *
  */
 public class ApplicationBar extends JPanel implements ActionListener {
 	final static Logger logger = Logger.getLogger(ApplicationBar.class);
-	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	
 	public ApplicationBar() {
 		setLayout(new FlowLayout(FlowLayout.LEADING));
@@ -153,6 +147,5 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		}else{
 			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
 		}					
-		this.setCursor(normalCursor);
 	}
 }
