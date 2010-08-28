@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.jws.WebService;
+import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.ArrayOfObjectLocator;
 import org.nema.dicom.wg23.ArrayOfQueryResult;
 import org.nema.dicom.wg23.ArrayOfString;
@@ -38,7 +39,7 @@ import edu.wustl.xipHost.hostControl.DataStore;
         targetNamespace = "http://wg23.dicom.nema.org/",
         endpointInterface = "org.nema.dicom.wg23.Host")
 public class HostImpl implements Host{	
-	
+	final static Logger logger = Logger.getLogger(HostImpl.class);
 	Application app;
 	WG23DataModel wg23dm;	
 	//ClientToApplication clientToApplication;
@@ -221,11 +222,12 @@ public class HostImpl implements Host{
 		//When INPROGRESS from IDLE
 		else if(priorState != null && priorState.equals(State.IDLE) && app.getState().equals(State.INPROGRESS)){
 			//replace with notifyDataAvailable after Iterator element created
-			
-			AvailableData availableData = new AvailableData();
+			/*AvailableData availableData = new AvailableData();
 			wg23dm = app.getWG23DataModel();
 			availableData = wg23dm.getAvailableData();			            			
-			app.getClientToApplication().notifyDataAvailable(availableData, true);
+			app.getClientToApplication().notifyDataAvailable(availableData, true);*/
+			logger.debug("State change from " + priorState.toString() + " to " + app.getState().toString());
+			
 		}else if (priorState != null && priorState.equals(State.INPROGRESS) && app.getState().equals(State.COMPLETED)){
 			//TODO Do something when COMPLETED
 			//getAvailableData from teh application and then set the state to IDLE
