@@ -6,20 +6,11 @@ package edu.wustl.xipHost.gui;
 import javax.swing.*;
 
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.State;
-
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationBar;
-import edu.wustl.xipHost.application.ApplicationEvent;
-import edu.wustl.xipHost.application.ApplicationListener;
-import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
-import edu.wustl.xipHost.application.ApplicationBar.AppButton;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
-
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -101,7 +92,7 @@ public class HostIconBar extends JPanel {
     	appBtnPanel.add(btnSuspend);    	
     	appBtnPanel.add(btnCancel);
     	appBtnPanel.add(btnExitApp);
-    	appBtnPanel.setBackground(Color.BLACK);    	
+    	appBtnPanel.setBackground(xipColor);    	
     	setBackground(xipColor); 
     	add(hostTopPanel, BorderLayout.NORTH);
     	List<Application> allApps = ApplicationManagerFactory.getInstance().getApplications();
@@ -125,12 +116,11 @@ public class HostIconBar extends JPanel {
      */    
     public void switchButtons(int i){
     	if(i == 0){
-    		remove(appBtnPanel);
-    		//add(hostBtnPanel, BorderLayout.EAST);
-    		
+    		hostTopPanel.remove(appBtnPanel);
+    		hostTopPanel.add(hostBtnPanel, BorderLayout.EAST);
     	}else if(i == 1){
-    		remove(hostBtnPanel);
-    		//add(appBtnPanel, BorderLayout.EAST);
+    		hostTopPanel.remove(hostBtnPanel);
+    		hostTopPanel.add(appBtnPanel, BorderLayout.EAST);
     	}    	    	
     	updateUI(); 
     	
