@@ -19,14 +19,6 @@ public class SeriesNode extends DefaultMutableTreeNode {
 	public SeriesNode(Object userObject){
 		super(userObject);
 		checkBox = new JCheckBox();
-		
-		/*
-		JLabel label2 = new JLabel(new ImageIcon("gif/arrow_icon.gif"));	 			
-		panel = new JPanel();
-		panel.add(checkBox);
-		panel.add(label2);
-		//panel.setOpaque(true);		 		
-		 */
 	}
 	
 	public void setSelected(boolean selected){
@@ -36,10 +28,4 @@ public class SeriesNode extends DefaultMutableTreeNode {
 	public JCheckBox getCheckBox(){
 		return checkBox;
 	}
-	
-	/*
-	public JPanel getPanel(){
-		return panel;
-	}
-	*/
 }

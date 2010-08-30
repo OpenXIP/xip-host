@@ -33,9 +33,11 @@ public class SearchResultTreeProgressive extends SearchResultTree{
 	}
 	
 	
-	List<SearchResult> results;
+	//List<SearchResult> results;
 	public void updateNodes(SearchResult result) {					    			
-		results = new ArrayList<SearchResult>();
+		//results = new ArrayList<SearchResult>();
+		selectedDataSearchResult = new SearchResult("Selected data for " + result.getDataSourceDescription());
+		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
 			rootNode.removeAllChildren();
@@ -45,7 +47,7 @@ public class SearchResultTreeProgressive extends SearchResultTree{
 		rootNode.removeAllChildren();
 		treeModel.reload(rootNode);
 		
-		results.add(result);				    	    	    	      		   	    	    				
+		//results.add(result);				    	    	    	      		   	    	    				
 		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
 		for(int i = 0; i < result.getPatients().size(); i++){
 			final Patient patient = result.getPatients().get(i);
