@@ -235,7 +235,6 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	}	
 		
     
-	
 	public URL generateNewApplicationServiceURL(){
 		//"http://localhost:8060/ApplicationInterface?wsdl"
 		int portNum = 8060;
@@ -271,6 +270,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		return url;
 	}	
 	
+	//TODO: modify to work with Windows Vista
 	public boolean checkPort(int port) {
 		try {
 			ServerSocket sock = new ServerSocket(port);

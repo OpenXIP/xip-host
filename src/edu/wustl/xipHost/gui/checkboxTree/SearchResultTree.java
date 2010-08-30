@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.gui.checkboxTree;
 
@@ -9,7 +9,6 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +23,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import org.apache.log4j.Logger;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -34,7 +34,7 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 
 public class SearchResultTree extends JTree {	
-
+	final static Logger logger = Logger.getLogger(SearchResultTree.class);
 	public DefaultMutableTreeNode rootNode;
 	protected DefaultTreeModel treeModel;			
 	CheckBoxTreeRenderer renderer;
@@ -59,9 +59,9 @@ public class SearchResultTree extends JTree {
 	    setBackground(xipLightBlue);
 	}			
 	
-	List<SearchResult> results;
+	//List<SearchResult> results;
 	public void updateNodes(SearchResult result) {					    			
-		results = new ArrayList<SearchResult>();
+		//results = new ArrayList<SearchResult>();
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
 			treeModel.reload(rootNode);
@@ -71,7 +71,7 @@ public class SearchResultTree extends JTree {
 			treeModel.reload(rootNode);
 			return;
 		}
-		results.add(result);				    	    	    	      		   	    
+		//results.add(result);				    	    	    	      		   	    
 	    //getting new nodes	    				
 		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
 		for(int i = 0; i < result.getPatients().size(); i++){
@@ -232,7 +232,7 @@ public class SearchResultTree extends JTree {
 		     	int y = e.getY();
 		     	int row = getRowForLocation(x, y);
 		     	TreePath  path = getPathForRow(row);    	
-		     	if (path != null) {    		
+		     	if (path != null) {    			
 		     		DefaultMutableTreeNode node = (DefaultMutableTreeNode)getLastSelectedPathComponent();							
 		     		//System.out.println(this.getRowForPath(new TreePath(node.getPath())));
 		     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
@@ -244,20 +244,74 @@ public class SearchResultTree extends JTree {
 		     				repaint();
 		     			}else if(selectedNode instanceof Series){				
 		     				SeriesNode seriesNode = (SeriesNode)node;
-		     				DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();				
+		     				DefaultMutableTreeNode studyNode = (DefaultMutableTreeNode) node.getParent();
 		     				Study study = null;
-		     				if(parentNode.getUserObject() instanceof Study){
-		     					study = (Study)parentNode.getUserObject();
+		     				if(studyNode.getUserObject() instanceof Study){
+		     					study = (Study)studyNode.getUserObject();
 		     				}	     				
 		     				if(seriesNode.isSelected){
 		     					seriesNode.setSelected(false);
 		     					((SeriesNode)node).getCheckBox().setSelected(false);	     					
 		     					selectedSeries.remove((Series)selectedNode);
+		     					//Updating selectedDataSearchresult
+		     					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) studyNode.getParent();
+		     					Patient patient = null;
+		     					if(patientNode.getUserObject() instanceof Patient){
+		     						patient = (Patient)patientNode.getUserObject();
+		     					}
+		     					Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+		     					Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+ 								selectedStudy.removeSeries((Series)selectedNode);
+ 								if(selectedStudy.getSeries().size() == 0){
+ 									selectedPatient.removeStudy(selectedStudy);
+ 								}
+ 								if(selectedPatient.getStudies().size() == 0){
+ 									selectedDataSearchResult.removePatient(selectedPatient);
+ 								}
 		     				}else if(seriesNode.isSelected == false){    					
 		     					seriesNode.setSelected(true);	     					
 		     					selectedSeries.put((Series)selectedNode, study);
 		     					((SeriesNode)node).getCheckBox().setSelected(true);
-		     				}    				
+		     					//Updating selectedDataSearchresult
+		     					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) studyNode.getParent();
+		     					Patient patient = null;
+		     					if(patientNode.getUserObject() instanceof Patient){
+		     						patient = (Patient)patientNode.getUserObject();
+		     					}
+		     					if(!selectedDataSearchResult.contains(patient.getPatientID())){
+		     						Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+		     						newStudy.addSeries((Series)selectedNode);
+		     						Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
+		     						newPatient.addStudy(newStudy);
+		     						selectedDataSearchResult.addPatient(newPatient);
+		     					} else if (selectedDataSearchResult.contains(patient.getPatientID())){
+		     						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+		     						if(!selectedPatient.contains(study.getStudyInstanceUID())){
+		     							study.addSeries((Series)selectedNode);
+			     						selectedPatient.addStudy(study);
+		     						} else if (selectedPatient.contains(study.getStudyInstanceUID())){
+		     							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+		     							if(!selectedStudy.contains(((Series)selectedNode).getSeriesInstanceUID())){
+		     								selectedStudy.addSeries((Series)selectedNode);
+		     							}
+		     						}
+		     					}
+		     				}
+		     				if(logger.isDebugEnabled()){
+		     					List<Patient> patients = selectedDataSearchResult.getPatients();
+		     					logger.debug("Value of selectedDataSearchresult: ");
+		     					for(Patient logPatient : patients){
+		     						logger.debug(logPatient.toString());
+		     						List<Study> studies = logPatient.getStudies();
+		     						for(Study logStudy : studies){
+		     							logger.debug("   " + logStudy.toString());
+		     							List<Series> series = logStudy.getSeries();
+		     							for(Series logSeries : series){
+		     								logger.debug("      " + logSeries.toString());
+		     							}
+		     						}
+		     					}
+		     				}
 		     				repaint();	     				   				
 		     				Set<Entry<Series, Study>> set = selectedSeries.entrySet();
 		     				Iterator iter = set.iterator();
@@ -276,7 +330,12 @@ public class SearchResultTree extends JTree {
 	    		selectedSeries.clear();
 	    	}
 	     }
-	 };		
+	 };	
+	 
+	 SearchResult selectedDataSearchResult;
+	 public SearchResult getSelectedDataSearchResult(){
+		 return selectedDataSearchResult;
+	 }
 }
 
 
