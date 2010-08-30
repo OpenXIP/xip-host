@@ -337,10 +337,10 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		}
 		//startIterator
 		availableDataItems = new ArrayList<AvailableData>();
-		Query avtQuery = new AVTQueryStub(null, null, null, null, null);
-		SearchResultSetupAvailableData resultForSubqueries = new SearchResultSetupAvailableData();
-		SearchResult selectedDataSearchResult = resultForSubqueries.getSearchResult();
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, getApplicationTmpDir(), this);
+		//Query query = new AVTQueryStub(null, null, null, null, null);
+		//SearchResultSetupAvailableData resultForSubqueries = new SearchResultSetupAvailableData();
+		//SearchResult selectedDataSearchResult = resultForSubqueries.getSearchResult();
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, getIterationTarget(), query, getApplicationTmpDir(), this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -403,14 +403,19 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	public void setData(WG23DataModel wg23DataModel){
 		this.wg23dm = wg23DataModel;		
 	}
+
+	public WG23DataModel getWG23DataModel(){
+		return wg23dm;
+	}
 	
 	SearchResult selectedDataSearchResult;
 	public void setSelectedDataSearchResult(SearchResult selectedDataSearchResult){
 		this.selectedDataSearchResult = selectedDataSearchResult;
 	}
-
-	public WG23DataModel getWG23DataModel(){
-		return wg23dm;
+	
+	Query query;
+	public void setDataSource(Query query){
+		this.query = query;
 	}
 	
 	public Rectangle getApplicationPreferredSize() {		
