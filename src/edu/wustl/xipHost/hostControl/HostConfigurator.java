@@ -106,7 +106,8 @@ public class HostConfigurator {
     	try {
 			appMgr.loadApplications(xipApplicationsConfig);
 			//Load test applications, RECIST is currently supported on Windows only			
-			if(false){
+			boolean loadTestApps = false;
+			if(loadTestApps){
 				loadTestApplications();
 			}
 		} catch (JDOMException e) {

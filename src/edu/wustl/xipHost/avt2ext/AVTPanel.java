@@ -19,13 +19,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -47,6 +44,8 @@ import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationBar;
+import edu.wustl.xipHost.application.ApplicationEvent;
+import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationBar.AppButton;
@@ -56,15 +55,14 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
-import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
+import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
-import edu.wustl.xipHost.wg23.WG23DataModel;
 
-public class AVTPanel extends JPanel implements ActionListener, ItemListener, AVTListener {
+public class AVTPanel extends JPanel implements ActionListener, ItemListener, AVTListener, ApplicationListener {
 	final static Logger logger = Logger.getLogger(AVTPanel.class);
 	SearchCriteriaPanelAVT criteriaPanel = new SearchCriteriaPanelAVT();	
 	SearchResultTree resultTree = new SearchResultTreeProgressive();
@@ -94,6 +92,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		leftPanel.add(criteriaPanel);			    
 	    //resultTree.addTreeSelectionListener(this);
 		resultTree.addMouseListener(ml);
+		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);			
 		rightPanel.add(treeView);
@@ -127,6 +126,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		this.criteria = criteria;
 	}
 	
+	AVTQuery avtQuery;
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == criteriaPanel.getQueryButton()){												
 			logger.info("Starting AVT query.");
@@ -153,7 +153,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 					adDicomCriteria.put(key, value);
 				}
 				//pass adCriteria to AVTQuery
-				AVTQuery avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, ADQueryTarget.PATIENT, null, null);
+				avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, ADQueryTarget.PATIENT, null, null);
 				avtQuery.addAVTListener(this);
 				Thread t = new Thread(avtQuery);
 				t.start();			
@@ -340,44 +340,10 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		allRetrivedFiles.toArray(files);		
 		FileManager fileMgr = FileManagerFactory.getInstance();						
         fileMgr.run(files);
-		launchApplication();	
+		//launchApplication();	
         criteriaPanel.getQueryButton().setBackground(xipBtn);
 		criteriaPanel.getQueryButton().setEnabled(true);						
 	}
-	
-	AppButton btn;
-	void launchApplication(){
-		UUID uuid = btn.getApplicationUUID();
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(uuid);
-		//Check if application to be launched is not running.
-		//If yes, create new application instance
-		State state = app.getState();		
-		WG23DataModel data = FileManagerFactory.getInstance().getWG23DataModel();
-		if(state != null && !state.equals(State.EXIT)){
-			String instanceName = app.getName();
-			File instanceExePath = app.getExePath();
-			String instanceVendor = app.getVendor();
-			String instanceVersion = app.getVersion();
-			File instanceIconFile = app.getIconFile();
-			String type = app.getType();
-			boolean requiresGUI = app.requiresGUI();
-			String wg23DataModelType = app.getWG23DataModelType();
-			int concurrentInstances = app.getConcurrentInstances();
-			IterationTarget iterationTarget = app.getIterationTarget();
-			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-			instanceApp.setDoSave(false);
-			appMgr.addApplication(instanceApp);
-			instanceApp.setData(data);			
-			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-		}else{
-			app.setData(data);			
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
-		}					
-		setCursor(normalCursor);
-	}
-	
 	
 	@Override
 	public void notifyException(String message) {
@@ -460,7 +426,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 										notifyException(e1.getMessage());
 									}
 	 							initialCriteria.put(t,a);}		     						     							     					
-		     					AVTQuery avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.STUDY, result, selectedNode);
+		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.STUDY, result, selectedNode);
 		     					avtQuery.addAVTListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();
@@ -501,7 +467,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 									logger.error(e1, e1);
 									notifyException(e1.getMessage());
 								}		     															     					
-		     					AVTQuery avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.SERIES, result, selectedNode);
+		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.SERIES, result, selectedNode);
 		     					avtQuery.addAVTListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();							
@@ -559,7 +525,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 									logger.error(e1, e1);
 									notifyException(e1.getMessage());
 								}		     															     					
-		     					AVTQuery avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.ITEM, result, selectedNode);
+		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.ITEM, result, selectedNode);
 		     					avtQuery.addAVTListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();							
@@ -589,4 +555,88 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
     		
     	 }
 	}
+
+	@Override
+	public void launchApplication(ApplicationEvent event ) {
+		AppButton btn = (AppButton)event.getSource();
+		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+		Application app = appMgr.getApplication(btn.getApplicationUUID());
+		String appID = app.getID().toString();
+		logger.debug("Application internal id: " + appID);
+		String instanceName = app.getName();
+		logger.debug("Application name: " + instanceName);
+		File instanceExePath = app.getExePath();
+		logger.debug("Exe path: " + instanceExePath);
+		String instanceVendor = app.getVendor();
+		logger.debug("Vendor: " + instanceVendor);
+		String instanceVersion = app.getVersion();
+		logger.debug("Version: " + instanceVersion);
+		File instanceIconFile = app.getIconFile();
+		String type = app.getType();
+		logger.debug("Type: " + type);
+		boolean requiresGUI = app.requiresGUI();
+		logger.debug("Requires GUI: " + requiresGUI);
+		String wg23DataModelType = app.getWG23DataModelType();
+		logger.debug("WG23 data model type: " + wg23DataModelType);
+		int concurrentInstances = app.getConcurrentInstances();
+		logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+		IterationTarget iterationTarget = app.getIterationTarget();
+		logger.debug("IterationTarget: " + iterationTarget.toString());
+		Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+				instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+		//Check if application to be launched is not running.
+		//If yes, create new application instance
+		State state = app.getState();
+		Query query = avtQuery;
+		
+		if(state != null && !state.equals(State.EXIT)){
+			instanceApp.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
+			instanceApp.setDataSource(query);
+			instanceApp.setDoSave(false);
+			appMgr.addApplication(instanceApp);		
+			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+		}else{
+			app.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
+			app.setDataSource(query);
+			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
+		}					
+	}
+
+	/*
+	AppButton btn;
+	void launchApplication(){
+		UUID uuid = btn.getApplicationUUID();
+		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+		Application app = appMgr.getApplication(uuid);
+		//Check if application to be launched is not running.
+		//If yes, create new application instance
+		State state = app.getState();		
+		WG23DataModel data = FileManagerFactory.getInstance().getWG23DataModel();
+		if(state != null && !state.equals(State.EXIT)){
+			String instanceName = app.getName();
+			File instanceExePath = app.getExePath();
+			String instanceVendor = app.getVendor();
+			String instanceVersion = app.getVersion();
+			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			boolean requiresGUI = app.requiresGUI();
+			String wg23DataModelType = app.getWG23DataModelType();
+			int concurrentInstances = app.getConcurrentInstances();
+			IterationTarget iterationTarget = app.getIterationTarget();
+			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+			instanceApp.setDoSave(false);
+			appMgr.addApplication(instanceApp);
+			instanceApp.setData(data);			
+			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+		}else{
+			app.setData(data);			
+			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
+		}					
+		setCursor(normalCursor);
+	}
+	*/
+	
+	
+	
 }
