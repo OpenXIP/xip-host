@@ -21,7 +21,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.State;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 /**
  * @author Jaroslaw Krych
@@ -103,49 +102,23 @@ public class ApplicationBar extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//select current tab
+		//check if selectedDataSearchresult is not null
+		//check if DICOM and DICOM and SEG are selected.
+		//setSelectedDataSearchResult on application
+		
 		AppButton btn = (AppButton)e.getSource();
-		launchApplication(btn);
+		fireLaunchApplication(btn);
 	}
+	
 	
 	ApplicationListener listener;
 	public void addApplicationListener(ApplicationListener l){
 		listener = l;
 	}
 	
-	AppButton btn;
-	public void launchApplication(AppButton btn) {
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(btn.getApplicationUUID());
-		String instanceName = app.getName();
-		logger.debug("Application name: " + instanceName);
-		File instanceExePath = app.getExePath();
-		logger.debug("Exe path: " + instanceExePath);
-		String instanceVendor = app.getVendor();
-		logger.debug("Vendor: " + instanceVendor);
-		String instanceVersion = app.getVersion();
-		logger.debug("Version: " + instanceVersion);
-		File instanceIconFile = app.getIconFile();
-		String type = app.getType();
-		logger.debug("Type: " + type);
-		boolean requiresGUI = app.requiresGUI();
-		logger.debug("Requires GUI: " + requiresGUI);
-		String wg23DataModelType = app.getWG23DataModelType();
-		logger.debug("WG23 data model type: " + wg23DataModelType);
-		int concurrentInstances = app.getConcurrentInstances();
-		logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
-		IterationTarget iterationTarget = app.getIterationTarget();
-		logger.debug("IterationTarget: " + iterationTarget.toString());
-		Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-				instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-		//Check if application to be launched is not running.
-		//If yes, create new application instance
-		State state = app.getState();		
-		if(state != null && !state.equals(State.EXIT)){
-			instanceApp.setDoSave(false);
-			appMgr.addApplication(instanceApp);		
-			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-		}else{
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
-		}					
+	void fireLaunchApplication(AppButton btn){
+		ApplicationEvent event = new ApplicationEvent(btn);
+		listener.launchApplication(event);
 	}
 }
