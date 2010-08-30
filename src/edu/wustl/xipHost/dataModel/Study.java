@@ -56,6 +56,10 @@ public class Study {
 		this.series.add(series);
 	}
 	
+	public void removeSeries(Series seriesToRemove){
+		this.series.remove(seriesToRemove);
+	}
+	
 	public List<Series> getSeries(){
 		return series;
 	}

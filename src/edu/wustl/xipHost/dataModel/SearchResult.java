@@ -58,6 +58,10 @@ public class SearchResult {
 		return null;
 	}
 	
+	public void removePatient(Patient patient){
+		patients.remove(patient);
+	}
+	
 	public void addItem(Item item){
 		this.items.add(item);
 	}

@@ -51,6 +51,11 @@ public class Patient {
 	public void addStudy(Study study){
 		this.studies.add(study);
 	}
+	
+	public void removeStudy(Study study){
+		studies.remove(study);
+	}
+	
 	public List<Study> getStudies(){
 		return studies;
 	}
