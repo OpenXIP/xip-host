@@ -281,14 +281,18 @@ public class SearchResultTree extends JTree {
 		     					if(!selectedDataSearchResult.contains(patient.getPatientID())){
 		     						Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
 		     						newStudy.addSeries((Series)selectedNode);
+		     						newStudy.setLastUpdated(study.getLastUpdated());
 		     						Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
+		     						newPatient.setLastUpdated(patient.getLastUpdated());
 		     						newPatient.addStudy(newStudy);
 		     						selectedDataSearchResult.addPatient(newPatient);
 		     					} else if (selectedDataSearchResult.contains(patient.getPatientID())){
 		     						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
 		     						if(!selectedPatient.contains(study.getStudyInstanceUID())){
-		     							study.addSeries((Series)selectedNode);
-			     						selectedPatient.addStudy(study);
+		     							Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+			     						newStudy.setLastUpdated(study.getLastUpdated());
+			     						newStudy.addSeries((Series)selectedNode);
+			     						selectedPatient.addStudy(newStudy);
 		     						} else if (selectedPatient.contains(study.getStudyInstanceUID())){
 		     							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
 		     							if(!selectedStudy.contains(((Series)selectedNode).getSeriesInstanceUID())){
