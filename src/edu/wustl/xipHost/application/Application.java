@@ -27,10 +27,8 @@ import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
-import edu.wustl.xipHost.avt2ext.AVTQueryStub;
 import edu.wustl.xipHost.avt2ext.AVTUtil;
 import edu.wustl.xipHost.avt2ext.Query;
-import edu.wustl.xipHost.avt2ext.SearchResultSetupAvailableData;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
@@ -605,7 +603,7 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	
 	AVTUtil util = new AVTUtil();
 	@Override
-	public void targetElementAvailable(IteratorElementEvent e) {
+	public synchronized void targetElementAvailable(IteratorElementEvent e) {
 		TargetElement element = (TargetElement) e.getSource();
 		WG23DataModel wg23data = util.getWG23DataModel(element);
 		AvailableData availableData = wg23data.getAvailableData();
@@ -617,22 +615,47 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	void notifyDataAvailable(){
 		// for loop need to be replaced. When state changes to INPROGRESS and 
 		// availableDataItems is empty (size = 0) notification is going to fail.
-		int size = availableDataItems.size();
-		for (int i = 0; i < size; i++){
-			AvailableData availableData = availableDataItems.get(i);
-			if(iter != null && size == i){
+		int i = 0;
+		boolean notificationComplete = false;
+		if(iter != null){
+			logger.debug("Iterator complete at the start of the notification.");
+			int totalSize = availableDataItems.size();
+			if(totalSize == 1){
+				AvailableData availableData = availableDataItems.get(i);
 				getClientToApplication().notifyDataAvailable(availableData, true);
+				notificationComplete = true;
+				logger.debug("Notification complete? " + notificationComplete);
 			} else {
+				while(i < (totalSize - 1)){
+					AvailableData availableData = availableDataItems.get(i);
+					getClientToApplication().notifyDataAvailable(availableData, false);
+					i++;
+				}
+				AvailableData availableData = availableDataItems.get(i);
+				getClientToApplication().notifyDataAvailable(availableData, true);
+				notificationComplete = true;
+				logger.debug("Notification complete? " + notificationComplete);
+			}
+		} 
+		while(iter == null){
+			logger.debug("Iterator not complete at the start of the notification");
+			if(availableDataItems.size() > (i + 1)){
+				AvailableData availableData = availableDataItems.get(i);
 				getClientToApplication().notifyDataAvailable(availableData, false);
-			}
-			if(iter != null){
-				size = availableDataItems.size();
-			}
-			while(iter == null && size == i){
-				
+				i++;	
 			}
 		}
+		while(notificationComplete != true){
+			int totalSize = availableDataItems.size();
+			while(i < (totalSize - 1)){
+				AvailableData availableData = availableDataItems.get(i);
+				getClientToApplication().notifyDataAvailable(availableData, false);
+				i++;
+			}
+			AvailableData availableData = availableDataItems.get(i);
+			getClientToApplication().notifyDataAvailable(availableData, true);
+			notificationComplete = true;
+			logger.debug("Notification complete? " + notificationComplete);
+		}
 	}
-	
-	
 }
