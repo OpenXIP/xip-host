@@ -57,8 +57,25 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 				throw new IllegalArgumentException("Tmporary Directory: " + pathTmpDir.getAbsolutePath() + " doesn't exists");
 		}
 		this.selectedDataSearchResult = selectedDataSearchResult;
+		if(logger.isDebugEnabled()){
+			List<Patient> patients = selectedDataSearchResult.getPatients();
+			logger.debug("Value of selectedDataSearchresult as passed to TargetIteratorRunner constructor: ");
+			for(Patient logPatient : patients){
+				logger.debug(logPatient.toString());
+				List<Study> studies = logPatient.getStudies();
+				for(Study logStudy : studies){
+					logger.debug("   " + logStudy.toString());
+					List<Series> series = logStudy.getSeries();
+					for(Series logSeries : series){
+						logger.debug("      " + logSeries.toString());
+					}
+				}
+			}
+		}
 		this.target = target;
+		logger.debug("Iteration target: " + target.toString());
 		this.query = query;
+		logger.debug("Query class: " + query.getClass().getName());
 		this.listener = targetListener;
 		try {
 			pathRoot = pathTmpDir.getCanonicalPath();
