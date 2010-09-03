@@ -231,7 +231,7 @@ public class HostImpl implements Host{
 		}else if (priorState != null && priorState.equals(State.INPROGRESS) && app.getState().equals(State.COMPLETED)){
 			//TODO Do something when COMPLETED
 			//getAvailableData from teh application and then set the state to IDLE
-			app.getClientToApplication().setState(State.IDLE);
+			//app.getClientToApplication().setState(State.IDLE);
 		}else if (priorState != null && priorState.equals(State.INPROGRESS) && app.getState().equals(State.CANCELED)){
 			//TODO Do something when CANCELED
 		}else if (priorState != null && priorState.equals(State.CANCELED) && app.getState().equals(State.IDLE)){

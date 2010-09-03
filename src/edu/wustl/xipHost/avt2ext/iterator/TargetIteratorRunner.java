@@ -89,6 +89,12 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 	// Run thread to fill TargetElement list from SearchResult elements
 	@Override
 	public void run() {
+		/*try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
 		// Set internal target iterators
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
