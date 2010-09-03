@@ -382,12 +382,27 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	
 	State priorState = null;
 	State state = null;
+	boolean firstPass = true;
 	public void setState(State state){
 		priorState = this.state;
 		this.state = state;
 		logger.debug("State changed to: " + this.state);
-		if(this.state.equals(State.INPROGRESS)){
-			notifyDataAvailable();
+		if(state.equals(State.INPROGRESS)){
+			notifyDataAvailable2();
+		} else if (state.equals(State.IDLE)){
+			if(firstPass){
+				firstPass = false;
+			} else {
+				//Needs to be checked
+				if(i < availableDataItems.size()){
+					getClientToApplication().setState(State.INPROGRESS);
+				}else {
+					getClientToApplication().setState(State.EXIT);
+				}
+			}
+		} else if (state.equals(State.EXIT)){
+			firstPass = true;
+			i = 0;
 		}
 	}
 	public State getState(){
@@ -456,11 +471,13 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	
 	public void runShutDownSequence(){
 		HostMainWindow.removeTab(getID());		
+		/* voided make compatibile with the iterator
 		getHostEndpoint().stop();		
 		//Delete documents from Xindice created for this application
 		XindiceManagerFactory.getInstance().deleteAllDocuments(getID().toString());
 		//Delete collection created for this application
 		XindiceManagerFactory.getInstance().deleteCollection(getID().toString());
+		*/
 	}
 	
 	public boolean cancelProcessing(){
@@ -612,6 +629,7 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		}
 	}
 	
+	//This method performs multiple notifyDataAvailable calls until all iterator's elements are used. 
 	void notifyDataAvailable(){
 		// for loop need to be replaced. When state changes to INPROGRESS and 
 		// availableDataItems is empty (size = 0) notification is going to fail.
@@ -656,6 +674,62 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			getClientToApplication().notifyDataAvailable(availableData, true);
 			notificationComplete = true;
 			logger.debug("Notification complete? " + notificationComplete);
+		}
+	}
+	
+	//notification contains only one TargetElement
+	int i = 0;
+	void notifyDataAvailable2(){
+		boolean notificationComplete = false;
+		if(iter != null){
+			logger.debug("Iterator complete at the start of the notification.");
+			int totalSize = availableDataItems.size();
+			if(totalSize == 1 && i == 0){
+				logger.debug("Value of i: " + i);
+				final AvailableData availableData = availableDataItems.get(i);
+				class NotificationRunner implements Runnable{
+					public void run(){
+						getClientToApplication().notifyDataAvailable(availableData, true);
+					}
+				}
+				Thread t = new Thread(new NotificationRunner());
+				t.start();
+				notificationComplete = true;
+				logger.debug("Notification complete? " + notificationComplete);
+			} else {
+				logger.debug("Value of i: " + i);
+				final AvailableData availableData = availableDataItems.get(i);
+				class NotificationRunner implements Runnable{
+					public void run(){
+						getClientToApplication().notifyDataAvailable(availableData, true);
+					}
+				}
+				Thread t = new Thread(new NotificationRunner());
+				i++;
+				t.start();
+				notificationComplete = true;
+				logger.debug("Notification complete? " + notificationComplete);				
+			}
+		} 
+		if(iter == null){
+			logger.debug("Iterator not complete at the start of the notification");
+			while(availableDataItems.size() == i){
+				
+			}
+			if(availableDataItems.size() > 0){
+				logger.debug("Value of i: " + i);
+				final AvailableData availableData = availableDataItems.get(i);
+				class NotificationRunner implements Runnable{
+					public void run(){
+						getClientToApplication().notifyDataAvailable(availableData, true);
+					}
+				}
+				Thread t = new Thread(new NotificationRunner());
+				i++;
+				t.start();
+				notificationComplete = true;
+				logger.debug("Notification complete? " + notificationComplete);
+			}
 		}
 	}
 }
