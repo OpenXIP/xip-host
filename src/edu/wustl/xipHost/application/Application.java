@@ -250,6 +250,7 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		//createNativeModels(getWG23DataModel());		
 		//diploy host service				
 		hostEndpoint = Endpoint.publish(hostServiceURL.toString(), host);
+		availableDataItems = new ArrayList<AvailableData>();
 		// Ways of launching XIP application: exe, bat, class or jar
 		//if(((String)getExePath().getName()).endsWith(".exe") || ((String)getExePath().getName()).endsWith(".bat")){
 		try {
@@ -334,7 +335,6 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			e.printStackTrace();
 		}
 		//startIterator
-		availableDataItems = new ArrayList<AvailableData>();
 		//Query query = new AVTQueryStub(null, null, null, null, null);
 		//SearchResultSetupAvailableData resultForSubqueries = new SearchResultSetupAvailableData();
 		//SearchResult selectedDataSearchResult = resultForSubqueries.getSearchResult();
@@ -611,16 +611,20 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	Iterator<TargetElement> iter = null;
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized void fullIteratorAvailable(IteratorEvent e) {
+	public void fullIteratorAvailable(IteratorEvent e) {
 		iter = (Iterator<TargetElement>)e.getSource();
+		logger.debug("Full TargetIterator available");
+		logger.debug("Number of elements: " + availableDataItems.size());
 	}
 
 	
 	List<AvailableData> availableDataItems;
 	
 	AVTUtil util = new AVTUtil();
+	int j = 1;
 	@Override
 	public synchronized void targetElementAvailable(IteratorElementEvent e) {
+		logger.debug("TargetElement available " + (j++));
 		TargetElement element = (TargetElement) e.getSource();
 		WG23DataModel wg23data = util.getWG23DataModel(element);
 		AvailableData availableData = wg23data.getAvailableData();
