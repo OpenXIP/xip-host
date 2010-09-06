@@ -381,6 +381,24 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	     	    
 	     public void mouseClicked(MouseEvent e) {	        
 	        if (e.getClickCount() == 1) {
+	        	/*
+	        	int x = e.getX();
+		     	int y = e.getY();
+		     	int row = resultTree.getRowForLocation(x, y);
+		     	TreePath  path = resultTree.getPathForRow(row);    	
+		     	if (path != null) {    		
+		     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();										     					     					     		
+		     		//System.out.println(resultTree.getRowForPath(new TreePath(queryNode.getPath())));
+		     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
+		     		if (queryNode == null) return;		 
+		     		if (!queryNode.isRoot()) {
+		     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
+		     			selectedNode = queryNode.getUserObject();			     			
+		     			AttributeList initialCriteria = criteriaPanel.getFilterList();
+		     			
+		     		}
+		     	}*/
+	        } else if (e.getClickCount() == 2){
 	        	int x = e.getX();
 		     	int y = e.getY();
 		     	int row = resultTree.getRowForLocation(x, y);
@@ -476,24 +494,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     					progressBar.setIndeterminate(false);
 		     				}			     				
 		     				repaint();
-		     			}
-		     		}
-		     	}
-	        } else if (e.getClickCount() == 2){
-	        	int x = e.getX();
-		     	int y = e.getY();
-		     	int row = resultTree.getRowForLocation(x, y);
-		     	TreePath  path = resultTree.getPathForRow(row);    	
-		     	if (path != null) {    		
-		     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();										     					     					     		
-		     		//System.out.println(resultTree.getRowForPath(new TreePath(queryNode.getPath())));
-		     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
-		     		if (queryNode == null) return;		 
-		     		if (!queryNode.isRoot()) {
-		     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
-		     			selectedNode = queryNode.getUserObject();			     			
-		     			AttributeList initialCriteria = criteriaPanel.getFilterList();
-		     			if(selectedNode instanceof Series){
+		     			} else if(selectedNode instanceof Series){
 		     				Series selectedSeries = Series.class.cast(selectedNode);
 		     				logger.info("Staring node query: " + selectedSeries.toString());
 		     				//Retrieve annotations for selected series		     				
