@@ -21,6 +21,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.apache.log4j.Logger;
@@ -79,7 +80,7 @@ public class SearchResultTree extends JTree {
 			final String patientDesc = patient.toString();						
 			for(int j = 0; j < patient.getStudies().size(); j++){
 				final Study study = patient.getStudies().get(j);
-				DefaultMutableTreeNode studyNode = new DefaultMutableTreeNode(study){
+				StudyNode studyNode = new StudyNode(study){
 					public String toString(){															
 						String studyDesc = study.toString();
 						if(studyDesc == null){
@@ -239,22 +240,93 @@ public class SearchResultTree extends JTree {
 		     		if (node == null) return;		 
 		     		if (!node.isRoot()) {																	
 		     			Object selectedNode = node.getUserObject();
-		     			if(selectedNode instanceof Study){
-		     				//System.out.println(selectedNode.toString());	     				
+		     			if(selectedNode instanceof Patient){
+		     				PatientNode patientNode = (PatientNode)node;
+		     				int studyCount = patientNode.getChildCount();
+		     				if(patientNode.isSelected){
+		     					patientNode.setSelected(false);
+		     					((PatientNode)node).getCheckBox().setSelected(false);
+		     					for(int i = 0; i < studyCount; i++){
+		     						StudyNode studyNode = (StudyNode) patientNode.getChildAt(i);
+		     						studyNode.setSelected(false);
+		     						((StudyNode)studyNode).getCheckBox().setSelected(false);
+		     						int seriesCount = studyNode.getChildCount();
+		     						for(int j = 0; j < seriesCount; j++){
+		     							SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
+		     							seriesNode.setSelected(false);	     					
+				     					((SeriesNode)seriesNode).getCheckBox().setSelected(false);
+		     						}
+		     					}
+		     				} else if(patientNode.isSelected == false){    					
+		     					patientNode.setSelected(true);	 
+		     					((PatientNode)node).getCheckBox().setSelected(true);
+		     					for(int i = 0; i < studyCount; i++){
+		     						StudyNode studyNode = (StudyNode) patientNode.getChildAt(i);
+		     						studyNode.setSelected(true);
+		     						((StudyNode)studyNode).getCheckBox().setSelected(true);
+		     						int seriesCount = studyNode.getChildCount();
+		     						for(int j = 0; j < seriesCount; j++){
+		     							SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
+		     							seriesNode.setSelected(true);	     					
+				     					((SeriesNode)seriesNode).getCheckBox().setSelected(true);
+		     						}
+		     					}
+		     				}
 		     				repaint();
-		     			}else if(selectedNode instanceof Series){				
+		     			} else if(selectedNode instanceof Study){
+		     				StudyNode studyNode = (StudyNode)node;
+		     				int seriesCount = studyNode.getChildCount();
+		     				PatientNode patientNode = (PatientNode) studyNode.getParent();
+		     				if(studyNode.isSelected){
+		     					studyNode.setSelected(false);
+		     					((StudyNode)node).getCheckBox().setSelected(false);
+		     					patientNode.setSelected(false);
+		     					((PatientNode)patientNode).getCheckBox().setSelected(false);
+		     					for(int j = 0; j < seriesCount; j++){
+	     							SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
+	     							seriesNode.setSelected(false);	     					
+			     					((SeriesNode)seriesNode).getCheckBox().setSelected(false);
+	     						}
+		     				} else if(studyNode.isSelected == false){    					
+		     					studyNode.setSelected(true);
+		     					((StudyNode)node).getCheckBox().setSelected(true);
+		     					for(int j = 0; j < seriesCount; j++){
+	     							SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
+	     							seriesNode.setSelected(true);	     					
+			     					((SeriesNode)seriesNode).getCheckBox().setSelected(true);
+	     						}
+		     					//Check if all other studies selected. If yes, set patientNode check box to seleted.
+		     					int studyCount = patientNode.getChildCount();
+		     					boolean allStudiesSelected = true;
+		     					for (int i = 0; i < studyCount; i++){
+		     						StudyNode studyNodeOther = (StudyNode) patientNode.getChildAt(i);
+		     						if(studyNodeOther.isSelected == false){
+		     							allStudiesSelected = false;
+		     						}
+		     					}
+		     					if(allStudiesSelected){
+		     						patientNode.setSelected(true);
+			     					((PatientNode)patientNode).getCheckBox().setSelected(true);
+		     					}
+		     				}
+		     				repaint();
+		     			} else if(selectedNode instanceof Series){				
 		     				SeriesNode seriesNode = (SeriesNode)node;
-		     				DefaultMutableTreeNode studyNode = (DefaultMutableTreeNode) node.getParent();
+		     				StudyNode studyNode = (StudyNode) node.getParent();
 		     				Study study = null;
 		     				if(studyNode.getUserObject() instanceof Study){
 		     					study = (Study)studyNode.getUserObject();
 		     				}	     				
 		     				if(seriesNode.isSelected){
 		     					seriesNode.setSelected(false);
-		     					((SeriesNode)node).getCheckBox().setSelected(false);	     					
+		     					((SeriesNode)node).getCheckBox().setSelected(false);
+		     					studyNode.setSelected(false);
+		     					((StudyNode)studyNode).getCheckBox().setSelected(false);
+		     					PatientNode patientNode = (PatientNode) studyNode.getParent();
+		     					patientNode.setSelected(false);
+		     					((PatientNode)patientNode).getCheckBox().setSelected(false);
 		     					selectedSeries.remove((Series)selectedNode);
 		     					//Updating selectedDataSearchresult
-		     					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) studyNode.getParent();
 		     					Patient patient = null;
 		     					if(patientNode.getUserObject() instanceof Patient){
 		     						patient = (Patient)patientNode.getUserObject();
@@ -270,10 +342,37 @@ public class SearchResultTree extends JTree {
  								}
 		     				}else if(seriesNode.isSelected == false){    					
 		     					seriesNode.setSelected(true);	     					
-		     					selectedSeries.put((Series)selectedNode, study);
 		     					((SeriesNode)node).getCheckBox().setSelected(true);
+		     					//Check if all series selected for this study. If yes, set study selected
+		     					int seriesCount = studyNode.getChildCount();
+		     					boolean allSeriesSelected = true;
+		     					for (int i = 0; i < seriesCount; i++){
+		     						SeriesNode seriesNodeOther = (SeriesNode) studyNode.getChildAt(i);
+		     						if(seriesNodeOther.isSelected == false){
+		     							allSeriesSelected = false;
+		     						}
+		     					}
+		     					if(allSeriesSelected){
+		     						studyNode.setSelected(true);
+			     					((StudyNode)studyNode).getCheckBox().setSelected(true);
+		     					}
+		     					// check if all studies selected for this patient. If yes, select this patient
+		     					PatientNode patientNode = (PatientNode) studyNode.getParent();
+		     					int studyCount = patientNode.getChildCount();
+		     					boolean allStudiesSelected = true;
+		     					for (int i = 0; i < studyCount; i++){
+		     						StudyNode studyNodeOther = (StudyNode) patientNode.getChildAt(i);
+		     						if(studyNodeOther.isSelected == false){
+		     							allStudiesSelected = false;
+		     						}
+		     					}
+		     					if(allStudiesSelected){
+		     						patientNode.setSelected(true);
+			     					((PatientNode)patientNode).getCheckBox().setSelected(true);
+		     					}
+		     					
+		     					selectedSeries.put((Series)selectedNode, study);
 		     					//Updating selectedDataSearchresult
-		     					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) studyNode.getParent();
 		     					Patient patient = null;
 		     					if(patientNode.getUserObject() instanceof Patient){
 		     						patient = (Patient)patientNode.getUserObject();
