@@ -1,11 +1,9 @@
 /**
- * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.gui.checkboxTree;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -13,7 +11,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -51,7 +48,7 @@ public class SearchResultTreeProgressive extends SearchResultTree{
 		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
 		for(int i = 0; i < result.getPatients().size(); i++){
 			final Patient patient = result.getPatients().get(i);
-			DefaultMutableTreeNode patientNode = new DefaultMutableTreeNode(patient){
+			PatientNode patientNode = new PatientNode(patient){
 				public String toString(){															
 					String patientDesc = patient.toString();
 					if(patientDesc == null){
@@ -67,7 +64,7 @@ public class SearchResultTreeProgressive extends SearchResultTree{
 			};			
 			for(int j = 0; j < patient.getStudies().size(); j++){
 				final Study study = patient.getStudies().get(j);
-				DefaultMutableTreeNode studyNode = new DefaultMutableTreeNode(study){
+				StudyNode studyNode = new StudyNode(study){
 					public String toString(){															
 						String studyDesc = study.toString();
 						if(studyDesc == null){
@@ -98,7 +95,6 @@ public class SearchResultTreeProgressive extends SearchResultTree{
 							return series;
 						}
 					};
-					
 					for(int m = 0; m < series.getItems().size(); m++){
 						final Item item = series.getItems().get(m);
 						DefaultMutableTreeNode itemNode = new DefaultMutableTreeNode(item){
