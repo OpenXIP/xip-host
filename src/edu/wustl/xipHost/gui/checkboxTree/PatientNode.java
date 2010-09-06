@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.gui.checkboxTree;
 
@@ -11,12 +11,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @author Jaroslaw Krych
  *
  */
-public class SeriesNode extends DefaultMutableTreeNode {
+public class PatientNode extends DefaultMutableTreeNode {
 	JCheckBox checkBox;
 	boolean isSelected;
 	JPanel panel;
 	
-	public SeriesNode(Object userObject){
+	public PatientNode(Object userObject){
 		super(userObject);
 		checkBox = new JCheckBox();
 	}
