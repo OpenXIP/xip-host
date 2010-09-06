@@ -6,6 +6,7 @@ package edu.wustl.xipHost.gui.checkboxTree;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -15,6 +16,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 import edu.wustl.xipHost.dataModel.Series;
+import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dataModel.Patient;
 
 /**
  * @author Jaroslaw Krych
@@ -55,7 +58,17 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
     	String stringValue = tree.convertValueToText(value, selected, expanded, leaf, row, false);		    	
     	JCheckBox checkBox = null;
     	//JPanel panelCheckBox = null;
-    	if(((DefaultMutableTreeNode)value).getUserObject() instanceof Series){
+    	if(((DefaultMutableTreeNode)value).getUserObject() instanceof Patient){
+    		checkBox = ((PatientNode)value).getCheckBox();
+        	checkBox.setFont(font);
+        	Boolean booleanValue = (Boolean) UIManager.get("Tree.drawsFocusBorderAroundIcon");
+     	    checkBox.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));     	   
+    	} else if(((DefaultMutableTreeNode)value).getUserObject() instanceof Study){
+    		checkBox = ((StudyNode)value).getCheckBox();
+        	checkBox.setFont(font);
+        	Boolean booleanValue = (Boolean) UIManager.get("Tree.drawsFocusBorderAroundIcon");
+     	    checkBox.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));     	   
+    	} else if(((DefaultMutableTreeNode)value).getUserObject() instanceof Series){
     		checkBox = ((SeriesNode)value).getCheckBox();
     		//panelCheckBox = ((SeriesNode)value).getPanel();
         	checkBox.setFont(font);
@@ -75,12 +88,23 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
     	}
     	if ((value != null) && (value instanceof DefaultMutableTreeNode)) {
         Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-	        if (userObject instanceof Series) {			        		        	
+	        if (userObject instanceof Patient) {			        		        	
 	        	checkBox.setText(stringValue);
 	        	checkBox.setSelected(checkBox.isSelected());
 	        	checkBox.setEnabled(tree.isEnabled());		        		
 	        	returnValue = checkBox;
-	        	//returnValue = panelCheckBox;
+	        	return returnValue;
+	        } else if (userObject instanceof Study) {			        		        	
+	        	checkBox.setText(stringValue);
+	        	checkBox.setSelected(checkBox.isSelected());
+	        	checkBox.setEnabled(tree.isEnabled());		        		
+	        	returnValue = checkBox;
+	        	return returnValue;
+	        } else if (userObject instanceof Series) {			        		        	
+	        	checkBox.setText(stringValue);
+	        	checkBox.setSelected(checkBox.isSelected());
+	        	checkBox.setEnabled(tree.isEnabled());		        		
+	        	returnValue = checkBox;
 	        	return returnValue;
 	        } else{		        		        			        		        		        	     	
 	        	return defaultRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
