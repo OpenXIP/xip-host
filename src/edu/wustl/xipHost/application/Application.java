@@ -32,6 +32,7 @@ import edu.wustl.xipHost.avt2ext.Query;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
+import edu.wustl.xipHost.avt2ext.iterator.NotificationRunner;
 import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
@@ -250,7 +251,6 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		//createNativeModels(getWG23DataModel());		
 		//diploy host service				
 		hostEndpoint = Endpoint.publish(hostServiceURL.toString(), host);
-		availableDataItems = new ArrayList<AvailableData>();
 		// Ways of launching XIP application: exe, bat, class or jar
 		//if(((String)getExePath().getName()).endsWith(".exe") || ((String)getExePath().getName()).endsWith(".bat")){
 		try {
@@ -389,20 +389,25 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		logger.debug("State changed to: " + this.state);
 		if(state.equals(State.INPROGRESS)){
 			notifyDataAvailable2();
+			//notifyDataAvailable3();
 		} else if (state.equals(State.IDLE)){
 			if(firstPass){
 				firstPass = false;
 			} else {
-				//Needs to be checked
-				if(i < availableDataItems.size()){
-					getClientToApplication().setState(State.INPROGRESS);
-				}else {
-					getClientToApplication().setState(State.EXIT);
+				synchronized (availableDataItems){
+					if(i < availableDataItems.size()){
+						getClientToApplication().setState(State.INPROGRESS);
+					}else {
+						getClientToApplication().setState(State.EXIT);
+					}
 				}
 			}
 		} else if (state.equals(State.EXIT)){
 			firstPass = true;
 			i = 0;
+			j = 0;
+			availableDataItems.clear();
+			iter = null;
 		}
 	}
 	public State getState(){
@@ -611,25 +616,29 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	Iterator<TargetElement> iter = null;
 	@SuppressWarnings("unchecked")
 	@Override
-	public void fullIteratorAvailable(IteratorEvent e) {
+	public synchronized void fullIteratorAvailable(IteratorEvent e) {
 		iter = (Iterator<TargetElement>)e.getSource();
 		logger.debug("Full TargetIterator available");
 		logger.debug("Number of elements: " + availableDataItems.size());
 	}
 
 	
-	List<AvailableData> availableDataItems;
+	List<AvailableData> availableDataItems = new ArrayList<AvailableData>();
 	
 	AVTUtil util = new AVTUtil();
-	int j = 1;
+	int j;
 	@Override
-	public synchronized void targetElementAvailable(IteratorElementEvent e) {
+	public void targetElementAvailable(IteratorElementEvent e) {
 		logger.debug("TargetElement available " + (j++));
 		TargetElement element = (TargetElement) e.getSource();
 		WG23DataModel wg23data = util.getWG23DataModel(element);
 		AvailableData availableData = wg23data.getAvailableData();
-		synchronized(availableDataItems){
+		/*synchronized(availableDataItems){
 			availableDataItems.add(availableData);
+		}*/
+		synchronized (availableDataItems){
+			availableDataItems.add(availableData);
+			availableDataItems.notify();
 		}
 	}
 	
@@ -682,7 +691,7 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	}
 	
 	//notification contains only one TargetElement
-	int i = 0;
+	int i;
 	void notifyDataAvailable2(){
 		boolean notificationComplete = false;
 		if(iter != null){
@@ -690,25 +699,18 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			int totalSize = availableDataItems.size();
 			if(totalSize == 1 && i == 0){
 				logger.debug("Value of i: " + i);
-				final AvailableData availableData = availableDataItems.get(i);
-				class NotificationRunner implements Runnable{
-					public void run(){
-						getClientToApplication().notifyDataAvailable(availableData, true);
-					}
-				}
-				Thread t = new Thread(new NotificationRunner());
+				AvailableData availableData = availableDataItems.get(i);
+				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
+				Thread t = new Thread(runner);
+				i++;
 				t.start();
 				notificationComplete = true;
 				logger.debug("Notification complete? " + notificationComplete);
 			} else {
 				logger.debug("Value of i: " + i);
-				final AvailableData availableData = availableDataItems.get(i);
-				class NotificationRunner implements Runnable{
-					public void run(){
-						getClientToApplication().notifyDataAvailable(availableData, true);
-					}
-				}
-				Thread t = new Thread(new NotificationRunner());
+				AvailableData availableData = availableDataItems.get(i);
+				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
+				Thread t = new Thread(runner);
 				i++;
 				t.start();
 				notificationComplete = true;
@@ -717,23 +719,61 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		} 
 		if(iter == null){
 			logger.debug("Iterator not complete at the start of the notification");
-			while(availableDataItems.size() == i){
-				
+			int size = availableDataItems.size();
+			System.out.println("notify2: " + size);
+			if(availableDataItems.size() == 0){
+				synchronized (availableDataItems){
+					while(availableDataItems.isEmpty()){
+						try {
+							availableDataItems.wait();
+						} catch (InterruptedException e) {
+							logger.error(e, e);
+						}
+					}
+				}
 			}
 			if(availableDataItems.size() > 0){
 				logger.debug("Value of i: " + i);
-				final AvailableData availableData = availableDataItems.get(i);
-				class NotificationRunner implements Runnable{
-					public void run(){
-						getClientToApplication().notifyDataAvailable(availableData, true);
-					}
-				}
-				Thread t = new Thread(new NotificationRunner());
+				AvailableData availableData = availableDataItems.get(i);
+				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
+				Thread t = new Thread(runner);
 				i++;
 				t.start();
 				notificationComplete = true;
 				logger.debug("Notification complete? " + notificationComplete);
 			}
 		}
+	}
+	
+	void notifyDataAvailable3(){
+		boolean notificationComplete = false;
+		int size = availableDataItems.size();
+		System.out.println("notify3: " + size);
+		synchronized (availableDataItems){
+			while(availableDataItems.isEmpty()){
+				try {
+					availableDataItems.wait();
+					AvailableData availableData = availableDataItems.remove(0);
+					NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
+					Thread t = new Thread(runner);
+					//i++;
+					t.start();
+					notificationComplete = true;
+					logger.debug("Notification complete? " + notificationComplete);
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
+			while(!availableDataItems.isEmpty()){
+				AvailableData availableData = availableDataItems.remove(0);
+				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
+				Thread t = new Thread(runner);
+				//i++;
+				t.start();
+				notificationComplete = true;
+				logger.debug("Notification complete? " + notificationComplete);
+			}
+		}
+		
 	}
 }

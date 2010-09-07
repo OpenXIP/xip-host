@@ -226,7 +226,7 @@ public class HostImpl implements Host{
 			wg23dm = app.getWG23DataModel();
 			availableData = wg23dm.getAvailableData();			            			
 			app.getClientToApplication().notifyDataAvailable(availableData, true);*/
-			logger.debug("State change from " + priorState.toString() + " to " + app.getState().toString());
+			//logger.debug("State change from " + priorState.toString() + " to " + app.getState().toString());
 			
 		}else if (priorState != null && priorState.equals(State.INPROGRESS) && app.getState().equals(State.COMPLETED)){
 			//TODO Do something when COMPLETED
