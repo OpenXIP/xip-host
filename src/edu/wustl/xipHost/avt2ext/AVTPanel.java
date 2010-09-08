@@ -589,7 +589,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		//If yes, create new application instance
 		State state = app.getState();
 		Query query = avtQuery;
-		
 		if(state != null && !state.equals(State.EXIT)){
 			instanceApp.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
 			instanceApp.setDataSource(query);

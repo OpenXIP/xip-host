@@ -67,9 +67,12 @@ public class HostImpl implements Host{
 	}
 
 	public ArrayOfObjectLocator getDataAsFile(ArrayOfUUID uuids, boolean includeBulkData){ 			
+		// 1. Get corresponding object locators for uuids 
+		// 2. Assemble and return ArrayOfObjectLocator
 		//TODO make use of includeBulkData
 		ArrayOfObjectLocator arrayObjLoc = new ArrayOfObjectLocator();
-		wg23dm = app.getWG23DataModel();
+		//wg23dm = app.getWG23DataModel();
+		wg23dm = app.getW23DataModelForCurrentTargetElement();
 		ObjectLocator[] objLocs = wg23dm.getObjectLocators();		
 		if(uuids == null){
 			return arrayObjLoc;

@@ -421,10 +421,7 @@ public class HostConfigurator {
     	while (root.getParent() != null) {
     		root = root.getParent();
         }
-        // Visit each thread group
-        
-	        
-	        
+        // Visit each thread group  
         System.exit(0);	
         visit(root, 0);
 	}

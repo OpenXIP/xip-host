@@ -27,6 +27,10 @@ import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
+import edu.wustl.xipHost.avt2ext.ADRetrieveTarget;
+import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
+import edu.wustl.xipHost.avt2ext.AVTRetrieve2Event;
+import edu.wustl.xipHost.avt2ext.AVTRetrieve2Listener;
 import edu.wustl.xipHost.avt2ext.AVTUtil;
 import edu.wustl.xipHost.avt2ext.Query;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
@@ -48,7 +52,7 @@ import edu.wustl.xipHost.wg23.NativeModelListener;
 import edu.wustl.xipHost.wg23.NativeModelRunner;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
-public class Application implements NativeModelListener, TargetIteratorListener {	
+public class Application implements NativeModelListener, TargetIteratorListener, AVTRetrieve2Listener {	
 	final static Logger logger = Logger.getLogger(Application.class);
 	UUID id;
 	String name;
@@ -394,8 +398,8 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			if(firstPass){
 				firstPass = false;
 			} else {
-				synchronized (availableDataItems){
-					if(i < availableDataItems.size()){
+				synchronized (wg23DataModelItems){
+					if(i < wg23DataModelItems.size()){
 						getClientToApplication().setState(State.INPROGRESS);
 					}else {
 						getClientToApplication().setState(State.EXIT);
@@ -406,7 +410,9 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			firstPass = true;
 			i = 0;
 			j = 0;
-			availableDataItems.clear();
+			wg23DataModelItems.clear();
+			retrievedTargetElements.clear();
+			targetElements.clear();
 			iter = null;
 		}
 	}
@@ -619,27 +625,36 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	public synchronized void fullIteratorAvailable(IteratorEvent e) {
 		iter = (Iterator<TargetElement>)e.getSource();
 		logger.debug("Full TargetIterator available");
-		logger.debug("Number of elements: " + availableDataItems.size());
+		logger.debug("Number of elements: " + wg23DataModelItems.size());
 	}
 
-	
-	List<AvailableData> availableDataItems = new ArrayList<AvailableData>();
-	
+	List<WG23DataModel> wg23DataModelItems = new ArrayList<WG23DataModel>();
+	List<TargetElement> targetElements = new ArrayList<TargetElement>();
 	AVTUtil util = new AVTUtil();
 	int j;
 	@Override
 	public void targetElementAvailable(IteratorElementEvent e) {
 		logger.debug("TargetElement available " + (j++));
 		TargetElement element = (TargetElement) e.getSource();
+		targetElements.add(element);
 		WG23DataModel wg23data = util.getWG23DataModel(element);
-		AvailableData availableData = wg23data.getAvailableData();
-		/*synchronized(availableDataItems){
-			availableDataItems.add(availableData);
-		}*/
-		synchronized (availableDataItems){
-			availableDataItems.add(availableData);
-			availableDataItems.notify();
+		synchronized(wg23DataModelItems){
+			wg23DataModelItems.add(wg23data);
+			wg23DataModelItems.notify();
 		}
+		//Start data retrieval related to the element	
+		ADRetrieveTarget retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
+		AVTRetrieve2 avtRetrieve = null;
+		try {
+			avtRetrieve = new AVTRetrieve2(element, retrieveTarget);
+			avtRetrieve.addAVTListener(this);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//avtRetrieve.addAVTListener(this);					
+		Thread t = new Thread(avtRetrieve);
+		t.start();
 	}
 	
 	//This method performs multiple notifyDataAvailable calls until all iterator's elements are used. 
@@ -650,19 +665,19 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		boolean notificationComplete = false;
 		if(iter != null){
 			logger.debug("Iterator complete at the start of the notification.");
-			int totalSize = availableDataItems.size();
+			int totalSize = wg23DataModelItems.size();
 			if(totalSize == 1){
-				AvailableData availableData = availableDataItems.get(i);
+				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 				getClientToApplication().notifyDataAvailable(availableData, true);
 				notificationComplete = true;
 				logger.debug("Notification complete? " + notificationComplete);
 			} else {
 				while(i < (totalSize - 1)){
-					AvailableData availableData = availableDataItems.get(i);
+					AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 					getClientToApplication().notifyDataAvailable(availableData, false);
 					i++;
 				}
-				AvailableData availableData = availableDataItems.get(i);
+				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 				getClientToApplication().notifyDataAvailable(availableData, true);
 				notificationComplete = true;
 				logger.debug("Notification complete? " + notificationComplete);
@@ -670,20 +685,20 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		} 
 		while(iter == null){
 			logger.debug("Iterator not complete at the start of the notification");
-			if(availableDataItems.size() > (i + 1)){
-				AvailableData availableData = availableDataItems.get(i);
+			if(wg23DataModelItems.size() > (i + 1)){
+				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 				getClientToApplication().notifyDataAvailable(availableData, false);
 				i++;	
 			}
 		}
 		while(notificationComplete != true){
-			int totalSize = availableDataItems.size();
+			int totalSize = wg23DataModelItems.size();
 			while(i < (totalSize - 1)){
-				AvailableData availableData = availableDataItems.get(i);
+				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 				getClientToApplication().notifyDataAvailable(availableData, false);
 				i++;
 			}
-			AvailableData availableData = availableDataItems.get(i);
+			AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 			getClientToApplication().notifyDataAvailable(availableData, true);
 			notificationComplete = true;
 			logger.debug("Notification complete? " + notificationComplete);
@@ -696,10 +711,10 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		boolean notificationComplete = false;
 		if(iter != null){
 			logger.debug("Iterator complete at the start of the notification.");
-			int totalSize = availableDataItems.size();
+			int totalSize = wg23DataModelItems.size();
 			if(totalSize == 1 && i == 0){
 				logger.debug("Value of i: " + i);
-				AvailableData availableData = availableDataItems.get(i);
+				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
 				Thread t = new Thread(runner);
 				i++;
@@ -708,7 +723,7 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 				logger.debug("Notification complete? " + notificationComplete);
 			} else {
 				logger.debug("Value of i: " + i);
-				AvailableData availableData = availableDataItems.get(i);
+				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
 				Thread t = new Thread(runner);
 				i++;
@@ -719,22 +734,22 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 		} 
 		if(iter == null){
 			logger.debug("Iterator not complete at the start of the notification");
-			int size = availableDataItems.size();
+			int size = wg23DataModelItems.size();
 			System.out.println("notify2: " + size);
-			if(availableDataItems.size() == 0){
-				synchronized (availableDataItems){
-					while(availableDataItems.isEmpty()){
+			if(wg23DataModelItems.size() == 0){
+				synchronized (wg23DataModelItems){
+					while(wg23DataModelItems.isEmpty()){
 						try {
-							availableDataItems.wait();
+							wg23DataModelItems.wait();
 						} catch (InterruptedException e) {
 							logger.error(e, e);
 						}
 					}
 				}
 			}
-			if(availableDataItems.size() > 0){
+			if(wg23DataModelItems.size() > 0){
 				logger.debug("Value of i: " + i);
-				AvailableData availableData = availableDataItems.get(i);
+				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
 				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
 				Thread t = new Thread(runner);
 				i++;
@@ -747,13 +762,13 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 	
 	void notifyDataAvailable3(){
 		boolean notificationComplete = false;
-		int size = availableDataItems.size();
+		int size = wg23DataModelItems.size();
 		System.out.println("notify3: " + size);
-		synchronized (availableDataItems){
-			while(availableDataItems.isEmpty()){
+		synchronized (wg23DataModelItems){
+			while(wg23DataModelItems.isEmpty()){
 				try {
-					availableDataItems.wait();
-					AvailableData availableData = availableDataItems.remove(0);
+					wg23DataModelItems.wait();
+					AvailableData availableData = wg23DataModelItems.remove(0).getAvailableData();
 					NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
 					Thread t = new Thread(runner);
 					//i++;
@@ -764,8 +779,8 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 					logger.error(e, e);
 				}
 			}
-			while(!availableDataItems.isEmpty()){
-				AvailableData availableData = availableDataItems.remove(0);
+			while(!wg23DataModelItems.isEmpty()){
+				AvailableData availableData = wg23DataModelItems.remove(0).getAvailableData();
 				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
 				Thread t = new Thread(runner);
 				//i++;
@@ -775,5 +790,33 @@ public class Application implements NativeModelListener, TargetIteratorListener 
 			}
 		}
 		
+	}
+
+	public WG23DataModel getW23DataModelForCurrentTargetElement(){
+		WG23DataModel wg23DataModelItem = wg23DataModelItems.get(i - 1);
+		//Wait for actual data being retrieved before sending file pointers
+		String currentElementID = targetElements.get(i - 1).getId();
+		synchronized(retrievedTargetElements){
+			while(!retrievedTargetElements.contains(currentElementID)){
+				try {
+					retrievedTargetElements.wait();
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
+		}
+		return wg23DataModelItem;
+	}
+	
+	
+	List<String> retrievedTargetElements = new ArrayList<String>();
+	@Override
+	public void retriveCompleted(AVTRetrieve2Event e) {
+		String elementID = (String)e.getSource();
+		synchronized(retrievedTargetElements){
+			retrievedTargetElements.add(elementID);
+			retrievedTargetElements.notify();
+			logger.debug("Data retrived for TargetElement: " + elementID);
+		}
 	}
 }
