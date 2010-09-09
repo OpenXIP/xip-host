@@ -482,7 +482,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	public void runShutDownSequence(){
 		HostMainWindow.removeTab(getID());		
-		getHostEndpoint().stop();	
+		//getHostEndpoint().stop();	
 		/* voided to make compatibile with the iterator
 		//Delete documents from Xindice created for this application
 		XindiceManagerFactory.getInstance().deleteAllDocuments(getID().toString());
