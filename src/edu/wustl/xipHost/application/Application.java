@@ -482,8 +482,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	public void runShutDownSequence(){
 		HostMainWindow.removeTab(getID());		
-		/* voided make compatibile with the iterator
-		getHostEndpoint().stop();		
+		getHostEndpoint().stop();	
+		/* voided to make compatibile with the iterator
 		//Delete documents from Xindice created for this application
 		XindiceManagerFactory.getInstance().deleteAllDocuments(getID().toString());
 		//Delete collection created for this application
@@ -642,19 +642,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			wg23DataModelItems.add(wg23data);
 			wg23DataModelItems.notify();
 		}
-		//Start data retrieval related to the element	
-		ADRetrieveTarget retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
-		AVTRetrieve2 avtRetrieve = null;
-		try {
-			avtRetrieve = new AVTRetrieve2(element, retrieveTarget);
-			avtRetrieve.addAVTListener(this);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		//avtRetrieve.addAVTListener(this);					
-		Thread t = new Thread(avtRetrieve);
-		t.start();
 	}
 	
 	//This method performs multiple notifyDataAvailable calls until all iterator's elements are used. 
@@ -794,6 +781,20 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 
 	public WG23DataModel getW23DataModelForCurrentTargetElement(){
 		WG23DataModel wg23DataModelItem = wg23DataModelItems.get(i - 1);
+		//Start data retrieval related to the element	
+		ADRetrieveTarget retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
+		AVTRetrieve2 avtRetrieve = null;
+		try {
+			TargetElement element = targetElements.get(i - 1);
+			avtRetrieve = new AVTRetrieve2(element, retrieveTarget);
+			avtRetrieve.addAVTListener(this);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//avtRetrieve.addAVTListener(this);					
+		Thread t = new Thread(avtRetrieve);
+		t.start();
 		//Wait for actual data being retrieved before sending file pointers
 		String currentElementID = targetElements.get(i - 1).getId();
 		synchronized(retrievedTargetElements){
