@@ -583,13 +583,14 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
 		IterationTarget iterationTarget = app.getIterationTarget();
 		logger.debug("IterationTarget: " + iterationTarget.toString());
-		Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-				instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+		
 		//Check if application to be launched is not running.
 		//If yes, create new application instance
 		State state = app.getState();
 		Query query = avtQuery;
 		if(state != null && !state.equals(State.EXIT)){
+			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 			instanceApp.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
 			instanceApp.setDataSource(query);
 			instanceApp.setDoSave(false);

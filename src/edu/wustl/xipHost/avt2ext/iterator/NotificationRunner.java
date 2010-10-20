@@ -3,30 +3,29 @@
  */
 package edu.wustl.xipHost.avt2ext.iterator;
 
-import org.nema.dicom.wg23.AvailableData;
-
-import edu.wustl.xipHost.wg23.ClientToApplication;
+import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.avt2ext.AVTUtil;
+import edu.wustl.xipHost.wg23.WG23DataModel;
 
 /**
  * @author Jaroslaw Krych
  *
  */
 public class NotificationRunner implements Runnable {
-	ClientToApplication clientToApplication;
-	AvailableData availableData;
-	boolean lastData;
+	Application application;
+	TargetElement element;
+	AVTUtil util = new AVTUtil();
 	/**
 	 * 
 	 */
-	public NotificationRunner(ClientToApplication clientToApplication, AvailableData availableData, boolean lastData) {
-		this.clientToApplication = clientToApplication;
-		this.availableData = availableData;
-		this.lastData = lastData;
+	public NotificationRunner(Application application, TargetElement element) {
+		this.application = application;
+		this.element = element;
 	}
 
 	@Override
 	public void run() {
-		clientToApplication.notifyDataAvailable(availableData, lastData);
+		WG23DataModel wg23data = util.getWG23DataModel(element);
+		application.getClientToApplication().notifyDataAvailable(wg23data.getAvailableData(), true);
 	}
-
 }
