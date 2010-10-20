@@ -14,12 +14,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.xml.ws.Endpoint;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.nema.dicom.wg23.ArrayOfString;
 import org.nema.dicom.wg23.ArrayOfUUID;
-import org.nema.dicom.wg23.AvailableData;
 import org.nema.dicom.wg23.Host;
 import org.nema.dicom.wg23.ModelSetDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
@@ -27,11 +29,8 @@ import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
-import edu.wustl.xipHost.avt2ext.ADRetrieveTarget;
-import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2Event;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2Listener;
-import edu.wustl.xipHost.avt2ext.AVTUtil;
 import edu.wustl.xipHost.avt2ext.Query;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
@@ -50,6 +49,7 @@ import edu.wustl.xipHost.wg23.ClientToApplication;
 import edu.wustl.xipHost.wg23.HostImpl;
 import edu.wustl.xipHost.wg23.NativeModelListener;
 import edu.wustl.xipHost.wg23.NativeModelRunner;
+import edu.wustl.xipHost.wg23.StateExecutor;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
 public class Application implements NativeModelListener, TargetIteratorListener, AVTRetrieve2Listener {	
@@ -65,6 +65,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	String wg23DataModelType;
 	int concurrentInstances;
 	IterationTarget iterationTarget;
+	int numStateNotificationThreads = 2;
+	ExecutorService exeService = Executors.newFixedThreadPool(numStateNotificationThreads);	
 	
 	/* Application is a WG23 compatibile application*/	
 	public Application(String name, File exePath, String vendor, String version, File iconFile,
@@ -230,7 +232,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	//Implementation HostImpl is used to be able to add WG23Listener
 	//It is eventually casted to Host type
-	Host host = new HostImpl(this);	
+	Host host;
 			
 	//All loaded application by default will be saved again.
 	//New instances of an application will be saved only when the save checkbox is selected
@@ -245,6 +247,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	Endpoint hostEndpoint;
 	URL hostServiceURL;
 	URL appServiceURL;
+	Thread threadNotification;
 	public void launch(URL hostServiceURL, URL appServiceURL){						
 		this.hostServiceURL = hostServiceURL;
 		this.appServiceURL = appServiceURL;				
@@ -254,6 +257,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		//prepare native models
 		//createNativeModels(getWG23DataModel());		
 		//diploy host service				
+		host = new HostImpl(this);	
 		hostEndpoint = Endpoint.publish(hostServiceURL.toString(), host);
 		// Ways of launching XIP application: exe, bat, class or jar
 		//if(((String)getExePath().getName()).endsWith(".exe") || ((String)getExePath().getName()).endsWith(".bat")){
@@ -292,30 +296,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					//Runtime.getRuntime().exec("/bin/sh " + getExePath().getCanonicalPath() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());					
 					System.out.println(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
 					Runtime.getRuntime().exec("open " + getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
-					
-					/*List<String> command = new ArrayList<String>();																
-					command.add("/bin/sh");				
-				    command.add(getExePath().getCanonicalPath());
-				    command.add("--hostURL");
-				    command.add(hostServiceURL.toURI().toURL().toExternalForm());
-				    command.add("--applicationURL");
-				    command.add(appServiceURL.toURI().toURL().toExternalForm());
-				    
-				    ProcessBuilder builder = new ProcessBuilder(command);
-				    //Map<String, String> environ = builder.environment();
-				    //builder.directory(new File(System.getenv("temp")));
-
-				    //System.out.println("Directory : " + System.getenv("temp") );
-				    final Process process = builder.start();
-				    InputStream is = process.getInputStream();
-				    InputStreamReader isr = new InputStreamReader(is);
-				    BufferedReader br = new BufferedReader(isr);
-				    String line;
-				    while ((line = br.readLine()) != null) {
-				      System.out.println(line);
-				    }
-				    System.out.println("Program terminated!");
-				    */
 				} catch (IOException e) {			
 					e.printStackTrace();
 				} catch (URISyntaxException e) {
@@ -339,9 +319,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			e.printStackTrace();
 		}
 		//startIterator
-		//Query query = new AVTQueryStub(null, null, null, null, null);
-		//SearchResultSetupAvailableData resultForSubqueries = new SearchResultSetupAvailableData();
-		//SearchResult selectedDataSearchResult = resultForSubqueries.getSearchResult();
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, getIterationTarget(), query, getApplicationTmpDir(), this);
 		try {
 			Thread t = new Thread(targetIter);
@@ -360,8 +337,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		try {
 			appOutputDir = Util.create("xipOUT_" + getName() + "_", "", outDir);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e, e);
 		}		
 	}
 	public File getApplicationOutputDir() {		
@@ -386,36 +362,75 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	State priorState = null;
 	State state = null;
-	boolean firstPass = true;
+	boolean firstLaunch = true;
+	int numberOfSentNotifications = 0;
 	public void setState(State state){
 		priorState = this.state;
 		this.state = state;
-		logger.debug("State changed to: " + this.state);
-		if(state.equals(State.INPROGRESS)){
-			notifyDataAvailable2();
-			//notifyDataAvailable3();
-		} else if (state.equals(State.IDLE)){
-			if(firstPass){
-				firstPass = false;
+		logger.debug("\"" + getName() + "\"" + " state changed to: " + this.state);
+		if (state.equals(State.IDLE)){
+			if(firstLaunch){
+				startClientToApplication();
+				notifyAddSideTab();
+				firstLaunch = false;
+				StateExecutor stateExecutor = new StateExecutor(this);
+				stateExecutor.setState(State.INPROGRESS);
+				exeService.execute(stateExecutor);
 			} else {
-				synchronized (wg23DataModelItems){
-					if(i < wg23DataModelItems.size()){
-						getClientToApplication().setState(State.INPROGRESS);
-					}else {
-						getClientToApplication().setState(State.EXIT);
+				synchronized(this){
+					if(iter != null){
+						boolean doInprogress = true;
+						synchronized(targetElements){
+							if(numberOfSentNotifications == targetElements.size()){
+								doInprogress = false;
+							}
+						}
+						if(doInprogress == false){
+							StateExecutor stateExecutor = new StateExecutor(this);
+							stateExecutor.setState(State.EXIT);
+							exeService.execute(stateExecutor);
+						} else {
+							StateExecutor stateExecutor = new StateExecutor(this);
+							stateExecutor.setState(State.INPROGRESS);
+							exeService.execute(stateExecutor);
+						}			
+					} else {
+						StateExecutor stateExecutor = new StateExecutor(this);
+						stateExecutor.setState(State.INPROGRESS);
+						exeService.execute(stateExecutor);
 					}
 				}
 			}
+		} else if(state.equals(State.INPROGRESS)){
+			synchronized(targetElements){
+				while(targetElements.size() == 0 || targetElements.size() <= numberOfSentNotifications){
+					try {
+						targetElements.wait();
+					} catch (InterruptedException e) {
+						logger.error(e, e);
+					}
+				}
+				TargetElement element = targetElements.get(numberOfSentNotifications);
+				NotificationRunner runner = new NotificationRunner(this, element);
+				threadNotification = new Thread(runner);
+				threadNotification.start();
+				numberOfSentNotifications++;
+			}
 		} else if (state.equals(State.EXIT)){
-			firstPass = true;
-			i = 0;
-			j = 0;
-			wg23DataModelItems.clear();
+			//Application runShutDownSequence goes through ApplicationTerminator and Application Scheduler
+			//ApplicationScheduler time is set to zero but other value could be used when shutdown delay is needed.
+			ApplicationTerminator terminator = new ApplicationTerminator(this);
+			Thread t = new Thread(terminator);
+			t.start();	
+			//reset application parameters for subsequent launch
+			firstLaunch = true;
 			retrievedTargetElements.clear();
 			targetElements.clear();
 			iter = null;
+			numberOfSentNotifications = 0;
 		}
 	}
+	
 	public State getState(){
 		return state;
 	}
@@ -482,7 +497,9 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	public void runShutDownSequence(){
 		HostMainWindow.removeTab(getID());		
-		//getHostEndpoint().stop();	
+		if(getHostEndpoint() != null){
+			getHostEndpoint().stop();
+		}	
 		/* voided to make compatibile with the iterator
 		//Delete documents from Xindice created for this application
 		XindiceManagerFactory.getInstance().deleteAllDocuments(getID().toString());
@@ -619,173 +636,33 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		return queryResults;		
 	}
 
-	Iterator<TargetElement> iter = null;
+	Iterator<TargetElement> iter;
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized void fullIteratorAvailable(IteratorEvent e) {
+	public void fullIteratorAvailable(IteratorEvent e) {
 		iter = (Iterator<TargetElement>)e.getSource();
-		logger.debug("Full TargetIterator available");
-		logger.debug("Number of elements: " + wg23DataModelItems.size());
+		logger.debug("Full TargetIterator available at time " + System.currentTimeMillis());
 	}
 
-	List<WG23DataModel> wg23DataModelItems = new ArrayList<WG23DataModel>();
 	List<TargetElement> targetElements = new ArrayList<TargetElement>();
-	AVTUtil util = new AVTUtil();
-	int j;
 	@Override
 	public void targetElementAvailable(IteratorElementEvent e) {
-		logger.debug("TargetElement available " + (j++));
-		TargetElement element = (TargetElement) e.getSource();
-		targetElements.add(element);
-		WG23DataModel wg23data = util.getWG23DataModel(element);
-		synchronized(wg23DataModelItems){
-			wg23DataModelItems.add(wg23data);
-			wg23DataModelItems.notify();
+		synchronized(targetElements){
+			TargetElement element = (TargetElement) e.getSource();
+			logger.debug("TargetElement available. ID: " + element.getId() + " at time " + System.currentTimeMillis());
+			targetElements.add(element);
+			targetElements.notify();
 		}
 	}
 	
-	//This method performs multiple notifyDataAvailable calls until all iterator's elements are used. 
-	void notifyDataAvailable(){
-		// for loop need to be replaced. When state changes to INPROGRESS and 
-		// availableDataItems is empty (size = 0) notification is going to fail.
-		int i = 0;
-		boolean notificationComplete = false;
-		if(iter != null){
-			logger.debug("Iterator complete at the start of the notification.");
-			int totalSize = wg23DataModelItems.size();
-			if(totalSize == 1){
-				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-				getClientToApplication().notifyDataAvailable(availableData, true);
-				notificationComplete = true;
-				logger.debug("Notification complete? " + notificationComplete);
-			} else {
-				while(i < (totalSize - 1)){
-					AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-					getClientToApplication().notifyDataAvailable(availableData, false);
-					i++;
-				}
-				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-				getClientToApplication().notifyDataAvailable(availableData, true);
-				notificationComplete = true;
-				logger.debug("Notification complete? " + notificationComplete);
-			}
-		} 
-		while(iter == null){
-			logger.debug("Iterator not complete at the start of the notification");
-			if(wg23DataModelItems.size() > (i + 1)){
-				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-				getClientToApplication().notifyDataAvailable(availableData, false);
-				i++;	
-			}
-		}
-		while(notificationComplete != true){
-			int totalSize = wg23DataModelItems.size();
-			while(i < (totalSize - 1)){
-				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-				getClientToApplication().notifyDataAvailable(availableData, false);
-				i++;
-			}
-			AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-			getClientToApplication().notifyDataAvailable(availableData, true);
-			notificationComplete = true;
-			logger.debug("Notification complete? " + notificationComplete);
-		}
-	}
-	
-	//notification contains only one TargetElement
-	int i;
-	void notifyDataAvailable2(){
-		boolean notificationComplete = false;
-		if(iter != null){
-			logger.debug("Iterator complete at the start of the notification.");
-			int totalSize = wg23DataModelItems.size();
-			if(totalSize == 1 && i == 0){
-				logger.debug("Value of i: " + i);
-				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
-				Thread t = new Thread(runner);
-				i++;
-				t.start();
-				notificationComplete = true;
-				logger.debug("Notification complete? " + notificationComplete);
-			} else {
-				logger.debug("Value of i: " + i);
-				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
-				Thread t = new Thread(runner);
-				i++;
-				t.start();
-				notificationComplete = true;
-				logger.debug("Notification complete? " + notificationComplete);				
-			}
-		} 
-		if(iter == null){
-			logger.debug("Iterator not complete at the start of the notification");
-			int size = wg23DataModelItems.size();
-			System.out.println("notify2: " + size);
-			if(wg23DataModelItems.size() == 0){
-				synchronized (wg23DataModelItems){
-					while(wg23DataModelItems.isEmpty()){
-						try {
-							wg23DataModelItems.wait();
-						} catch (InterruptedException e) {
-							logger.error(e, e);
-						}
-					}
-				}
-			}
-			if(wg23DataModelItems.size() > 0){
-				logger.debug("Value of i: " + i);
-				AvailableData availableData = wg23DataModelItems.get(i).getAvailableData();
-				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
-				Thread t = new Thread(runner);
-				i++;
-				t.start();
-				notificationComplete = true;
-				logger.debug("Notification complete? " + notificationComplete);
-			}
-		}
-	}
-	
-	void notifyDataAvailable3(){
-		boolean notificationComplete = false;
-		int size = wg23DataModelItems.size();
-		System.out.println("notify3: " + size);
-		synchronized (wg23DataModelItems){
-			while(wg23DataModelItems.isEmpty()){
-				try {
-					wg23DataModelItems.wait();
-					AvailableData availableData = wg23DataModelItems.remove(0).getAvailableData();
-					NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
-					Thread t = new Thread(runner);
-					//i++;
-					t.start();
-					notificationComplete = true;
-					logger.debug("Notification complete? " + notificationComplete);
-				} catch (InterruptedException e) {
-					logger.error(e, e);
-				}
-			}
-			while(!wg23DataModelItems.isEmpty()){
-				AvailableData availableData = wg23DataModelItems.remove(0).getAvailableData();
-				NotificationRunner runner = new NotificationRunner(getClientToApplication(), availableData, true);
-				Thread t = new Thread(runner);
-				//i++;
-				t.start();
-				notificationComplete = true;
-				logger.debug("Notification complete? " + notificationComplete);
-			}
-		}
-		
-	}
-
 	public WG23DataModel getW23DataModelForCurrentTargetElement(){
-		WG23DataModel wg23DataModelItem = wg23DataModelItems.get(i - 1);
+		/*
+		WG23DataModel wg23DataModelItem = wg23DataModelItems.get(elementNumber - 1);
 		//Start data retrieval related to the element	
 		ADRetrieveTarget retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
 		AVTRetrieve2 avtRetrieve = null;
 		try {
-			TargetElement element = targetElements.get(i - 1);
+			TargetElement element = targetElements.get(elementNumber - 1);
 			avtRetrieve = new AVTRetrieve2(element, retrieveTarget);
 			avtRetrieve.addAVTListener(this);
 		} catch (IOException e1) {
@@ -796,7 +673,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		Thread t = new Thread(avtRetrieve);
 		t.start();
 		//Wait for actual data being retrieved before sending file pointers
-		String currentElementID = targetElements.get(i - 1).getId();
+		String currentElementID = targetElements.get(elementNumber - 1).getId();
 		synchronized(retrievedTargetElements){
 			while(!retrievedTargetElements.contains(currentElementID)){
 				try {
@@ -806,7 +683,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				}
 			}
 		}
-		return wg23DataModelItem;
+		return wg23DataModelItem;*/
+		return null;
 	}
 	
 	
