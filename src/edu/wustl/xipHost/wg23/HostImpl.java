@@ -25,7 +25,6 @@ import org.nema.dicom.wg23.Status;
 import org.nema.dicom.wg23.Uid;
 import org.nema.dicom.wg23.Uuid;
 import edu.wustl.xipHost.application.Application;
-import edu.wustl.xipHost.application.ApplicationTerminator;
 import edu.wustl.xipHost.hostControl.DataStore;
 
 
@@ -127,11 +126,9 @@ public class HostImpl implements Host{
 
 	ExecutorService stateExeService = Executors.newFixedThreadPool(1);
 	public void notifyStateChanged(State newState) {		
+		logger.debug("Requested state change to " + newState.toString() + " of \"" + app.getName() + "\"");
 		try {
-			changeState(newState);
-			//TODO return 
-			StateExecutor stateExecutor = new StateExecutor(this);
-			stateExeService.execute(stateExecutor);							
+			changeState(newState);					
 		} catch (StateChangeException e) {			
 			//TODO what to do when state cannot be changed
 			e.printStackTrace();
@@ -207,48 +204,6 @@ public class HostImpl implements Host{
         //System.out.println("HostImpl l. 190 Application: " + app.getState().toString());
 	}
 	
-	void fireStateChangedAction(){		
-		State priorState = app.getPriorState();
-		//When IDLE from null
-		if((priorState == null || priorState.equals(State.EXIT)) && app.getState().equals(State.IDLE)){            			            			
-			//add vertical tab
-			app.startClientToApplication();
-			app.notifyAddSideTab();
-			//Graphics g = HostConfigurator.getHostConfigurator().getMainWindow().getContentPane().getGraphics();
-			//HostConfigurator.getHostConfigurator().getMainWindow().update(g);			
-			app.getClientToApplication().setState(State.INPROGRESS);
-		}
-		//When IDLE from COMPLETED
-		else if(priorState != null && priorState.equals(State.COMPLETED) && app.getState().equals(State.IDLE)){
-			//
-		}
-		//When INPROGRESS from IDLE
-		else if(priorState != null && priorState.equals(State.IDLE) && app.getState().equals(State.INPROGRESS)){
-			//replace with notifyDataAvailable after Iterator element created
-			/*AvailableData availableData = new AvailableData();
-			wg23dm = app.getWG23DataModel();
-			availableData = wg23dm.getAvailableData();			            			
-			app.getClientToApplication().notifyDataAvailable(availableData, true);*/
-			//logger.debug("State change from " + priorState.toString() + " to " + app.getState().toString());
-			
-		}else if (priorState != null && priorState.equals(State.INPROGRESS) && app.getState().equals(State.COMPLETED)){
-			//TODO Do something when COMPLETED
-			//getAvailableData from teh application and then set the state to IDLE
-			//app.getClientToApplication().setState(State.IDLE);
-		}else if (priorState != null && priorState.equals(State.INPROGRESS) && app.getState().equals(State.CANCELED)){
-			//TODO Do something when CANCELED
-		}else if (priorState != null && priorState.equals(State.CANCELED) && app.getState().equals(State.IDLE)){
-			//TODO "Do something when from CANCELED to IDLE"
-		}
-		//EXIT from IDLE
-		else if(priorState != null && priorState.equals(State.IDLE) && app.getState().equals(State.EXIT)){
-			//Application runShutDownSequence is run through ApplicationTerminator and Application Scheduler
-			//ApplicationScheduler time is set to zero but other value could be used when shutdown delay is needed.
-			ApplicationTerminator terminator = new ApplicationTerminator(app);
-			Thread t = new Thread(terminator);
-			t.start();						
-		}
-	}
 
 	public void notifyStatus(Status newStatus) {
 		// TODO Auto-generated method stub
