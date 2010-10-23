@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 
 /**
- * @author Matthew Kelsey
+ * @author Matthew Kelsey & Jarek Krych
  *
  */
 public class TargetIteratorRunner implements Runnable, AVTListener {
@@ -353,7 +353,10 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 							List<Item> items = series.getItems();
 							for(Item item : items){
 								try {
-									File.createTempFile(item.getItemID() + "_", ".tmp", new File(seriesPath));
+									File file = new File(seriesPath + File.separatorChar + item.getItemID());
+									if(!file.exists()){
+										file.createNewFile();
+									}
 								} catch (IOException e) {
 									logger.error(e, e);
 								}
@@ -405,7 +408,10 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 						List<Item> items = series.getItems();
 						for(Item item : items){
 							try {
-								File.createTempFile(item.getItemID() + "_", ".tmp", new File(seriesPath));
+								File file = new File(seriesPath + File.separatorChar + item.getItemID());
+								if(!file.exists()){
+									file.createNewFile();
+								}
 							} catch (IOException e) {
 								logger.error(e, e);
 							}
@@ -451,7 +457,10 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 				List<Item> items = series.getItems();
 				for(Item item : items){
 					try {
-						File.createTempFile(item.getItemID() + "_", ".tmp", new File(seriesPath));
+						File file = new File(seriesPath + File.separatorChar + item.getItemID());
+						if(!file.exists()){
+							file.createNewFile();
+						}
 					} catch (IOException e) {
 						logger.error(e, e);
 					}
@@ -485,47 +494,5 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 	@Override
 	synchronized public void searchResultsAvailable(AVTSearchEvent e) {
 		selectedDataSearchResult = (SearchResult) e.getSource();
-		//SearchResult updatedDataSearchResult = (SearchResult) e.getSource();
-		//mergeUpdate(updatedDataSearchResult);
 	}
-	
-	synchronized void mergeUpdate(SearchResult updatedDataSearchResult){
-		List<Patient> initialPatients = selectedDataSearchResult.getPatients();
-		List<Patient> updatedPatients = updatedDataSearchResult.getPatients();
-		System.out.println(initialPatients.equals(updatedPatients));
-		if(initialPatients.size() != updatedPatients.size()){
-			for(Patient patient : updatedPatients){
-				if(!selectedDataSearchResult.contains(patient.getPatientID())){
-					selectedDataSearchResult.addPatient(patient);
-				}
-			}
-		} else if (initialPatients.size() == updatedPatients.size() ){
-			for(Patient patient : updatedPatients){
-				Patient initialPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-				List<Study> initialStudies = initialPatient.getStudies();
-				List<Study> updatedStudies = patient.getStudies();
-				if(initialStudies.size() != updatedStudies.size()){
-					for(Study study : updatedStudies){
-						if(!initialPatient.contains(study.getStudyInstanceUID())){
-							initialPatient.addStudy(study);
-						}
-					}
-				} else if (initialStudies.size() == updatedStudies.size()){
-					for(Study study : updatedStudies){
-						Study initialStudy = selectedDataSearchResult.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID());
-						List<Series> initialSeries = initialStudy.getSeries();
-						List<Series> updatedSeries = study.getSeries();
-						if(initialSeries.size() != updatedSeries.size()){
-							for(Series series : updatedSeries){
-								if(!initialStudy.contains(series.getSeriesInstanceUID())){
-									initialStudy.addSeries(series);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
 }
