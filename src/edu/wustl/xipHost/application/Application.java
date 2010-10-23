@@ -11,26 +11,35 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javax.xml.ws.Endpoint;
+import org.apache.commons.collections.MultiMap;
+import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.nema.dicom.wg23.ArrayOfString;
 import org.nema.dicom.wg23.ArrayOfUUID;
 import org.nema.dicom.wg23.Host;
 import org.nema.dicom.wg23.ModelSetDescriptor;
+import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.wg23.Patient;
 import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
+import org.nema.dicom.wg23.Series;
 import org.nema.dicom.wg23.State;
+import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uuid;
+import edu.wustl.xipHost.avt2ext.ADRetrieveTarget;
+import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2Event;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2Listener;
+import edu.wustl.xipHost.avt2ext.AVTUtil;
 import edu.wustl.xipHost.avt2ext.Query;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
@@ -67,6 +76,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	IterationTarget iterationTarget;
 	int numStateNotificationThreads = 2;
 	ExecutorService exeService = Executors.newFixedThreadPool(numStateNotificationThreads);	
+	AVTUtil util = new AVTUtil();
 	
 	/* Application is a WG23 compatibile application*/	
 	public Application(String name, File exePath, String vendor, String version, File iconFile,
@@ -364,6 +374,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	State state = null;
 	boolean firstLaunch = true;
 	int numberOfSentNotifications = 0;
+	MultiMap wg23DataModelItems = new MultiValueMap();
+	@SuppressWarnings("unchecked")
 	public void setState(State state){
 		priorState = this.state;
 		this.state = state;
@@ -411,7 +423,51 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					}
 				}
 				TargetElement element = targetElements.get(numberOfSentNotifications);
-				NotificationRunner runner = new NotificationRunner(this, element);
+				WG23DataModel wg23data = util.getWG23DataModel(element);
+				//Extract all ObjectDescriptors UUIDs and construct MultiValueMap containing UUID (key), ObjectDescriptor (value), ObjectLocator (value) 
+				List<ObjectDescriptor> objDescsTopLevel = wg23data.getAvailableData().getObjectDescriptors().getObjectDescriptor();
+				for(ObjectDescriptor objDesc : objDescsTopLevel){
+					String uuid = objDesc.getUuid().getUuid();
+					wg23DataModelItems.put(uuid, objDesc);
+				}
+				List<Patient> listPatients = wg23data.getAvailableData().getPatients().getPatient();
+				for(Patient patient : listPatients){
+					List<ObjectDescriptor> objDescsPatientLevel = patient.getObjectDescriptors().getObjectDescriptor();
+					for(ObjectDescriptor objDesc : objDescsPatientLevel){
+						String uuid = objDesc.getUuid().getUuid();
+						wg23DataModelItems.put(uuid, objDesc);
+					}
+					List<Study> listStudies = patient.getStudies().getStudy();
+					for(Study study : listStudies){
+						List<ObjectDescriptor> objDescsStudyLevel = study.getObjectDescriptors().getObjectDescriptor();
+						for(ObjectDescriptor objDesc : objDescsStudyLevel){
+							String uuid = objDesc.getUuid().getUuid();
+							wg23DataModelItems.put(uuid, objDesc);
+						}
+						List<Series> listSeries = study.getSeries().getSeries();
+						for(Series series : listSeries){
+							List<ObjectDescriptor> objDescsSeriesLevel = series.getObjectDescriptors().getObjectDescriptor();
+							for(ObjectDescriptor objDesc : objDescsSeriesLevel){
+								String uuid = objDesc.getUuid().getUuid();
+								wg23DataModelItems.put(uuid, objDesc);
+							}	
+						}
+					}
+				}
+				Iterator<String> iterMultiValueMap = wg23DataModelItems.keySet().iterator();
+				ObjectLocator[] objLocators = wg23data.getObjectLocators();
+				while(iterMultiValueMap.hasNext()){
+					String uuid = iterMultiValueMap.next();
+					for(int i = 0; i < objLocators.length; i++){
+						ObjectLocator objLoc = objLocators[i];
+						String locUUID = objLoc.getUuid().getUuid();
+						if(locUUID.equalsIgnoreCase(uuid)){
+							wg23DataModelItems.put(uuid, objLoc);
+						}
+					}
+				}
+				NotificationRunner runner = new NotificationRunner(this);
+				runner.setAvailableData(wg23data.getAvailableData());
 				threadNotification = new Thread(runner);
 				threadNotification.start();
 				numberOfSentNotifications++;
@@ -428,6 +484,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			targetElements.clear();
 			iter = null;
 			numberOfSentNotifications = 0;
+			retrievedTargetElements.clear();
 		}
 	}
 	
@@ -655,47 +712,64 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		}
 	}
 	
-	public WG23DataModel getW23DataModelForCurrentTargetElement(){
-		/*
-		WG23DataModel wg23DataModelItem = wg23DataModelItems.get(elementNumber - 1);
+	
+	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
 		//Start data retrieval related to the element	
 		ADRetrieveTarget retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
 		AVTRetrieve2 avtRetrieve = null;
+		TargetElement element = null;
 		try {
-			TargetElement element = targetElements.get(elementNumber - 1);
-			avtRetrieve = new AVTRetrieve2(element, retrieveTarget);
-			avtRetrieve.addAVTListener(this);
+			synchronized(targetElements){
+				element = targetElements.get(numberOfSentNotifications - 1);
+				avtRetrieve = new AVTRetrieve2(element, retrieveTarget);
+				avtRetrieve.addAVTListener(this);
+			}
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		//avtRetrieve.addAVTListener(this);					
+			logger.error(e1, e1);
+		}			
 		Thread t = new Thread(avtRetrieve);
 		t.start();
 		//Wait for actual data being retrieved before sending file pointers
-		String currentElementID = targetElements.get(elementNumber - 1).getId();
+		String retrievedElementID = element.getId();
 		synchronized(retrievedTargetElements){
-			while(!retrievedTargetElements.contains(currentElementID)){
+			while(!retrievedTargetElements.contains(retrievedElementID)){
 				try {
 					retrievedTargetElements.wait();
 				} catch (InterruptedException e) {
 					logger.error(e, e);
 				}
 			}
-		}
-		return wg23DataModelItem;*/
-		return null;
+		}		
+		if(listUUIDs == null){
+			return new ArrayList<ObjectLocator>();
+		} else {
+			ArrayList<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();
+			for(Uuid uuid : listUUIDs){
+				String strUuid = uuid.getUuid();
+				Collection<?> objs = (Collection<?>) wg23DataModelItems.get(strUuid);
+				Iterator<?> iterObjs = objs.iterator();
+				while(iterObjs.hasNext()){
+					Object object = iterObjs.next();
+					if(object instanceof ObjectLocator){
+						ObjectLocator objLoc = (ObjectLocator)object;
+						listObjLocs.add(objLoc);
+						logger.debug("Item location: " + strUuid + " " + objLoc.getUri());
+					}
+				}
+			}
+			return listObjLocs;
+		}		
 	}
 	
 	
 	List<String> retrievedTargetElements = new ArrayList<String>();
 	@Override
 	public void retriveCompleted(AVTRetrieve2Event e) {
-		String elementID = (String)e.getSource();
 		synchronized(retrievedTargetElements){
+			String elementID = (String)e.getSource();
 			retrievedTargetElements.add(elementID);
 			retrievedTargetElements.notify();
-			logger.debug("Data retrived for TargetElement: " + elementID);
+			logger.debug("Data retrived for TargetElement: " + elementID + " at time: " + System.currentTimeMillis());
 		}
 	}
 }
