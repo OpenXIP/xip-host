@@ -602,42 +602,4 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
 		}					
 	}
-
-	/*
-	AppButton btn;
-	void launchApplication(){
-		UUID uuid = btn.getApplicationUUID();
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(uuid);
-		//Check if application to be launched is not running.
-		//If yes, create new application instance
-		State state = app.getState();		
-		WG23DataModel data = FileManagerFactory.getInstance().getWG23DataModel();
-		if(state != null && !state.equals(State.EXIT)){
-			String instanceName = app.getName();
-			File instanceExePath = app.getExePath();
-			String instanceVendor = app.getVendor();
-			String instanceVersion = app.getVersion();
-			File instanceIconFile = app.getIconFile();
-			String type = app.getType();
-			boolean requiresGUI = app.requiresGUI();
-			String wg23DataModelType = app.getWG23DataModelType();
-			int concurrentInstances = app.getConcurrentInstances();
-			IterationTarget iterationTarget = app.getIterationTarget();
-			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-			instanceApp.setDoSave(false);
-			appMgr.addApplication(instanceApp);
-			instanceApp.setData(data);			
-			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-		}else{
-			app.setData(data);			
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
-		}					
-		setCursor(normalCursor);
-	}
-	*/
-	
-	
-	
 }
