@@ -40,7 +40,7 @@ import edu.wustl.xipHost.hostControl.DataStore;
 public class HostImpl implements Host{	
 	final static Logger logger = Logger.getLogger(HostImpl.class);
 	Application app;
-	WG23DataModel wg23dm;	
+	List<ObjectLocator> objLocs;	
 	//ClientToApplication clientToApplication;
 	
 	public HostImpl(Application application){
@@ -66,26 +66,12 @@ public class HostImpl implements Host{
 	}
 
 	public ArrayOfObjectLocator getDataAsFile(ArrayOfUUID uuids, boolean includeBulkData){ 			
-		// 1. Get corresponding object locators for uuids 
-		// 2. Assemble and return ArrayOfObjectLocator
+		// Get corresponding object locators for uuids 
 		//TODO make use of includeBulkData
 		ArrayOfObjectLocator arrayObjLoc = new ArrayOfObjectLocator();
-		//wg23dm = app.getWG23DataModel();
-		wg23dm = app.getW23DataModelForCurrentTargetElement();
-		ObjectLocator[] objLocs = wg23dm.getObjectLocators();		
-		if(uuids == null){
-			return arrayObjLoc;
-		}
-		List<Uuid> listUUIDs = uuids.getUuid();								
-		List<ObjectLocator> listObjLocs = arrayObjLoc.getObjectLocator();				
-		for(int i = 0; i < listUUIDs.size(); i++){			
-			for(int j = 0; j < objLocs.length; j++){								
-				if(objLocs[j].getUuid().getUuid().equalsIgnoreCase(listUUIDs.get(i).getUuid())){										
-					ObjectLocator obj = objLocs[j];
-					listObjLocs.add(obj);
-				}
-			}
-		}						
+		List<Uuid> listUUIDs = uuids.getUuid();
+		objLocs = app.retrieveAndGetLocators(listUUIDs);
+		arrayObjLoc.getObjectLocator().addAll(objLocs);				
 		return arrayObjLoc;
 	}
 
