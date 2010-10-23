@@ -107,7 +107,7 @@ public class AVTRetrieve2 implements Runnable{
 					dout.close();			
 				}
 				//Retrieve AIM		
-				List<String> annotationUIDs = adService.findAnnotations(dicomCriteria, adAimCriteria);		
+				List<String> annotationUIDs = adService.findAnnotations(dicomCriteria, adAimCriteria);
 				Set<String> uniqueAnnotUIDs = new HashSet<String>(annotationUIDs);
 				Iterator<String> iter = uniqueAnnotUIDs.iterator();
 				Set<String> segDicomInstances = new HashSet<String>();
@@ -123,7 +123,7 @@ public class AVTRetrieve2 implements Runnable{
 						logger.error(e, e);
 					}	
 					//Ensure dirPath is correctly assign. There are references below of this variable
-					File outFile = new File(dirPath + uid + ".xml");
+					File outFile = new File(dirPath + File.separator + uid);
 					FileOutputStream outStream = new FileOutputStream(outFile);			
 					outToXMLFile.output(document, outStream);
 			    	outStream.flush();
