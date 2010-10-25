@@ -340,7 +340,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		allRetrivedFiles.toArray(files);		
 		FileManager fileMgr = FileManagerFactory.getInstance();						
         fileMgr.run(files);
-		//launchApplication();	
         criteriaPanel.getQueryButton().setBackground(xipBtn);
 		criteriaPanel.getQueryButton().setEnabled(true);						
 	}
@@ -380,25 +379,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	     }
 	     	    
 	     public void mouseClicked(MouseEvent e) {	        
-	        if (e.getClickCount() == 1) {
-	        	/*
-	        	int x = e.getX();
-		     	int y = e.getY();
-		     	int row = resultTree.getRowForLocation(x, y);
-		     	TreePath  path = resultTree.getPathForRow(row);    	
-		     	if (path != null) {    		
-		     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();										     					     					     		
-		     		//System.out.println(resultTree.getRowForPath(new TreePath(queryNode.getPath())));
-		     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
-		     		if (queryNode == null) return;		 
-		     		if (!queryNode.isRoot()) {
-		     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
-		     			selectedNode = queryNode.getUserObject();			     			
-		     			AttributeList initialCriteria = criteriaPanel.getFilterList();
-		     			
-		     		}
-		     	}*/
-	        } else if (e.getClickCount() == 2){
+	        if (e.getClickCount() == 2){
 	        	int x = e.getX();
 		     	int y = e.getY();
 		     	int row = resultTree.getRowForLocation(x, y);

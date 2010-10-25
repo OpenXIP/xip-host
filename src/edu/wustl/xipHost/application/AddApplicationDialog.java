@@ -17,7 +17,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -25,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import edu.wustl.xipHost.application.Application;
@@ -32,7 +32,6 @@ import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.FileChooser;
 import edu.wustl.xipHost.gui.HostMainWindow;
-import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 
 public class AddApplicationDialog extends JDialog implements ActionListener {
@@ -192,7 +191,17 @@ public class AddApplicationDialog extends JDialog implements ActionListener {
 				ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
 				app.setDoSave(true);
 				appMgr.addApplication(app);
-				HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
+				
+				if(SwingUtilities.isEventDispatchThread()){
+					HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
+				} else {
+					Runnable doWorkRunnable = new Runnable() {
+					    public void run() { 
+					    	HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
+					    }
+					};
+					SwingUtilities.invokeLater(doWorkRunnable);
+				}
 			}catch (IllegalArgumentException e1){
 				new ExceptionDialog("Cannot create new application.", 
 						"Ensure applications parameters are valid.",

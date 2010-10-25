@@ -89,12 +89,6 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 	// Run thread to fill TargetElement list from SearchResult elements
 	@Override
 	public void run() {
-		/*try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
 		// Set internal target iterators
 		try {
 			if(this.selectedDataSearchResult.getPatients() != null) {
@@ -129,6 +123,7 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 	
 	// ** If not up to date, query for study list in patient target ** //
 	private boolean updatePatient(Patient patient) {
+		//FIXME: dicom and aim criteria should include original criteria plus PatientName and PatientID
 		if(patient.getLastUpdated() == null) {
 			// Query for patient
 			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
@@ -157,6 +152,7 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 	}
 	
 	private boolean updateStudy(Study study) {
+		//FIXME: dicom and aim criteria should include original criteria plus PatientName and PatientID plus StudyInstanceUID
 		if(study.getLastUpdated() == null) {
 			// Query for Study
 			String patientId = null;
@@ -196,6 +192,7 @@ public class TargetIteratorRunner implements Runnable, AVTListener {
 	}
 
 	private boolean updateSeries(Series series) {
+		//FIXME: dicom and aim criteria should include original criteria plus PatientName and PatientID plus Study and Series InstanceUID
 		if(series.getLastUpdated() == null) {
 			// Query for Series/Items
 			String patientId = null;

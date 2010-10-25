@@ -19,7 +19,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 /**
@@ -55,13 +54,8 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		btn.setForeground(Color.BLACK);			
 		btn.addActionListener(this);
 		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		Runnable doWorkRunnable = new Runnable() {
-		    public void run() { 
-		    	add(btn);
-		    	repaint();
-		    }
-		};
-		SwingUtilities.invokeLater(doWorkRunnable);
+		add(btn);
+    	repaint();
 	}
 	
 	public class AppButton extends JButton{		
