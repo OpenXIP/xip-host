@@ -110,7 +110,6 @@ public class AVTRetrieve2 implements Runnable{
 				List<String> annotationUIDs = adService.findAnnotations(dicomCriteria, adAimCriteria);
 				Set<String> uniqueAnnotUIDs = new HashSet<String>(annotationUIDs);
 				Iterator<String> iter = uniqueAnnotUIDs.iterator();
-				Set<String> segDicomInstances = new HashSet<String>();
 				while(iter.hasNext()){
 					String uid = iter.next();
 					ImageAnnotation loadedAnnot = adService.getAnnotation(uid);			
@@ -130,35 +129,53 @@ public class AVTRetrieve2 implements Runnable{
 			    	outStream.close();
 			    	//Retrieve DICOM SEG
 			    	//temporarily voided. AVTQuery needs to be modified to query for DICOM SEG objects
-			    	/*
+			    	//
+			    	Set<String> dicomSegSOPInstanceUIDs = new HashSet<String>();
 			    	List<DicomObject> segObjects = adService.retrieveSegmentationObjects(uid);
 			    	for(int i = 0; i < segObjects.size(); i++){
 			    		DicomObject dicom = segObjects.get(i);
 			    		String sopInstanceUID = dicom.getString(Tag.SOPInstanceUID);
-			    		//Check of segDicom was not serialized in reference to another AIM
-			    		if(!segDicomInstances.contains(sopInstanceUID)){
-			    			segDicomInstances.add(sopInstanceUID);
-			    			DicomObject segDicom = adService.getDicomObject(sopInstanceUID);
-			    			if(segDicom == null){			    				
-			    				String message = "DICOM SEG " + sopInstanceUID + " cannot be loaded from file system!";
+			    		//Check if DICOM SEG was not serialized in reference to another AIM
+			    		if(!dicomSegSOPInstanceUIDs.contains(sopInstanceUID)){
+			    			dicomSegSOPInstanceUIDs.add(sopInstanceUID);
+			    			DicomObject dicomSeg = adService.getDicomObject(sopInstanceUID);
+			    			String message = "DICOM SEG " + sopInstanceUID + " cannot be loaded from file system!";
+			    			if(dicomSeg == null){			    				
 			    				throw new FileNotFoundException(message);
 			    			} else {
 			    				String filePrefix = sopInstanceUID;
-			    				String fileName = null;
+			    				
 			    				IOFileFilter fileFilter = FileFilterUtils.trueFileFilter();
 			    				Iterator<File> tmpFiles = FileUtils.iterateFiles(importDir, fileFilter, null);
+			    				//DICOM SEG tmp file not found e.g. DICOM SEG belongs to not specified Study for which TargetIteratorRunner was not requested
+			    				boolean dicomSegFound = false;
 			    				while(tmpFiles.hasNext()){
 			    					File tmpFile = tmpFiles.next();
 			    					if(tmpFile.getName().startsWith(filePrefix)){
-			    						fileName = tmpFile.getName();
+			    						dicomSegFound = true;
 			    					}
 			    				}
-								DicomOutputStream dout = new DicomOutputStream(new FileOutputStream(fileName));
-								dout.writeDicomFile(segDicom);
-								dout.close();								
+				    			if(dicomSegFound == true){
+			    					File outDicomSegFile = new File(dirPath + File.separator + sopInstanceUID);
+		    						FileOutputStream fos = new FileOutputStream(outDicomSegFile);
+		    						BufferedOutputStream bos = new BufferedOutputStream(fos);
+		    						DicomOutputStream dout = new DicomOutputStream(bos);
+		    						dout.writeDicomFile(dicomSeg);
+		    						dout.close();
+				    			} else if(dicomSegFound == false){
+			    					//There wouldn't be UUIDs for this case since it was not found with the TargetIteratorRunner
+				    				//TODO: build notification, add to the MultiValueMap etc.
+				    				//Eliminate duplicate code with dicomSegFound = true
+			    					File outDicomSegFile = new File(dirPath + File.separator + sopInstanceUID);
+		    						FileOutputStream fos = new FileOutputStream(outDicomSegFile);
+		    						BufferedOutputStream bos = new BufferedOutputStream(fos);
+		    						DicomOutputStream dout = new DicomOutputStream(bos);
+		    						dout.writeDicomFile(dicomSeg);
+		    						dout.close();
+			    				}				
 			    			}
 			    		}
-			    	}	*/	  
+			    	}	//	  
 				}				
 			}else if(retrieveTarget == ADRetrieveTarget.AIM_SEG){
 				//Retrieve AIM		
