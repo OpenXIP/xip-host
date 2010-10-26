@@ -283,39 +283,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		}		
 	}
     
-    /*
-    int selectedTabIndex = 0;
-    class CenterTabMouseAdapter extends MouseAdapter{
-    	public void mousePressed(MouseEvent e) {
-			// 1= left mouse click
-    		if(e.getButton() == 1){
-				if(e.getSource() == tabPaneCenter){					
-					selectedTabIndex = (((JTabbedPane)e.getSource()).getSelectedIndex());					
-					//String selectedTabTitle = tabPaneCenter.getTitleAt(selectedTabIndex);
-					//System.out.println("Title: " + (selectedTabTitle));
-				}
-			}
-		}
-    	public void mouseReleased(MouseEvent e){     					
-     		//3 = right mouse click
-     		if(e.getButton() == 3){
-     			if(e.getSource() == tabPaneCenter){					
-					selectedTabIndex = (((JTabbedPane)e.getSource()).getSelectedIndex());
-				}
-     		}
-    	}
-    }
-    */
-    /*
-    public static Query determinSelectedDataSource(){
-    	Query query = null;
-    	if(selectedTabIndex == 0){
-    		//query = new AVTQueryStub(null, null, null, null, null);
-    		query = new AVTQuery(null, null, null, null, null);
-    	}
-    	return query;
-    }
-    */
     public void setUserName(String userName){
     	this.userName = userName;
     }

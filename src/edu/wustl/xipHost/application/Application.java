@@ -86,7 +86,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			throw new IllegalArgumentException("Application parameters are invalid: " + 
 					name + " , " + exePath + " , " + vendor + " , " + version + 
 					type + " , " + requiresGUI + " , " + wg23DataModelType + " , " + iterationTarget);	
-		} else if(name.isEmpty() || name.trim().length() == 0 || exePath.exists() == false){
+		} else if(name.isEmpty() || name.trim().length() == 0 || exePath.exists() == false ||
+				type.isEmpty() || wg23DataModelType.isEmpty() || concurrentInstances == 0){
 			try {
 				throw new IllegalArgumentException("Application parameters are invalid: " + 
 						name + " , " + exePath.getCanonicalPath() + " , " + vendor + " , " + version);

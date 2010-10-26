@@ -13,10 +13,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.apache.log4j.Logger;
@@ -47,29 +44,19 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		}else{
 			iconFile = new ImageIcon(app.getIconFile().getPath());
 		}
+		//ImageIcon imageIcon = new ImageIcon("./gif/app2-32x32.png");
+		//JLabel label = new JLabel(imageIcon);
 		final AppButton btn = new AppButton(app.getName(), iconFile);
-		btn.setPreferredSize(new Dimension(150, 25));
-		//btn.setOpaque(true);			
+		double preferredWidth = btn.getPreferredSize().getWidth();
+		if(preferredWidth < 100){
+			btn.setPreferredSize(new Dimension(100, 25));
+		}
 		btn.setApplicationUUID(app.getID());
 		btn.setForeground(Color.BLACK);			
 		btn.addActionListener(this);
 		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		add(btn);
-    	repaint();
-	}
-	
-	public class AppButton extends JButton{		
-		public AppButton(String text, Icon icon){
-			super(text, icon);
-		}
-		
-		UUID appUUID;
-		public void setApplicationUUID(UUID uuid){
-			appUUID = uuid;
-		}
-		public UUID getApplicationUUID(){
-			return appUUID;
-		}
+		//add(label);
 	}
 
 	

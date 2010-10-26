@@ -49,12 +49,22 @@ public class ApplicationListDialog extends JDialog {
 		super(owner, "Registered applications", true);  
 		if(values != null){
 			numOfRows = values.length;		
-			this.values = new Object[numOfRows][4];		
+			this.values = new Object[numOfRows][10];		
 			for(int i = 0; i < numOfRows; i++){
 				this.values[i][0] = ((Application)values[i]).getName();
 				this.values[i][1] = ((Application)values[i]).getExePath();
 				this.values[i][2] = ((Application)values[i]).getVendor();
-				this.values[i][3] = ((Application)values[i]).getVersion();			
+				this.values[i][3] = ((Application)values[i]).getVersion();
+				if(((Application)values[i]).getIconFile() != null){
+					this.values[i][4] = ((Application)values[i]).getIconFile().getAbsolutePath();
+				}else{
+					this.values[i][4] = "";
+				}
+				this.values[i][5] = ((Application)values[i]).getType();
+				this.values[i][6] = ((Application)values[i]).requiresGUI();
+				this.values[i][7] = ((Application)values[i]).getWG23DataModelType();
+				this.values[i][8] = ((Application)values[i]).getConcurrentInstances();
+				this.values[i][9] = ((Application)values[i]).getIterationTarget().toString();
 			}		
 		}		
 		add(panel);		
@@ -65,7 +75,7 @@ public class ApplicationListDialog extends JDialog {
 		appListTable.getTableHeader().setAlignmentX(SwingConstants.CENTER);
 		appListTable.setRowSelectionAllowed(true);		
 		TableColumn column = null;		
-		for (int i = 0; i < 4; i++) {            
+		for (int i = 0; i < 10; i++) {            
             column = appListTable.getColumnModel().getColumn( i );            
             switch(i) {
                 case 0:                                    	
@@ -93,6 +103,12 @@ public class ApplicationListDialog extends JDialog {
 			"Path",
             "Vendor",
             "Version",
+            "Icon file",
+            "Type",
+            "Requires GUI",
+            "WG23 data model",
+            "Allowable instances",
+            "Iteration target"
         };    
 		
 		public int getColumnCount() {			
@@ -113,6 +129,20 @@ public class ApplicationListDialog extends JDialog {
                     return values[rowIndex][2];
                 case 3:
                     return values[rowIndex][3];
+                case 4:
+                    return values[rowIndex][4];
+                case 5:
+                    return values[rowIndex][5];
+                case 6:
+                    return values[rowIndex][6];
+                case 7:
+                    return values[rowIndex][7];
+                case 8:
+                    return values[rowIndex][8];
+                case 9:
+                    return values[rowIndex][9];
+                case 10:
+                    return values[rowIndex][10];
                 default:
                     return null;
             }           			
@@ -135,7 +165,25 @@ public class ApplicationListDialog extends JDialog {
                     return 200;
                 //Version
             	case 3:
-                    return 150;                
+                    return 150;
+                //Icon
+            	case 4:
+                    return 200;
+                //Type
+            	case 5:
+                    return 200;
+                //requires GUI
+            	case 6:
+                    return 200;
+                //WG23 data model
+            	case 7:
+                    return 200;
+                //Allowable instances
+            	case 8:
+                    return 300;
+                //Iteration target
+            	case 9:
+                    return 200;
                 default:
                     return 150;
             }
