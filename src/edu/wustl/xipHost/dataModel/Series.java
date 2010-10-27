@@ -80,4 +80,22 @@ public class Series {
 	public void setLastUpdated(Timestamp lastUpdated) {
 		this.lastUpdated = lastUpdated;
 	}
+	
+	@Override
+	public boolean equals(Object objectSeries){
+		Series series = null;
+		if(objectSeries instanceof Series){
+			series = Series.class.cast(objectSeries);
+			String seriesInstanceUID = series.getSeriesInstanceUID();
+			if(seriesInstanceUID.equalsIgnoreCase(this.seriesInstanceUID)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode(){
+		return this.seriesInstanceUID.hashCode();
+	}
 }

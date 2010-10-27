@@ -101,4 +101,22 @@ public class Study {
 	public void setLastUpdated(Timestamp lastUpdated) {
 		this.lastUpdated = lastUpdated;
 	}
+	
+	@Override
+	public boolean equals(Object objectStudy){
+		Study study = null;
+		if(objectStudy instanceof Study){
+			study = Study.class.cast(objectStudy);
+			String studyInstanceUID = study.getStudyInstanceUID();
+			if(studyInstanceUID.equalsIgnoreCase(this.studyInstanceUID)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode(){
+		return this.studyInstanceUID.hashCode();
+	}
 }

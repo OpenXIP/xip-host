@@ -95,4 +95,29 @@ public class Patient {
 	public void setLastUpdated(Timestamp lastUpdated) {
 		this.lastUpdated = lastUpdated;
 	}
+	
+	@Override
+	public boolean equals(Object objectPatient){
+		Patient patient = null;
+		if(objectPatient instanceof Patient){
+			patient = Patient.class.cast(objectPatient);
+			String patientName = patient.getPatientName();	
+			String patientID = patient.getPatientID();
+			String patientBirthDate = patient.getPatientBirthDate();
+			if(patientName.equalsIgnoreCase(this.patientName) && patientID.equalsIgnoreCase(this.patientID) 
+					&& patientBirthDate.equalsIgnoreCase(this.patientBirthDate)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode(){
+		int i = this.patientName.hashCode();
+		int j = this.patientID.hashCode();
+		int k = this.patientBirthDate.hashCode();
+		return i + j + k;
+	}
+	
 }
