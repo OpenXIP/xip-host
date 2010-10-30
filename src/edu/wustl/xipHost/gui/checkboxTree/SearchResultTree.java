@@ -615,6 +615,14 @@ public class SearchResultTree extends JTree {
 	 public SearchResult getSelectedDataSearchResult(){
 		 return selectedDataSearchResult;
 	 }
+	 
+	 public void updateNodes2(SearchResult result) {
+		 
+	 }
+	 
+	 public DefaultMutableTreeNode getRootNode(){
+		 return rootNode;
+	 }
 }
 
 
