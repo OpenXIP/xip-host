@@ -25,6 +25,10 @@ public class StudyNode extends DefaultMutableTreeNode {
 		isSelected = selected;
 	}
 	
+	public boolean isSelected(){
+		return isSelected;
+	}
+	
 	public JCheckBox getCheckBox(){
 		return checkBox;
 	}

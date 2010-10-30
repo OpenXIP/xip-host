@@ -25,6 +25,10 @@ public class SeriesNode extends DefaultMutableTreeNode {
 		isSelected = selected;
 	}
 	
+	public boolean isSelected(){
+		return isSelected;
+	}
+	
 	public JCheckBox getCheckBox(){
 		return checkBox;
 	}

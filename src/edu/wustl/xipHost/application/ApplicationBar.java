@@ -83,11 +83,6 @@ public class ApplicationBar extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		//select current tab
-		//check if selectedDataSearchresult is not null
-		//check if DICOM and DICOM and SEG are selected.
-		//setSelectedDataSearchResult on application
-		
 		AppButton btn = (AppButton)e.getSource();
 		fireLaunchApplication(btn);
 	}
