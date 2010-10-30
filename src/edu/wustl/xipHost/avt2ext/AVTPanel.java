@@ -55,7 +55,9 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
+import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
+import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
@@ -76,7 +78,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	Color xipLightBlue = new Color(156, 162, 189);
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Border border = BorderFactory.createLoweredBevelBorder();		
-	JCheckBox cbxSeries = new JCheckBox("DICOM", false);
+	JCheckBox cbxDicom = new JCheckBox("DICOM", false);
 	JCheckBox cbxAimSeg = new JCheckBox("AIM plus SEG", false);
 	JPanel cbxPanel = new JPanel();
 	JPanel btnPanel = new JPanel();
@@ -96,14 +98,16 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);			
 		rightPanel.add(treeView);
-		cbxSeries.setBackground(xipColor);
-		cbxSeries.setForeground(Color.WHITE);
-		cbxSeries.addItemListener(this);
+		cbxDicom.setBackground(xipColor);
+		cbxDicom.setForeground(Color.WHITE);
+		cbxDicom.addItemListener(this);
+		cbxDicom.setSelected(false);
 		cbxAimSeg.setBackground(xipColor);
 		cbxAimSeg.setForeground(Color.WHITE);
 		cbxAimSeg.addItemListener(this);
+		cbxAimSeg.setSelected(false);
 		cbxPanel.setLayout(new GridLayout(1, 2));		
-		cbxPanel.add(cbxSeries);
+		cbxPanel.add(cbxDicom);
 		cbxPanel.add(cbxAimSeg);
 		cbxPanel.setBackground(xipColor);
 		rightPanel.add(cbxPanel);	
@@ -161,44 +165,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}																	
-		} /*else if (e.getSource() == btnRetrieve){			
-			allRetrivedFiles = new ArrayList<File>();
-			numRetrieveThreadsStarted = 0;
-			numRetrieveThreadsReturned = 0;
-			File importDir = HostConfigurator.getHostConfigurator().getHostTmpDir();						
-			progressBar.setString("Processing retrieve request ...");
-			progressBar.setIndeterminate(true);
-			progressBar.updateUI();	
-			criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-			criteriaPanel.getQueryButton().setEnabled(false);											
-			Map<Series, Study> map = resultTree.getSelectedSeries();
-			Set<Series> seriesSet = map.keySet();
-			Iterator<Series> iter = seriesSet.iterator();
-			while (iter.hasNext()){
-				Series series = iter.next();
-				String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
-				String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();
-				try {
-					ADRetrieveTarget retrieveTarget = null;
-					if(cbxSeries.isSelected() && cbxAimSeg.isSelected()){
-						retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
-					}else if(cbxSeries.isSelected() && !cbxAimSeg.isSelected()){
-						retrieveTarget = ADRetrieveTarget.SERIES;
-					}else if(!cbxSeries.isSelected() && cbxAimSeg.isSelected()){
-						retrieveTarget = ADRetrieveTarget.AIM_SEG;
-					}
-					Map<String, Object> adAimCriteria = criteriaPanel.panelAVT.getSearchCriteria();
-					AVTRetrieve avtRetrieve = new AVTRetrieve(selectedStudyInstanceUID, selectedSeriesInstanceUID, adAimCriteria, importDir, retrieveTarget);
-					avtRetrieve.addAVTListener(this);					
-					Thread t = new Thread(avtRetrieve);
-					t.start();
-					numRetrieveThreadsStarted++;
-				} catch (IOException e1) {
-					logger.error(e1, e1);
-					notifyException(e1.getMessage());
-				}	
-			}									
-		}*/
+		}
+		
 	}
 	
 	void buildLayout(){				
@@ -290,7 +258,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		if(result == null){			
 			resultTree.updateNodes(result);
 		}else{
-			resultTree.updateNodes(result);			
+			resultTree.updateNodes(result);
+			//resultTree.updateNodes2(result);
 		}											
 		progressBar.setString("AVT AD Search finished");
 		progressBar.setIndeterminate(false);				
@@ -363,7 +332,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		});
 		criteriaPanel.getQueryButton().setBackground(xipBtn);
 		criteriaPanel.getQueryButton().setEnabled(true);		
-		cbxSeries.setSelected(false);
+		cbxDicom.setSelected(false);
 		cbxAimSeg.setSelected(false);
 	}
 	
@@ -371,7 +340,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	int queryNodeIndex = 0;
 	MouseListener ml = new MouseAdapter(){
 	     public void mousePressed(MouseEvent e) {
-	    	 if(resultTree.getSelectedSeries().size() > 0 && (cbxSeries.isSelected() || cbxAimSeg.isSelected())){
+	    	 if(resultTree.getSelectedSeries().size() > 0 && (cbxDicom.isSelected() || cbxAimSeg.isSelected())){
 	    		
 	    	 }else{
 	    		
@@ -525,62 +494,120 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		JCheckBox source = (JCheckBox) e.getItemSelectable();
-	    if (source == cbxSeries) {
-	    	    	
-	    } else if (source == cbxAimSeg) {
-	    	
-	    }
-	    if(resultTree.getSelectedSeries().size() > 0 && (cbxSeries.isSelected() || cbxAimSeg.isSelected())){
-    		
-    	 }else{
-    		
-    	 }
+		JCheckBox source = (JCheckBox)e.getItemSelectable();
+		if (source == cbxDicom){
+			if (e.getStateChange() == ItemEvent.SELECTED){
+				cbxDicom.setSelected(true);
+			} else if (e.getStateChange() == ItemEvent.DESELECTED){
+				cbxDicom.setSelected(false);
+			}
+		} else if (source == cbxAimSeg){
+			if (e.getStateChange() == ItemEvent.SELECTED){
+				cbxAimSeg.setSelected(true);
+			} else if (e.getStateChange() == ItemEvent.DESELECTED){
+				cbxAimSeg.setSelected(false);
+			}
+		}
 	}
 
 	@Override
 	public void launchApplication(ApplicationEvent event ) {
-		AppButton btn = (AppButton)event.getSource();
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(btn.getApplicationUUID());
-		String appID = app.getID().toString();
-		logger.debug("Application internal id: " + appID);
-		String instanceName = app.getName();
-		logger.debug("Application name: " + instanceName);
-		File instanceExePath = app.getExePath();
-		logger.debug("Exe path: " + instanceExePath);
-		String instanceVendor = app.getVendor();
-		logger.debug("Vendor: " + instanceVendor);
-		String instanceVersion = app.getVersion();
-		logger.debug("Version: " + instanceVersion);
-		File instanceIconFile = app.getIconFile();
-		String type = app.getType();
-		logger.debug("Type: " + type);
-		boolean requiresGUI = app.requiresGUI();
-		logger.debug("Requires GUI: " + requiresGUI);
-		String wg23DataModelType = app.getWG23DataModelType();
-		logger.debug("WG23 data model type: " + wg23DataModelType);
-		int concurrentInstances = app.getConcurrentInstances();
-		logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
-		IterationTarget iterationTarget = app.getIterationTarget();
-		logger.debug("IterationTarget: " + iterationTarget.toString());
-		
-		//Check if application to be launched is not running.
-		//If yes, create new application instance
-		State state = app.getState();
-		Query query = avtQuery;
-		if(state != null && !state.equals(State.EXIT)){
-			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-			instanceApp.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
-			instanceApp.setDataSource(query);
-			instanceApp.setDoSave(false);
-			appMgr.addApplication(instanceApp);		
-			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-		}else{
-			app.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
-			app.setDataSource(query);
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
-		}					
+		logger.debug("Current data source tab: " + AVTPanel.class.getName());
+		//check if DICOM or AIM and SEG check boxes are selected.
+		if(cbxDicom.isSelected() == false && cbxAimSeg.isSelected() == false){
+			logger.debug("Is dataset type spesified: " + false);
+			logger.warn("DICOM or AIM and SEG boxes not selected");
+			new ExceptionDialog("Cannot launch selected application.", 
+					"Ensure DICOM or AIM plus SEG check boxes are selected.",
+					"Launch Application Dialog");
+			return;
+    	}
+		//check if selectedDataSearchresult is not null and at least one PatientNode is selected
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
+		boolean isDataSelected = false;
+		if(rootNode != null){
+			if(rootNode.getChildCount() != 0){
+				DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+				int numOfPatients = locationNode.getChildCount();
+				if (numOfPatients == 0){
+					logger.warn("No data is selected");
+					new ExceptionDialog("Cannot launch selected application.", 
+							"No dataset selected. Please query and select data nodes.",
+							"Launch Application Dialog");
+					return;
+				} else {
+					for(int i = 0; i < numOfPatients; i++){
+						PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(i);
+						if(existingPatientNode.isSelected() == true){
+							isDataSelected = true;
+							break;
+						}
+					}
+					if(isDataSelected == false){
+						logger.warn("No data is selected");
+						new ExceptionDialog("Cannot launch selected application.", 
+								"No dataset selected. Please select data nodes.",
+								"Launch Application Dialog");
+						return;
+					}
+				}
+			} else {
+				logger.warn("No data is selected");
+				new ExceptionDialog("Cannot launch selected application.", 
+						"No dataset selected. Please query and select data nodes.",
+						"Launch Application Dialog");
+				return;
+			}
+		} else {
+			logger.warn("No data is selected");
+			new ExceptionDialog("Cannot launch selected application.", 
+					"No dataset selected. Please query and select data nodes.",
+					"Launch Application Dialog");
+			return;
+		}
+		if(isDataSelected){
+			AppButton btn = (AppButton)event.getSource();
+			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+			Application app = appMgr.getApplication(btn.getApplicationUUID());
+			String appID = app.getID().toString();
+			logger.debug("Application internal id: " + appID);
+			String instanceName = app.getName();
+			logger.debug("Application name: " + instanceName);
+			File instanceExePath = app.getExePath();
+			logger.debug("Exe path: " + instanceExePath);
+			String instanceVendor = app.getVendor();
+			logger.debug("Vendor: " + instanceVendor);
+			String instanceVersion = app.getVersion();
+			logger.debug("Version: " + instanceVersion);
+			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			logger.debug("Type: " + type);
+			boolean requiresGUI = app.requiresGUI();
+			logger.debug("Requires GUI: " + requiresGUI);
+			String wg23DataModelType = app.getWG23DataModelType();
+			logger.debug("WG23 data model type: " + wg23DataModelType);
+			int concurrentInstances = app.getConcurrentInstances();
+			logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+			IterationTarget iterationTarget = app.getIterationTarget();
+			logger.debug("IterationTarget: " + iterationTarget.toString());
+			
+			//Check if application to be launched is not running.
+			//If yes, create new application instance
+			State state = app.getState();
+			Query query = avtQuery;
+			if(state != null && !state.equals(State.EXIT)){
+				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+				instanceApp.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
+				instanceApp.setDataSource(query);
+				instanceApp.setDoSave(false);
+				appMgr.addApplication(instanceApp);		
+				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+			}else{
+				app.setSelectedDataSearchResult(resultTree.getSelectedDataSearchResult());
+				app.setDataSource(query);
+				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
+			}	
+		}				
 	}
 }

@@ -59,7 +59,6 @@ public class HostConfigurator {
 	
 	public boolean runHostStartupSequence(){		
 		logger.info("Launching XIPHost. Platform " + OS);
-		//DisplayLoginDialog
 		LoginDialog loginDialog = new LoginDialog();
 		loginDialog.setLogin(login);
 		loginDialog.setModal(true);
