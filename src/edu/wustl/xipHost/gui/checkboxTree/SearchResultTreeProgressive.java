@@ -158,10 +158,10 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 			}
 		} else {
 			locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+			int numOfPatientNodes = locationNode.getChildCount();
 			PatientNode patientNode = null;
 			for(int i = 0; i < result.getPatients().size(); i++){
 				final Patient patient = result.getPatients().get(i);
-				int numOfPatientNodes = locationNode.getChildCount();
 				for(int a = 0; a < numOfPatientNodes; a++){
 					PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(a);
 					Patient existingPatient = (Patient) existingPatientNode.getUserObject();
