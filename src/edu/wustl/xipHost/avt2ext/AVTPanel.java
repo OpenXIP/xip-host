@@ -60,6 +60,8 @@ import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
+import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
+import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
@@ -364,7 +366,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     			AttributeList initialCriteria = criteriaPanel.getFilterList();
 		     			if(selectedNode instanceof Patient){			     				
 		     				Patient selectedPatient = Patient.class.cast(selectedNode);
-		     				logger.info("Staring node query: " + selectedPatient.toString());
+		     				logger.info("Starting node query: " + selectedPatient.toString());
 		     				//Retrieve studies for selected patient
 		     				progressBar.setString("Processing search request ...");
 		     				progressBar.setIndeterminate(true);
@@ -405,7 +407,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     				repaint();
 		     			}else if(selectedNode instanceof Study){
 		     				Study selectedStudy = Study.class.cast(selectedNode);
-		     				logger.info("Staring node query: " + selectedStudy.toString());
+		     				logger.info("Starting node query: " + selectedStudy.toString());
 		     				//Retrieve studies for selected patient
 		     				progressBar.setString("Processing search request ...");
 		     				progressBar.setIndeterminate(true);
@@ -446,7 +448,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     				repaint();
 		     			} else if(selectedNode instanceof Series){
 		     				Series selectedSeries = Series.class.cast(selectedNode);
-		     				logger.info("Staring node query: " + selectedSeries.toString());
+		     				logger.info("Starting node query: " + selectedSeries.toString());
 		     				//Retrieve annotations for selected series		     				
 		     				progressBar.setString("Processing search request ...");
 		     				progressBar.setIndeterminate(true);
@@ -541,6 +543,24 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 						if(existingPatientNode.isSelected() == true){
 							isDataSelected = true;
 							break;
+						} else {
+							int numOfStudies = existingPatientNode.getChildCount();
+							for(int j = 0; j < numOfStudies; j++){
+								StudyNode existingStudyNode = (StudyNode)existingPatientNode.getChildAt(j);
+								if(existingStudyNode.isSelected() == true){
+									isDataSelected = true;
+									break;
+								} else {
+									int numOfSeries = existingStudyNode.getChildCount();
+									for(int k = 0; k < numOfSeries; k++){
+										SeriesNode existingSeriesNode = (SeriesNode)existingStudyNode.getChildAt(k);
+										if(existingSeriesNode.isSelected() == true){
+											isDataSelected = true;
+											break;
+										}
+									}
+								}
+							}
 						}
 					}
 					if(isDataSelected == false){
