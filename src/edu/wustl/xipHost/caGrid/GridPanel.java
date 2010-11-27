@@ -548,7 +548,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     			AttributeList initialCriteria = criteriaPanel.getFilterList();
 			     			if(selectedNode instanceof Patient){			     				
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);
-			     				logger.info("Staring node query: " + selectedPatient.toString());
+			     				logger.info("Starting node query: " + selectedPatient.toString());
 			     				//Retrieve studies for selected patient
 			     				rightPanel.btnRetrieve.setEnabled(false);
 			     				rightPanel.cbxAnnot.setEnabled(false);
@@ -589,7 +589,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				repaint();
 			     			}else if(selectedNode instanceof Study){
 			     				Study selectedStudy = Study.class.cast(selectedNode);
-			     				logger.info("Staring node query: " + selectedStudy.toString());
+			     				logger.info("Starting node query: " + selectedStudy.toString());
 			     				//Retrieve studies for selected patient
 			     				rightPanel.btnRetrieve.setEnabled(false);
 			     				rightPanel.cbxAnnot.setEnabled(false);

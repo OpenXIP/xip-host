@@ -50,7 +50,7 @@ public class GridQuery implements Runnable {
 			} catch (SerializationException e) {			
 				logger.error(e, e);
 			}
-			logger.debug("CQL query statement: " + strCQL);
+			logger.debug("CQL query statement: " + "\r\n" + "\r\n" + strCQL);
 			logger.debug("Grid location: " + gridLocation.toString());
 			if(previousSearchResult == null){
 				logger.debug("Previous search result: " + previousSearchResult);
