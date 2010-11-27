@@ -222,7 +222,7 @@ public class SearchResultTree extends JTree {
 	}
 	
 	MouseListener ml = new MouseAdapter() {
-	    public void mousePressed(MouseEvent e) {	    	
+		 public void mouseClicked(MouseEvent e) {		    	
 	    	if(e.getClickCount() == 1){
 	    		int x = e.getX();
 		     	int y = e.getY();
