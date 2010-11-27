@@ -4,7 +4,6 @@
 package edu.wustl.xipHost.gui.checkboxTree;
 
 import javax.swing.JCheckBox;
-import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -14,7 +13,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class StudyNode extends DefaultMutableTreeNode {
 	JCheckBox checkBox;
 	boolean isSelected;
-	JPanel panel;
 	
 	public StudyNode(Object userObject){
 		super(userObject);
