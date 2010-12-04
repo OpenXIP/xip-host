@@ -29,7 +29,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		super();
 	}
 	
-	
+	/*
 	//List<SearchResult> results;
 	public void updateNodes(SearchResult result) {					    			
 		//results = new ArrayList<SearchResult>();
@@ -124,6 +124,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		treeModel.reload(rootNode);
 		expandAll();		
 	}
+	*/
 	
 	public void updateNodes2(SearchResult result) {					    			
 		//results = new ArrayList<SearchResult>();
@@ -185,7 +186,11 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 										return study;
 									}					
 								};
-								patientNode.add(studyNode);
+								if(patientNode.isSelected()){
+									studyNode.setSelected(true);
+      		     					studyNode.getCheckBox().setSelected(true);
+								}
+								patientNode.add(studyNode);								
 							}
 						} else {
 							StudyNode studyNode = null;
@@ -214,6 +219,10 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 														return series;
 													}
 												};
+												if(studyNode.isSelected()){
+													seriesNode.setSelected(true);
+				      		     					seriesNode.getCheckBox().setSelected(true);
+												}
 												studyNode.add(seriesNode);
 											}
 										} else {
@@ -318,6 +327,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		    Patient patient2 = new Patient("Jarek Krych", "2020202", "19730718");
 		    result.addPatient(patient1);
 		    result.addPatient(patient2);
-		    searchTree.updateNodes(result);
+		    //searchTree.updateNodes(result);
+		    searchTree.updateNodes2(result);
 		}
 }
