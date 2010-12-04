@@ -22,12 +22,20 @@ public class SearchResult {
 	List<Item> items = new ArrayList<Item>();
 	Criteria originalCriteria;
 	
+	public SearchResult(){
+		
+	}
+	
 	public SearchResult(String datasoureDescription){
 		this.datasoureDescription = datasoureDescription;
 	}
 	
 	public String getDataSourceDescription(){
-		return new String("Search Result:" + this.datasoureDescription);
+		return new String(this.datasoureDescription);
+	}
+	
+	public void setDataSourceDescription(String sourceDescription){
+		datasoureDescription = sourceDescription;
 	}
 	
 	public String toString(){						
