@@ -426,9 +426,11 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 		DicomQuery dicomQuery = (DicomQuery)e.getSource();
 		result = dicomQuery.getSearchResult();		        
 		if(result == null){			
-			resultTree.updateNodes(result);
+			//resultTree.updateNodes(result);
+			resultTree.updateNodes2(result);
 		}else{
-			resultTree.updateNodes(result);			
+			//resultTree.updateNodes(result);			
+			resultTree.updateNodes2(result);
 		}							
 		progressBar.setString("DicomSearch finished");
 		progressBar.setIndeterminate(false);		
