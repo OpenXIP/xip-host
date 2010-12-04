@@ -309,9 +309,9 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 		DicomQuery dicomQuery = (DicomQuery)e.getSource();
 		SearchResult result = dicomQuery.getSearchResult();		        
 		if(result == null){			
-			resultTree.updateNodes(result);
+			resultTree.updateNodes2(result);
 		}else{
-			resultTree.updateNodes(result);			
+			resultTree.updateNodes2(result);			
 		}
 		numOfCurrentLoc++;
 		if(numOfCurrentLoc == totalNumLocs){
@@ -323,7 +323,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 	public void searchResultAvailable(GridSearchEvent e) {		
 		GridQuery gridQuery = (GridQuery)e.getSource();
 		SearchResult result = gridQuery.getSearchResult();							
-		resultTree.updateNodes(result);			
+		resultTree.updateNodes2(result);			
 		numOfCurrentLoc++;
 		if(numOfCurrentLoc == totalNumLocs){
 			progressBar.setString("GlobalSearch finished");
