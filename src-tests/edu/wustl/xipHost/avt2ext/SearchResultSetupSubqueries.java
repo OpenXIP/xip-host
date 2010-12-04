@@ -1,18 +1,15 @@
 package edu.wustl.xipHost.avt2ext;
 
-import java.awt.BorderLayout;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.JFrame;
 import org.dcm4che2.data.Tag;
 import edu.wustl.xipHost.avt2ext.iterator.Criteria;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 
 public class SearchResultSetupSubqueries {
 	SearchResult result = new SearchResult("Test");
@@ -93,16 +90,4 @@ public class SearchResultSetupSubqueries {
 	public SearchResult getSearchResult(){
 		return result;
 	}
-	
-	public static void main(String args[] ){
-		SearchResultTreeProgressive searchTree = new SearchResultTreeProgressive();
-		JFrame frame = new JFrame();
-		frame.getContentPane().add(searchTree, BorderLayout.CENTER);		
-		frame.setSize(650, 300);
-	    frame.setVisible(true);
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    SearchResultSetupSubqueries searchResult = new SearchResultSetupSubqueries();
-	    searchTree.updateNodes(searchResult.getSearchResult());
-	}
-	
 }
