@@ -1,0 +1,97 @@
+**
+ * OHT IHE Profiles Release 1.1.0 Notes
+ * https://iheprofiles.projects.openhealthtools.org
+ *
+ * August 27, 2010
+ * 
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *
+ **************************************************************************
+ 
+
+  Release 1.1.0 of the OHT IHE Profiles Project has three distribution packages - 
+
+  1) IHE Profiles Core Plug-ins containing IHE Profiles ATNA, PDQ, PIX, XUA, XDS Components
+  2) The Bridge Installation Package containing configuration files, binaries for RPC-style web services 
+  3) The Bridge Standalone Plugins containing just the Bridge core logic plus the IHE core plug-ins
+
+  Javadoc for Release 1.1.0 can be found in online at:
+  https://www.projects.openhealthtools.org/sf/projects/iheprofiles/javadocs/
+
+  
+  Issues closed by this Release:
+
+Title	Target milestone	Status	Resolution	Submitted By	Assigned To
+[Issue 94] - XML String Print Indention	1.1.0	CLOSED	FIXED	Sondra Renly	Anthony LaRocca
+[Issue 89] - PIX Consumer - NIST Pre-Connectathon Testing	1.1.0	CLOSED	FIXED	Sondra Renly	Sondra Renly
+[Issue 99] - NA2010 PDQ Query Continuation Quantity	1.1.0	CLOSED	FIXED	Sondra Renly	Sarah Knoop
+[Issue 98] - NA2010 Bridge PDQ Consumer - not handling multiple patient IDs in PID-3 response	1.1.0	CLOSED	FIXED  Renly LaRocca
+[Issue 97] - NA2010 PIX/PDQ v3 fixes from Connectathon	1.1.0	CLOSED	FIXED	Anthony LaRocca	Anthony LaRocca
+[Issue 96] - NA2010 FindDocumentQueryType needs to support code scheme for metadata	1.1.0	CLOSED	FIXED	LaRocca	LaRocca
+[Issue 91] - Axis2 bug causing difference in schema and serialization for HL7Version	1.1.0	CLOSED	FIXED	Pangburn Knoop
+[Issue 90] - XDS.b Source does not send MTOM when no document present	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 9] - add FAQ to the wiki	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 86] - Bridge sends MSH-11 in audit logs where it should send MSH-10	1.1.0	CLOSED	FIXED	Jesse Pangburn	Sondra Renly
+[Issue 85] - 1.1 trunk fails to do XDS.b RetrieveDocumentSet properly	1.1.0	CLOSED	FIXED	Jesse Pangburn	Sarah Knoop
+[Issue 83] - Refactor to create IHE Soap pacakges from XDS Soap Packages	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 81] - pix v3 in bridge	1.1.0	CLOSED	FIXED	Sarah Knoop	Anthony LaRocca
+[Issue 80] - pdq v3 in bridge	1.1.0	CLOSED	FIXED	Sarah Knoop	Anthony LaRocca
+[Issue 79] - implemtn PIX v3	1.1.0	CLOSED	FIXED	Sarah Knoop	Anthony LaRocca
+[Issue 78] - Implement PDQ v3	1.1.0	CLOSED	FIXED	Sarah Knoop	Anthony LaRocca
+[Issue 77] - Impement MPQ	1.1.0	CLOSED	FIXED	Sarah Knoop	Sondra Renly
+[Issue 76] - Verify CP 394	1.1.0	CLOSED	INVALID	Sarah Knoop	Jesse Pangburn
+[Issue 75] - Implement CP 429	1.1.0	CLOSED	FIXED	Sarah Knoop	Jesse Pangburn
+[Issue 74] - Implement CP 427	1.1.0	CLOSED	INVALID	Sarah Knoop	Jesse Pangburn
+[Issue 73] - Implement CP 388	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 72] - Implement CP 425	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 71] - Apply CP 426	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 70] - Verify CP 419	1.1.0	CLOSED	INVALID	Sarah Knoop	Sarah Knoop
+[Issue 69] - Implement CP 415	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 68] - Updates based on CP 409	1.1.0	CLOSED	INVALID	Sarah Knoop	Anthony LaRocca
+[Issue 67] - Implement CP 409	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 66] - Investigate CP 377	1.1.0	CLOSED	WONTFIX	Sarah Knoop	Sarah Knoop
+[Issue 65] - Implement CP 316	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 64] - Implement CP 403	1.1.0	CLOSED	FIXED	Sarah Knoop	Jesse Pangburn
+[Issue 63] - Apply CP 364	1.1.0	CLOSED	FIXED	Sarah Knoop	Anthony LaRocca
+[Issue 62] - Apply CP 308	1.1.0	CLOSED	FIXED	Sarah Knoop	Anthony LaRocca
+[Issue 61] - Implement CP 447	1.1.0	CLOSED	FIXED	Sarah Knoop	Sondra Renly
+[Issue 60] - Implement CP 417	1.1.0	CLOSED	FIXED	Sarah Knoop	Jesse Pangburn
+[Issue 59] - Apply CP 404	1.1.0	CLOSED	FIXED	Sarah Knoop	Jesse Pangburn
+[Issue 58] - Implement CP 420	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 57] - Implement CP 363	1.1.0	CLOSED	INVALID	Sarah Knoop	Sarah Knoop
+[Issue 55] - SynchronousAuditQueue prints to stderr	1.1.0	CLOSED	FIXED	Jeremy Huiskamp	Jesse Pangburn
+[Issue 51] - XDS.b Consumer primary repository	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 49] - Axis2 version of 1.1.0 seems to have a classpath problem	1.1.0	CLOSED	FIXED	Jesse Pangburn	Matthew Davis
+[Issue 48] - document being removed from SOAP rquest	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 46] - TestConfiguration issue	1.1.0	CLOSED	FIXED	Italo Giovani Stefani	Sondra Renly
+[Issue 44] - missing jars in exported org.apache.axis2 project	1.1.0	CLOSED	FIXED	Lee Surprenant	Matthew Davis
+[Issue 41] - NA 2009: XDS Response Type - submission set and folder response model	1.1.0	CLOSED	FIXED	Knoop	Knoop
+[Issue 134] - Escape slashes in usernames in Bridge generated log directories	1.1.0	CLOSED	FIXED	Anthony LaRocca	Anthony LaRocca
+[Issue 124] - ProvideAndRegister with XFRM_RPLC option uses wrong AssociationType code	1.1.0	CLOSED	FIXED	Huiskamp Renly
+[Issue 123] - GetRelatedDocuments query AssociationType uses wrong prefix	1.1.0	CLOSED	FIXED	Jeremy Huiskamp	Sarah Knoop
+[Issue 122] - Slow IO in XDSDocumentFromStream	1.1.0	CLOSED	FIXED	Andrew Harrison	Sarah Knoop
+[Issue 121] - Memory Leaking: ProvideAndRegisterDocSet-B org.eclipse.emf.ecore.xmi.XMLResource	1.1.0	CLOSED	FIXED Ahmad Knoop
+[Issue 119] - Add Null Check -  V3Acknowledgement AcknowledgementDetail::code	1.1.0	CLOSED	FIXED	Anthony LaRocca	Anthony LaRocca
+[Issue 118] - XDS Consumer SQ ATNA: add patient id if available	1.1.0	CLOSED	FIXED	Arnout Engelen	Sarah Knoop
+[Issue 117] - svs package has wrong namespace	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 116] - Issues extracting malformed authorperson values in QueryDocumentsFind response	1.1.0	CLOSED	FIXED  Cruz	Renly
+[Issue 115] - NPE when parsing patient name in the presence of extra field delimiters	1.1.0	CLOSED	FIXED	Robert Cruz	Knoop
+[Issue 114] - XUA - thread lock when attempting to connect to STS to retrieve SAML token	1.1.0	CLOSED	FIXED  Cruz	Knoop
+[Issue 110] - XDSTooMayResults -> XDSTooManyResults typo	1.1.0	CLOSED	FIXED	Jeremy Huiskamp	Sarah Knoop
+[Issue 11] - Implementation of SVS Consumer plugin	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 106] - NA2010 - XUA document default enabled transactions	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 104] - NA2010 - XUA assertion namespaces incorrect	1.1.0	CLOSED	FIXED	Sarah Knoop	Sarah Knoop
+[Issue 103] - NA2010 Add v3 support for Pediatric Demographic Option	1.1.0	CLOSED	FIXED	Sondra Renly	Anthony LaRocca
+[Issue 102] - Bridge returns no documents on XCA query with partial success status	1.1.0	CLOSED	FIXED	Pangburn   Pangburn
+[Issue 100] - NA2010 PDQ Empty LivingSubjectName	1.1.0	CLOSED	FIXED	Sondra Renly	Anthony LaRocca
+[Issue 84] - CDA parsing fails for valid C32 using vocabulary in referenced xsd	1.1.0	CLOSED	FIXED	Anthony LaRocca	Sarah Knoop
+[Issue 109] - Unable to add XUA phase handlers from bridge	1.1.0	CLOSED	FIXED	Robert Cruz	Sarah Knoop
+[Issue 95] - NA2010 PIX/PDQ Query QPD-1	1.1.0	CLOSED	FIXED	Sondra Renly	Sondra Renly
+[Issue 88] - PIX Source - NIST Pre-Connectathon Testing	1.1.0	CLOSED	FIXED	Sondra Renly	Sondra Renly
+[Issue 54] - ClassLoader exception on RetrieveDocumentSet / no document returned	1.1.0	CLOSED	FIXED	Knoop	Knoop
