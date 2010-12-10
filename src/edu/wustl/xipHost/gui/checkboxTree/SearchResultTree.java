@@ -206,19 +206,9 @@ public class SearchResultTree extends JTree {
 	}
 	
 	
-	Map<Series, Study> selectedSeries = new LinkedHashMap<Series, Study>();			
 	public Map<Series, Study> getSelectedSeries(){
-		return selectedSeries;
+		return null;
 	}
-	
-	public void clearSelectedSeries(){
-		selectedSeries.clear();
-	}
-	 
-	 SearchResult selectedDataSearchResult;
-	 public SearchResult getSelectedDataSearchResult(){
-		 return selectedDataSearchResult;
-	 }
 	 
 	 public void updateNodes2(SearchResult result) {
 		 
@@ -226,6 +216,9 @@ public class SearchResultTree extends JTree {
 	 
 	 public DefaultMutableTreeNode getRootNode(){
 		 return rootNode;
+	 }
+	 public DefaultTreeModel getTreeModel(){
+		 return treeModel;
 	 }
 }
 

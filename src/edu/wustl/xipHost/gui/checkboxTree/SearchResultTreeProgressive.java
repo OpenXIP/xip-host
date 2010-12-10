@@ -4,6 +4,10 @@
 package edu.wustl.xipHost.gui.checkboxTree;
 
 import java.awt.BorderLayout;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -126,6 +130,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 	}
 	*/
 	
+	SearchResult selectedDataSearchResult;
 	public void updateNodes2(SearchResult result) {					    			
 		//results = new ArrayList<SearchResult>();
 		selectedDataSearchResult = new SearchResult("Selected data for " + result.getDataSourceDescription());
@@ -135,7 +140,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 			rootNode.removeAllChildren();
 			treeModel.reload(rootNode);
 			return;
-		}	    	    	    	      		   	    	    				
+		} 
 		DefaultMutableTreeNode locationNode;
 		if(rootNode.getChildCount() == 0){
 			locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
@@ -300,34 +305,34 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 
 	
 	 public static void main(String[] args) {
-			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());			
-				//UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			} catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (InstantiationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IllegalAccessException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (UnsupportedLookAndFeelException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}		  
-			SearchResultTreeProgressive searchTree = new SearchResultTreeProgressive();
-			JFrame frame = new JFrame();
-			frame.getContentPane().add(searchTree, BorderLayout.CENTER);		
-			frame.setSize(650, 300);
-		    frame.setVisible(true);
-		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	    
-			SearchResult result = new SearchResult("WashU Test");
-		    Patient patient1 = new Patient("Jaroslaw Krych", "1010101", "19730718");
-		    Patient patient2 = new Patient("Jarek Krych", "2020202", "19730718");
-		    result.addPatient(patient1);
-		    result.addPatient(patient2);
-		    //searchTree.updateNodes(result);
-		    searchTree.updateNodes2(result);
-		}
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());			
+			//UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (InstantiationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}		  
+		SearchResultTreeProgressive searchTree = new SearchResultTreeProgressive();
+		JFrame frame = new JFrame();
+		frame.getContentPane().add(searchTree, BorderLayout.CENTER);		
+		frame.setSize(650, 300);
+	    frame.setVisible(true);
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	    
+		SearchResult result = new SearchResult("WashU Test");
+	    Patient patient1 = new Patient("Jaroslaw Krych", "1010101", "19730718");
+	    Patient patient2 = new Patient("Jarek Krych", "2020202", "19730718");
+	    result.addPatient(patient1);
+	    result.addPatient(patient2);
+	    //searchTree.updateNodes(result);
+	    searchTree.updateNodes2(result);
+	}
 }
