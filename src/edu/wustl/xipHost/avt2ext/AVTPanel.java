@@ -140,7 +140,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		if(e.getSource() == criteriaPanel.getQueryButton()){												
 			logger.info("Starting AVT query.");
 			resultTree.rootNode.removeAllChildren();
-			resultTree.clearSelectedSeries();
 			progressBar.setBackground(new Color(156, 162, 189));
 		    progressBar.setForeground(xipColor);
 			progressBar.setString("Processing search request ...");
@@ -328,7 +327,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		result = null;							
 		//resultTree.updateNodes(result);
 		resultTree.updateNodes2(result);
-		resultTree.clearSelectedSeries();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
