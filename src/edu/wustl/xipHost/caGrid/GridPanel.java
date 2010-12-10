@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +61,7 @@ import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.localFileSystem.FileManager;
@@ -83,7 +85,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();			
 	JPanel leftPanel = new JPanel();
 	RightPanel rightPanel = new RightPanel();
-	SearchResultTree resultTree;
+	SearchResultTreeProgressive resultTree;
 	JProgressBar progressBar = new JProgressBar();	
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Font font_2 = new Font("Tahoma", 0, 12);		
@@ -317,8 +319,11 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			selectedGridTypeAimService = (GridLocation)item;			
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){
 			logger.info("Starting GRID query.");
-			rightPanel.btnRetrieve.setEnabled(false);
-			rightPanel.cbxAnnot.setEnabled(false);
+			//Remove existing children from the result JTree and reload JTree
+			resultTree.getRootNode().removeAllChildren();
+			resultTree.getTreeModel().reload(resultTree.getRootNode());
+			rightPanel.btnRetrieve.setEnabled(true);
+			rightPanel.cbxAnnot.setEnabled(true);
 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
@@ -351,8 +356,8 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
 				criteriaPanel.getQueryButton().setEnabled(false);
 				rightPanel.btnRetrieve.setBackground(Color.GRAY);
-				rightPanel.btnRetrieve.setEnabled(false);
-				rightPanel.cbxAnnot.setEnabled(false);																
+				rightPanel.btnRetrieve.setEnabled(true);
+				rightPanel.cbxAnnot.setEnabled(true);																
 				if(selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("DICOM")){					
 					for(int i = 0; i < criteriasDicom.size(); i++){
 						CQLQuery cqlQuery = criteriasDicom.get(i);
@@ -372,7 +377,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 					}
 				}else if (selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
 					//Retrieve DICOM from NBIA
-					Map<Series, Study> map = resultTree.getSelectedSeries();
+					Map<Series, Study> map = getSelectedSeries();
 					Set<Series> seriesSet = map.keySet();
 					Iterator<Series> iter = seriesSet.iterator();
 					while (iter.hasNext()){
@@ -477,7 +482,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	
 	List<CQLQuery> getDicomRetrieveCriteria() {
 		List<CQLQuery> retrieveCriterias = new ArrayList<CQLQuery>();
-		Map<Series, Study> map = resultTree.getSelectedSeries();
+		Map<Series, Study> map = getSelectedSeries();
 		Set<Series> seriesSet = map.keySet();
 		Iterator<Series> iter = seriesSet.iterator();
 		while (iter.hasNext()){
@@ -505,7 +510,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	
 	List<CQLQuery> getAimRetrieveCriteria() {
 		List<CQLQuery> retrieveCriterias = new ArrayList<CQLQuery>();
-		Map<Series, Study> map = resultTree.getSelectedSeries();
+		Map<Series, Study> map = getSelectedSeries();
 		Set<Series> seriesSet = map.keySet();
 		Iterator<Series> iter = seriesSet.iterator();
 		while (iter.hasNext()){
@@ -524,15 +529,15 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	boolean wasDoubleClick = false;
 	MouseListener ml = new MouseAdapter(){
 	     public void mousePressed(MouseEvent e) {
-	    	 if(resultTree.getSelectedSeries().size() > 0){
+	    	 if(getSelectedSeries().size() > 0){
 	    		rightPanel.btnRetrieve.setEnabled(true);	    		 	    			
 	 			rightPanel.btnRetrieve.setBackground(xipBtn);
 	 			//rightPanel.btnRetrieve.setForeground(Color.WHITE);
 	 			rightPanel.btnRetrieve.setForeground(Color.BLACK);
 	 			rightPanel.cbxAnnot.setEnabled(true);
 	    	 }else{
-	    		rightPanel.btnRetrieve.setEnabled(false);	    		 	    		 
-	 			rightPanel.cbxAnnot.setEnabled(false);
+	    		rightPanel.btnRetrieve.setEnabled(true);	    		 	    		 
+	 			rightPanel.cbxAnnot.setEnabled(true);
 	 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 	    	 }
 	     }
@@ -557,8 +562,8 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);
 			     				logger.info("Starting node query: " + selectedPatient.toString());
 			     				//Retrieve studies for selected patient
-			     				rightPanel.btnRetrieve.setEnabled(false);
-			     				rightPanel.cbxAnnot.setEnabled(false);
+			     				rightPanel.btnRetrieve.setEnabled(true);
+			     				rightPanel.cbxAnnot.setEnabled(true);
 			     				rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			     				progressBar.setString("Processing search request ...");
 			     				progressBar.setIndeterminate(true);
@@ -598,8 +603,8 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				Study selectedStudy = Study.class.cast(selectedNode);
 			     				logger.info("Starting node query: " + selectedStudy.toString());
 			     				//Retrieve studies for selected patient
-			     				rightPanel.btnRetrieve.setEnabled(false);
-			     				rightPanel.cbxAnnot.setEnabled(false);
+			     				rightPanel.btnRetrieve.setEnabled(true);
+			     				rightPanel.cbxAnnot.setEnabled(true);
 			     				rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			     				progressBar.setString("Processing search request ...");
 			     				progressBar.setIndeterminate(true);
@@ -654,9 +659,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 		                  		     	int row = resultTree.getRowForLocation(x, y);
 		                  		     	TreePath  path = resultTree.getPathForRow(row);    	
 		                  		     	if (path != null) {    			
-		                  		     		DefaultMutableTreeNode node = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();							
-		                  		     		//System.out.println(this.getRowForPath(new TreePath(node.getPath())));
-		                  		     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
+		                  		     		DefaultMutableTreeNode node = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		    
 		                  		     		if (node == null) return;		 
 		                  		     		if (!node.isRoot()) {																	
 		                  		     			Object selectedNode = node.getUserObject();
@@ -1063,6 +1066,22 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			FileManager fileMgr = FileManagerFactory.getInstance();						
 	        fileMgr.run(files);
 		}			
-	}	
+	}
+	
+	Map<Series, Study> getSelectedSeries(){
+		Map<Series, Study> selectedSeries = new LinkedHashMap<Series, Study>();
+		List<Patient> patients = selectedDataSearchResult.getPatients();
+		for(Patient patient : patients){
+			List<Study> studies = patient.getStudies();
+			for(Study study : studies){
+				List<Series> series = study.getSeries();
+				for(Series oneSeries : series){
+					selectedSeries.put(oneSeries, study);			
+				}
+			}
+		}
+		return selectedSeries;
+	}
+		 
 }
 
