@@ -124,6 +124,9 @@
   <logger name="edu.wustl.xipHost.gui.checkboxTree.SearchResultTree">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
+  <logger name="edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>	
   <logger name="edu.wustl.xipHost.application.AddApplicationDialog">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
