@@ -4,10 +4,6 @@
 package edu.wustl.xipHost.gui.checkboxTree;
 
 import java.awt.BorderLayout;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -33,108 +29,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		super();
 	}
 	
-	/*
-	//List<SearchResult> results;
-	public void updateNodes(SearchResult result) {					    			
-		//results = new ArrayList<SearchResult>();
-		selectedDataSearchResult = new SearchResult("Selected data for " + result.getDataSourceDescription());
-		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
-		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
-		if(result == null){			
-			rootNode.removeAllChildren();
-			treeModel.reload(rootNode);
-			return;
-		}
-		rootNode.removeAllChildren();
-		treeModel.reload(rootNode);
-		
-		//results.add(result);				    	    	    	      		   	    	    				
-		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
-		for(int i = 0; i < result.getPatients().size(); i++){
-			final Patient patient = result.getPatients().get(i);
-			PatientNode patientNode = new PatientNode(patient){
-				public String toString(){															
-					String patientDesc = patient.toString();
-					if(patientDesc == null){
-						patientDesc = "";
-					}else{
-						
-					}	
-					return patientDesc;						
-				}
-				public Object getUserObject(){
-					return patient;
-				}					
-			};			
-			for(int j = 0; j < patient.getStudies().size(); j++){
-				final Study study = patient.getStudies().get(j);
-				StudyNode studyNode = new StudyNode(study){
-					public String toString(){															
-						String studyDesc = study.toString();
-						if(studyDesc == null){
-							studyDesc = "";
-						}else{
-							
-						}	
-						return studyDesc;						
-					}
-					public Object getUserObject(){
-						return study;
-					}					
-				};
-				
-				for(int k = 0; k < study.getSeries().size(); k++){
-					final Series series = study.getSeries().get(k);
-					SeriesNode seriesNode = new SeriesNode(series){
-						public String toString(){						
-							String seriesDesc = series.toString();
-							if(seriesDesc == null){
-								seriesDesc = "";
-							}else{
-								
-							}	
-							return seriesDesc;
-						}
-						public Object getUserObject(){
-							return series;
-						}
-					};
-					for(int m = 0; m < series.getItems().size(); m++){
-						final Item item = series.getItems().get(m);
-						DefaultMutableTreeNode itemNode = new DefaultMutableTreeNode(item){
-							public String toString(){															
-								String itemDesc = item.toString();
-								if(itemDesc == null){
-									itemDesc = "";
-								}else{
-									
-								}	
-								return itemDesc;						
-							}
-							public Object getUserObject(){
-								return item;
-							}
-						};
-						seriesNode.add(itemNode);
-					}										
-					studyNode.add(seriesNode);
-				}	
-				patientNode.add(studyNode);			
-			}
-			locationNode.add(patientNode);
-		}
-		rootNode.add(locationNode);				
-		treeModel.nodeChanged(rootNode);
-		treeModel.reload(rootNode);
-		expandAll();		
-	}
-	*/
-	
-	SearchResult selectedDataSearchResult;
 	public void updateNodes2(SearchResult result) {					    			
-		//results = new ArrayList<SearchResult>();
-		selectedDataSearchResult = new SearchResult("Selected data for " + result.getDataSourceDescription());
-		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
 			rootNode.removeAllChildren();

@@ -6,7 +6,6 @@ package edu.wustl.xipHost.gui.checkboxTree;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JTree;
