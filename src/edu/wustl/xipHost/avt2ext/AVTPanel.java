@@ -658,7 +658,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	/**
 	 * Method is used to update selectedDataSearchResult after sub-queries
 	 * If PatientNode selected before sub-query, all of the studies belonging to this patient should not 
-	 * only be selected but also added to the selectedDataSearchResult object
+	 * only be selected but also added to the selectedDataSearchResult object.
 	 * @throws InterruptedException 
 	 */
 	void updateSelectedDataSearchResult(DefaultMutableTreeNode node) {

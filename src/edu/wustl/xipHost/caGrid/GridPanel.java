@@ -62,7 +62,9 @@ import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
@@ -332,6 +334,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			if(bln && selectedGridTypeDicomService != null){											
 				GridUtil gridUtil = gridMgr.getGridUtil();
 				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);							
+				activeSubqueryMonitor = false;
 				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, null, null);				
 				gridQuery.addGridSearchListener(this);
 				Thread t = new Thread(gridQuery); 					
@@ -441,14 +444,27 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	}
 	
 	SearchResult result;
+	boolean activeSubqueryMonitor;
+	boolean subqueryCompleted;
 	public void searchResultAvailable(GridSearchEvent e) {
 		progressBar.setString("GridSearch finished");
 		progressBar.setIndeterminate(false);
 		if(e.getSource().getClass() == GridQuery.class){
-			GridQuery gridQuery = (GridQuery)e.getSource();
-			result = gridQuery.getSearchResult();			
-		}				
-		rightPanel.getGridJTreePanel().updateNodes2(result);								
+			synchronized(this){
+				GridQuery gridQuery = (GridQuery)e.getSource();
+				result = gridQuery.getSearchResult();
+				if(activeSubqueryMonitor == true){
+					subqueryCompleted = true;
+				}
+				synchronized(result){
+					rightPanel.getGridJTreePanel().updateNodes2(result);
+					if(activeSubqueryMonitor){
+						result.notify();
+					}
+					activeSubqueryMonitor = true;
+				}
+			}
+		}												
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -545,13 +561,14 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	     public void mouseClicked(final MouseEvent e) {	        
 	    	 	int x = e.getX();
 		     	int y = e.getY();
-		     	nodeSelectionListener.setSearcgResultTree(resultTree);
+		     	nodeSelectionListener.setSearchResultTree(resultTree);
 		     	nodeSelectionListener.setSelectionCoordinates(x, y);
 		     	nodeSelectionListener.setSearchResult(result);
 			    int row = resultTree.getRowForLocation(x, y);
 			    final TreePath  path = resultTree.getPathForRow(row);
 	    	 	if (e.getClickCount() == 2) {
-		        	wasDoubleClick = true; 
+		        	wasDoubleClick = true;
+		        	subqueryCompleted = false;
 		        	nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
 			     	if (path != null) {    		
 			     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();										     					     					     		
@@ -712,6 +729,64 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+	}
+	
+	
+	/**
+	 * Method is used to update selectedDataSearchResult after sub-queries
+	 * If PatientNode selected before sub-query, all of the studies belonging to this patient should not 
+	 * only be selected but also added to the selectedDataSearchResult object.
+	 * @throws InterruptedException 
+	 */
+	void updateSelectedDataSearchResult(DefaultMutableTreeNode node) {
+		synchronized(result){
+			try {
+				while(subqueryCompleted == false){
+					result.wait();
+				}
+				//PatientNode is not included, because Patient node are found always in first query and not not sub-queries
+				if (node instanceof PatientNode){
+					Patient patient = (Patient)node.getUserObject();
+					if(selectedDataSearchResult != null){
+						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+						if(selectedPatient != null){
+							if(((PatientNode) node).isSelected()){
+								Patient updatedPatient = result.getPatient(patient.getPatientID());
+								List<Study> studies = updatedPatient.getStudies();
+								for(Study study : studies){
+									if(!selectedPatient.contains(study.getStudyInstanceUID())){
+										selectedPatient.addStudy(study);
+									}							
+								}
+							}
+						}
+					}
+				} else if (node instanceof StudyNode){
+					Study study = (Study)node.getUserObject();
+					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) node.getParent();
+					Patient patient = (Patient)patientNode.getUserObject();
+					if(selectedDataSearchResult != null){
+						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+						if(selectedPatient != null){
+							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+							if(selectedStudy != null){
+								if(((StudyNode) node).isSelected()){
+									Study updatedStudy = result.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID());
+									List<Series> series = updatedStudy.getSeries();
+									for(Series oneSeries : series){
+										if(!selectedStudy.contains(oneSeries.getSeriesInstanceUID())){
+											selectedStudy.addSeries(oneSeries);
+										}
+									}
+								} 
+							}						
+						}		
+					}						 
+				}
+			} catch (InterruptedException e) {
+				logger.error(e, e);
+			}
+		}
 	}
 		 
 }
