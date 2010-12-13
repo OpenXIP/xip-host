@@ -262,16 +262,20 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 
 	SearchResult result;
 	boolean activeSubqueryMonitor;
+	boolean subqueryCompleted;
 	public void searchResultsAvailable(AVTSearchEvent e) {				
 		synchronized(this){
 			result = (SearchResult) e.getSource();
-				synchronized(result){
-					resultTree.updateNodes2(result);
-					if(activeSubqueryMonitor){
-						result.notify();
-					}
-					activeSubqueryMonitor = true;
+			if(activeSubqueryMonitor == true){
+				subqueryCompleted = true;
+			}
+			synchronized(result){
+				resultTree.updateNodes2(result);
+				if(activeSubqueryMonitor){
+					result.notify();
 				}
+				activeSubqueryMonitor = true;
+			}
 		}
 		progressBar.setString("AVT AD Search finished");
 		progressBar.setIndeterminate(false);				
@@ -363,6 +367,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		    final TreePath  path = resultTree.getPathForRow(row);
 	    	if (e.getClickCount() == 2){
 	    		wasDoubleClick = true;
+	    		subqueryCompleted = false;
 	    		nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
 		     	if (path != null) {    		
 		     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();			    
@@ -659,7 +664,9 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	void updateSelectedDataSearchResult(DefaultMutableTreeNode node) {
 		synchronized(result){
 			try {
-				result.wait();
+				while(subqueryCompleted == false){
+					result.wait();
+				}
 				//PatientNode is not included, because Patient node are found always in first query and not not sub-queries
 				if (node instanceof PatientNode){
 					Patient patient = (Patient)node.getUserObject();
