@@ -163,11 +163,12 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 					Object value = dicomPrivateTagCriterion.get(key);
 					adDicomCriteria.put(key, value);
 				}
+				activeSubqueryMonitor = false;
 				//pass adCriteria to AVTQuery
 				avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, ADQueryTarget.PATIENT, null, null);
 				avtQuery.addAVTListener(this);
 				Thread t = new Thread(avtQuery);
-				t.start();			
+				t.start();
 			}else{
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
@@ -260,15 +261,18 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	}
 
 	SearchResult result;
-	public void searchResultsAvailable(AVTSearchEvent e) {
-		result = (SearchResult) e.getSource();				
-		if(result == null){			
-			//resultTree.updateNodes(result);
-			resultTree.updateNodes2(result);
-		}else{
-			//resultTree.updateNodes(result);
-			resultTree.updateNodes2(result);
-		}											
+	boolean activeSubqueryMonitor;
+	public void searchResultsAvailable(AVTSearchEvent e) {				
+		synchronized(this){
+			result = (SearchResult) e.getSource();
+				synchronized(result){
+					resultTree.updateNodes2(result);
+					if(activeSubqueryMonitor){
+						result.notify();
+					}
+					activeSubqueryMonitor = true;
+				}
+		}
 		progressBar.setString("AVT AD Search finished");
 		progressBar.setIndeterminate(false);				
 	}
@@ -352,7 +356,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		public void mouseClicked(final MouseEvent e) {
 			int x = e.getX();
 	     	int y = e.getY();
-	     	nodeSelectionListener.setSearcgResultTree(resultTree);
+	     	nodeSelectionListener.setSearchResultTree(resultTree);
 	     	nodeSelectionListener.setSelectionCoordinates(x, y);
 	     	nodeSelectionListener.setSearchResult(result);
 		    int row = resultTree.getRowForLocation(x, y);
@@ -492,6 +496,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		     				repaint();
 		     			}
 	     			}
+		     		updateSelectedDataSearchResult(queryNode);
 		     	}
 	        } else {
 	        	Timer timer = new Timer(300, nodeSelectionListener);
@@ -643,5 +648,60 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+	}
+	
+	/**
+	 * Method is used to update selectedDataSearchResult after sub-queries
+	 * If PatientNode selected before sub-query, all of the studies belonging to this patient should not 
+	 * only be selected but also added to the selectedDataSearchResult object
+	 * @throws InterruptedException 
+	 */
+	void updateSelectedDataSearchResult(DefaultMutableTreeNode node) {
+		synchronized(result){
+			try {
+				result.wait();
+				//PatientNode is not included, because Patient node are found always in first query and not not sub-queries
+				if (node instanceof PatientNode){
+					Patient patient = (Patient)node.getUserObject();
+					if(selectedDataSearchResult != null){
+						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+						if(selectedPatient != null){
+							if(((PatientNode) node).isSelected()){
+								Patient updatedPatient = result.getPatient(patient.getPatientID());
+								List<Study> studies = updatedPatient.getStudies();
+								for(Study study : studies){
+									if(!selectedPatient.contains(study.getStudyInstanceUID())){
+										selectedPatient.addStudy(study);
+									}							
+								}
+							}
+						}
+					}
+				} else if (node instanceof StudyNode){
+					Study study = (Study)node.getUserObject();
+					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) node.getParent();
+					Patient patient = (Patient)patientNode.getUserObject();
+					if(selectedDataSearchResult != null){
+						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+						if(selectedPatient != null){
+							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+							if(selectedStudy != null){
+								if(((StudyNode) node).isSelected()){
+									Study updatedStudy = result.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID());
+									List<Series> series = updatedStudy.getSeries();
+									for(Series oneSeries : series){
+										if(!selectedStudy.contains(oneSeries.getSeriesInstanceUID())){
+											selectedStudy.addSeries(oneSeries);
+										}
+									}
+								} 
+							}						
+						}		
+					}						 
+				}
+			} catch (InterruptedException e) {
+				logger.error(e, e);
+			}
+		}
 	}
 }

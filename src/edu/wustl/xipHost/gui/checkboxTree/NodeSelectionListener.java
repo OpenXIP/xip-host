@@ -33,7 +33,7 @@ public class NodeSelectionListener implements ActionListener {
 		selectedDataSearchResult = new SearchResult();
 	}
 	
-	public void setSearcgResultTree(SearchResultTree resultTree){
+	public void setSearchResultTree(SearchResultTree resultTree){
 		this.resultTree = resultTree;
 	}
 	
@@ -441,7 +441,6 @@ public class NodeSelectionListener implements ActionListener {
 		DataSelectionEvent event = new DataSelectionEvent(selectedDataSearchResult);
 		listener.dataSelectionChanged(event);
 	}
-		
 }
 
 
