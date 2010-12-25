@@ -99,7 +99,11 @@ public class AttributePanel extends JPanel implements FocusListener {
 	
 	Font font_1 = new Font("Tahoma", 0, 12); 
 	private void addInformationEntityLabelToPanel(int row,InformationEntity ie,GridBagConstraints constraints) {
-		JLabel label = new JLabel(ie.toString() + "____________________");
+		String ieName = "";
+		if (ie != null) {
+			ieName = ie.toString();
+		}
+		JLabel label = new JLabel(ieName + "____________________");
 		label.setFont(font_1);
 		constraints.gridy = row;
 		constraints.gridx = 1;
@@ -144,7 +148,8 @@ public class AttributePanel extends JPanel implements FocusListener {
 			InformationEntity.SERIES,
 			InformationEntity.CONCATENATION,
 			InformationEntity.INSTANCE,
-			InformationEntity.FRAME
+			InformationEntity.FRAME,
+			null
 	};
 	
 	

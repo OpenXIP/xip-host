@@ -56,7 +56,7 @@ public class XDSSearchCriteriaPanel extends JPanel implements ActionListener {
 		panel.setBackground(new Color(156, 162, 189));
 		panel.setForeground(Color.WHITE);
 		attEntryPanel = new JScrollPane(panel);		
-		attEntryPanel.setPreferredSize(new Dimension(500, 200));		
+		attEntryPanel.setPreferredSize(new Dimension(500, 250));		
 		add(attEntryPanel);
 		listModel = new DefaultListModel();				
 		patientList = new JList(listModel);
@@ -153,7 +153,7 @@ public class XDSSearchCriteriaPanel extends JPanel implements ActionListener {
 		}
 	}
 	
-	public boolean verifyCriteria(AttributeList list){													
+	public boolean verifyCriteria(AttributeList list){
 		if(list.size() > 0){			
 			//Make sure values are not null and at least one is non empty String (except SpecificCharacterSet)
 			DicomDictionary dictionary = AttributeList.getDictionary();
@@ -177,7 +177,7 @@ public class XDSSearchCriteriaPanel extends JPanel implements ActionListener {
 			}
 		} else {
 			return false;
-		}		
+		}
 	}
 	
 	public void setQueryButtonText(String text){

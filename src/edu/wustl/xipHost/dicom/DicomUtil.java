@@ -183,6 +183,8 @@ public class DicomUtil {
 			{ AttributeTag t = TagFromName.PatientBirthDate; Attribute a = new DateAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PatientSex; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PatientAddress; Attribute a = new ShortStringAttribute(t,specificCharacterSet); filter.put(t,a); }			
+			{ AttributeTag t = TagFromName.PatientTelephoneNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet); filter.put(t,a); }			
+			{ AttributeTag t = TagFromName.PatientMotherBirthName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }			
 			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue(characterSets[0]); }
 		}catch (Exception e) {
 			return null;
