@@ -307,4 +307,8 @@ public class HostMainWindow extends JFrame implements ActionListener {
     public static HostIconBar getHostIconBar(){
     	return toolBar;
     }
+    
+    public Component getSelectedSearchTab() {
+    	return tabPaneCenter.getSelectedComponent();
+    }
 }

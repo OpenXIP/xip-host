@@ -4,6 +4,7 @@
 package edu.wustl.xipHost.application;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -18,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.hostControl.HostConfigurator;
 /**
  * @author Jaroslaw Krych
  *
@@ -88,13 +90,20 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	}
 	
 	
-	ApplicationListener listener;
+	List<ApplicationListener> listenerList = new ArrayList<ApplicationListener>();
 	public void addApplicationListener(ApplicationListener l){
-		listener = l;
+		listenerList.add(l);
 	}
 	
 	void fireLaunchApplication(AppButton btn){
 		ApplicationEvent event = new ApplicationEvent(btn);
-		listener.launchApplication(event);
+		Component activeTab = HostConfigurator.getHostConfigurator().getMainWindow().getSelectedSearchTab();
+	
+		for (ApplicationListener listener : listenerList){
+			// Only launch applications for the currently active (selected, visible) search tab
+			if (activeTab == listener){
+				listener.launchApplication(event);
+			}
+		}
 	}
 }
