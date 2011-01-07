@@ -44,6 +44,8 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
+import org.nema.dicom.wg23.State;
+
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -52,11 +54,24 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.ShortStringAttribute;
 import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
+
+import edu.wustl.xipHost.application.AppButton;
+import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.application.ApplicationEvent;
+import edu.wustl.xipHost.application.ApplicationListener;
+import edu.wustl.xipHost.application.ApplicationManager;
+import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.avt2ext.AVTQuery;
+import edu.wustl.xipHost.avt2ext.Query;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dicom.DicomRetrieve;
+import edu.wustl.xipHost.gui.ExceptionDialog;
+import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
@@ -64,9 +79,11 @@ import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
+import edu.wustl.xipHost.xds.XDSPanel;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
@@ -75,7 +92,7 @@ import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
  * @author Jaroslaw Krych
  *
  */
-public class GridPanel extends JPanel implements ActionListener, GridSearchListener, GridRetrieveListener, DataSelectionListener {	
+public class GridPanel extends JPanel implements ActionListener, ApplicationListener, GridSearchListener, GridRetrieveListener, DataSelectionListener {	
 	final static Logger logger = Logger.getLogger(GridPanel.class);
 	JPanel locationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select caGRID DICOM Service Location:");		
@@ -128,7 +145,6 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 		GridLocation itemAIM = (GridLocation)rightPanel.list.getSelectedItem();
 		selectedGridTypeAimService = (GridLocation)itemAIM;			
 		rightPanel.list.addActionListener(this);
-		rightPanel.btnRetrieve.addActionListener(this);
 		resultTree = rightPanel.getGridJTreePanel(); 
 		//resultTree.addTreeSelectionListener(this);		
 		resultTree.addMouseListener(ml);
@@ -191,7 +207,9 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 		buildLeftPanelLayout();
 		add(leftPanel);
 		add(rightPanel);
-				
+
+		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
+
 		progressBar.setIndeterminate(false);
 	    progressBar.setString("");	    
 	    progressBar.setStringPainted(true);	    
@@ -323,9 +341,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			//Remove existing children from the result JTree and reload JTree
 			resultTree.getRootNode().removeAllChildren();
 			resultTree.getTreeModel().reload(resultTree.getRootNode());
-			rightPanel.btnRetrieve.setEnabled(true);
 			rightPanel.cbxAnnot.setEnabled(true);
-			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();							
@@ -343,72 +359,6 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}
-		}else if(e.getSource() == rightPanel.btnRetrieve){
-			allRetrivedFiles = new ArrayList<File>();
-			numRetrieveThreadsStarted = 0;
-			numRetrieveThreadsReturned = 0;
-			List<CQLQuery> criteriasDicom = getDicomRetrieveCriteria();
-			List<CQLQuery> criteriasAim = getAimRetrieveCriteria();	
-			//number of criteriaDicom and criteriaAim should be equal 
-			int numOfCriterias = criteriasDicom.size();
-			if( numOfCriterias > 0){
-				progressBar.setString("Processing retrieve request ...");
-				progressBar.setIndeterminate(true);
-				progressBar.updateUI();	
-				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-				criteriaPanel.getQueryButton().setEnabled(false);
-				rightPanel.btnRetrieve.setBackground(Color.GRAY);
-				rightPanel.btnRetrieve.setEnabled(true);
-				rightPanel.cbxAnnot.setEnabled(true);																
-				if(selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("DICOM")){					
-					for(int i = 0; i < criteriasDicom.size(); i++){
-						CQLQuery cqlQuery = criteriasDicom.get(i);
-						try {
-							//Retrieve Dicom						
-							GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-							gridRetrieve.addGridRetrieveListener(this);						
-							Thread t = new Thread(gridRetrieve);
-							t.start();						
-							numRetrieveThreadsStarted++;							
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							//TODO
-							//Set to mumber of threads to terminate retrieve
-						}																				
-					}
-				}else if (selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
-					//Retrieve DICOM from NBIA
-					Map<Series, Study> map = getSelectedSeries();
-					Set<Series> seriesSet = map.keySet();
-					Iterator<Series> iter = seriesSet.iterator();
-					while (iter.hasNext()){
-						Series series = iter.next();
-						String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
-						GridRetrieveNCIA nciaRetrieve = new GridRetrieveNCIA(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-						nciaRetrieve.addGridRetrieveListener(this);
-						Thread t = new Thread(nciaRetrieve);
-						t.start();
-						numRetrieveThreadsStarted++;
-					}
-				}												
-			}
-			//Retrieve AIM				
-			if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){
-				for(int i = 0; i < criteriasAim.size(); i++){
-					CQLQuery aimCQL = criteriasAim.get(i);						
-					try {
-						AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
-						aimRetrieve.addGridRetrieveListener(this);
-						Thread t = new Thread(aimRetrieve);
-						t.start();
-						numRetrieveThreadsStarted++;
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}					
-				}					
-			} 								
 		}
 	}	
 	
@@ -545,15 +495,9 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 	MouseListener ml = new MouseAdapter(){
 	     public void mousePressed(MouseEvent e) {
 	    	 if(getSelectedSeries().size() > 0){
-	    		rightPanel.btnRetrieve.setEnabled(true);	    		 	    			
-	 			rightPanel.btnRetrieve.setBackground(xipBtn);
-	 			//rightPanel.btnRetrieve.setForeground(Color.WHITE);
-	 			rightPanel.btnRetrieve.setForeground(Color.BLACK);
 	 			rightPanel.cbxAnnot.setEnabled(true);
 	    	 }else{
-	    		rightPanel.btnRetrieve.setEnabled(true);	    		 	    		 
 	 			rightPanel.cbxAnnot.setEnabled(true);
-	 			rightPanel.btnRetrieve.setBackground(Color.GRAY);
 	    	 }
 	     }
 	     
@@ -583,9 +527,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				Patient selectedPatient = Patient.class.cast(selectedNode);
 			     				logger.info("Starting node query: " + selectedPatient.toString());
 			     				//Retrieve studies for selected patient
-			     				rightPanel.btnRetrieve.setEnabled(true);
 			     				rightPanel.cbxAnnot.setEnabled(true);
-			     				rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			     				progressBar.setString("Processing search request ...");
 			     				progressBar.setIndeterminate(true);
 			     				progressBar.updateUI();				     				
@@ -624,9 +566,7 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			     				Study selectedStudy = Study.class.cast(selectedNode);
 			     				logger.info("Starting node query: " + selectedStudy.toString());
 			     				//Retrieve studies for selected patient
-			     				rightPanel.btnRetrieve.setEnabled(true);
 			     				rightPanel.cbxAnnot.setEnabled(true);
-			     				rightPanel.btnRetrieve.setBackground(Color.GRAY);
 			     				progressBar.setString("Processing search request ...");
 			     				progressBar.setIndeterminate(true);
 			     				progressBar.updateUI();	
@@ -701,8 +641,6 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			progressBar.setIndeterminate(false);			
 			criteriaPanel.getQueryButton().setBackground(xipBtn);
 			criteriaPanel.getQueryButton().setEnabled(true);
-			rightPanel.btnRetrieve.setEnabled(true);
-			rightPanel.btnRetrieve.setBackground(xipBtn);						
 			File[] files = new File[allRetrivedFiles.size()];
 			allRetrivedFiles.toArray(files);		
 			FileManager fileMgr = FileManagerFactory.getInstance();						
@@ -788,6 +726,188 @@ public class GridPanel extends JPanel implements ActionListener, GridSearchListe
 			}
 		}
 	}
-		 
+	Application targetApp = null;
+	@Override
+	public void launchApplication(ApplicationEvent event) {
+		logger.debug("Current data source tab: " + XDSPanel.class.getName());
+		
+		// If nothing is selected, there is nothing to launch with
+		//check if selectedDataSearchresult is not null and at least one PatientNode is selected
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
+		boolean isDataSelected = false;
+		if(rootNode != null){
+			if(rootNode.getChildCount() != 0){
+				DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+				int numOfPatients = locationNode.getChildCount();
+				if (numOfPatients == 0){
+					logger.warn("No data is selected");
+					new ExceptionDialog("Cannot launch selected application.", 
+							"No dataset selected. Please query and select data nodes.",
+							"Launch Application Dialog");
+					return;
+				} else {
+					for(int i = 0; i < numOfPatients; i++){
+						PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(i);
+						if(existingPatientNode.isSelected() == true){
+							isDataSelected = true;
+							break;
+						} else {
+							int numOfStudies = existingPatientNode.getChildCount();
+							for(int j = 0; j < numOfStudies; j++){
+								StudyNode existingStudyNode = (StudyNode)existingPatientNode.getChildAt(j);
+								if(existingStudyNode.isSelected() == true){
+									isDataSelected = true;
+									break;
+								} else {
+									int numOfSeries = existingStudyNode.getChildCount();
+									for(int k = 0; k < numOfSeries; k++){
+										SeriesNode existingSeriesNode = (SeriesNode)existingStudyNode.getChildAt(k);
+										if(existingSeriesNode.isSelected() == true){
+											isDataSelected = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+					if(isDataSelected == false){
+						logger.warn("No data is selected");
+						new ExceptionDialog("Cannot launch selected application.", 
+								"No dataset selected. Please select data nodes.",
+								"Launch Application Dialog");
+						return;
+					}
+				}
+			} else {
+				logger.warn("No data is selected");
+				new ExceptionDialog("Cannot launch selected application.", 
+						"No dataset selected. Please query and select data nodes.",
+						"Launch Application Dialog");
+				return;
+			}
+		} else {
+			logger.warn("No data is selected");
+			new ExceptionDialog("Cannot launch selected application.", 
+					"No dataset selected. Please query and select data nodes.",
+					"Launch Application Dialog");
+			return;
+		}
+		if(isDataSelected){
+		   	
+			// Determine which application button the user clicked, and retrieve info about the application
+			AppButton btn = (AppButton)event.getSource();
+			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+			Application app = appMgr.getApplication(btn.getApplicationUUID());
+			String appID = app.getID().toString();
+			logger.debug("Application internal id: " + appID);
+			String instanceName = app.getName();
+			logger.debug("Application name: " + instanceName);
+			File instanceExePath = app.getExePath();
+			logger.debug("Exe path: " + instanceExePath);
+			String instanceVendor = app.getVendor();
+			logger.debug("Vendor: " + instanceVendor);
+			String instanceVersion = app.getVersion();
+			logger.debug("Version: " + instanceVersion);
+			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			logger.debug("Type: " + type);
+			boolean requiresGUI = app.requiresGUI();
+			logger.debug("Requires GUI: " + requiresGUI);
+			String wg23DataModelType = app.getWG23DataModelType();
+			logger.debug("WG23 data model type: " + wg23DataModelType);
+			int concurrentInstances = app.getConcurrentInstances();
+			logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+			IterationTarget iterationTarget = app.getIterationTarget();
+			logger.debug("IterationTarget: " + iterationTarget.toString());
+			
+			//Check if application to be launched is not running.
+			//If yes, create new application instance
+			State state = app.getState();
+			// TODO Fill in with whatever is needed to make this work with XDS
+			Query query = new AVTQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
+			if(state != null && !state.equals(State.EXIT)){
+				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+				instanceApp.setSelectedDataSearchResult(result);
+				instanceApp.setDataSource(query);
+				instanceApp.setDoSave(false);
+				appMgr.addApplication(instanceApp);		
+				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = instanceApp;
+			}else{
+				app.setSelectedDataSearchResult(result);
+				app.setDataSource(query);
+				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = app;
+			}	
+	
+			// Start background retrieving of data that could eventually be given to the application
+			numRetrieveThreadsReturned = 0;
+			List<CQLQuery> criteriasDicom = getDicomRetrieveCriteria();
+			List<CQLQuery> criteriasAim = getAimRetrieveCriteria();	
+			allRetrivedFiles = new ArrayList<File>();
+			numRetrieveThreadsStarted = 0;
+			//number of criteriaDicom and criteriaAim should be equal 
+			int numOfCriterias = criteriasDicom.size();
+			if( numOfCriterias > 0){
+				progressBar.setString("Processing retrieve request ...");
+				progressBar.setIndeterminate(true);
+				progressBar.updateUI();	
+				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
+				criteriaPanel.getQueryButton().setEnabled(false);
+				rightPanel.cbxAnnot.setEnabled(true);																
+				if(selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("DICOM")){					
+					for(int i = 0; i < criteriasDicom.size(); i++){
+						CQLQuery cqlQuery = criteriasDicom.get(i);
+						try {
+							//Retrieve Dicom						
+							GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
+							gridRetrieve.addGridRetrieveListener(this);						
+							Thread t = new Thread(gridRetrieve);
+							t.start();						
+							numRetrieveThreadsStarted++;							
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							//TODO
+							//Set to mumber of threads to terminate retrieve
+						}																				
+					}
+				}else if (selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
+					//Retrieve DICOM from NBIA
+					Map<Series, Study> map = getSelectedSeries();
+					Set<Series> seriesSet = map.keySet();
+					Iterator<Series> iter = seriesSet.iterator();
+					while (iter.hasNext()){
+						Series series = iter.next();
+						String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
+						GridRetrieveNCIA nciaRetrieve = new GridRetrieveNCIA(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
+						nciaRetrieve.addGridRetrieveListener(this);
+						Thread t = new Thread(nciaRetrieve);
+						t.start();
+						numRetrieveThreadsStarted++;
+					}
+				}												
+			}
+			//Retrieve AIM				
+			if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){
+				for(int i = 0; i < criteriasAim.size(); i++){
+					CQLQuery aimCQL = criteriasAim.get(i);						
+					try {
+						AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
+						aimRetrieve.addGridRetrieveListener(this);
+						Thread t = new Thread(aimRetrieve);
+						t.start();
+						numRetrieveThreadsStarted++;
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}					
+				}					
+			}
+		}
+	}
+	
 }
 

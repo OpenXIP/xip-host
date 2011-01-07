@@ -45,8 +45,6 @@ public class RightPanel extends JPanel {
     ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");
 	JLabel lblGlobus = new JLabel(iconGlobus, JLabel.CENTER);
 	JPanel annotPanel = new JPanel();
-	JButton btnRetrieve = new JButton("Retrieve");
-	
 	
 	Font font_1 = new Font("Tahoma", 0, 13); 
 	Font font_2 = new Font("Tahoma", 0, 12);
@@ -71,13 +69,6 @@ public class RightPanel extends JPanel {
 		list.setFont(font_2);
 		list.setEditable(false);		
 		
-		//btnRetrieve is initially unabled
-		//It is enabled when user selected a series from the JTree		
-		btnRetrieve.setFocusable(true);
-		btnRetrieve.setEnabled(false);		
-		btnRetrieve.setFont(font_1);
-		btnRetrieve.setBackground(Color.GRAY);		
-		btnRetrieve.setPreferredSize(new Dimension(115, 25));
 		cbxAnnot.setFont(font_1);
 		cbxAnnot.setEnabled(false);		
 		lblGlobus.setToolTipText("AIM service locations");
@@ -96,7 +87,6 @@ public class RightPanel extends JPanel {
 	    treeView.setBorder(border1);		
 		add(treeView);
 		add(annotPanel);
-		add(btnRetrieve);
 		buildLayout();		
 	}
 	
@@ -127,16 +117,6 @@ public class RightPanel extends JPanel {
         constraints.insets.bottom = 5;
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(annotPanel, constraints);
-        
-        constraints.fill = GridBagConstraints.NONE;        
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        constraints.insets.top = 5;
-        constraints.insets.left = 0;
-        constraints.insets.right = 20;
-        constraints.insets.bottom = 10;
-        constraints.anchor = GridBagConstraints.CENTER;
-        layout.setConstraints(btnRetrieve, constraints);   
 	}
 	
 	void buildLayoutAnnotPanel(){

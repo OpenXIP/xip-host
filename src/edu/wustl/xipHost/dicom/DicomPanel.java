@@ -36,6 +36,13 @@ import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+import org.apache.log4j.Logger;
+import org.nema.dicom.wg23.State;
+import org.openhealthtools.ihe.common.hl7v2.CX;
+import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
+
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -43,22 +50,41 @@ import com.pixelmed.dicom.CodeStringAttribute;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
+
+import edu.wustl.xipHost.application.AppButton;
+import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.application.ApplicationEvent;
+import edu.wustl.xipHost.application.ApplicationListener;
+import edu.wustl.xipHost.application.ApplicationManager;
+import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.avt2ext.AVTQuery;
+import edu.wustl.xipHost.avt2ext.Query;
+import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dataModel.XDSDocumentItem;
+import edu.wustl.xipHost.gui.ExceptionDialog;
+import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
+import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
+import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
+import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
+import edu.wustl.xipHost.xds.XDSDocumentRetrieve;
+import edu.wustl.xipHost.xds.XDSPanel;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class DicomPanel extends JPanel implements ActionListener, SearchListener, DicomRetrieveListener {
+public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, SearchListener, DicomRetrieveListener {
+	final static Logger logger = Logger.getLogger(DicomPanel.class);
 	JPanel calledLocationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select Called DICOM Service Location:");		
 	ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");	
@@ -75,7 +101,6 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);   	
-	JButton btnRetrieve;
 	
 	JProgressBar progressBar = new JProgressBar();
 	
@@ -156,22 +181,13 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 		criteriaPanel.setQueryButtonText("Query");		
 		leftPanel.add(calledLocationSelectionPanel);
 		leftPanel.add(criteriaPanel);							    
+		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 	    //resultTree.addTreeSelectionListener(this);
-	    resultTree.addMouseListener(ml);
 	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);			
-        btnRetrieve = new JButton("Retrieve");
-        btnRetrieve.setFont(font_1); 
-        btnRetrieve.setFocusable(true);
-		btnRetrieve.setEnabled(false);				
-		btnRetrieve.setBackground(xipBtn);
-		btnRetrieve.setForeground(Color.WHITE);
-		btnRetrieve.setPreferredSize(new Dimension(115, 25));
-		btnRetrieve.addActionListener(this);
         rightPanel.add(treeView);       
         buildLayoutCallingLocationSelectionPanel();
         rightPanel.add(callingLocationSelectionPanel);        
-        rightPanel.add(btnRetrieve);
         leftPanel.setBackground(xipColor);
         rightPanel.setBackground(xipColor);
         buildLeftPanelLayout();
@@ -280,16 +296,6 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(callingLocationSelectionPanel, constraints);   
-        
-        constraints.fill = GridBagConstraints.NONE;        
-        constraints.gridx = 0;
-        constraints.gridy = 2;        
-        constraints.insets.top = 5;
-        constraints.insets.left = 5;
-        constraints.insets.right = 20;
-        constraints.insets.bottom = 5;        
-        constraints.anchor = GridBagConstraints.CENTER;
-        layout.setConstraints(btnRetrieve, constraints);
 	}
 	
 	void buildLayoutLocationSelectionPanel(){
@@ -393,27 +399,6 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}
-		}else if(e.getSource() == btnRetrieve){			
-			allRetrivedFiles = new ArrayList<File>();
-			numRetrieveThreadsStarted = 0;
-			numRetrieveThreadsReturned = 0;
-			List<AttributeList> criterias = getRetrieveCriteria();
-			if(criterias.size() > 0 && calledPacsLocation != null && callingPacsLocation != null){
-				progressBar.setString("Processing retrieve request ...");
-				progressBar.setIndeterminate(true);
-				progressBar.updateUI();	
-				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-				criteriaPanel.getQueryButton().setEnabled(false);
-				btnRetrieve.setBackground(Color.GRAY);
-				btnRetrieve.setEnabled(false);												
-				for(int i = 0; i < criterias.size(); i++){
-					DicomRetrieve dicomRetrieve = new DicomRetrieve(criterias.get(i), calledPacsLocation, callingPacsLocation);
-					dicomRetrieve.addDicomRetrieveListener(this);
-					Thread t = new Thread(dicomRetrieve);
-					t.start();
-					numRetrieveThreadsStarted++;
-				}				
-			}			
 		}		
 	}
 
@@ -452,8 +437,6 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 			progressBar.setIndeterminate(false);
 			criteriaPanel.getQueryButton().setBackground(xipBtn);
 			criteriaPanel.getQueryButton().setEnabled(true);		
-			btnRetrieve.setEnabled(true);
-			btnRetrieve.setBackground(xipBtn);
 			File[] files = new File[allRetrivedFiles.size()];
 			allRetrivedFiles.toArray(files);		
 			FileManager fileMgr = FileManagerFactory.getInstance();						
@@ -526,13 +509,141 @@ public class DicomPanel extends JPanel implements ActionListener, SearchListener
 		return retrieveCriterias;																													
 	}
 	
-	MouseListener ml = new MouseAdapter() {
-	     public void mousePressed(MouseEvent e) {
-	    	 if(resultTree.getSelectedSeries().size() > 0){
-	    		 btnRetrieve.setEnabled(true);
-	    	 }else{
-	    		 btnRetrieve.setEnabled(false);
-	    	 }
-	     }
-	};
+	Application targetApp = null;
+	@Override
+	public void launchApplication(ApplicationEvent event) {
+		logger.debug("Current data source tab: " + XDSPanel.class.getName());
+		
+		// If nothing is selected, there is nothing to launch with
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
+		boolean isDataSelected = false;
+		if(rootNode != null){
+			if(rootNode.getChildCount() != 0){
+				DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+				int numOfPatients = locationNode.getChildCount();
+				if (numOfPatients == 0){
+					logger.warn("No data is selected");
+					new ExceptionDialog("Cannot launch selected application.", 
+							"No dataset selected. Please query and select data nodes.",
+							"Launch Application Dialog");
+					return;
+				} else {
+					for(int i = 0; i < numOfPatients; i++){
+						PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(i);
+						if(existingPatientNode.isSelected() == true){
+							isDataSelected = true;
+							break;
+						} else {
+							int numOfStudies = existingPatientNode.getChildCount();
+							for(int j = 0; j < numOfStudies; j++){
+								StudyNode existingStudyNode = (StudyNode)existingPatientNode.getChildAt(j);
+								if(existingStudyNode.isSelected() == true){
+									isDataSelected = true;
+									break;
+								} else {
+									int numOfSeries = existingStudyNode.getChildCount();
+									for(int k = 0; k < numOfSeries; k++){
+										SeriesNode existingSeriesNode = (SeriesNode)existingStudyNode.getChildAt(k);
+										if(existingSeriesNode.isSelected() == true){
+											isDataSelected = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+					if(isDataSelected == false){
+						logger.warn("No data is selected");
+						new ExceptionDialog("Cannot launch selected application.", 
+								"No dataset selected. Please select data nodes.",
+								"Launch Application Dialog");
+						return;
+					}
+				}
+			} else {
+				logger.warn("No data is selected");
+				new ExceptionDialog("Cannot launch selected application.", 
+						"No dataset selected. Please query and select data nodes.",
+						"Launch Application Dialog");
+				return;
+			}
+		} else {
+			logger.warn("No data is selected");
+			new ExceptionDialog("Cannot launch selected application.", 
+					"No dataset selected. Please query and select data nodes.",
+					"Launch Application Dialog");
+			return;
+		}
+
+		if(isDataSelected){
+			// Determine which application button the user clicked, and retrieve info about the application
+			AppButton btn = (AppButton)event.getSource();
+			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+			Application app = appMgr.getApplication(btn.getApplicationUUID());
+			String appID = app.getID().toString();
+			logger.debug("Application internal id: " + appID);
+			String instanceName = app.getName();
+			logger.debug("Application name: " + instanceName);
+			File instanceExePath = app.getExePath();
+			logger.debug("Exe path: " + instanceExePath);
+			String instanceVendor = app.getVendor();
+			logger.debug("Vendor: " + instanceVendor);
+			String instanceVersion = app.getVersion();
+			logger.debug("Version: " + instanceVersion);
+			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			logger.debug("Type: " + type);
+			boolean requiresGUI = app.requiresGUI();
+			logger.debug("Requires GUI: " + requiresGUI);
+			String wg23DataModelType = app.getWG23DataModelType();
+			logger.debug("WG23 data model type: " + wg23DataModelType);
+			int concurrentInstances = app.getConcurrentInstances();
+			logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+			IterationTarget iterationTarget = app.getIterationTarget();
+			logger.debug("IterationTarget: " + iterationTarget.toString());
+			
+			//Check if application to be launched is not running.
+			//If yes, create new application instance
+			State state = app.getState();
+			// TODO Fill in with whatever is needed to make this work with XDS
+			Query query = new AVTQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
+			if(state != null && !state.equals(State.EXIT)){
+				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+				instanceApp.setSelectedDataSearchResult(result);
+				instanceApp.setDataSource(query);
+				instanceApp.setDoSave(false);
+				appMgr.addApplication(instanceApp);		
+				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = instanceApp;
+			}else{
+				app.setSelectedDataSearchResult(result);
+				app.setDataSource(query);
+				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = app;
+			}	
+	
+			// Start background retrieving of data that could eventually be given to the application
+			allRetrivedFiles = new ArrayList<File>();
+			numRetrieveThreadsStarted = 0;
+			numRetrieveThreadsReturned = 0;
+			List<AttributeList> criterias = getRetrieveCriteria();
+			if(criterias.size() > 0 && calledPacsLocation != null && callingPacsLocation != null){
+				progressBar.setString("Processing retrieve request ...");
+				progressBar.setIndeterminate(true);
+				progressBar.updateUI();	
+				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
+				criteriaPanel.getQueryButton().setEnabled(false);
+				for(int i = 0; i < criterias.size(); i++){
+					DicomRetrieve dicomRetrieve = new DicomRetrieve(criterias.get(i), calledPacsLocation, callingPacsLocation);
+					dicomRetrieve.addDicomRetrieveListener(this);
+					Thread t = new Thread(dicomRetrieve);
+					t.start();
+					numRetrieveThreadsStarted++;
+				}				
+			}
+		}
+	}
+	
 }
