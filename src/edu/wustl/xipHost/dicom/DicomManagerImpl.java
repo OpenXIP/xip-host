@@ -9,12 +9,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 import org.hsqldb.Server;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -51,6 +53,7 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 
 public class DicomManagerImpl implements DicomManager{
+	final static Logger logger = Logger.getLogger(DicomManagerImpl.class);
 	Document documentPacs;
 	Element rootPacs;
 	SAXBuilder builder = new SAXBuilder();
@@ -203,23 +206,40 @@ public class DicomManagerImpl implements DicomManager{
 			Object root = mTree.getRoot();			
 			returnResult = (SearchResult) resolveToSearchResult(root);
 			
+			if(logger.isDebugEnabled()){
+				 Iterator<Patient> patients = result.getPatients().iterator();
+				 while(patients.hasNext()){
+					 Patient patient = patients.next();
+					 Timestamp patientLastUpdated = patient.getLastUpdated();
+					 String strPatientLastUpdated = null;
+					 if(patientLastUpdated != null){
+						 strPatientLastUpdated = patientLastUpdated.toString();
+					 }
+					 logger.debug(patient.toString() + " Last updated: " + strPatientLastUpdated);
+					 Iterator<Study> studies = patient.getStudies().iterator();
+					 while(studies.hasNext()){
+						 Study study = studies.next();
+						 Timestamp studyLastUpdated = study.getLastUpdated();
+						 String strStudyLastUpdated = null;
+						 if(studyLastUpdated != null){
+							 strStudyLastUpdated = studyLastUpdated.toString();
+						 }
+						 logger.debug(study.toString() + " Last updated: " + strStudyLastUpdated);
+						 Iterator<Series> series = study.getSeries().iterator();
+						 while(series.hasNext()){
+							 Series oneSeries = series.next();
+							 Timestamp seriesLastUpdated = oneSeries.getLastUpdated();
+							 String strSeriesLastUpdated = null;
+							 if(seriesLastUpdated != null){
+								 strSeriesLastUpdated = seriesLastUpdated.toString();
+							 }
+							 logger.debug(oneSeries.toString() + " Last updated: " + strSeriesLastUpdated);
+						 }
+					 }
+				 }
+			}
 		
-			/*int size = returnResult.getStudies().size();
-	        for(int i = 0; i < size; i++){
-	        	Study study = returnResult.getStudies().get(i);
-	        	System.out.println(study.toString());	        	
-	        	int size2 = study.getSeries().size();
-	        	System.out.println("Number of studies :" + size2);
-	        	for (int j = 0; j < size2; j++){
-	        		Series series = study.getSeries().get(j);
-	        		System.out.println(series.toString());
-	        		int size3 = series.getImages().size();
-	        		for (int jj = 0; jj < size3; jj++){
-		        		Image image = series.getImages().get(jj);
-		        		System.out.println(image.toString());
-		        	}
-	        	}
-	        }*/
+			
 		} catch (IOException e) {
 			return null;
 		} catch (DicomException e) {

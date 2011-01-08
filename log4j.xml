@@ -130,6 +130,9 @@
   <logger name="edu.wustl.xipHost.application.AddApplicationDialog">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
+  <logger name="edu.wustl.xipHost.dicom.DicomManagerImpl">
+	<appender-ref ref="Dicom_Appender"/>
+  </logger>	
   	
   <root>
     <!-- level value="debug"/-->
