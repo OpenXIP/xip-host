@@ -28,11 +28,11 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
-import edu.wustl.xipHost.avt2ext.iterator.SubElement;
-import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
+import edu.wustl.xipHost.iterator.SubElement;
+import edu.wustl.xipHost.iterator.TargetElement;
 
 public class AVTRetrieve2 implements Runnable{
-	final static Logger logger = Logger.getLogger(AVTRetrieve.class);
+	final static Logger logger = Logger.getLogger(AVTRetrieve2.class);
 	ADFacade adService = AVTFactory.getADServiceInstance();
 	TargetElement targetElement;
 	ADRetrieveTarget retrieveTarget;

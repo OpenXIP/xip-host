@@ -50,7 +50,12 @@ import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -70,7 +75,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 
-public class AVTPanel extends JPanel implements ActionListener, ItemListener, AVTListener, ApplicationListener, DataSelectionListener {
+public class AVTPanel extends JPanel implements ActionListener, ItemListener, DataAccessListener, ApplicationListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(AVTPanel.class);
 	SearchCriteriaPanelAVT criteriaPanel = new SearchCriteriaPanelAVT();	
 	SearchResultTree resultTree = new SearchResultTreeProgressive();
@@ -88,10 +93,10 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	JCheckBox cbxAimSeg = new JCheckBox("AIM plus SEG", false);
 	JPanel cbxPanel = new JPanel();
 	JPanel btnPanel = new JPanel();
-	AVTListener l;
 	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
 	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
+	DataAccessListener l;
 	
 	public AVTPanel(){
 		l = this;
@@ -138,7 +143,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 		this.criteria = criteria;
 	}
 	
-	AVTQuery avtQuery;
+	Query avtQuery;
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == criteriaPanel.getQueryButton()){												
 			logger.info("Starting AVT query.");
@@ -165,8 +170,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 				}
 				activeSubqueryMonitor = false;
 				//pass adCriteria to AVTQuery
-				avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, ADQueryTarget.PATIENT, null, null);
-				avtQuery.addAVTListener(this);
+				avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
+				avtQuery.addDataAccessListener(this);
 				Thread t = new Thread(avtQuery);
 				t.start();
 			}else{
@@ -263,9 +268,11 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	SearchResult result;
 	boolean activeSubqueryMonitor;
 	boolean subqueryCompleted;
-	public void searchResultsAvailable(AVTSearchEvent e) {				
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {				
 		synchronized(this){
-			result = (SearchResult) e.getSource();
+			Query query = (Query) e.getSource();
+			result = query.getSearchResult();
 			if(activeSubqueryMonitor == true){
 				subqueryCompleted = true;
 			}
@@ -285,8 +292,9 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 	List<File> allRetrivedFiles;
 	int numRetrieveThreadsStarted;
 	int numRetrieveThreadsReturned;
+	@Override
 	@SuppressWarnings("unchecked")
-	public void retriveResultsAvailable(AVTRetrieveEvent e) {		
+	public void retriveResultsAvailable(RetrieveEvent e) {		
 		retrivedFiles = (List<File>) e.getSource();	
 		synchronized(retrivedFiles){
 			allRetrivedFiles.addAll(retrivedFiles);
@@ -408,8 +416,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 										notifyException(e1.getMessage());
 									}
 	 							initialCriteria.put(t,a);}		     						     							     					
-		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.STUDY, result, selectedNode);
-		     					avtQuery.addAVTListener(l);
+		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.STUDY, result, selectedNode);
+		     					avtQuery.addDataAccessListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();
 		     				} else {
@@ -449,8 +457,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 									logger.error(e1, e1);
 									notifyException(e1.getMessage());
 								}		     															     					
-		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.SERIES, result, selectedNode);
-		     					avtQuery.addAVTListener(l);
+		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.SERIES, result, selectedNode);
+		     					avtQuery.addDataAccessListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();							
 		     				}else{
@@ -490,8 +498,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 									logger.error(e1, e1);
 									notifyException(e1.getMessage());
 								}		     															     					
-		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.ITEM, result, selectedNode);
-		     					avtQuery.addAVTListener(l);
+		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.ITEM, result, selectedNode);
+		     					avtQuery.addDataAccessListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();							
 		     				}else{
@@ -632,7 +640,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, AV
 			//Check if application to be launched is not running.
 			//If yes, create new application instance
 			State state = app.getState();
-			Query query = avtQuery;
+			Query query = (Query) avtQuery;
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
