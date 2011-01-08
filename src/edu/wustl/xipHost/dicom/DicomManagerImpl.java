@@ -65,7 +65,7 @@ public class DicomManagerImpl implements DicomManager{
 	public boolean loadPacsLocations(File file) throws IOException, JDOMException {				
 		documentPacs = builder.build(file);
 		rootPacs = documentPacs.getRootElement();										
-		List children = rootPacs.getChildren("pacs_location");				
+		List<?> children = rootPacs.getChildren("pacs_location");				
 		for (int i = 0; i < children.size(); i++){
 			String address = (((Element)children.get(i)).getChildText("hostAddress"));
 			int port = Integer.valueOf((((Element)children.get(i)).getChildText("hostPort")));
@@ -322,7 +322,7 @@ public class DicomManagerImpl implements DicomManager{
 	        attValues.put("(0x0020,0x000E)", seriesInstanceUID);
 			AttributeList identifier = r.getAllAttributesReturnedInIdentifier();
 	        DicomDictionary dictionary = AttributeList.getDictionary();
-	        Iterator iter = dictionary.getTagIterator();        
+	        Iterator<?> iter = dictionary.getTagIterator();        
 	        String strAtt = null;
 	        String attValue = null;
 	        while(iter.hasNext()){
@@ -376,7 +376,7 @@ public class DicomManagerImpl implements DicomManager{
 			while(localResults != null) {							 					
 				mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
 				SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
-				Iterator it = dicomFiles.iterator();			  
+				Iterator<?> it = dicomFiles.iterator();			  
 				while (it.hasNext() ) {
 					SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
 					//System.out.println("Dicom file: " + x.getFileName());			    

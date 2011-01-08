@@ -53,8 +53,11 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
-import edu.wustl.xipHost.avt2ext.Query;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
@@ -72,13 +75,12 @@ import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
-import edu.wustl.xipHost.xds.XDSPanel;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, SearchListener, DicomRetrieveListener, DataSelectionListener {
+public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, DataAccessListener, DicomRetrieveListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(DicomPanel.class);
 	JPanel calledLocationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select Called DICOM Service Location:");		
@@ -391,7 +393,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);						
 			if(bln && calledPacsLocation != null){
 				DicomQuery dicomQuery = new DicomQuery(criteria, calledPacsLocation);
-				dicomQuery.addSearchListener(this);
+				dicomQuery.addDataAccessListener(this);
 				Thread t = new Thread(dicomQuery);				
 				t.start();				
 			}else{
@@ -428,7 +430,8 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	}
 	
 	SearchResult result;
-	public void searchResultAvailable(SearchEvent e) {		
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {		
 		DicomQuery dicomQuery = (DicomQuery)e.getSource();
 		result = dicomQuery.getSearchResult();		        
 		if(result == null){			
@@ -440,11 +443,12 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		progressBar.setIndeterminate(false);		
 	}
 	
-
+	
 	List<File> allRetrivedFiles;
 	int numRetrieveThreadsStarted;
 	int numRetrieveThreadsReturned;
-	public void retrieveResultAvailable(DicomRetrieveEvent e) {
+	@Override
+	public void retriveResultsAvailable(RetrieveEvent e) {
 		//check if all retrieve calls returned
 		DicomRetrieve dicomRetrieve = (DicomRetrieve)e.getSource();
 		List<File> result = dicomRetrieve.getRetrievedFiles();
@@ -530,8 +534,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	Application targetApp = null;
 	@Override
 	public void launchApplication(ApplicationEvent event) {
-		logger.debug("Current data source tab: " + XDSPanel.class.getName());
-		
+		logger.debug("Current data source tab: " + this.getClass().getName());
 		// If nothing is selected, there is nothing to launch with
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
 		boolean isDataSelected = false;
@@ -625,7 +628,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			//If yes, create new application instance
 			State state = app.getState();
 			// TODO Fill in with whatever is needed to make this work with XDS
-			Query query = new AVTQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
+			Query query = new DicomQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
@@ -687,5 +690,19 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+	}
+
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void retrieveResultAvailable(DicomRetrieveEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

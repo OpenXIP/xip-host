@@ -3,23 +3,39 @@
  */
 package edu.wustl.xipHost.dicom;
 
+import java.util.Map;
+
 import com.pixelmed.dicom.AttributeList;
 
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class DicomQuery implements Runnable {
+public class DicomQuery implements Query {
 	DicomManager dicomMgr;
 	AttributeList criteriaList;
 	PacsLocation pacsLoc;	 
+	
+	public DicomQuery(){
+		
+	}
 	
 	public DicomQuery(AttributeList criteriaList, PacsLocation location){
 		this.criteriaList = criteriaList;
 		this.pacsLoc = location;
 		dicomMgr = DicomManagerFactory.getInstance();
+	}
+	
+	@Override
+	public void setQuery(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	SearchResult result;	
@@ -62,13 +78,14 @@ public class DicomQuery implements Runnable {
 		return result;
 	}
 	
-	SearchListener listener; 
-	public void addSearchListener(SearchListener l){
-		 this.listener = l;
-	}
-	
 	void fireUpdateUI(){
-		SearchEvent event = new SearchEvent(this);
-		listener.searchResultAvailable(event);
+		QueryEvent event = new QueryEvent(this);
+		listener.queryResultsAvailable(event);
+	}
+
+	DataAccessListener listener; 
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		this.listener = l;
 	}
 }
