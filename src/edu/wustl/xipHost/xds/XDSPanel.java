@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,14 +23,11 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
-
 import com.pixelmed.dicom.AttributeList;
-
 import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationEvent;
@@ -39,13 +35,13 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
-import edu.wustl.xipHost.avt2ext.Query;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import edu.wustl.xipHost.xds.CheckBoxTree.SearchResultTree;
