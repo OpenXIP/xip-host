@@ -5,6 +5,8 @@ package edu.wustl.xipHost.caGrid;
 
 import java.net.ConnectException;
 import java.rmi.RemoteException;
+import java.util.Map;
+
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.log4j.Logger;
 import org.globus.wsrf.encoding.ObjectSerializer;
@@ -12,6 +14,9 @@ import org.globus.wsrf.encoding.SerializationException;
 
 import javax.xml.namespace.QName;
 import edu.wustl.xipHost.caGrid.GridLocation;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Study;
@@ -25,12 +30,20 @@ import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
  * @author Jaroslaw Krych
  *
  */
-public class GridQuery implements Runnable {
+public class GridQuery implements Query {
 	final static Logger logger = Logger.getLogger(GridQuery.class);
 	CQLQuery cql;
 	GridLocation gridLocation;
 	SearchResult previousSearchResult;
 	Object queriedObject;
+	
+	
+	
+	@Override
+	public void setQuery(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) { 
+		// TODO Auto-generated method stub
+		
+	}
 	
 	/**
 	 * @param cql - CQL query statement
@@ -145,5 +158,12 @@ public class GridQuery implements Runnable {
 	}
 	void notifyException(String message){         		
         listener.notifyException(message);
+	}
+
+
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		// TODO Auto-generated method stub
+		
 	}
 }
