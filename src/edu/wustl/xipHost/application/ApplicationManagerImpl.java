@@ -22,8 +22,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.nema.dicom.wg23.State;
-
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 
 public class ApplicationManagerImpl implements ApplicationManager{		
 	static List<Application> applications = new ArrayList<Application>();		
@@ -46,8 +45,8 @@ public class ApplicationManagerImpl implements ApplicationManager{
 				String wg23DataModelType = new String();
 				int concurrentInstances;
 				IterationTarget iterationTarget = null;
-		        List appList = root.getChildren("application");		        
-		        Iterator iter = appList.iterator();
+		        List<?> appList = root.getChildren("application");		        
+		        Iterator<?> iter = appList.iterator();
 		        int i= 0;
 		        while(iter.hasNext()){                                                               
 		        	Element application = (Element)iter.next();

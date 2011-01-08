@@ -32,7 +32,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.log4j.Logger;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.FileChooser;
 import edu.wustl.xipHost.gui.HostMainWindow;

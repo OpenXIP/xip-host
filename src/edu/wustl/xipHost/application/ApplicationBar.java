@@ -18,7 +18,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.apache.log4j.Logger;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 /**
  * @author Jaroslaw Krych
