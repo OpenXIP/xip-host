@@ -5,7 +5,7 @@ package edu.wustl.xipHost.dataModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import edu.wustl.xipHost.avt2ext.iterator.Criteria;
+import edu.wustl.xipHost.iterator.Criteria;
 
 
 /**
