@@ -12,4 +12,5 @@ import java.util.EventListener;
 public interface DataAccessListener extends EventListener{
 	public void queryResultsAvailable(QueryEvent e);
 	public void retriveResultsAvailable(RetrieveEvent e);
+	public void notifyException(String message);
 }
