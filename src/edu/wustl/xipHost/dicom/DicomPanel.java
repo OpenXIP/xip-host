@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.dicom;
 
@@ -25,7 +25,6 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -34,15 +33,12 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
-import org.openhealthtools.ihe.common.hl7v2.CX;
-import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
-
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -50,7 +46,6 @@ import com.pixelmed.dicom.CodeStringAttribute;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-
 import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationEvent;
@@ -63,27 +58,27 @@ import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
+import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
+import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
-import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
-import edu.wustl.xipHost.xds.XDSDocumentRetrieve;
 import edu.wustl.xipHost.xds.XDSPanel;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, SearchListener, DicomRetrieveListener {
+public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, SearchListener, DicomRetrieveListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(DicomPanel.class);
 	JPanel calledLocationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select Called DICOM Service Location:");		
@@ -101,20 +96,20 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);   	
-	
 	JProgressBar progressBar = new JProgressBar();
-	
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Font font_2 = new Font("Tahoma", 0, 12);		
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
 	Color xipLightBlue = new Color(156, 162, 189);
 	Border border = BorderFactory.createLoweredBevelBorder();
-	
 	DicomManager dicomMgr;
+	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
 	
 	public DicomPanel(){
-		setBackground(xipColor);			
+		setBackground(xipColor);
+		resultTree.addMouseListener(ml);
+		nodeSelectionListener.addDataSelectionListener(this);
 		comboModel = new DefaultComboBoxModel();
 		listCalledLocations = new JComboBox(comboModel);
 		dicomMgr = DicomManagerFactory.getInstance();
@@ -125,7 +120,9 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		ComboBoxRenderer renderer = new ComboBoxRenderer();		
 		listCalledLocations.setRenderer(renderer);
 		listCalledLocations.setMaximumRowCount(10);
-		listCalledLocations.setSelectedIndex(-1);
+		listCalledLocations.setSelectedIndex(0);
+		Object itemCalledLocation = listCalledLocations.getSelectedItem();
+		calledPacsLocation = (PacsLocation)itemCalledLocation;
 		listCalledLocations.setPreferredSize(new Dimension(465, 25));
 		listCalledLocations.setFont(font_2);
 		listCalledLocations.setEditable(false);		
@@ -138,7 +135,9 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		}
 		listCallingLocations.setRenderer(renderer);
 		listCallingLocations.setMaximumRowCount(10);
-		listCallingLocations.setSelectedIndex(-1);
+		listCallingLocations.setSelectedIndex(0);
+		Object itemCallingLocation = listCallingLocations.getSelectedItem();
+		callingPacsLocation = (PacsLocation)itemCallingLocation;
 		listCallingLocations.setPreferredSize(new Dimension(465, 25));
 		listCallingLocations.setFont(font_2);
 		listCallingLocations.setEditable(false);		
@@ -399,7 +398,28 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}
-		}		
+		} /*else if(e.getSource() == btnRetrieve){			
+			allRetrivedFiles = new ArrayList<File>();
+			numRetrieveThreadsStarted = 0;
+			numRetrieveThreadsReturned = 0;
+			List<AttributeList> criterias = getRetrieveCriteria();
+			if(criterias.size() > 0 && calledPacsLocation != null && callingPacsLocation != null){
+				progressBar.setString("Processing retrieve request ...");
+				progressBar.setIndeterminate(true);
+				progressBar.updateUI();	
+				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
+				criteriaPanel.getQueryButton().setEnabled(false);
+				btnRetrieve.setBackground(Color.GRAY);
+				btnRetrieve.setEnabled(false);												
+				for(int i = 0; i < criterias.size(); i++){
+					DicomRetrieve dicomRetrieve = new DicomRetrieve(criterias.get(i), calledPacsLocation, callingPacsLocation);
+					dicomRetrieve.addDicomRetrieveListener(this);
+					Thread t = new Thread(dicomRetrieve);
+					t.start();
+					numRetrieveThreadsStarted++;
+				}				
+			}			
+		}	*/		
 	}
 
 	AttributeList criteria;	
@@ -412,11 +432,9 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		DicomQuery dicomQuery = (DicomQuery)e.getSource();
 		result = dicomQuery.getSearchResult();		        
 		if(result == null){			
-			//resultTree.updateNodes(result);
-			resultTree.updateNodes2(result);
+			resultTree.updateNodes(result);
 		}else{
-			//resultTree.updateNodes(result);			
-			resultTree.updateNodes2(result);
+			resultTree.updateNodes(result);			
 		}							
 		progressBar.setString("DicomSearch finished");
 		progressBar.setIndeterminate(false);		
@@ -646,4 +664,28 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		}
 	}
 	
+	boolean wasDoubleClick = false;
+	MouseListener ml = new MouseAdapter(){  
+		public void mouseClicked(final MouseEvent e) {
+			int x = e.getX();
+	     	int y = e.getY();
+	     	nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSelectionCoordinates(x, y);
+	     	nodeSelectionListener.setSearchResult(result);
+	    	if (e.getClickCount() == 2){
+	    		wasDoubleClick = true;
+	    		nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
+	        } else {
+	        	Timer timer = new Timer(300, nodeSelectionListener);
+	        	timer.setRepeats(false);
+	        	timer.start();
+	        }
+	    }
+	};
+
+	SearchResult selectedDataSearchResult;
+	@Override
+	public void dataSelectionChanged(DataSelectionEvent event) {
+		selectedDataSearchResult = (SearchResult)event.getSource();
+	}
 }
