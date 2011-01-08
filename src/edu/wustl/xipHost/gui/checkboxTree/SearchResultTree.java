@@ -50,7 +50,7 @@ public class SearchResultTree extends JTree {
 	    setBackground(xipLightBlue);
 	}			
 	
-	/*
+	
 	public void updateNodes(SearchResult result) {					    			
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
@@ -64,8 +64,17 @@ public class SearchResultTree extends JTree {
 	    //getting new nodes	    				
 		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
 		for(int i = 0; i < result.getPatients().size(); i++){
-			Patient patient = result.getPatients().get(i);	
-			final String patientDesc = patient.toString();						
+			final Patient patient = result.getPatients().get(i);						
+			PatientNode patientNode = new PatientNode(patient){
+				public String toString(){
+					String patientDesc = patient.toString();	
+					if(patientDesc == null){
+						patientDesc = "";
+					}
+					return patientDesc;
+				}
+			};
+			locationNode.add(patientNode);
 			for(int j = 0; j < patient.getStudies().size(); j++){
 				final Study study = patient.getStudies().get(j);
 				StudyNode studyNode = new StudyNode(study){
@@ -73,17 +82,14 @@ public class SearchResultTree extends JTree {
 						String studyDesc = study.toString();
 						if(studyDesc == null){
 							studyDesc = "";
-						}else{
-							
 						}	
-						return patientDesc + " " + studyDesc;						
+						return studyDesc;						
 					}
 					public Object getUserObject(){
 						return study;
 					}					
 				};
-				
-				locationNode.add(studyNode);
+				patientNode.add(studyNode);
 				for(int k = 0; k < study.getSeries().size(); k++){
 					final Series series = study.getSeries().get(k);
 					SeriesNode seriesNode = new SeriesNode(series){
@@ -126,7 +132,7 @@ public class SearchResultTree extends JTree {
 			treeModel.reload(rootNode);				
 		}
 	}		
-	*/
+	
 	
 	/**
 	 * @param args
