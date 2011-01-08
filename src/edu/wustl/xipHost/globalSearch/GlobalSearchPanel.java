@@ -21,21 +21,20 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import com.pixelmed.dicom.AttributeList;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.caGrid.CQLTargetName;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.caGrid.GridQuery;
-import edu.wustl.xipHost.caGrid.GridSearchEvent;
-import edu.wustl.xipHost.caGrid.GridSearchListener;
 import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dicom.DicomManager;
 import edu.wustl.xipHost.dicom.DicomManagerFactory;
 import edu.wustl.xipHost.dicom.DicomQuery;
 import edu.wustl.xipHost.dicom.PacsLocation;
-import edu.wustl.xipHost.dicom.SearchEvent;
-import edu.wustl.xipHost.dicom.SearchListener;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -46,7 +45,7 @@ import gov.nih.nci.cagrid.cqlquery.CQLQuery;
  * @author Jaroslaw Krych
  *
  */
-public class GlobalSearchPanel extends JPanel implements ActionListener, SearchListener, GridSearchListener{	
+public class GlobalSearchPanel extends JPanel implements ActionListener, DataAccessListener {	
 	JButton btnLocations = new JButton("Locations");	
 	JPanel btnPanel = new JPanel();
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
@@ -278,7 +277,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 			for(int i = 0; i < pacsLocs.size(); i++){							
 				PacsLocation loc = pacsLocs.get(i);								
 				DicomQuery dicomQuery = new DicomQuery(criteria, loc);
-				dicomQuery.addSearchListener(this);
+				dicomQuery.addDataAccessListener(this);
 				exeService.execute(dicomQuery);	
 				
 				/*GlobalSearchQuery globalQuery = new GlobalSearchQuery(criteria, loc);
@@ -293,7 +292,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 			if(cql == null){return false;}
 			for(int i = 0 ; i < gridLocs.size(); i++){								
 				GridQuery gridQuery = new GridQuery(cql, gridLocs.get(i), null, null);				
-				gridQuery.addGridSearchListener(this);
+				gridQuery.addDataAccessListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();	
 			}														
@@ -305,7 +304,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 	
 	int numOfCurrentLoc = 0;			//numOfCurrentLoc 
 	int totalNumLocs = 0;	//totalNumLocs is used to stop progress bar after query for all locations are exhausted	
-	public void searchResultAvailable(SearchEvent e) {
+	public void searchResultAvailable(QueryEvent e) {
 		DicomQuery dicomQuery = (DicomQuery)e.getSource();
 		SearchResult result = dicomQuery.getSearchResult();		        
 		if(result == null){			
@@ -320,7 +319,8 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 		}				
 	}
 
-	public void searchResultAvailable(GridSearchEvent e) {		
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {		
 		GridQuery gridQuery = (GridQuery)e.getSource();
 		SearchResult result = gridQuery.getSearchResult();							
 		resultTree.updateNodes2(result);			
@@ -333,6 +333,12 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, SearchL
 
 	@Override
 	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void retriveResultsAvailable(RetrieveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}	
