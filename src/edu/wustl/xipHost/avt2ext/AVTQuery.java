@@ -15,15 +15,19 @@ import com.siemens.scr.avt.ad.dicom.GeneralImage;
 import com.siemens.scr.avt.ad.dicom.GeneralSeries;
 import com.siemens.scr.avt.ad.dicom.GeneralStudy;
 import com.siemens.scr.avt.ad.dicom.Patient;
-import edu.wustl.xipHost.avt2ext.iterator.Criteria;
+import edu.wustl.xipHost.iterator.Criteria;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
-public class AVTQuery implements Runnable, Query{
+public class AVTQuery implements Query{
 	final static Logger logger = Logger.getLogger(AVTQuery.class);
 	ADFacade adService;	
 	Map<Integer, Object> adDicomCriteria;
 	Map<String, Object> adAimCriteria;
-	ADQueryTarget target;
+	QueryTarget target;
 	SearchResult previousSearchResult;
 	Object queriedObject;
 	
@@ -31,7 +35,8 @@ public class AVTQuery implements Runnable, Query{
 		
 	}
 	
-	public void setAVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject){
+	@Override
+	public void setQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject){
 		this.adDicomCriteria = adDicomCriteria; 
 		this.adAimCriteria = adAimCriteria; 
 		this.target = target; 
@@ -39,7 +44,7 @@ public class AVTQuery implements Runnable, Query{
 		this.queriedObject = queriedObject; 
 	}
 	
-	public AVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject){
+	public AVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject){
 		this.adDicomCriteria = adDicomCriteria;
 		this.adAimCriteria = adAimCriteria;
 		this.target = target;
@@ -201,19 +206,28 @@ public class AVTQuery implements Runnable, Query{
 		}
 		long time2 = System.currentTimeMillis();
 		logger.info("AVT query finished in: " + (time2 - time1) + " ms");
-		fireResultsAvailable(result);
+		fireResultsAvailable();
 	}	
 	
-	AVTListener listener;
-    public void addAVTListener(AVTListener l) {        
-        listener = l;          
-    }
-	void fireResultsAvailable(SearchResult searchResult){
-		AVTSearchEvent event = new AVTSearchEvent(searchResult);         		
-        listener.searchResultsAvailable(event);
+	
+	void fireResultsAvailable(){
+		QueryEvent event = new QueryEvent(this);         		
+        listener.queryResultsAvailable(event);
 	}
 	
 	void notifyException(String message){         		
         listener.notifyException(message);
+	}
+
+	DataAccessListener listener;
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		listener = l; 
+		
+	}
+
+	@Override
+	public SearchResult getSearchResult() {
+		return result;
 	}
 }
