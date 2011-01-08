@@ -6,16 +6,13 @@ package edu.wustl.xipHost.application;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Uuid;
-
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.XindiceManager;
 import edu.wustl.xipHost.hostControl.XindiceManagerFactory;
-
 import junit.framework.TestCase;
 
 /**

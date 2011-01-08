@@ -3,7 +3,7 @@ package edu.wustl.xipHost.application;
 import java.io.File;
 import java.util.UUID;
 import org.nema.dicom.wg23.State;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import junit.framework.TestCase;
 
 public class ModifyApplicationTest extends TestCase {

@@ -25,7 +25,7 @@ import com.siemens.scr.avt.ad.io.AnnotationIO;
 import com.siemens.scr.avt.ad.util.DicomParser;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.avt2ext.AVTFactory;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.DataStore;
 import junit.framework.TestCase;
 

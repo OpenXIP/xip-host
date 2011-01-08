@@ -1,30 +1,24 @@
 package edu.wustl.xipHost.avt2ext;
 
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import edu.wustl.xipHost.dataModel.AIMItem;
-import edu.wustl.xipHost.dataModel.ImageItem;
-import edu.wustl.xipHost.dataModel.Item;
-import edu.wustl.xipHost.dataModel.Patient;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
-import edu.wustl.xipHost.dataModel.Series;
-import edu.wustl.xipHost.dataModel.Study;
 
-public class AVTQueryStubConnectException implements Query, Runnable {
+public class AVTQueryStubConnectException implements Query {
 	final static Logger logger = Logger.getLogger(AVTQueryStub.class);
 	SearchResultSetup resultSetup = new SearchResultSetup();
 	SearchResult fullSearchResult;
 	Map<Integer, Object> adDicomCriteria;
 	Map<String, Object> adAimCriteria;
-	ADQueryTarget target;
+	QueryTarget target;
 	SearchResult previousSearchResult;
 	Object queriedObject;
 	
-	public AVTQueryStubConnectException (Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+	public AVTQueryStubConnectException (Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
 		fullSearchResult = resultSetup.getSearchResult();
 	}
 	
@@ -38,15 +32,15 @@ public class AVTQueryStubConnectException implements Query, Runnable {
 	}
 	
 	
-	AVTListener listener;
+	DataAccessListener listener;
 	@Override
-	public void addAVTListener(AVTListener l) {
+	public void addDataAccessListener(DataAccessListener l) {
 		listener = l;
 		
 	}
 
 	@Override
-	public void setAVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+	public void setQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
 		this.adDicomCriteria = adDicomCriteria; 
 		this.adAimCriteria = adAimCriteria; 
 		this.target = target; 
@@ -54,13 +48,18 @@ public class AVTQueryStubConnectException implements Query, Runnable {
 		this.queriedObject = queriedObject; 
 	}
 	
-	void fireResultsAvailable(SearchResult searchResult){
-		AVTSearchEvent event = new AVTSearchEvent(searchResult);         		
-        listener.searchResultsAvailable(event);
+	void fireResultsAvailable(){
+		QueryEvent event = new QueryEvent(this);         		
+        listener.queryResultsAvailable(event);
 	}
 	
 	void notifyException(String message){         		
         listener.notifyException(message);
+	}
+
+	@Override
+	public SearchResult getSearchResult() {
+		return result;
 	}
 
 }

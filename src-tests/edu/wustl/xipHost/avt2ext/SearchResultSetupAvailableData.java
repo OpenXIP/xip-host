@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import org.dcm4che2.data.Tag;
-import edu.wustl.xipHost.avt2ext.iterator.Criteria;
+import edu.wustl.xipHost.iterator.Criteria;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;

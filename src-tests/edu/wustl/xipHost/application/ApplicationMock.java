@@ -4,8 +4,7 @@
 package edu.wustl.xipHost.application;
 
 import java.io.File;
-
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.ClientToApplication;
 
 /**

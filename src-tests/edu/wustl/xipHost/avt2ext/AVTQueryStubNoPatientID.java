@@ -7,7 +7,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import edu.wustl.xipHost.avt2ext.iterator.Criteria;
+import edu.wustl.xipHost.iterator.Criteria;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -16,18 +20,28 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 
-public class AVTQueryStubNoPatientID implements Query, Runnable {
+public class AVTQueryStubNoPatientID implements Query {
 	final static Logger logger = Logger.getLogger(AVTQueryStub.class);
 	SearchResultSetupNoPatientID resultSetup = new SearchResultSetupNoPatientID();
 	SearchResult fullSearchResult;
-	Map<Integer, Object> adDicomCriteria;
-	Map<String, Object> adAimCriteria;
-	ADQueryTarget target;
+	Map<Integer, Object> dicomCriteria;
+	Map<String, Object> aimCriteria;
+	QueryTarget target;
 	SearchResult previousSearchResult;
 	Object queriedObject;
 	
-	public AVTQueryStubNoPatientID(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+	public AVTQueryStubNoPatientID(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
 		fullSearchResult = resultSetup.getSearchResult();
+	}
+	
+	@Override
+	public void setQuery(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+		this.dicomCriteria = dicomCriteria; 
+		this.aimCriteria = aimCriteria; 
+		this.target = target; 
+		this.previousSearchResult = previousSearchResult;
+		this.queriedObject = queriedObject; 
+		
 	}
 	
 	SearchResult result;
@@ -42,7 +56,7 @@ public class AVTQueryStubNoPatientID implements Query, Runnable {
     			//ignore adAimCriteria
     			//parse and get adDicomCriteria
     			//Find studies based on patientID
-    			String value = adDicomCriteria.get(new Integer(1048608)).toString();	//patientId
+    			String value = dicomCriteria.get(new Integer(1048608)).toString();	//patientId
     			logger.debug("PatientId in DICOM criteria is: " + value);
     			List<Patient> patients = fullSearchResult.getPatients();
 				Patient patient = patients.get(0);
@@ -61,8 +75,8 @@ public class AVTQueryStubNoPatientID implements Query, Runnable {
 		case SERIES: 
 			List<Series> series = null;
 			try{
-				String value1 = adDicomCriteria.get(new Integer(1048608)).toString();	//patientId
-				String value2 = adDicomCriteria.get(new Integer(2097165)).toString();	//studyInstanceUID
+				String value1 = dicomCriteria.get(new Integer(1048608)).toString();	//patientId
+				String value2 = dicomCriteria.get(new Integer(2097165)).toString();	//studyInstanceUID
     			List<Patient> patients = fullSearchResult.getPatients();
 				for(Patient patient : patients){
 					String patientId = patient.getPatientID();
@@ -92,10 +106,10 @@ public class AVTQueryStubNoPatientID implements Query, Runnable {
 	
 		//Set original criteria on SearchResult.
 		if(previousSearchResult == null){
-			Criteria originalCriteria = new Criteria(adDicomCriteria, adAimCriteria);
+			Criteria originalCriteria = new Criteria(dicomCriteria, aimCriteria);
 			result.setOriginalCriteria(originalCriteria);
 		}
-		fireResultsAvailable(result);
+		fireResultsAvailable();
 	}
 	
 	
@@ -218,29 +232,25 @@ public class AVTQueryStubNoPatientID implements Query, Runnable {
 		return resultAD;
 	}
 
-	AVTListener listener;
+	DataAccessListener listener;
 	@Override
-	public void addAVTListener(AVTListener l) {
+	public void addDataAccessListener(DataAccessListener l) {
 		listener = l;
 		
 	}
 
-	@Override
-	public void setAVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, ADQueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
-		this.adDicomCriteria = adDicomCriteria; 
-		this.adAimCriteria = adAimCriteria; 
-		this.target = target; 
-		this.previousSearchResult = previousSearchResult;
-		this.queriedObject = queriedObject; 
-	}
-	
-	void fireResultsAvailable(SearchResult searchResult){
-		AVTSearchEvent event = new AVTSearchEvent(searchResult);         		
-        listener.searchResultsAvailable(event);
+	void fireResultsAvailable(){
+		QueryEvent event = new QueryEvent(this);         		
+        listener.queryResultsAvailable(event);
 	}
 	
 	void notifyException(String message){         		
         listener.notifyException(message);
 	}
 
+
+	@Override
+	public SearchResult getSearchResult() {
+		return result;
+	}
 }

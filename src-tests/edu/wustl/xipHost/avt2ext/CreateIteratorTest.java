@@ -9,16 +9,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import edu.wustl.xipHost.avt2ext.iterator.Criteria;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
-import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
-import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
-import edu.wustl.xipHost.avt2ext.iterator.SubElement;
-import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
-import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorRunner;
-import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
+import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.hostControl.Util;
+import edu.wustl.xipHost.iterator.Criteria;
+import edu.wustl.xipHost.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IteratorElementEvent;
+import edu.wustl.xipHost.iterator.IteratorEvent;
+import edu.wustl.xipHost.iterator.SubElement;
+import edu.wustl.xipHost.iterator.TargetElement;
+import edu.wustl.xipHost.iterator.TargetIteratorListener;
+import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import junit.framework.TestCase;
 
 /**
@@ -1243,6 +1244,4 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		// TODO Auto-generated method stub
 		
 	}
-	
-	
 }

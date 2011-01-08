@@ -5,12 +5,12 @@ package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
 import java.util.Iterator;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
-import edu.wustl.xipHost.avt2ext.iterator.IteratorElementEvent;
-import edu.wustl.xipHost.avt2ext.iterator.IteratorEvent;
-import edu.wustl.xipHost.avt2ext.iterator.TargetElement;
-import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorRunner;
-import edu.wustl.xipHost.avt2ext.iterator.TargetIteratorListener;
+import edu.wustl.xipHost.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IteratorElementEvent;
+import edu.wustl.xipHost.iterator.IteratorEvent;
+import edu.wustl.xipHost.iterator.TargetElement;
+import edu.wustl.xipHost.iterator.TargetIteratorRunner;
+import edu.wustl.xipHost.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.hostControl.Util;
 import edu.wustl.xipHost.wg23.WG23DataModel;

@@ -4,7 +4,7 @@ import java.io.File;
 import org.nema.dicom.wg23.State;
 
 import edu.wustl.xipHost.application.Application;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.HostImpl;
 import edu.wustl.xipHost.wg23.StateChangeException;
 import junit.framework.TestCase;

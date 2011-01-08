@@ -11,12 +11,12 @@ import java.util.Set;
 import com.pixelmed.dicom.AttributeList;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.dicom.GeneralStudy;
-import edu.wustl.xipHost.avt2ext.ADQueryTarget;
 import edu.wustl.xipHost.avt2ext.AVTFactory;
-import edu.wustl.xipHost.avt2ext.AVTListener;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
-import edu.wustl.xipHost.avt2ext.AVTRetrieveEvent;
-import edu.wustl.xipHost.avt2ext.AVTSearchEvent;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dicom.DicomUtil;
@@ -26,7 +26,7 @@ import junit.framework.TestCase;
  * @author Jaroslaw Krych
  *
  */
-public class QueryADTest extends TestCase implements AVTListener{
+public class QueryADTest extends TestCase implements DataAccessListener{
 	ADFacade adService;
 	CriteriaSetup setup;
 	/**
@@ -65,8 +65,8 @@ public class QueryADTest extends TestCase implements AVTListener{
 		AttributeList attList = setup.getCriteria();					
 		Map<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(attList);
 		Map<String, Object> adAimCriteria = new HashMap<String, Object>();
-		AVTQuery avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.PATIENT, null, null);
-		avtQuery.addAVTListener(this);
+		AVTQuery avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
+		avtQuery.addDataAccessListener(this);
 		Thread t = new Thread(avtQuery);
 		t.start();	
 		try {
@@ -87,8 +87,8 @@ public class QueryADTest extends TestCase implements AVTListener{
 		AttributeList attList = setup.getCriteria();					
 		Map<Integer, Object> adCriteria1 = DicomUtil.convertToADDicomCriteria(attList);
 		Map<String, Object> adAimCriteria1 = new HashMap<String, Object>();
-		AVTQuery avtQuery1 = new AVTQuery(adCriteria1, adAimCriteria1, ADQueryTarget.PATIENT, null, null);
-		avtQuery1.addAVTListener(this);
+		AVTQuery avtQuery1 = new AVTQuery(adCriteria1, adAimCriteria1, QueryTarget.PATIENT, null, null);
+		avtQuery1.addDataAccessListener(this);
 		Thread t1 = new Thread(avtQuery1);
 		t1.start();	
 		try {
@@ -105,8 +105,8 @@ public class QueryADTest extends TestCase implements AVTListener{
 							
 		Map<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(attList);
 		
-		AVTQuery avtQuery = new AVTQuery(adCriteria, adAimCriteria, ADQueryTarget.STUDY, result, selectedNode);
-		avtQuery.addAVTListener(this);
+		AVTQuery avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.STUDY, result, selectedNode);
+		avtQuery.addDataAccessListener(this);
 		Thread t2 = new Thread(avtQuery);
 		t2.start();	
 		try {
@@ -173,14 +173,14 @@ public class QueryADTest extends TestCase implements AVTListener{
 	}
 	*/
 	@Override
-	public void retriveResultsAvailable(AVTRetrieveEvent e) {
+	public void retriveResultsAvailable(RetrieveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	SearchResult result;
 	@Override
-	public void searchResultsAvailable(AVTSearchEvent e) {
+	public void queryResultsAvailable(QueryEvent e) {
 		result = (SearchResult) e.getSource();			
 	}
 

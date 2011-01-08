@@ -3,14 +3,12 @@ package edu.wustl.xipHost.wg23;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.nema.dicom.wg23.ArrayOfObjectLocator;
 import org.nema.dicom.wg23.ArrayOfUUID;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
-
 import edu.wustl.xipHost.application.Application;
-import edu.wustl.xipHost.avt2ext.iterator.IterationTarget;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.HostImpl;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 import edu.wustl.xipHost.worklist.WorklistEntry;
