@@ -3,7 +3,6 @@
  */
 package edu.wustl.xipHost.application;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -18,8 +17,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.swing.JTabbedPane;
 import javax.xml.ws.Endpoint;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
@@ -38,13 +35,14 @@ import org.nema.dicom.wg23.Series;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uuid;
-import edu.wustl.xipHost.avt2ext.ADRetrieveTarget;
-import edu.wustl.xipHost.avt2ext.AVTPanel;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
-import edu.wustl.xipHost.avt2ext.AVTRetrieve2Event;
-import edu.wustl.xipHost.avt2ext.AVTRetrieve2Listener;
 import edu.wustl.xipHost.avt2ext.AVTUtil;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.iterator.IteratorEvent;
@@ -53,10 +51,8 @@ import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dataModel.SearchResult;
-import edu.wustl.xipHost.dicom.DicomPanel;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
-import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.hostControl.Util;
 import edu.wustl.xipHost.hostControl.XindiceManager;
 import edu.wustl.xipHost.hostControl.XindiceManagerFactory;
@@ -67,7 +63,7 @@ import edu.wustl.xipHost.wg23.NativeModelRunner;
 import edu.wustl.xipHost.wg23.StateExecutor;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
-public class Application implements NativeModelListener, TargetIteratorListener, AVTRetrieve2Listener {	
+public class Application implements NativeModelListener, TargetIteratorListener, DataAccessListener {	
 	final static Logger logger = Logger.getLogger(Application.class);
 	UUID id;
 	String name;
@@ -490,8 +486,13 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	}
 	
 	Query query;
-	public void setDataSource(Query query){
+	public void setQueryDataSource(Query query){
 		this.query = query;
+	}
+	
+	Retrieve retrieve;
+	public void setRetrieveDataSource(Retrieve retrieve){
+		this.retrieve = retrieve;
 	}
 	
 	public Rectangle getApplicationPreferredSize() {		
@@ -695,19 +696,14 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
 		//Start data retrieval related to the element	
-		ADRetrieveTarget retrieveTarget = ADRetrieveTarget.DICOM_AND_AIM;
-		AVTRetrieve2 avtRetrieve = null;
+		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
 		TargetElement element = null;
-		try {
-			synchronized(targetElements){
-				element = targetElements.get(numberOfSentNotifications - 1);
-				avtRetrieve = new AVTRetrieve2(element, retrieveTarget);
-				avtRetrieve.addAVTListener(this);
-			}
-		} catch (IOException e1) {
-			logger.error(e1, e1);
+		synchronized(targetElements){
+			element = targetElements.get(numberOfSentNotifications - 1);
+			retrieve.setRetrieve(element, retrieveTarget);
+			retrieve.addDataAccessListener(this);
 		}			
-		Thread t = new Thread(avtRetrieve);
+		Thread t = new Thread(retrieve);
 		t.start();
 		//Wait for actual data being retrieved before sending file pointers
 		String retrievedElementID = element.getId();
@@ -741,10 +737,22 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		}		
 	}
 	
-	
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	List<String> retrievedTargetElements = new ArrayList<String>();
 	@Override
-	public void retriveCompleted(AVTRetrieve2Event e) {
+	public void retrieveResultsAvailable(RetrieveEvent e) {
 		synchronized(retrievedTargetElements){
 			String elementID = (String)e.getSource();
 			retrievedTargetElements.add(elementID);
