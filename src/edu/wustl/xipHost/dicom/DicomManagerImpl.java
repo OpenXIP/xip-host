@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,23 +26,17 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.PatientStudySeriesConcatenationInstanceModel;
-import com.pixelmed.database.StudySeriesInstanceModel;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.DicomException;
-import com.pixelmed.dicom.SetOfDicomFiles;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.network.VerificationSOPClassSCU;
 import com.pixelmed.query.QueryInformationModel;
-import com.pixelmed.query.QueryResponseGenerator;
-import com.pixelmed.query.QueryResponseGeneratorFactory;
 import com.pixelmed.query.QueryTreeModel;
 import com.pixelmed.query.QueryTreeRecord;
-import com.pixelmed.query.RetrieveResponseGenerator;
-import com.pixelmed.query.RetrieveResponseGeneratorFactory;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import com.pixelmed.server.DicomAndWebStorageServer;
 import edu.wustl.xipHost.dataModel.ImageItem;
@@ -349,55 +342,7 @@ public class DicomManagerImpl implements DicomManager{
 		return level;				
 	}
 	
-	List<URI> retrievedFiles;
-	/**
-	 * 1. Method performed hierarchical move from remote location to calling location first.
-	 * 2. To get retrieved files' URIs method performs query but on the local server (calling)
-	 */
-	public List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling) {
-		retrievedFiles = new ArrayList<URI>();
-		System.out.println("Retrieving ...");		    	    		    	    		        
-        try {
-        	String hostName = called.getAddress();
-        	int port = called.getPort();
-        	String calledAETitle = called.getAETitle(); 
-        	String callingAETitle = calling.getAETitle();
-        	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);
-        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());			
-		} catch (IOException e1) {
-			return null;
-		} catch (DicomException e1) {
-			return null;
-		} catch (DicomNetworkException e1) {						
-			return null;
-		}        	        	    	    			
-		
-		try {						    		
-			//System.out.println("Local server is: " + getDBFileName());
-			StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(getDBFileName());			
-    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
-    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
-    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
-    		RetrieveResponseGenerator mRetrieveResponseGenerator = mRetrieveResponseGeneratorFactory.newInstance();
-			QueryResponseGenerator mQueryResponseGenerator = mQueryResponseGeneratorFactory.newInstance();						
-			mQueryResponseGenerator.performQuery("1.2.840.10008.5.1.4.1.2.2.1", criteria, true);	// Study Root						
-			AttributeList localResults = mQueryResponseGenerator.next();			
-			while(localResults != null) {							 					
-				mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
-				SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
-				Iterator<?> it = dicomFiles.iterator();			  
-				while (it.hasNext() ) {
-					SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
-					//System.out.println("Dicom file: " + x.getFileName());			    
-					retrievedFiles.add(new File(x.getFileName()).toURI());
-				}		
-				localResults = mQueryResponseGenerator.next();
-			}			
-    	} catch (Exception e) {
-    		return null;
-    	}      	    	    	
-    	return retrievedFiles;
-	}
+	
 	
 	BasicDicomParser2 parser = new BasicDicomParser2();
 	public boolean submit(File[] dicomFiles, PacsLocation location) {		
