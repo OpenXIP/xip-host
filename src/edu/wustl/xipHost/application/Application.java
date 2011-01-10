@@ -3,6 +3,7 @@
  */
 package edu.wustl.xipHost.application;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.swing.JTabbedPane;
 import javax.xml.ws.Endpoint;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
@@ -36,6 +39,7 @@ import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uuid;
 import edu.wustl.xipHost.avt2ext.ADRetrieveTarget;
+import edu.wustl.xipHost.avt2ext.AVTPanel;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2Event;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2Listener;
@@ -49,8 +53,10 @@ import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dicom.DicomPanel;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
+import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.hostControl.Util;
 import edu.wustl.xipHost.hostControl.XindiceManager;
 import edu.wustl.xipHost.hostControl.XindiceManagerFactory;
@@ -274,33 +280,12 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		//if(((String)getExePath().getName()).endsWith(".exe") || ((String)getExePath().getName()).endsWith(".bat")){
 		try {
 			if(getExePath().toURI().toURL().toExternalForm().endsWith(".exe") || getExePath().toURI().toURL().toExternalForm().endsWith(".bat")){
-				//TODO unvoid
 				try {																							
 					Runtime.getRuntime().exec("cmd /c start /min " + getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());		         
-		            /*List< String > command = new LinkedList<String>();		            
-		            command.add("cmd");
-		            command.add("/c");
-		            command.add("start");
-		            command.add("/min");		            		            		            
-		            command.add(getExePath().getCanonicalPath());		            		            
-		            command.add("--hostURL");		            
-		            command.add(hostServiceURL.toURI().toURL().toExternalForm());		           
-		            command.add( "--applicationURL" );
-		            command.add(appServiceURL.toURI().toURL().toExternalForm());		            
-		            ProcessBuilder builder = new ProcessBuilder(command);
-		            String str ="";
-		            for(int i = 0; i < command.size(); i++){
-		            	str = str + command.get(i) + " ";
-		            }
-		            System.out.println(str);		            
-		            File dir = getExePath().getParentFile();		            
-		            builder.directory(dir);
-		            builder.start();*/
 				} catch (IOException e) {			
-					e.printStackTrace();					
+					logger.error(e, e);				
 				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e, e);	
 				}			
 			} else if (getExePath().toURI().toURL().toExternalForm().endsWith(".sh")){
 				try {		
@@ -308,28 +293,22 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					System.out.println(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
 					Runtime.getRuntime().exec("open " + getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
 				} catch (IOException e) {			
-					e.printStackTrace();
+					logger.error(e, e);	
 				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e, e);	
 				}			
 			} else {
 				try {
 					Runtime.getRuntime().exec(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e, e);	
 				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// TODO Auto-generated catch block			
+					logger.error(e, e);	
+				}		
 			}
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e, e);	
 		}
-		//startIterator
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, getIterationTarget(), query, getApplicationTmpDir(), this);
 		try {
 			Thread t = new Thread(targetIter);

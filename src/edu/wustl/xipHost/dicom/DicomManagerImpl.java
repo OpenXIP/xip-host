@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +52,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.iterator.Criteria;
 
 public class DicomManagerImpl implements DicomManager{
 	final static Logger logger = Logger.getLogger(DicomManagerImpl.class);
@@ -203,9 +205,12 @@ public class DicomManagerImpl implements DicomManager{
 			//mTree hangs when supplied callingAETitle is an empty string
 			mTree = mModel.performHierarchicalQuery(criteria);			
 			result = new SearchResult(location.hostShortName);
+			Map<Integer, Object> dicomCriteria = DicomUtil.convertToADDicomCriteria(criteria);
+			Map<String, Object> aimCriteria = new HashMap<String, Object>();
+			Criteria originalCriteria = new Criteria(dicomCriteria, aimCriteria);
+			result.setOriginalCriteria(originalCriteria);
 			Object root = mTree.getRoot();			
 			returnResult = (SearchResult) resolveToSearchResult(root);
-			
 			if(logger.isDebugEnabled()){
 				 Iterator<Patient> patients = result.getPatients().iterator();
 				 while(patients.hasNext()){
@@ -261,6 +266,7 @@ public class DicomManagerImpl implements DicomManager{
 			//find if child is Study, Series or Image
 			//Case approach
 			String level = getRetrieveLevel(child);					
+			Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
 			if(level.equalsIgnoreCase("Study")){
 				String patientName = attValues.get("(0x0010,0x0010)");
 				if(patientName == null){patientName = "";}
@@ -269,6 +275,7 @@ public class DicomManagerImpl implements DicomManager{
 				String patientBirthDate = attValues.get("(0x0010,0x0030)");
 				if(patientBirthDate == null){patientBirthDate = "";}
 				patient = new Patient(patientName, patientID, patientBirthDate); 
+				patient.setLastUpdated(lastUpdated);
 				result.addPatient(patient);
 				String studyDate = attValues.get("(0x0008,0x0020)");
 				if(studyDate == null){studyDate = "";}
@@ -279,6 +286,7 @@ public class DicomManagerImpl implements DicomManager{
 				String studyInstanceUID = attValues.get("(0x0020,0x000D)");				
 				if(studyInstanceUID == null){studyInstanceUID = "";}				
 				study = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
+				study.setLastUpdated(lastUpdated);
 				patient.addStudy(study);
 				resolveToSearchResult(child);
 			}else if(level.equalsIgnoreCase("Series")){
@@ -290,7 +298,8 @@ public class DicomManagerImpl implements DicomManager{
 				if(seriesDesc == null){seriesDesc = "";}
 				String seriesInstanceUID = attValues.get("(0x0020,0x000E)");
 				if(seriesInstanceUID == null){seriesInstanceUID = "";}
-				series = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);				
+				series = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);
+				series.setLastUpdated(lastUpdated);
 				study.addSeries(series);
 				resolveToSearchResult(child);
 			}else if(level.equalsIgnoreCase("Image")){

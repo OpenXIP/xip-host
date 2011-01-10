@@ -52,7 +52,6 @@ import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
-import edu.wustl.xipHost.avt2ext.AVTQuery;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -532,6 +531,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	}
 	
 	Application targetApp = null;
+	Query query;
 	@Override
 	public void launchApplication(ApplicationEvent event) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
@@ -628,7 +628,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			//If yes, create new application instance
 			State state = app.getState();
 			// TODO Fill in with whatever is needed to make this work with XDS
-			Query query = new DicomQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
+			query = new DicomQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
@@ -644,26 +644,28 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = app;
 			}	
+		}
+	}
 	
-			// Start background retrieving of data that could eventually be given to the application
-			allRetrivedFiles = new ArrayList<File>();
-			numRetrieveThreadsStarted = 0;
-			numRetrieveThreadsReturned = 0;
-			List<AttributeList> criterias = getRetrieveCriteria();
-			if(criterias.size() > 0 && calledPacsLocation != null && callingPacsLocation != null){
-				progressBar.setString("Processing retrieve request ...");
-				progressBar.setIndeterminate(true);
-				progressBar.updateUI();	
-				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-				criteriaPanel.getQueryButton().setEnabled(false);
-				for(int i = 0; i < criterias.size(); i++){
-					DicomRetrieve dicomRetrieve = new DicomRetrieve(criterias.get(i), calledPacsLocation, callingPacsLocation);
-					dicomRetrieve.addDicomRetrieveListener(this);
-					Thread t = new Thread(dicomRetrieve);
-					t.start();
-					numRetrieveThreadsStarted++;
-				}				
-			}
+	public void startRetrieve(){
+		// Start background retrieving of data that could eventually be given to the application
+		allRetrivedFiles = new ArrayList<File>();
+		numRetrieveThreadsStarted = 0;
+		numRetrieveThreadsReturned = 0;
+		List<AttributeList> criterias = getRetrieveCriteria();
+		if(criterias.size() > 0 && calledPacsLocation != null && callingPacsLocation != null){
+			progressBar.setString("Processing retrieve request ...");
+			progressBar.setIndeterminate(true);
+			progressBar.updateUI();	
+			criteriaPanel.getQueryButton().setBackground(Color.GRAY);
+			criteriaPanel.getQueryButton().setEnabled(false);
+			for(int i = 0; i < criterias.size(); i++){
+				DicomRetrieve dicomRetrieve = new DicomRetrieve(criterias.get(i), calledPacsLocation, callingPacsLocation);
+				dicomRetrieve.addDicomRetrieveListener(this);
+				Thread t = new Thread(dicomRetrieve);
+				t.start();
+				numRetrieveThreadsStarted++;
+			}				
 		}
 	}
 	
@@ -703,6 +705,9 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	@Override
 	public void retrieveResultAvailable(DicomRetrieveEvent e) {
 		// TODO Auto-generated method stub
-		
+	}
+	
+	public Query getQuery(){
+		return query;
 	}
 }
