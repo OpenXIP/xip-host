@@ -632,7 +632,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-				instanceApp.setSelectedDataSearchResult(result);
+				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
 				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
@@ -640,7 +640,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = instanceApp;
 			}else{
-				app.setSelectedDataSearchResult(result);
+				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
 				app.setRetrieveDataSource(retrieve);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
