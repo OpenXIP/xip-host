@@ -55,6 +55,7 @@ import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
+import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -294,7 +295,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	int numRetrieveThreadsReturned;
 	@Override
 	@SuppressWarnings("unchecked")
-	public void retriveResultsAvailable(RetrieveEvent e) {		
+	public void retrieveResultsAvailable(RetrieveEvent e) {		
 		retrivedFiles = (List<File>) e.getSource();	
 		synchronized(retrivedFiles){
 			allRetrivedFiles.addAll(retrivedFiles);
@@ -641,17 +642,20 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			//If yes, create new application instance
 			State state = app.getState();
 			Query query = (Query) avtQuery;
+			Retrieve retrieve = new AVTRetrieve2(); 
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
-				instanceApp.setDataSource(query);
+				instanceApp.setQueryDataSource(query);
+				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
 				appMgr.addApplication(instanceApp);		
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
-				app.setDataSource(query);
+				app.setQueryDataSource(query);
+				app.setRetrieveDataSource(retrieve);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
 			}	
 		}				

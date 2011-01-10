@@ -338,7 +338,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, DataAcc
 	}
 	
 	@Override
-	public void retriveResultsAvailable(RetrieveEvent e) {
+	public void retrieveResultsAvailable(RetrieveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}	

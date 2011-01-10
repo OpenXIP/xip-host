@@ -828,14 +828,14 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(result);
-				instanceApp.setDataSource(query);
+				instanceApp.setQueryDataSource(query);
 				instanceApp.setDoSave(false);
 				appMgr.addApplication(instanceApp);		
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = instanceApp;
 			}else{
 				app.setSelectedDataSearchResult(result);
-				app.setDataSource(query);
+				app.setQueryDataSource(query);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = app;
 			}	
