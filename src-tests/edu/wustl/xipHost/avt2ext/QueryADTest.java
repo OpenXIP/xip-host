@@ -173,7 +173,7 @@ public class QueryADTest extends TestCase implements DataAccessListener{
 	}
 	*/
 	@Override
-	public void retriveResultsAvailable(RetrieveEvent e) {
+	public void retrieveResultsAvailable(RetrieveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

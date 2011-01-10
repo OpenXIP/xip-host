@@ -28,16 +28,31 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
+
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.SubElement;
 import edu.wustl.xipHost.iterator.TargetElement;
 
-public class AVTRetrieve2 implements Runnable{
+public class AVTRetrieve2 implements Retrieve {
 	final static Logger logger = Logger.getLogger(AVTRetrieve2.class);
 	ADFacade adService = AVTFactory.getADServiceInstance();
 	TargetElement targetElement;
-	ADRetrieveTarget retrieveTarget;
+	RetrieveTarget retrieveTarget;
 	
-	public AVTRetrieve2(TargetElement targetElement, ADRetrieveTarget retrieveTarget) throws IOException{
+	public AVTRetrieve2(){
+		
+	}
+	
+	public AVTRetrieve2(TargetElement targetElement, RetrieveTarget retrieveTarget) throws IOException{
+		this.targetElement = targetElement;
+		this.retrieveTarget = retrieveTarget;
+	}
+	
+	@Override
+	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
 		this.targetElement = targetElement;
 		this.retrieveTarget = retrieveTarget;
 	}
@@ -57,7 +72,7 @@ public class AVTRetrieve2 implements Runnable{
 	Document document;
 	XMLOutputter outToXMLFile = new XMLOutputter();
 	@SuppressWarnings("unchecked")
-	void retrieve(TargetElement targetElement, ADRetrieveTarget retrieveTarget) throws IOException {		
+	void retrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) throws IOException {		
 		List<SubElement> subElements = targetElement.getSubElements();
 		Map<Integer, Object> dicomCriteria = null;
 		Map<String, Object> adAimCriteria = null;
@@ -85,7 +100,7 @@ public class AVTRetrieve2 implements Runnable{
 			logger.debug("Retrieve target: " + retrieveTarget.toString());
 				
 			File dirPath = importDir.getAbsoluteFile();
-			if(retrieveTarget == ADRetrieveTarget.DICOM_AND_AIM){
+			if(retrieveTarget == RetrieveTarget.DICOM_AND_AIM){
 				//Retrieve DICOM
 				List<DicomObject> retrievedDICOM = adService.retrieveDicomObjs(dicomCriteria, adAimCriteria);
 				for(int i = 0; i < retrievedDICOM.size(); i++){
@@ -177,7 +192,7 @@ public class AVTRetrieve2 implements Runnable{
 			    		}
 			    	}	//	  
 				}				
-			}else if(retrieveTarget == ADRetrieveTarget.AIM_SEG){
+			}else if(retrieveTarget == RetrieveTarget.AIM_SEG){
 				//Retrieve AIM		
 				List<String> annotationUIDs = adService.findAnnotations(dicomCriteria, adAimCriteria);		
 				Set<String> uniqueAnnotUIDs = new HashSet<String>(annotationUIDs);
@@ -234,14 +249,14 @@ public class AVTRetrieve2 implements Runnable{
 	}		
 	
 
-	AVTRetrieve2Listener listener;
-    public void addAVTListener(AVTRetrieve2Listener l) {        
-        listener = l;          
-    }
 	void fireResultsAvailable(String targetElementID){
-		//instead of passing this, pass targetElement ID
-		AVTRetrieve2Event event = new AVTRetrieve2Event(targetElementID);         		
-        listener.retriveCompleted(event);
+		RetrieveEvent event = new RetrieveEvent(targetElementID);         		
+        listener.retrieveResultsAvailable(event);
 	}
-	
+
+	DataAccessListener listener;
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		listener = l;
+	}	
 }
