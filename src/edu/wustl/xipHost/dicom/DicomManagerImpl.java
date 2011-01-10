@@ -236,8 +236,6 @@ public class DicomManagerImpl implements DicomManager{
 					 }
 				 }
 			}
-		
-			
 		} catch (IOException e) {
 			return null;
 		} catch (DicomException e) {
@@ -269,7 +267,11 @@ public class DicomManagerImpl implements DicomManager{
 				if(patientBirthDate == null){patientBirthDate = "";}
 				patient = new Patient(patientName, patientID, patientBirthDate); 
 				patient.setLastUpdated(lastUpdated);
-				result.addPatient(patient);
+				if(!result.contains(patientID)){
+					result.addPatient(patient);
+				} else {
+					patient = result.getPatient(patientID);
+				}
 				String studyDate = attValues.get("(0x0008,0x0020)");
 				if(studyDate == null){studyDate = "";}
 				String studyID = attValues.get("(0x0020,0x0010)");
@@ -280,7 +282,11 @@ public class DicomManagerImpl implements DicomManager{
 				if(studyInstanceUID == null){studyInstanceUID = "";}				
 				study = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
 				study.setLastUpdated(lastUpdated);
-				patient.addStudy(study);
+				if(!patient.contains(studyInstanceUID)){
+					patient.addStudy(study);
+				} else {
+					study = patient.getStudy(studyInstanceUID);
+				}
 				resolveToSearchResult(child);
 			}else if(level.equalsIgnoreCase("Series")){
 				String seriesNumber = attValues.get("(0x0020,0x0011)");
@@ -293,13 +299,19 @@ public class DicomManagerImpl implements DicomManager{
 				if(seriesInstanceUID == null){seriesInstanceUID = "";}
 				series = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);
 				series.setLastUpdated(lastUpdated);
-				study.addSeries(series);
+				if(!study.contains(seriesInstanceUID)){
+					study.addSeries(series);
+				} else {
+					series = study.getSeries(seriesInstanceUID);
+				}
 				resolveToSearchResult(child);
 			}else if(level.equalsIgnoreCase("Image")){
 				String imageNumber = attValues.get("(0x0020,0x0013)");
 				if(imageNumber == null){imageNumber = "";}								
 				Item image = new ImageItem(imageNumber);				
-				series.addItem(image);
+				if(!series.containsItem(imageNumber)){
+					series.addItem(image);
+				} 
 			}else{
 				return null;
 			}
