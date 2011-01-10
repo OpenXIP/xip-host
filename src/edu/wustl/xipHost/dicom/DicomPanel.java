@@ -56,7 +56,6 @@ import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
-import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -80,7 +79,7 @@ import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
  * @author Jaroslaw Krych
  *
  */
-public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, DataAccessListener, DicomRetrieveListener, DataSelectionListener {
+public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, DataAccessListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(DicomPanel.class);
 	JPanel calledLocationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select Called DICOM Service Location:");		
@@ -702,11 +701,5 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	public void notifyException(String message) {
 		// TODO Auto-generated method stub
 		
-	}
-
-
-	@Override
-	public void retrieveResultAvailable(DicomRetrieveEvent e) {
-		// TODO Auto-generated method stub
 	}
 }
