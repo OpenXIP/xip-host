@@ -90,7 +90,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
         tabPaneCenter.addTab("Worklist", icon, worklistPanel, null);
         tabPaneCenter.setFont(font);
-        //tabPaneCenter.addMouseListener(mouseAdapterCenterTabs);
+        tabPaneCenter.setSelectedComponent(dicomPanel);
         
         toolBar.btnHost.addActionListener(this);
         toolBar.btnLocal.addActionListener(this);
