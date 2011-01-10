@@ -3,11 +3,9 @@ package edu.wustl.xipHost.dicom;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import org.jdom.JDOMException;
 import com.pixelmed.dicom.AttributeList;
-
 import edu.wustl.xipHost.dataModel.SearchResult;
 
 public interface DicomManager {
@@ -25,8 +23,9 @@ public interface DicomManager {
 	public abstract boolean removePacsLocation(PacsLocation pacsLocation);
 	public abstract boolean storePacsLocations(List<PacsLocation> locations, File file) throws FileNotFoundException;
 	public abstract SearchResult query(AttributeList criteria, PacsLocation location);
-	public abstract List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling);
+	//public abstract List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling);
 	public abstract boolean submit(File[] dicomFiles, PacsLocation location);
 	public abstract List<PacsLocation> getPacsLocations();	
 	public abstract boolean runDicomStartupSequence();
+	public String getDBFileName();
 }
