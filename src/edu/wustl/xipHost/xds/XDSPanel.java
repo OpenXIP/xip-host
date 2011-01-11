@@ -4,30 +4,44 @@
 package edu.wustl.xipHost.xds;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
+
 import com.pixelmed.dicom.AttributeList;
+
 import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationEvent;
@@ -35,15 +49,19 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
+import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
+import edu.wustl.xipHost.dicom.PacsLocation;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
+import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
+import edu.wustl.xipHost.pdq.PDQLocation;
 import edu.wustl.xipHost.xds.CheckBoxTree.SearchResultTree;
 
 /**
@@ -52,6 +70,15 @@ import edu.wustl.xipHost.xds.CheckBoxTree.SearchResultTree;
  */
 public class XDSPanel extends JPanel implements ActionListener, XDSSearchListener, ApplicationListener, XDSRetrieveListener, ListSelectionListener {
 	final static Logger logger = Logger.getLogger(XDSPanel.class);
+
+	JPanel pdqLocationSelectionPanel = new JPanel();
+	JLabel lblPdqTitle = new JLabel("Select Patient Demographic Supplier:");		
+	ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");	
+	JLabel lblGlobus = new JLabel(iconGlobus, JLabel.CENTER);		
+    DefaultComboBoxModel pdqComboModel;	
+	JComboBox pdqList;	
+	XDSManager xdsManager;
+
 	XDSSearchCriteriaPanel criteriaPanel = new XDSSearchCriteriaPanel();	
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);
@@ -62,15 +89,53 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	Color xipBtn = new Color(56, 73, 150);
 	Color xipLightBlue = new Color(156, 162, 189);
 	Font font_1 = new Font("Tahoma", 0, 13);
+	Font font_2 = new Font("Tahoma", 0, 12);		
 	Border border = BorderFactory.createLoweredBevelBorder();		
 	JLabel infoLabel = new JLabel("UNDER   DEVELOPMENT");
 	
 	public XDSPanel(){
 		setBackground(xipColor);		
+
+		pdqComboModel = new DefaultComboBoxModel();
+		pdqList = new JComboBox(pdqComboModel);
+		xdsManager = XDSManagerFactory.getInstance();
+		List<PDQLocation> pdqLocations = xdsManager.getPDQLocations();
+		for(int i = 0; i < pdqLocations.size(); i++){
+			pdqComboModel.addElement(pdqLocations.get(i));
+		}
+		ComboBoxRenderer pdqListRenderer = new ComboBoxRenderer();		
+		pdqList.setRenderer(pdqListRenderer);
+		pdqList.setMaximumRowCount(10);
+		pdqList.setSelectedIndex(0);
+		PDQLocation itemPDQ = (PDQLocation)pdqList.getSelectedItem();
+		selectedPDQLocation = (PDQLocation)itemPDQ;
+		pdqList.setPreferredSize(new Dimension(465, 25));
+		pdqList.setFont(font_2);
+		pdqList.setEditable(false);		
+		pdqList.addActionListener(this);
+		lblPdqTitle.setForeground(Color.WHITE);
+		pdqLocationSelectionPanel.add(lblPdqTitle);		
+		pdqLocationSelectionPanel.add(pdqList);
+		lblGlobus.setToolTipText("PDQ supplier locations");
+		lblGlobus.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		lblGlobus.addMouseListener(
+			new MouseAdapter(){
+				public void mouseClicked(MouseEvent e){																
+					//System.out.println("Display locations");
+					//displayLocations();
+					new UnderDevelopmentDialog(lblGlobus.getLocationOnScreen());
+				}
+			}
+		);
+		pdqLocationSelectionPanel.add(lblGlobus);		
+		pdqLocationSelectionPanel.setBackground(xipColor);
+		buildLayoutPDQLocationSelectionPanel();
+
 		criteriaPanel.btnSearchPatientID.addActionListener(this);
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search XDS");	
 		criteriaPanel.getPatientList().addListSelectionListener(this);
+		leftPanel.add(pdqLocationSelectionPanel);
 		leftPanel.add(criteriaPanel);				
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
@@ -88,12 +153,18 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	    progressBar.setBackground(new Color(156, 162, 189));
 	    progressBar.setForeground(xipColor);
 	    add(progressBar);
+        buildLeftPanelLayout();
 	    buildRightPanelLayout();
 	    buildLayout();
 	}
-	
+
+	PDQLocation selectedPDQLocation;
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == criteriaPanel.getPatientIDQueryButton()){									
+		if(e.getSource() == pdqList){
+			Object item = ((JComboBox)e.getSource()).getSelectedItem();
+			selectedPDQLocation = (PDQLocation)item;
+		}
+		else if(e.getSource() == criteriaPanel.getPatientIDQueryButton()){									
 			criteriaPanel.getListModel().removeAllElements();
 			resultTree.rootNode.removeAllChildren();
 			progressBar.setString("Processing search request ...");
@@ -101,9 +172,9 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			progressBar.updateUI();	
 			AttributeList criteria = criteriaPanel.getFilterList();										
 			if(criteriaPanel.verifyCriteria(criteria)){																													
-				XDSPatientIDQuery xsdQueryPatientID = new XDSPatientIDQuery(criteria);
-				xsdQueryPatientID.addXDSSearchListener(this);
-				Thread t = new Thread(xsdQueryPatientID);
+				XDSPatientIDQuery xdsQueryPatientID = new XDSPatientIDQuery(criteria, selectedPDQLocation);
+				xdsQueryPatientID.addXDSSearchListener(this);
+				Thread t = new Thread(xdsQueryPatientID);
 				t.start();
 			} else {
 				//if no criteria specified do ...				
@@ -167,6 +238,32 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         layout.setConstraints(progressBar, constraints);
 	}
 	
+	void buildLeftPanelLayout(){
+		GridBagLayout layout = new GridBagLayout();
+        GridBagConstraints constraints = new GridBagConstraints();
+        leftPanel.setLayout(layout);         
+                       
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 5;
+        constraints.insets.right = 10;
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(pdqLocationSelectionPanel, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 1;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 5;
+        constraints.insets.right = 10;
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(criteriaPanel, constraints); 
+	}
+	
 	void buildRightPanelLayout(){
 		GridBagLayout layout = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();
@@ -183,6 +280,63 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         layout.setConstraints(treeView, constraints);               
 	}
 	
+	void buildLayoutPDQLocationSelectionPanel(){
+		GridBagLayout layout = new GridBagLayout();
+        GridBagConstraints constraints = new GridBagConstraints();
+        pdqLocationSelectionPanel.setLayout(layout);         
+                       
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 20;        
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(lblPdqTitle, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 1;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 20;        
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(pdqList, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 1;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 20;        
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(lblGlobus, constraints);                
+	}
+	
+	class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+		DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+		Dimension preferredSize = new Dimension(440, 15);
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+			      boolean isSelected, boolean cellHasFocus) {
+			    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
+			        isSelected, cellHasFocus);
+			    if (value instanceof PDQLocation) {
+			    	renderer.setText(((PDQLocation)value).getShortName());
+			    	renderer.setBackground(Color.WHITE);
+			    }
+			    if(cellHasFocus || isSelected){
+			    	renderer.setBackground(xipLightBlue);
+			    	renderer.setForeground(Color.WHITE);
+			    	renderer.setBorder(new LineBorder(Color.DARK_GRAY));
+			    }else{
+			    	renderer.setBorder(null);
+			    }			    
+			    renderer.setPreferredSize(preferredSize);
+			    return renderer;
+			  }
+		
+	}
+
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
 		XDSPanel panel = new XDSPanel();

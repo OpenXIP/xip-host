@@ -17,9 +17,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.openhealthtools.ihe.atna.auditor.PDQConsumerAuditor;
-import org.openhealthtools.ihe.atna.auditor.XDSConsumerAuditor;
-import org.openhealthtools.ihe.atna.auditor.codes.rfc3881.RFC3881EventCodes.RFC3881EventOutcomeCodes;
 import org.openhealthtools.ihe.common.ebxml._3._0.rim.ObjectRefType;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.common.hl7v2.Hl7v2Factory;
@@ -39,7 +43,6 @@ import org.openhealthtools.ihe.xds.consumer.query.DateTimeRange;
 import org.openhealthtools.ihe.xds.consumer.query.MalformedQueryException;
 import org.openhealthtools.ihe.xds.consumer.retrieve.DocumentRequestType;
 import org.openhealthtools.ihe.xds.consumer.retrieve.RetrieveDocumentSetRequestType;
-import org.openhealthtools.ihe.xds.consumer.storedquery.FindDocumentsForMultiplePatientsQuery;
 import org.openhealthtools.ihe.xds.consumer.storedquery.FindDocumentsQuery;
 import org.openhealthtools.ihe.xds.consumer.storedquery.GetDocumentsQuery;
 import org.openhealthtools.ihe.xds.consumer.storedquery.MalformedStoredQueryException;
@@ -52,8 +55,6 @@ import org.openhealthtools.ihe.xds.metadata.constants.DocumentEntryConstants;
 import org.openhealthtools.ihe.xds.response.DocumentEntryResponseType;
 import org.openhealthtools.ihe.xds.response.XDSQueryResponseType;
 import org.openhealthtools.ihe.xds.response.XDSRetrieveResponseType;
-import org.openhealthtools.ihe.xua.XUAAssertion;
-import org.openhealthtools.ihe.xua.context.XUAModuleContext;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.PersonNameAttribute;
@@ -65,6 +66,8 @@ import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
+import edu.wustl.xipHost.hostControl.HostConfigurator;
+import edu.wustl.xipHost.pdq.PDQLocation;
 
 /**
  * @author Jaroslaw Krych (stubs, tree display of results), Lawrence Tarbox (OHT implementation)
@@ -72,75 +75,123 @@ import edu.wustl.xipHost.dataModel.XDSDocumentItem;
  */
 public class XDSManagerImpl implements XDSManager{
 
-	//That's where audit is going
-	private String auditUser = "wustl"; // TODO Get user from login info, or better yet, globally configure the audit and security stuff.
-	private String auditURL = "syslog://129.6.24.109:8087"; // NIST web
-	//private String auditURL = "syslog://nist1.ihe.net:8087"; // NIST Connectathon
-	//private String auditURL = "syslog://127.0.0.1:4000"; // MESA
-	//private String auditURL = "syslog://axolotl1:514"; // axolotl1
+	Document documentPdq;
+	Element rootPdq;
+	SAXBuilder builder = new SAXBuilder();
+	List<PDQLocation> pdqLocations = new ArrayList<PDQLocation>();
 	
-	Boolean useTestID = true;
-
-	public List<XDSPatientIDResponse> queryPatientIDs(AttributeList queryKeys) {	
-		//TODO Move code to the configuration file, read entries from the configuration file, and move files to an XIP location.
-		System.setProperty("javax.net.ssl.keyStore","/MESA/certificates/XIPkeystore.jks");
-		System.setProperty("javax.net.ssl.keyStorePassword","caBIG2011");
-		System.setProperty("javax.net.ssl.trustStore","/MESA/runtime/certs-ca-signed/2011_CA_Cert.jks");
-		System.setProperty("javax.net.ssl.trustStorePassword","connectathon");
-
-		// TODO Should we do all this setup and create pdq once, configure it, and leave it created?
-		try {
-			//PDQConsumerAuditor.getAuditor().getConfig().setAuditRepositoryURI(TConfig.ATNA_URI);
-			PDQConsumerAuditor.getAuditor().getConfig().setAuditRepositoryUri(new URI(auditURL));
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		    System.out.println("URI to auditor improperly formed");
-		}
-		PDQConsumerAuditor.getAuditor().getConfig().setAuditSourceId("XIP");
-		//PDQConsumerAuditor.getAuditor().getConfig().setAuditorEnabled(true);
-		PDQConsumerAuditor.getAuditor().getConfig().setAuditorEnabled(false);
-		PDQConsumerAuditor.getAuditor().getConfig().setAuditEnterpriseSiteId("IHE ERL");
-		PDQConsumerAuditor.getAuditor().getConfig().setHumanRequestor("ltarbox");
-		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserId(auditUser);
-		PDQConsumerAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
-		
-		//TODO Move the following if ... else .. to user login (execute after successful/failed login)
-		// If using XUA, change the following line of code
-		Boolean useXUA = false;
-		if (useXUA == false){
-			PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
-		} else {
-			XUAModuleContext context = XUAModuleContext.getContext(); 
-			context.setXUAEnabled(true); 
-			//String atnaUsername = context.getLoginHandler().login("https://ibm2:8443/XUATools/IBM_STS", // stsProviderUrl
-			XUAAssertion atnaUsername = null;
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#loadPDQLocations(java.io.File)
+	 */
+	public boolean loadPDQLocations(File file) throws IOException, JDOMException {				
+		documentPdq = builder.build(file);
+		rootPdq = documentPdq.getRootElement();										
+		List<?> children = rootPdq.getChildren("pdq_location");				
+		for (int i = 0; i < children.size(); i++){
+			String address = (((Element)children.get(i)).getChildText("PdqSupplierURL"));
+			String rcvApplication = (((Element)children.get(i)).getChildText("ReceivingApplication"));
+			String rvcFacility = (((Element)children.get(i)).getChildText("RecievingFacility"));
+			String shortName = (((Element)children.get(i)).getChildText("ShortName"));
 			try {
-				atnaUsername = context.getLoginHandler().login("https://ibm2:8443/XUATools/IBM_STS", // stsProviderUrl
-				//atnaUsername = context.getLoginHandler().login("https://spirit1:8443/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProvider4Tivoli", // stsProviderUrl
-						"http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon", // audience
-						"user_valid@ihe.net", // "user_valid@ihe.net","user_unsigned@ihe.net" // user
-						"passw0rd");
-			} catch (Exception e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			} // password
-			if (atnaUsername != null) { 
-				// XUA request was successful 
-				auditUser = atnaUsername.getAtnaUsername();
-				PDQConsumerAuditor.getAuditor().getConfig().setSystemUserId(auditUser);
-				PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
-			} 
-			else 
-			{ 
-				// XUA request was unsuccessful 
-				PDQConsumerAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.MINOR_FAILURE, true, "XIP", "192.168.1.10");
-				// TODO: notify user of failure
-			    System.out.println("Unable to authenticate user");
-				return null;
-			}
+				PDQLocation loc = new PDQLocation(address, rcvApplication, rvcFacility, shortName);
+				pdqLocations.add(loc);
+			} catch (URISyntaxException e) {
+				System.out.println("Unable to load: " + address + " " + rcvApplication + " " + rvcFacility + " " + shortName + " - invalid location.");				
+			}																									
 		}
-		
+		return true;							
+	}
+	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#storePDQLocations(java.util.List, java.io.File)
+	 */
+	public boolean storePDQLocations(List<PDQLocation> locations, File file) throws FileNotFoundException {					
+		Element rootSave = new Element("locations");
+		Document document = new Document();
+		document.setRootElement(rootSave);		
+		if(locations == null){return false;}
+		for(int i = 0; i < locations.size(); i++){						
+			Element pdqElem = new Element("pdq_location");
+			Element supplierURL = new Element("PdqSupplierURL");
+			Element rcvApplicationElem = new Element("ReceivingApplication");
+			Element rcvFacilityElem = new Element("RecievingFacility");					
+			Element shortNameElem = new Element("ShortName");
+			pdqElem.addContent(supplierURL);
+			pdqElem.addContent(rcvApplicationElem);
+			pdqElem.addContent(rcvFacilityElem);
+			pdqElem.addContent(shortNameElem);
+			rootSave.addContent(pdqElem);
+			supplierURL.addContent(locations.get(i).getPDQSupplierURL());
+			rcvApplicationElem.addContent(String.valueOf(locations.get(i).getReceivingApplication()));
+			rcvFacilityElem.addContent(locations.get(i).getRecievingFacility());
+			shortNameElem.addContent(locations.get(i).getShortName());
+		}
+		try {
+			FileOutputStream outStream = new FileOutputStream(file);
+			XMLOutputter outToXMLFile = new XMLOutputter();
+			outToXMLFile.setFormat(Format.getPrettyFormat());
+	    	outToXMLFile.output(document, outStream);
+	    	outStream.flush();
+	    	outStream.close();                       
+		} catch (IOException e) {
+			return false;
+		} 
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#addPDQLocation(edu.wustl.xipHost.globalSearch.PDQLocation)
+	 */
+	public boolean addPDQLocation(PDQLocation pdqLocation){		
+		try {
+			if(!pdqLocations.contains(pdqLocation)){
+				return pdqLocations.add(pdqLocation);
+			} else {
+				return false;
+			}
+		} catch (IllegalArgumentException e){
+			return false;
+		}								
+	}	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#modifyPDQLocation(edu.wustl.xipHost.globalSearch.PDQLocation, edu.wustl.xipHost.globalSearch.PDQLocation)
+	 */
+	public boolean modifyPDQLocation(PDQLocation oldPDQLocation, PDQLocation newPDQLocation) {
+		//validate method is used to check if parameters are valid, are notmissing, 
+		//do not contain empty strings or do not start from white spaces		
+		try {
+			int i = pdqLocations.indexOf(oldPDQLocation);
+			if (i != -1){
+				pdqLocations.set(i, newPDQLocation);
+				return true;
+			} else{
+				return false;
+			}
+		} catch (IllegalArgumentException e){
+			return false;
+		}
+	}	
+	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#removePDQLocation(edu.wustl.xipHost.globalSearch.PDQLocation)
+	 */
+	public boolean removePDQLocation(PDQLocation pdqLocation){
+		//System.out.println(PDQLocations.indexOf(PDQLocation));
+		try {
+			return pdqLocations.remove(pdqLocation);
+		} catch (IllegalArgumentException e){
+			return false;
+		}		
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#getPDQLocations()
+	 */
+	public List<PDQLocation> getPDQLocations(){
+		return pdqLocations;
+	}	
+
+	public List<XDSPatientIDResponse> queryPatientIDs(AttributeList queryKeys, PDQLocation pdqSupplier) {	
 		/*
 		// Alternative of setting up a secure connection
 		Properties props = new Properties();
@@ -153,44 +204,60 @@ public class XDSManagerImpl implements XDSManager{
 	    */ 
 		// End possible alternatives
 		
-		// For some testing, there is no PDQ supplier to get Patient IDs from.  In this case, return test IDs to choose from.
-		if (useTestID){
+		if (pdqSupplier.getPDQSupplierURI().getScheme().contains("mllp")) {
+			return queryPatientIDsV2(queryKeys, pdqSupplier);
+		} else if (pdqSupplier.getPDQSupplierURI().getScheme().contains("http")) {
+			return queryPatientIDsV3(queryKeys, pdqSupplier);
+		} else if (pdqSupplier.getPDQSupplierURI().getScheme().contains("test")) {
+			// For some testing, there is no PDQ supplier to get Patient IDs from.  In this case, return test IDs to choose from.
 			List<XDSPatientIDResponse> testIDs = new ArrayList<XDSPatientIDResponse>();
 
-	    	String patIDa[] = {"5541138b47a445a", "", "1.3.6.1.4.1.21367.2005.3.7", "ISO"}; // NIST test ID
-	    	String patIDStringa = "ID: " + patIDa[0] + "\nName: NIST Test Subject\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDa, patIDStringa));
+			String patientID = queryKeys.get(TagFromName.PatientID).getSingleStringValueOrNull();
+			if (patientID != null){
+				String assigningAuthority = queryKeys.get(TagFromName.IssuerOfPatientID).getSingleStringValueOrEmptyString();
+				String patID[] = {patientID, "", assigningAuthority, "ISO"}; // NIST test ID
+				String patIDString = "ID: " + patID[0] + " \nName: User Input\n";
+				testIDs.add(new XDSPatientIDResponse(patID, patIDString));
+			}
 
-	    	String patIDb[] = {"b89182560b284fd", "", "1.3.6.1.4.1.21367.2005.3.7", "ISO"}; // NIST test ID
-	    	String patIDStringb = "ID: " + patIDb[0] + "\nName: NIST Test Subject - one docs\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDb, patIDStringb));
+			String patIDa[] = {"5541138b47a445a", "", "1.3.6.1.4.1.21367.2005.3.7", "ISO"}; // NIST test ID
+			String patIDStringa = "ID: " + patIDa[0] + " \nName: NIST Test Subject\n";
+			testIDs.add(new XDSPatientIDResponse(patIDa, patIDStringa));
 
-	    	String patIDc[] = {"5a6d285d57bf408", "", "1.3.6.1.4.1.21367.2005.3.7", "ISO"}; // NIST test ID
-	    	String patIDStringc = "ID: " + patIDc[0] + "\nName: NIST Test Subject - two docs\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDc, patIDStringc));
-	    	
-	    	//String patIDd[] = {"123", "", "1.3.6.1.4.1.21367.2010.1.2.300", "ISO"};
-	    	String patIDd[] = {"101", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
-	    	String patIDStringd = "ID: " + patIDd[0] + "\nName: IBM\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDd, patIDStringd));
-	    	
-	    	//String patIDe[] = {"4111", "", "1.3.6.1.4.1.21367.2010.1.2.300", "ISO"}; 
-	    	//String patIDe[] = {"779911", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
-	    	String patIDe[] = {"20101210161154", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
-	    	String patIDStringe = "ID: " + patIDe[0] + "\nName: Oracle\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDe, patIDStringe));
-	    	
-	    	String patIDf[] = {"TestPatient1", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
-	    	String patIDStringf = "ID: " + patIDf[0] + "\nName: CareEvolution\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDf, patIDStringf));
+			String patIDb[] = {"b89182560b284fd", "", "1.3.6.1.4.1.21367.2005.3.7", "ISO"}; // NIST test ID
+			String patIDStringb = "ID: " + patIDb[0] + " \nName: NIST Test Subject - one docs\n";
+			testIDs.add(new XDSPatientIDResponse(patIDb, patIDStringb));
 
-	    	String patIDg[] = {"1", "", "1.3.6.1.4.1.21367.13.20.2000", "ISO"};
-	    	String patIDStringg = "ID: " + patIDg[0] + "\nName: GE\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDg, patIDStringg));
+			String patIDc[] = {"5a6d285d57bf408", "", "1.3.6.1.4.1.21367.2005.3.7", "ISO"}; // NIST test ID
+			String patIDStringc = "ID: " + patIDc[0] + " \nName: NIST Test Subject - two docs\n";
+			testIDs.add(new XDSPatientIDResponse(patIDc, patIDStringc));
+			
+			//String patIDd[] = {"123", "", "1.3.6.1.4.1.21367.2010.1.2.300", "ISO"};
+			String patIDd[] = {"101", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
+			String patIDStringd = "ID: " + patIDd[0] + " \nName: IBM\n";
+			testIDs.add(new XDSPatientIDResponse(patIDd, patIDStringd));
+			
+			//String patIDe[] = {"4111", "", "1.3.6.1.4.1.21367.2010.1.2.300", "ISO"}; 
+			//String patIDe[] = {"779911", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
+			String patIDe[] = {"20101210161154", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
+			String patIDStringe = "ID: " + patIDe[0] + " \nName: Oracle\n";
+			testIDs.add(new XDSPatientIDResponse(patIDe, patIDStringe));
+			
+			String patIDf[] = {"TestPatient1", "", "1.3.6.1.4.1.21367.13.20.1000", "ISO"};
+			String patIDStringf = "ID: " + patIDf[0] + " \nName: CareEvolution\n";
+			testIDs.add(new XDSPatientIDResponse(patIDf, patIDStringf));
 
-	    	String patIDh[] = {"161111", "", "1.3.6.1.4.1.21367.13.20.3000", "ISO"};
-	    	String patIDStringh = "ID: " + patIDg[0] + "\nName: MOSS\n";
-	    	testIDs.add(new XDSPatientIDResponse(patIDh, patIDStringh));
+			String patIDg[] = {"1", "", "1.3.6.1.4.1.21367.13.20.2000", "ISO"};
+			String patIDStringg = "ID: " + patIDg[0] + " \nName: GE\n";
+			testIDs.add(new XDSPatientIDResponse(patIDg, patIDStringg));
+
+			String patIDh[] = {"161111", "", "1.3.6.1.4.1.21367.13.20.3000", "ISO"};
+			String patIDStringh = "ID: " + patIDg[0] + " \nName: MOSS\n";
+			testIDs.add(new XDSPatientIDResponse(patIDh, patIDStringh));
+
+			String patIDi[] = {"20101215162537", "", "1.3.6.1.4.1.21367.13.20.3000", "ISO"}; 
+			String patIDStringi = "ID: " + patIDi[0] + " \nName: eCW\n";
+			testIDs.add(new XDSPatientIDResponse(patIDi, patIDStringi));
 
 			// Set up the patient ID: "JM19400814^^^&1.3.6.1.4.1.21367.2005.1.1&ISO"
 			//patientId.setIdNumber("223344");
@@ -210,86 +277,13 @@ public class XDSManagerImpl implements XDSManager{
 			//patientId.setIdNumber("TBDxxxxxxx"); // for ITH
 			//patientId.setIdNumber("101"); //for IBM
 			return testIDs;
-		}
-		
-		
-		// TODO Add reading of pdq URI from config file.  For now, hardcoded.
-
-	    try {
-			// Hardcoded URI for PDQ server
-		    // URI pdqSupplier = new URI("mllp", null, "hxti1", 3600, null, null, null);
-		    // URI pdqSupplier = new URI("mllp", null, "initiate1", 3600, null, null, null);
-		    //              For 2009 connectathon
-		    //URI pdqSupplier = new URI("mllp", null, "hl7-proxy.ihe.net", 9327, null, null, null); // Allscripts
-		    //URI pdqSupplier = new URI("mllp", null, "allscripts4", 3601, null, null, null); // Allscripts
-		    //URI pdqSupplier = new URI("mllps", null, "allscripts4", 3710, null, null, null); // Allscripts
-		    //URI pdqSupplier = new URI("mllp", null, "icw2", 3750, null, null, null); // ICW
-		    //URI pdqSupplier = new URI("mllp", null, "initiate1", 3600, null, null, null); // Initiate
-		    //URI pdqSupplier = new URI("mllps", null, "initiate1", 3610, null, null, null); // Initiate
-		    //URI pdqSupplier = new URI("mllps", null, "initiate1", 3610, null, null, null); // Initiate
-		    //URI pdqSupplier = new URI("mllps", null, "swpartners1", 3610, null, null, null); // swpartners
-		    
-		    //              For 2009 Internet Testing 
-		    // URI pdqSupplier = new URI("mllp", null, "67.155.0.245", 3600, null, null, null); 	// Initiate - success
-		    // URI pdqSupplier = new URI("mllp", null, "75.101.154.211", 3600, null, null, null); 	// ICW
-		    // URI pdqSupplier = new URI("mllp", null, "195.23.85.214", 3600, null, null, null); 	// Alert 
-		    // URI pdqSupplier = new URI("mllp", null, "72.214.26.5", 2200, null, null, null); 		// SW Parters - success
-		    // URI pdqSupplier = new URI("mllp", null, "office.tiani-spirit.com", 6667, null, null, null); // Tiani-Spirit - success
-		    // URI pdqSupplier = new URI("mllp", null, "24.153.226.221", 5950, null, null, null); 		// EMDS
-		    // URI pdqSupplier = new URI("mllp", null, "198.160.211.53", 3601, null, null, null); 	// MISYSPLC - success
-		    //              For MESA testing
-		    // URI pdqSupplier = new URI("mllp", null, "localhost", 3700, null, null, null); // for MESA testing
-			// URI pdqSupplier = new URI("mllps", null, "localhost", 4100, null, null, null); // for MESA testing
-			// URI pdqSupplier = new URI("mllp", null, "141.156.15.209", 9080, null, null, null); // for V2 NIST testing
-			// URI pdqSupplier = new URI("http", null, "141.156.15.209", 9090, null, null, null); // for V3 NIST testing
-			//				For 2010 Internet Testing
-		    // URI pdqSupplier = new URI("mllp", null, "24.153.226.204", 3601, null, null, null); 		// EMDS
-		    // URI pdqSupplier = new URI("mllps", null, "24.153.226.204", 3710, null, null, null); 		// EMDS
-		    // URI pdqSupplier = new URI("mllp", null, "testws.swpartners.com", 3700, null, null, null); 	// SW Parters
-		    // URI pdqSupplier = new URI("mllps", null, "testws.swpartners.com", 3710, null, null, null); 	// SW Parters
-		    // URI pdqSupplier = new URI("mllp", null, "173.60.79.118", 3601, null, null, null); 		// MISYS
-	    	// URI pdqSupplier = new URI("mllps", null, "173.60.79.118", 3710, null, null, null); 		// MISYS
-		    // URI pdqSupplier = new URI("mllp", null, "203.196.189.153", 3600, null, null, null); 		// AXSYS
-		    // URI pdqSupplier = new URI("mllps", null, "203.196.189.153", 3610, null, null, null); 	// AXSYS
-			// URI pdqSupplier = new URI("http", null, "62.182.99.61", 8086, "/v3/services/service", null, null); // for V3 ICW
-			// URI pdqSupplier = new URI("http://62.182.99.61:8085/v3/services/iti47service"); // for V3 ICW
-			// URI pdqSupplier = new URI("https", null, "62.182.99.61", 8446, "v3/services/service", null, null); // for V3 ICW
-			// URI pdqSupplier = new URI("https://62.182.99.61:8445/v3/services/iti47service"); // for V3 ICW on TLS
-	    	// URI pdqSupplier = new URI("http://67.155.0.243:8080/brokerproxy/services/BrokerProxyService12.BrokerProxyPort12");	// for V3 Initiate
-			//				For 2011 NIST Testing
-		    // URI pdqSupplier = new URI("mllp", null, "129.6.24.143", 9080, null, null, null); 		// NIST	    	
-		    //URI pdqSupplier = new URI("http", null, "129.6.24.143", 9090, null, null, null); 		// NIST	    	
-			//				For 2011 Internet Testing
-	    	// URI pdqSupplier = new URI("mllp", null, "198.160.211.53", 3601, null, null, null); 		// MOSS
-	    	// URI pdqSupplier = new URI("mllps", null, "198.160.211.53", 3710, null, null, null); 		// MOSS
-		    // URI pdqSupplier = new URI("mllp", null, "24.153.226.194", 11003, null, null, null); 		// EMDS
-		    // URI pdqSupplier = new URI("mllps", null, "24.153.226.194", 12003, null, null, null); 		// EMDS
-		    // URI pdqSupplier = new URI("mllp", null, "75.25.14.158", 4447, null, null, null); 	// Oracle
-		    URI pdqSupplier = new URI("mllps", null, "75.25.14.158", 4448, null, null, null); 	// Oracle
-		    // URI pdqSupplier = new URI("mllp", null, "67.202.46.146", 13700, null, null, null); 		// GE
-		    // URI pdqSupplier = new URI("mllps", null, "67.202.46.146", 13710, null, null, null); 	// GE
-			// URI pdqSupplier = new URI("http://198.160.211.53:8080/openpixpdq/services/PDQSupplier"); // for V3 MOSS
-			// URI pdqSupplier = new URI("https://198.160.211.53:8443/openpixpdq/services/PDQSupplier"); // for V3 MOSS on TLS
-			// URI pdqSupplier = new URI("http://24.205.75.156:8080/PDQSupplier_Service/PDQSupplier"); // for V3 Oracle
-	    	// URI pdqSupplier = new URI("https://24.205.75.156:8181/PDQSupplier_Service/PDQSupplier");	// for V3 Oracle on TLS
-			// URI pdqSupplier = new URI("http://67.202.46.146:8080/PDSupplier_Service/MatchMetrixMpiPdqWS"); // for V3 GE
-			// URI pdqSupplier = new URI("https://67.202.46.146:8181/SecureServer/PDSupplier_Service/MatchMetrixMpiPdqWS"); // for V3 GE on TLS
-			// URI pdqSupplier = new URI("http://http://24.39.63.178:54740//htservices_external/interface/hl7v3/PDQV3"); // for V3 Athena
-
-		    if (pdqSupplier.getScheme().contains("mllp")) {
-		    	return queryPatientIDsV2(queryKeys, pdqSupplier);
-		    } else {
-		    	return queryPatientIDsV3(queryKeys, pdqSupplier);
-		    }
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		    System.out.println("URI to PDQ Manager improperly formed");
+		} else {
+		    System.out.println("URI to PDQ Manager improperly formed - scheme not recognized");
 		    return null;
 		}
 	}
 
-	public List<XDSPatientIDResponse> queryPatientIDsV2(AttributeList queryKeys, URI pdqSupplier) {		
+	public List<XDSPatientIDResponse> queryPatientIDsV2(AttributeList queryKeys, PDQLocation pdqSupplier) {		
 		System.out.println("Finding Patient IDs V2.");
 		List<XDSPatientIDResponse> patIDRspListOut = null;
 		
@@ -297,7 +291,6 @@ public class XDSManagerImpl implements XDSManager{
 		InputStream cpStream = null;
 		try {
 			// TODO Add reading location of pdq config file from config file.  May need to vary based on query location.  For now, hardcoded.
-			//InputStream cpStream = new FileInputStream(TConfig.CPROFILE_PATH);
 			cpStream = new FileInputStream("./config/pdqConfig.xml");
 			pdq = new PdqConsumer(cpStream);
 			cpStream.close();
@@ -315,15 +308,7 @@ public class XDSManagerImpl implements XDSManager{
 				pdq = new PdqConsumer();
 		    }
 			
-			pdq.setMLLPDestination(new MLLPDestination(pdqSupplier));
-	
-		    // Possible alternative - Get PDQ server URI out of a config file
-		    /*
-		    MLLPDestination mllps = new MLLPDestination(TConfig.MLLPS_URI);
-			MLLPDestination.setUseATNA(true);
-			pdq.setMLLPDestination(mllps);
-			*/
-			
+			pdq.setMLLPDestination(new MLLPDestination(pdqSupplier.getPDQSupplierURI()));
 		} catch (ClientException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -334,11 +319,6 @@ public class XDSManagerImpl implements XDSManager{
 	    PdqConsumerDemographicQuery pdqQuery = null;
 		try {
 			pdqQuery = pdq.createDemographicQuery();
-		    /*
-		    pdqQuery.addQueryPatientNameFamilyName("Mickey");
-		    pdqQuery.addQueryPatientNameGivenName("Mouse");
-		    pdqQuery.addQueryPatientSex("M");
-		    */
 			String patientName = queryKeys.get(TagFromName.PatientName).getSingleStringValueOrNull();
 			if (patientName != null){
 				// TODO Parse name fields into constituent parts to feed into pdqQuery
@@ -413,13 +393,10 @@ public class XDSManagerImpl implements XDSManager{
 		    //pdqQuery.changeDefaultWhatDomainsReturned("", "1.3.6.1.4.1.21367.2010.1.2.300", "ISO"); // for MESA testing - in pdqConfig.xml file
 		    //pdqQuery.changeDefaultWhatDomainsReturned("", "1.3.6.1.4.1.21367.13.20.1000", "ISO"); // Gazelle Red
 			//pdqQuery.changeDefaultWhatDomainsReturned("", "1.3.6.1.4.1.21367.13.20.5155", "ISO"); //EMDS
-		    pdqQuery.addOptionalQuantityLimit(1);
+		    //pdqQuery.addOptionalQuantityLimit(1);
 
-		    //TODO: configure in facility, etc.
-		    //pdqQuery.changeDefaultReceivingApplication("", "", "");
-		    //pdqQuery.changeDefaultRecievingFacility("", "", "");
-		    pdqQuery.changeDefaultReceivingApplication("NISTManager_LTARBOX", "", "");
-		    pdqQuery.changeDefaultRecievingFacility("NIST", "", "");
+		    pdqQuery.changeDefaultReceivingApplication(pdqSupplier.getReceivingApplication(), "", "");
+		    pdqQuery.changeDefaultRecievingFacility(pdqSupplier.getRecievingFacility(), "", "");
 		    
 			// Let's check out the message to see what we are sending
 			System.out.println(PixPdqMessageUtilities.msgToString(pdqQuery));
@@ -496,35 +473,18 @@ public class XDSManagerImpl implements XDSManager{
 	    
 	}
 
-	public List<XDSPatientIDResponse> queryPatientIDsV3(AttributeList queryKeys, URI pdqSupplier) {		
+	public List<XDSPatientIDResponse> queryPatientIDsV3(AttributeList queryKeys, PDQLocation pdqSupplier) {		
 		System.out.println("Finding Patient IDs V3.");
 		List<XDSPatientIDResponse> patIDRspListOut = null;
 
 		// TODO Add reading location of pdq config file from config file.  May need to vary based on query location.  For now, hardcoded.
-		V3PdqConsumer pdq = new V3PdqConsumer(pdqSupplier); 
+		V3PdqConsumer pdq = new V3PdqConsumer(pdqSupplier.getPDQSupplierURI()); 
 		
-	    
-		//TODO: the send/rcv app/fac should come from a config file, e.g., where the URI lives
-		//TODO: for V3, change to OIDS?
-		 V3PdqConsumerQuery pdqQuery = new V3PdqConsumerQuery(
-				//"1.3.6.1.4.1.21367.2010.1.3.1.160",	//SENDERAPPLICATION - 2010
-				//"1.3.6.1.4.1.21367.2010.1.3.1.160",	//SENDERFACILITY - 2010
-				"1.3.6.1.4.1.21367.13.10.420",	    	//SENDERAPPLICATION - 2011
-				"1.3.6.1.4.1.21367.13.50.5420",			//SENDERFACILITY- 2011
-					// 2011
-				//"1.3.6.1.4.1.21367.13.10.360",		//RECEIVERAPPLICATION - MOSS
-				//"1.3.6.1.4.1.21367.13.50.5360");		//RECEIVERFACILITY - MOSS
-				//"1.3.6.1.4.1.21367.13.10.380",		//RECEIVERAPPLICATION - ORACLE
-				//"1.3.6.1.4.1.21367.13.50.5380");		//RECEIVERFACILITY - ORACLE
-				//"1.3.6.1.4.1.21367.13.10.290",		//RECEIVERAPPLICATION - GE
-				//"1.3.6.1.4.1.21367.13.50.5290");		//RECEIVERFACILITY - GE
-					// 2010
-				//"1.3.6.1.4.1.21367.2010.1.3.2.220",	//RECEIVERAPPLICATION - ICW
-				//"1.3.6.1.4.1.21367.2010.1.3.2.220");	//RECEIVERFACILITY - ICW
-				//"1.3.6.1.4.1.21367.2010.1.3.2.230", 	//RECEIVERAPPLICATION - Initiate
-				//"INIT");								//RECEIVERFACILITY - Initiate
-				"2.16.840.1.113883.3.72.6.5.100.127",		//RECEIVERAPPLICATION - NIST
-				"2.16.840.1.113883.3.72.6.1");		//RECEIVERFACILITY - NIST
+		V3PdqConsumerQuery pdqQuery = new V3PdqConsumerQuery(
+				HostConfigurator.getHostConfigurator().getpdqSendApplicationOID(),
+				HostConfigurator.getHostConfigurator().getPDQSendFacilityOID(),
+				pdqSupplier.getReceivingApplication(),
+				pdqSupplier.getRecievingFacility());
 		/*
 		pdqQuery.addPatientName(false, "Mickey", "Mouse", "", "", "");
 		pdqQuery.setPatientSex("M");
@@ -603,12 +563,6 @@ public class XDSManagerImpl implements XDSManager{
 		//pdqQuery.changeDefaultMessageQueryName("QRY_PDQ_1001", "Query By Name", "IHEDEMO", "", "", "");
 		//pdqQuery.addDomainToReturn("1.3.6.1.4.1.21367.2005.1.1);
 		
-		// per IHE docs
-		//pdqQuery.addDomainToReturn("2.16.840.1.113883.3.72.5.9.1"); // for NIST testing - in pdqConfig.xml file
-		//pdqQuery.addDomainToReturn("1.2.3.4.5.2000"); // for NIST testing - in pdqConfig.xml file
-		//pdqQuery.addDomainToReturn("1.3.6.1.4.1.21367.2009.1.2.300"); // for MESA testing - in pdqConfig.xml file
-		//pdqQuery.addDomainToReturn("1.3.6.1.4.1.21367.2005.1.1"); // for MESA testing - in pdqConfig.xml file
-		//pdqQuery.addDomainToReturn("1.3.6.1.4.1.21367.2010.1.2.300"); // for MESA testing - in pdqConfig.xml file
 		//pdqQuery.setInitialQuantity(10);
 		
 		// Let's check out the message to see what we are sending
@@ -697,7 +651,7 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistrya"; // 9085 for tls, swap a for b for XDS.b
 		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistrya";
 
-		//String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xdsregistryb"; // NIST on net; 2010, 2011
+		String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xdsregistryb"; // NIST on net; 2010, 2011
 		//String registryURL = "https://ihexds.nist.gov:9085/tf6/services/xdsregistryb";
 		//String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xcaregistry";
 		//String registryURL = "https://ihexds.nist.gov:9085/tf6/services/xcaregistry";
@@ -726,9 +680,10 @@ public class XDSManagerImpl implements XDSManager{
 		// No TLS 2011 Internet Testing
 		//String registryURL = "http://184.73.10.59:8080/pxs-vmr-assembly/unsecured_webservices/rev6/xdsb-storedquery"; //GE
 		//String registryURL = "http://99.6.95.22:8080/axis2/services/xdsregistryb"; //Oracle
-		String registryURL = "http://198.160.211.53:8010/openxds/services/DocumentRegistry"; //MOSS
+		//String registryURL = "http://198.160.211.53:8010/openxds/services/DocumentRegistry"; //MOSS
 		//String registryURL = "http://174.129.27.111/InteropSandbox/IheAdapter/XdsRegistryService/XdsRegistryService"; //CareEvolution
 		//String registryURL = "http://xds-ibm.lgs.com:9080/IBMXDSRegistry/XDSb/SOAP12/Registry"; //IBM
+		//String registryURL = "http://72.248.114.66:8010/axis2/services/xdsregistryb"; //eCW
 		
 		// TLS 2011 Internet Testing
 		//String registryURL = ""; //GE
@@ -736,7 +691,8 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "https://198.160.211.53:8011/openxds/services/DocumentRegistry"; //MOSS
 		//String registryURL = "https://174.129.27.111:8080/InteropSandbox/IheAdapter/XdsRegistryService/XdsRegistryService"; //CareEvolution
 		//String registryURL = "https://xds-ibm.lgs.com:9443/IBMXDSRegistry/XDSb/SOAP12/Registry"; //IBM
-		
+		//String registryURL = "https://72.248.114.66:8011/axis2/services/xdsregistryb"; //eCW
+			
 		// TODO Get URI from a config file
 		URI registryURI = null;
 		try {
@@ -751,7 +707,7 @@ public class XDSManagerImpl implements XDSManager{
 
 		//((B_Consumer)c).setPrimaryRepositoryURI(primaryRepositoryURI); //only if repos supports consolidation
 		//String NIST_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2008.1.2.701";
-		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5"; // NIST per web site
+		String XDS_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5"; // NIST per web site
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1"; // NIST per stored doc
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "2.16.840.1.113662.2.1.53"; // Spirit
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2009.1.2.1030"; // IBM
@@ -770,7 +726,8 @@ public class XDSManagerImpl implements XDSManager{
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1185";//Vangent
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1045";//eCW
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1050";//EMC_IIG
-		String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1030";//CareFx
+		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1030";//CareFx
+		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1150";//MOSS
 
 		URI XDS_B_INITIATING_GATEWAY = null;
 		URI XDS_B_REPOSITORY_URI = null;
@@ -780,11 +737,11 @@ public class XDSManagerImpl implements XDSManager{
 			String IBM_INITIATING_GATEWAY = "https://ibm3:9448/XGatewayWS/InitiatingGatewayQuery";
 			String ITH_INITIATING_GATEWAY = "https://ith-icoserve1:8143/XCommunityBridge/services/InitiatingGatewayService";
 			//String IBM_INITIATING_GATEWAY = "http://ibm3:9085/XGatewayWS/InitiatingGatewayRetrieve";
-			XDS_B_INITIATING_GATEWAY = new URI(NIST_INITIATING_GATEWAY_SECURE);
+			XDS_B_INITIATING_GATEWAY = new URI(NIST_INITIATING_GATEWAY);
 
 			//String NIST_B_STORED_QUERY_SECURED = "https://nist1.ihe.net:9085/tf5/services/xdsrepositoryb";
 
-			//XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb"); // NIST net; 2010, 2011
+			XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb"); // NIST net; 2010, 2011
 			//XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xcarepository");
 			//XDS_B_REPOSITORY_URI = new URI("https://ihexds.nist.gov:9085/tf6/services/xdsrepositoryb");
 			//XDS_B_REPOSITORY_URI = new URI("https://ihexds.nist.gov:9085/tf6/services/xcarepository");
@@ -821,13 +778,15 @@ public class XDSManagerImpl implements XDSManager{
 			//XDS_B_REPOSITORY_URI = new URI("http://208.81.185.143:8080/axis2/services/xdsrepositoryb"); // Vangent
 			//XDS_B_REPOSITORY_URI = new URI("http://72.248.114.66:8020/axis2/services/xdsrepositoryb"); // eCW
 			//XDS_B_REPOSITORY_URI = new URI("http://204.236.129.242:9190/xds-iti43"); // EMC_IG
-			XDS_B_REPOSITORY_URI = new URI("http://xdstest.carefx.com:8080/axis2/services/DocumentRepositoryService"); // carefx
+			//XDS_B_REPOSITORY_URI = new URI("http://xdstest.carefx.com:8080/axis2/services/DocumentRepositoryService"); // carefx
+			//XDS_B_REPOSITORY_URI = new URI("http://198.160.211.53:8010/openxds/services/DocumentRepository"); // MOSS
 				// TLS 2011 Internet Testing
 			//XDS_B_REPOSITORY_URI = new URI("https://68.179.255.83:9092/mosaix-iti43"); // EMC secure
 			//XDS_B_REPOSITORY_URI = new URI("https://208.81.185.143:8181/axis2/services/xdsrepositoryb"); // Vangent
 			//XDS_B_REPOSITORY_URI = new URI("https://72.248.114.66:8021/axis2/services/xdsrepositoryb"); // eCW
 			//XDS_B_REPOSITORY_URI = new URI("https://204.236.129.242:9191/xds-iti43"); // EMC_IG
 			//XDS_B_REPOSITORY_URI = new URI("https://xdstest.carefx.com:8443/axis2/services/DocumentRepositoryService"); // carefx
+			//XDS_B_REPOSITORY_URI = new URI("https://198.160.211.53:8011/openxds/services/DocumentRepository"); // MOSS
 
 		} catch (URISyntaxException e4) {
 			// TODO Auto-generated catch block
@@ -835,18 +794,6 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		//c.setInitiatingGatewayURI(XDS_B_INITIATING_GATEWAY); //needed to resolve home commmunity IDs
 		c.getRepositoryMap().put(XDS_B_REPOSITORY_UNIQUE_ID, XDS_B_REPOSITORY_URI);
-		
-		//AtnaAgentFactory.getAtnaAgent().setDoAudit(false);
-		//AtnaAgentFactory.getAtnaAgent().setAuditRepository(new URI(auditURL));
-		try {
-			XDSConsumerAuditor auditor = XDSConsumerAuditor.getAuditor();
-			auditor.getConfig().setAuditRepositoryUri(new URI(auditURL));
-			auditor.getConfig().setAuditorEnabled(false);
-			auditor.getConfig().setAuditSourceId("XIP");
-		} catch (URISyntaxException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
 		
 		//////////////////////////////////////////  //////////////////////////////////////
 		//Construct the parameters to our FindDocumentsQuery
@@ -1139,7 +1086,6 @@ public class XDSManagerImpl implements XDSManager{
         return "done";
 
 	}
-	
 		
 	public boolean retrieveDocuemnts() {
 		// TODO Retrieve docuemnts logic goes here
@@ -1191,6 +1137,30 @@ public class XDSManagerImpl implements XDSManager{
 		}
 */
 		return false;
+	}
+
+	File xmlPDQLocFile = new File("./config/pdq_locations.xml");
+	public boolean runStartupSequence() {
+		if(xmlPDQLocFile == null ){return false;}
+		try {
+			loadPDQLocations(xmlPDQLocFile);				
+		} catch (IOException e) {
+			// TODO Auto-generated catch block				
+			System.out.println("XDS module startup sequence error. " + 
+			"System could not find: pdq_locations.xml");
+			return false;
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			System.out.println("XDS startup sequence error. " + 
+			"Error when processing pdq_locations.xml");
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean runShutDownSequence(){
+		//closeDicomServer();		
+		return true;
 	}
 
 }

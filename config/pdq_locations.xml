@@ -1,0 +1,20 @@
+<locations>
+  <pdq_location>
+    <PdqSupplierURL>test://localhost:2011</PdqSupplierURL>
+    <ShortName>No Lookup</ShortName>
+    <ReceivingApplication>NISTManager_LTARBOX</ReceivingApplication>
+    <RecievingFacility>NIST</RecievingFacility>
+  </pdq_location>
+  <pdq_location>
+    <PdqSupplierURL>mllp://129.6.24.143:9080</PdqSupplierURL>
+    <ShortName>NIST Test Server V2</ShortName>
+    <ReceivingApplication>NISTManager_LTARBOX</ReceivingApplication>
+    <RecievingFacility>NIST</RecievingFacility>
+  </pdq_location>
+  <pdq_location>
+    <PdqSupplierURL>http://129.6.24.143:9090</PdqSupplierURL>
+    <ShortName>NIST Test Server V3</ShortName>
+    <ReceivingApplication>2.16.840.1.113883.3.72.6.5.100.127</ReceivingApplication>
+    <RecievingFacility>2.16.840.1.113883.3.72.6.1</RecievingFacility>
+  </pdq_location>
+</locations>

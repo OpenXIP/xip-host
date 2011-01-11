@@ -45,6 +45,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.iterator.Criteria;
 
 public class DicomManagerImpl implements DicomManager{
@@ -184,8 +185,10 @@ public class DicomManagerImpl implements DicomManager{
 		int port = location.getPort();
 		calledAETitle = location.getAETitle();
 		//ensure callingAETitle is not empty (not all stations allow empty value). 
-		// TODO get AETitle from config
-		String callingAETitle = "defaultXIPhost";
+		String callingAETitle = HostConfigurator.getHostConfigurator().getAETitle();
+		if (callingAETitle == "") {
+			callingAETitle = "XIPDefault";
+		}
 		mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);		
 		try {
 		    new VerificationSOPClassSCU(hostName, port, calledAETitle, callingAETitle, false, 0);

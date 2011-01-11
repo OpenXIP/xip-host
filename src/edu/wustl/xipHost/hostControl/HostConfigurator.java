@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.nema.dicom.wg23.State;
+import org.openhealthtools.ihe.atna.auditor.IHEAuditor;
 import org.xmldb.api.base.XMLDBException;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
@@ -41,6 +44,8 @@ import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.LoginDialog;
 import edu.wustl.xipHost.worklist.Worklist;
 import edu.wustl.xipHost.worklist.WorklistFactory;
+import edu.wustl.xipHost.xds.XDSManager;
+import edu.wustl.xipHost.xds.XDSManagerFactory;
 
 public class HostConfigurator {
 	final static Logger logger = Logger.getLogger(HostConfigurator.class);
@@ -53,24 +58,29 @@ public class HostConfigurator {
 	GridManager gridMgr;
 	DicomManager dicomMgr;		
 	ApplicationManager appMgr;
+	XDSManager xdsMgr;
 	File xipApplicationsConfig;	
 	public static final String OS = System.getProperty("os.name");
-	String userName;	 	
-	
+	String userName = "xip";	 	
+
 	public boolean runHostStartupSequence(){		
 		logger.info("Launching XIP Host. Platform " + OS);
-		LoginDialog loginDialog = new LoginDialog();
-		loginDialog.setLogin(login);
-		loginDialog.setModal(true);
-		loginDialog.setVisible(true);
-		userName = login.getUserName();		
+
 		hostConfig = new File("./config/xipConfig.xml");
-		if(loadHostConfigParameters(hostConfig) == false || loadPixelmedSavedImagesFolder(serverConfig) == false){		
+		if(loadHostConfigParameters(hostConfig) == false){		
 			new ExceptionDialog("Unable to load Host configuration parameters.", 
-					"Ensure host config file and Pixelmed/HSQLQB config file are valid.",
+					"Ensure host config file config file is valid.",
 					"Host Startup Dialog");
 			System.exit(0);
 		}
+
+		if(loadPixelmedSavedImagesFolder(serverConfig) == false){		
+			new ExceptionDialog("Unable to load Pixelmed/HSQLQB configuration parameters.", 
+					"Ensure Pixelmed/HSQLQB config file is valid.",
+					"Host DB Startup Dialog");
+			System.exit(0);
+		}
+
 		//if config contains displayConfigDialog true -> displayConfigDialog
 		if(getDisplayStartUp()){
 			displayConfigDialog();			
@@ -85,20 +95,57 @@ public class HostConfigurator {
 		} catch (IOException e1) {
 			System.exit(0);
 		}
+		dicomMgr = DicomManagerFactory.getInstance();
+		dicomMgr.runDicomStartupSequence();		    	    	
 				
+		// Set up default certificates for security.  Must be done after starting dicom, but before login.
+		//TODO Move code to the configuration file, read entries from the configuration file, and move files to an XIP location.
+		System.setProperty("javax.net.ssl.keyStore","/MESA/certificates/XIPkeystore.jks");
+		System.setProperty("javax.net.ssl.keyStorePassword","caBIG2011");
+		System.setProperty("javax.net.ssl.trustStore","/MESA/runtime/certs-ca-signed/2011_CA_Cert.jks");
+		System.setProperty("javax.net.ssl.trustStorePassword","connectathon");
+
+		// Set up audit configuration.  Must be done before login.
+		// TODO Get URI and possibly other parameters from the config file
+		IHEAuditor.getAuditor().getConfig().setAuditorEnabled(false);
+		if (auditRepositoryURL != ""){
+		try {
+				IHEAuditor.getAuditor().getConfig().setAuditRepositoryUri(new URI(auditRepositoryURL));
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			    System.out.println("URI to auditor improperly formed");
+			}
+			IHEAuditor.getAuditor().getConfig().setAuditSourceId(aeTitle);
+			IHEAuditor.getAuditor().getConfig().setAuditorEnabled(true);
+			// TODO figure out what should go here, or get from configuration
+			IHEAuditor.getAuditor().getConfig().setAuditEnterpriseSiteId("IHE ERL");
+			IHEAuditor.getAuditor().getConfig().setHumanRequestor("ltarbox");
+			IHEAuditor.getAuditor().getConfig().setSystemUserId(userName);
+			IHEAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
+		}
+
+		LoginDialog loginDialog = new LoginDialog();
+		loginDialog.setLogin(login);
+		loginDialog.setModal(true);
+		loginDialog.setVisible(true);
+		userName = login.getUserName();		
+
 		//run GridManagerImpl startup
 		gridMgr = GridManagerFactory.getInstance();
 		gridMgr.runGridStartupSequence();				
 		//test for gridMgr == null				
         gridMgr.setImportDirectory(hostTmpDir);		
-		
+
+        //run XDSManager startup
+		xdsMgr = XDSManagerFactory.getInstance();
+		xdsMgr.runStartupSequence();		    	    	
+				
     	//run WorkList startup
 		Worklist worklist = WorklistFactory.getInstance();        		
 		String path = "./config/worklist.xml";
 		File xmlWorklistFile = new File(path);					
 		worklist.loadWorklist(xmlWorklistFile);		
-		dicomMgr = DicomManagerFactory.getInstance();
-		dicomMgr.runDicomStartupSequence();		    	    	
 				
     	appMgr = ApplicationManagerFactory.getInstance();    	
     	xipApplicationsConfig = new File("./config/applications.xml");	
@@ -148,6 +195,14 @@ public class HostConfigurator {
 	String parentOfTmpDir;
 	String parentOfOutDir;	
 	Boolean displayStartup;
+	String aeTitle;
+	String dicomStoragePort;
+	String dicomStorageSecurePort;
+	String dicomCommitPort;
+	String dicomCommitSecurePort;
+	String pdqSendFacilityOID;
+	String pdqSendApplicationOID;
+	String auditRepositoryURL;
 	/**	
 	 * (non-Javadoc)
 	 * @see edu.wustl.xipHost.hostControl.HostManager#loadHostConfigParameters()
@@ -170,6 +225,7 @@ public class HostConfigurator {
 				}else{					
 					parentOfTmpDir = root.getChild("tmpDir").getValue();																
 				}
+
 				if(root.getChild("outputDir") == null){
 					parentOfOutDir = "";
 				}else if(root.getChild("outputDir").getValue().trim().isEmpty() ||
@@ -180,6 +236,7 @@ public class HostConfigurator {
 					//parentOfOutDir used to store data produced by the xip application													                                                                       		        							
 					parentOfOutDir = root.getChild("outputDir").getValue();	    							    							        					
 				}
+
 				if(root.getChild("displayStartup") == null){
 					displayStartup = new Boolean(true);
 				}else{
@@ -198,7 +255,71 @@ public class HostConfigurator {
 		        		displayStartup = new Boolean(true);
 		        	}
 				}	        	        	
-		    } catch (JDOMException e) {				
+
+				if(root.getChild("AETitle") == null){
+					aeTitle = "";
+				}else if(root.getChild("AETitle").getValue().trim().isEmpty()){
+					aeTitle = "";
+				}else{					
+					aeTitle = root.getChild("AETitle").getValue();																
+				}
+
+				if(root.getChild("DicomStoragePort") == null){
+					dicomStoragePort = "";
+				}else if(root.getChild("DicomStoragePort").getValue().trim().isEmpty()){
+					dicomStoragePort = "";
+				}else{					
+					dicomStoragePort = root.getChild("DicomStoragePort").getValue();																
+				}
+
+				if(root.getChild("DicomStorageSecurePort") == null){
+					dicomStorageSecurePort = "";
+				}else if(root.getChild("DicomStorageSecurePort").getValue().trim().isEmpty()){
+					dicomStorageSecurePort = "";
+				}else{					
+					dicomStorageSecurePort = root.getChild("DicomStorageSecurePort").getValue();																
+				}
+
+				if(root.getChild("DicomCommitPort") == null){
+					dicomCommitPort = "";
+				}else if(root.getChild("DicomCommitPort").getValue().trim().isEmpty()){
+					dicomCommitPort = "";
+				}else{					
+					dicomCommitPort = root.getChild("DicomCommitPort").getValue();																
+				}
+
+				if(root.getChild("DicomCommitSecurePort") == null){
+					dicomCommitSecurePort = "";
+				}else if(root.getChild("DicomCommitSecurePort").getValue().trim().isEmpty()){
+					dicomCommitSecurePort = "";
+				}else{					
+					dicomCommitSecurePort = root.getChild("DicomCommitSecurePort").getValue();																
+				}
+				
+				if(root.getChild("AuditRepositoryURL") == null){
+					auditRepositoryURL = "";
+				}else if(root.getChild("AuditRepositoryURL").getValue().trim().isEmpty()){
+					auditRepositoryURL = "";
+				}else{					
+					auditRepositoryURL = root.getChild("AuditRepositoryURL").getValue();																
+				}
+
+				if(root.getChild("PdqSendFacilityOID") == null){
+					pdqSendFacilityOID = "";
+				}else if(root.getChild("PdqSendFacilityOID").getValue().trim().isEmpty()){
+					pdqSendFacilityOID = "";
+				}else{					
+					pdqSendFacilityOID = root.getChild("PdqSendFacilityOID").getValue();																
+				}
+
+				if(root.getChild("PdqSendApplicationOID") == null){
+					pdqSendApplicationOID = "";
+				}else if(root.getChild("PdqSendApplicationOID").getValue().trim().isEmpty()){
+					pdqSendApplicationOID = "";
+				}else{					
+					pdqSendApplicationOID = root.getChild("PdqSendApplicationOID").getValue();																
+				}
+			} catch (JDOMException e) {				
 				return false;
 			} catch (IOException e) {
 				return false;
@@ -262,6 +383,69 @@ public class HostConfigurator {
 	
 	public String getUser(){
 		return userName;
+	}
+	
+	public String getAETitle(){
+		return aeTitle;
+	}
+	public void setAETitle(String aeTitleIn){
+		aeTitle = aeTitleIn;
+	}
+	
+	public String getDicomStoragePort(){
+		return dicomStoragePort;
+	}
+
+	public void setDicomStoragePort(String dicomStoragePortIn){
+		dicomStoragePort = dicomStoragePortIn;
+	}
+	
+	public String getDicomStorageSecurePort(){
+		return dicomStorageSecurePort;
+	}
+
+	public void setDicomStorageSecurePort(String dicomStorageSecurePortIn){
+		dicomStorageSecurePort = dicomStorageSecurePortIn;
+	}
+	
+	public String getDicomCommitPort(){
+		return dicomCommitPort;
+	}
+
+	public void setDicomCommitPort(String dicomCommitPortIn){
+		dicomCommitPort = dicomCommitPortIn;
+	}
+	
+	public String getDicomCommitSecurePort(){
+		return dicomCommitSecurePort;
+	}
+
+	public void setDicomCommitSecurePort(String dicomCommitSecurePortIn){
+		dicomCommitSecurePort = dicomCommitSecurePortIn;
+	}
+	
+	public String getAuditRepositoryURL(){
+		return auditRepositoryURL;
+	}
+
+	public void setAuditRepositoryURL(String auditRepositoryURLIn){
+		auditRepositoryURL = auditRepositoryURLIn;
+	}
+	
+	public String getPDQSendFacilityOID(){
+		return pdqSendFacilityOID;
+	}
+
+	public void setPDQSendFacilityOIDL(String pdqSendFacilityOIDIn){
+		pdqSendFacilityOID = pdqSendFacilityOIDIn;
+	}
+	
+	public String getpdqSendApplicationOID(){
+		return pdqSendApplicationOID;
+	}
+
+	public void setpdqSendApplicationOID(String pdqSendApplicationOIDIn){
+		pdqSendApplicationOID = pdqSendApplicationOIDIn;
 	}
 	
 	/**
@@ -350,7 +534,8 @@ public class HostConfigurator {
 		} catch (UnsupportedLookAndFeelException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}		        				
+		}
+		
 		//Turn off commons loggin for better performance
 		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");		
 		DOMConfigurator.configure("log4j.xml");

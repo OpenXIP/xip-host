@@ -178,9 +178,9 @@
 		<Component Name="QPD-8-2 what domains returned: check digit" Usage="O" Datatype="ST"></Component>
 		<Component Name="QPD-8-3 what domains returned: code identifying the check digit scheme employed" Usage="O" Datatype="ID"></Component>
 		<Component Name="QPD-8-4 what domains returned: assigning authority" Usage="O" Datatype="HD">
-			<SubComponent Name="QPD-8-4-1 what domains returned: assigning authority: namespace id" Usage="O" Datatype="IS" ConstantValue="IHENA"></SubComponent>
-		    <SubComponent Name="QPD-8-4-2 what domains returned: assigning authority: universal id" Usage="O" Datatype="ST" ConstantValue="1.3.6.1.4.1.21367.2009.1.2.300"></SubComponent>
-		    <SubComponent Name="QPD-8-4-3 what domains returned: assigning authority: universal id type" Usage="O" Datatype="ID" ConstantValue="ISO"></SubComponent>
+			<SubComponent Name="QPD-8-4-1 what domains returned: assigning authority: namespace id" Usage="O" Datatype="IS" ConstantValue=""></SubComponent>
+		    <SubComponent Name="QPD-8-4-2 what domains returned: assigning authority: universal id" Usage="O" Datatype="ST" ConstantValue=""></SubComponent>
+		    <SubComponent Name="QPD-8-4-3 what domains returned: assigning authority: universal id type" Usage="O" Datatype="ID" ConstantValue=""></SubComponent>
 		</Component>
 		<Component Name="QPD-8-5 what domains returned: identifier type code" Usage="O" Datatype="IS"></Component>
 		<Component Name="QPD-8-6 what domains returned: assigning facility" Usage="O" Datatype="HD">
