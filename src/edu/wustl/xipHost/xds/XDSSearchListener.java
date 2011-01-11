@@ -12,5 +12,4 @@ import java.util.List;
  */
 public interface XDSSearchListener extends EventListener{
 	public void patientIDsAvailable(List<XDSPatientIDResponse> patientIDs2);
-	public void documentsAvailable(XDSSearchEvent e);
 }
