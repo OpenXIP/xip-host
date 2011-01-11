@@ -15,9 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -34,29 +32,27 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
-import org.openhealthtools.ihe.common.hl7v2.CX;
-import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
-
 import com.pixelmed.dicom.AttributeList;
-
 import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
-import edu.wustl.xipHost.avt2ext.AVTQuery;
-import edu.wustl.xipHost.caGrid.GridLocation;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
-import edu.wustl.xipHost.dataModel.XDSDocumentItem;
-import edu.wustl.xipHost.dicom.PacsLocation;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
+import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
+import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.localFileSystem.FileManager;
@@ -68,9 +64,9 @@ import edu.wustl.xipHost.xds.CheckBoxTree.SearchResultTree;
  * @author Jaroslaw Krych
  *
  */
-public class XDSPanel extends JPanel implements ActionListener, XDSSearchListener, ApplicationListener, XDSRetrieveListener, ListSelectionListener {
+public class XDSPanel extends JPanel implements ActionListener, XDSSearchListener, ApplicationListener, 
+									ListSelectionListener, DataAccessListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(XDSPanel.class);
-
 	JPanel pdqLocationSelectionPanel = new JPanel();
 	JLabel lblPdqTitle = new JLabel("Select Patient Demographic Supplier:");		
 	ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");	
@@ -92,10 +88,11 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	Font font_2 = new Font("Tahoma", 0, 12);		
 	Border border = BorderFactory.createLoweredBevelBorder();		
 	JLabel infoLabel = new JLabel("UNDER   DEVELOPMENT");
+	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
 	
 	public XDSPanel(){
 		setBackground(xipColor);		
-
+		nodeSelectionListener.addDataSelectionListener(this);
 		pdqComboModel = new DefaultComboBoxModel();
 		pdqList = new JComboBox(pdqComboModel);
 		xdsManager = XDSManagerFactory.getInstance();
@@ -184,7 +181,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();	
 			XDSDocumentQuery xsdQuery = new XDSDocumentQuery(selectedID.getPatID());
-			xsdQuery.addXDSSearchListener(this);
+			xsdQuery.addDataAccessListener(this);
 			Thread t = new Thread(xsdQuery);
 			t.start();
 		}
@@ -346,8 +343,10 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		frame.setVisible(true);		
 	}
 	
+	
 	SearchResult result;
-	public void documentsAvailable(XDSSearchEvent e) {
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {
 		XDSDocumentQuery source = (XDSDocumentQuery) e.getSource();
 		result = source.getxsdQueryResponse();				        
 		if(result == null){			
@@ -357,8 +356,8 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		}							
 		progressBar.setString("XDS Search finished");
 		progressBar.setIndeterminate(false);	
-			
 	}
+	
 
 	public void patientIDsAvailable(List<XDSPatientIDResponse> patientIDs) {				
 		if(patientIDs != null && patientIDs.size() != 0){
@@ -384,7 +383,9 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	int numRetrieveThreadsReturned;
 	Application targetApp = null;
 	@Override
-	public boolean documentsAvailable(File xdsRetrievedFile) {
+	public void retrieveResultsAvailable(RetrieveEvent e) {
+		XDSDocumentRetrieve source = (XDSDocumentRetrieve)e.getSource();
+		File xdsRetrievedFile = source.getRetrievedXSDFile();
 		allRetrivedFiles.add(xdsRetrievedFile);
 		numRetrieveThreadsReturned++;
 		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
@@ -396,14 +397,13 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			allRetrivedFiles.toArray(files);		
 			FileManager fileMgr = FileManagerFactory.getInstance();						
 	        fileMgr.run(files);
-		}
-		return true;
+		}		
 	}
+
 
 	@Override
 	public void launchApplication(ApplicationEvent event) {
-		logger.debug("Current data source tab: " + XDSPanel.class.getName());
-		
+		logger.debug("Current data source tab: " + this.getClass().getName());
 		// If nothing is selected, there is nothing to launch with
 	   	if(resultTree.getSelectedItems().size() == 0){
 			logger.warn("No data is selected");
@@ -412,7 +412,6 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 					"Launch Application Dialog");
 			return;
 		}
-	   	
 		// Determine which application button the user clicked, and retrieve info about the application
 		AppButton btn = (AppButton)event.getSource();
 		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
@@ -442,24 +441,27 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		//Check if application to be launched is not running.
 		//If yes, create new application instance
 		State state = app.getState();
-		// TODO Fill in with whatever is needed to make this work with XDS
-		Query query = new AVTQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
+		Query query = new XDSDocumentQuery();
+		Retrieve retrieve = new XDSDocumentRetrieve();
 		if(state != null && !state.equals(State.EXIT)){
 			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-			instanceApp.setSelectedDataSearchResult(result);
+			instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 			instanceApp.setQueryDataSource(query);
+			instanceApp.setRetrieveDataSource(retrieve);
 			instanceApp.setDoSave(false);
 			appMgr.addApplication(instanceApp);		
 			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			targetApp = instanceApp;
 		}else{
-			app.setSelectedDataSearchResult(result);
+			app.setSelectedDataSearchResult(selectedDataSearchResult);
 			app.setQueryDataSource(query);
+			app.setRetrieveDataSource(retrieve);
 			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			targetApp = app;
 		}	
-
+		
+		/*
 		// Start background retrieving of data that could eventually be given to the application
 		allRetrivedFiles = new ArrayList<File>();
 		numRetrieveThreadsStarted = 0;
@@ -479,7 +481,18 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			t.start();
 			numRetrieveThreadsStarted++;
 		}						
-
+		*/
 	}
-	
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	SearchResult selectedDataSearchResult;
+	@Override
+	public void dataSelectionChanged(DataSelectionEvent event) {
+		selectedDataSearchResult = (SearchResult)event.getSource();
+	}
 }
