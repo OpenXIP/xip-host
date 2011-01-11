@@ -1,47 +1,60 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.xds;
 
-import org.openhealthtools.ihe.xds.response.XDSQueryResponseType;
-
+import java.util.Map;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class XDSDocumentQuery implements Runnable{
+public class XDSDocumentQuery implements Query {
 	XDSManager xdsMgr;
 	String [] patientID;
+	
+	public XDSDocumentQuery(){
+		
+	}
 	
 	public XDSDocumentQuery(String [] patientID){
 		this.patientID = patientID;
 		xdsMgr = XDSManagerFactory.getInstance();
 	}
 	
-	//XDSQueryResponseType xsdQueryResponse;
-	SearchResult xsdQueryResponse;
+	@Override
+	public void setQuery(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+		
+	}
+	
+	SearchResult searchResult;
 	public void run() {			
-		xsdQueryResponse = xdsMgr.queryDocuments(patientID);				
+		searchResult = xdsMgr.queryDocuments(patientID);				
 		fireUpdateUI();
 	}
 
-	/*public XDSQueryResponseType getxsdQueryResponse(){
-		return xsdQueryResponse;
-	}*/
-	
 	public SearchResult getxsdQueryResponse(){
-		return xsdQueryResponse;
+		return searchResult;
 	}
-	
-	XDSSearchListener listener;
-    public void addXDSSearchListener(XDSSearchListener l) {        
-        listener = l;          
-    }
-	    
+	 
     void fireUpdateUI(){
-		XDSSearchEvent event = new XDSSearchEvent(this);         		
-        listener.documentsAvailable(event);
+		QueryEvent event = new QueryEvent(this);         		
+        listener.queryResultsAvailable(event);
+	}
+
+	DataAccessListener listener;
+    @Override
+	public void addDataAccessListener(DataAccessListener l) {
+    	 listener = l;  
+	}
+
+	@Override
+	public SearchResult getSearchResult() {
+		return searchResult;
 	}		
 }
