@@ -8,15 +8,27 @@ import java.io.File;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
 
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.iterator.RetrieveTarget;
+import edu.wustl.xipHost.iterator.TargetElement;
+
 /**
  * @author Jaroslaw Krych
  *
  */
-public class XDSDocumentRetrieve implements Runnable {
+public class XDSDocumentRetrieve implements Retrieve {
 	XDSManager xdsMgr;
 	DocumentEntryType docEntryDetails;
 	CX patientId;
 	String homeCommunityId = null;
+	TargetElement targetElement;
+	RetrieveTarget retrieveTarget;
+	
+	public XDSDocumentRetrieve(){
+		
+	}
 	
 	public XDSDocumentRetrieve(DocumentEntryType docEntryDetails, CX patientId, String homeCommunityId){
 		this.docEntryDetails = docEntryDetails;
@@ -26,20 +38,31 @@ public class XDSDocumentRetrieve implements Runnable {
 	}
 	
 	@Override
-	public void run() {
-		File xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId, homeCommunityId);				
-		fireUpdateUI(xdsRetrievedFile);
-		
-	}
-
-	XDSRetrieveListener listener;
-    public void addXDSRetrieveListener(XDSRetrieveListener l) {        
-        listener = l;          
-    }
-	    
-    void fireUpdateUI(File xdsRetrievedFile){
-		//XDSRetrieveEvent event = new XDSRetrieveEvent(this);         		
-        listener.documentsAvailable(xdsRetrievedFile);
+	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
+		this.targetElement = targetElement;
+		this.retrieveTarget = retrieveTarget; 
 	}	
 	
+	File xdsRetrievedFile;
+	@Override
+	public void run() {
+		xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId, homeCommunityId);				
+		fireResultsAvailable(targetElement.getId());
+		
+	}
+ 
+	public File getRetrievedXSDFile(){
+		return xdsRetrievedFile;
+	}
+	
+    void fireResultsAvailable(String targetElementID){
+		RetrieveEvent event = new RetrieveEvent(targetElementID);         		
+        listener.retrieveResultsAvailable(event);
+	}
+
+    DataAccessListener listener;
+    @Override
+	public void addDataAccessListener(DataAccessListener l) {
+    	 listener = l;          		
+	}
 }
