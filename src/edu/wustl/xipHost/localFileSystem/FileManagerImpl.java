@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2011 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.localFileSystem;
 
@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
 import org.nema.dicom.wg23.ArrayOfPatient;
 import org.nema.dicom.wg23.ArrayOfSeries;
@@ -28,24 +29,36 @@ import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Patient;
 import org.nema.dicom.wg23.Series;
+import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uid;
 import org.nema.dicom.wg23.Uuid;
+import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.application.ApplicationEvent;
+import edu.wustl.xipHost.application.ApplicationListener;
+import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dicom.DicomUtil;
+import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.InputDialog;
+import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class FileManagerImpl implements FileManager, DicomParseListener {
-	
+public class FileManagerImpl implements FileManager, DicomParseListener, ApplicationListener {
+	final static Logger logger = Logger.getLogger(FileManagerImpl.class);
 	InputDialog inputDialog = new InputDialog();
 	int numThreads = 3;
 	ExecutorService exeService = Executors.newFixedThreadPool(numThreads);			
+	
+	public FileManagerImpl(){
+		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
+	}
 	
 	File[] items;	
 	File[] getSelectedItems(){
@@ -132,8 +145,7 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 		//parse(items);
 		
 		displayItems(items);
-		/* modified on May 18th, 2010
-		inputDialog.display();*/
+		inputDialog.display();
 	}	
 		
 	void displayItems(File[] items){
@@ -307,5 +319,64 @@ public class FileManagerImpl implements FileManager, DicomParseListener {
 		availableData.setPatients(arrayOfPatient);
 		return availableData;
 	}
+
+	Application targetApp = null;
+	@Override
+	public void launchApplication(ApplicationEvent event) {
+		logger.debug("Current data source: " + this.getClass().getName());
+		boolean isDataSelected = false;
+		if(isDataSelected){
+			// Determine which application button the user clicked, and retrieve info about the application
+			AppButton btn = (AppButton)event.getSource();
+			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+			Application app = appMgr.getApplication(btn.getApplicationUUID());
+			String appID = app.getID().toString();
+			logger.debug("Application internal id: " + appID);
+			String instanceName = app.getName();
+			logger.debug("Application name: " + instanceName);
+			File instanceExePath = app.getExePath();
+			logger.debug("Exe path: " + instanceExePath);
+			String instanceVendor = app.getVendor();
+			logger.debug("Vendor: " + instanceVendor);
+			String instanceVersion = app.getVersion();
+			logger.debug("Version: " + instanceVersion);
+			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			logger.debug("Type: " + type);
+			boolean requiresGUI = app.requiresGUI();
+			logger.debug("Requires GUI: " + requiresGUI);
+			String wg23DataModelType = app.getWG23DataModelType();
+			logger.debug("WG23 data model type: " + wg23DataModelType);
+			int concurrentInstances = app.getConcurrentInstances();
+			logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+			IterationTarget iterationTarget = app.getIterationTarget();
+			logger.debug("IterationTarget: " + iterationTarget.toString());
+			
+			//Check if application to be launched is not running.
+			//If yes, create new application instance
+			State state = app.getState();
+			if(state != null && !state.equals(State.EXIT)){
+				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
+				instanceApp.setDoSave(false);
+				appMgr.addApplication(instanceApp);		
+				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = instanceApp;
+			}else{
+				app.setSelectedDataSearchResult(selectedDataSearchResult);
+				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = app;
+			}	
+		}
+	}
+	
+	SearchResult selectedDataSearchResult;
+	//TODO
+	SearchResult convertToSearchResult(File[] files){
+		//Parse file and create Searchresult
+		return null;
+	}
+	
 	
 }
