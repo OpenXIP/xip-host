@@ -541,7 +541,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 
 	@Override
 	public void launchApplication(ApplicationEvent event ) {
-		logger.debug("Current data source tab: " + AVTPanel.class.getName());
+		logger.debug("Current data source tab: " + this.getClass().getName());
 		//check if DICOM or AIM and SEG check boxes are selected.
 		if(cbxDicom.isSelected() == false && cbxAimSeg.isSelected() == false){
 			logger.debug("Is dataset type spesified: " + false);
