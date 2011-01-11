@@ -55,7 +55,7 @@
 		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
 	</layout>
   </appender>
-   <appender name="AVT_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+  <appender name="AVT_Appender" class="org.apache.log4j.DailyRollingFileAppender">
 	<param name="File" value="./log/xiphost-avt.log"/>
 	<param name="DatePattern" value="'.'yyyy-ww"/>
 	<!-- param name="Threshold" value="DEBUG"/-->
@@ -63,6 +63,15 @@
 		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
 	</layout>
   </appender>
+  <appender name="FileDataSource_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/xiphost-file_data_source.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+	</layout>
+  </appender>
+  
   
   <logger name="edu.wustl.xipHost.caGrid.GridQuery">
 	 <appender-ref ref="Grid_Appender"/>
@@ -132,6 +141,9 @@
   </logger>	
   <logger name="edu.wustl.xipHost.dicom.DicomManagerImpl">
 	<appender-ref ref="Dicom_Appender"/>
+  </logger>	
+  <logger name="edu.wustl.xipHost.localFileSystem.FileManagerImpl">
+	<appender-ref ref="FileDataSource_Appender"/>
   </logger>	
   	
   <root>
