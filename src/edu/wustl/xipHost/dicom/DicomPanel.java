@@ -626,8 +626,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			//Check if application to be launched is not running.
 			//If yes, create new application instance
 			State state = app.getState();
-			// TODO Fill in with whatever is needed to make this work with XDS
-			Query query = new DicomQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
+			Query query = new DicomQuery();
 			DicomRetrieve retrieve = new DicomRetrieve(criteriaPanel.getFilterList(), calledPacsLocation, callingPacsLocation);
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
@@ -646,28 +645,6 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = app;
 			}	
-		}
-	}
-	
-	public void startRetrieve(){
-		// Start background retrieving of data that could eventually be given to the application
-		allRetrivedFiles = new ArrayList<File>();
-		numRetrieveThreadsStarted = 0;
-		numRetrieveThreadsReturned = 0;
-		List<AttributeList> criterias = getRetrieveCriteria();
-		if(criterias.size() > 0 && calledPacsLocation != null && callingPacsLocation != null){
-			progressBar.setString("Processing retrieve request ...");
-			progressBar.setIndeterminate(true);
-			progressBar.updateUI();	
-			criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-			criteriaPanel.getQueryButton().setEnabled(false);
-			/*
-			for(int i = 0; i < criterias.size(); i++){
-				retrieve.addDataAccessListener(this);
-				Thread t = new Thread(retrieve);
-				t.start();
-				numRetrieveThreadsStarted++;
-			}	*/			
 		}
 	}
 	
