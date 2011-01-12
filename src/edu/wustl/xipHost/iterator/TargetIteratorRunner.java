@@ -364,7 +364,17 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 						subElements.add(seriesSubElement);
 					}
 				}
-				targetElement = new TargetElement(patient.getPatientID(), subElements, target);
+				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
+				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
+				// as they may be needed for evaluation of this TargetElement.
+				SearchResult prunedSearchResult = new SearchResult(selectedDataSearchResult.getDataSourceDescription());
+				prunedSearchResult.setOriginalCriteria(selectedDataSearchResult.getOriginalCriteria());
+				prunedSearchResult.addPatient(patient);
+				List<Item> itemsList = selectedDataSearchResult.getItems();
+				for (Item item : itemsList) {
+					prunedSearchResult.addItem(item);
+				}
+				targetElement = new TargetElement(patient.getPatientID(), subElements, target, prunedSearchResult);
 			
 			// ** STUDY TARGET ** //
 			} else if(this.target == IterationTarget.STUDY) {
@@ -418,7 +428,25 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 					SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 					subElements.add(seriesSubElement);
 				}
-				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target);
+				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
+				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
+				// as they may be needed for evaluation of this TargetElement.
+				Patient prunedCurrentPatient = new Patient(currentPatient.getPatientName(), currentPatient.getPatientID(), 
+						currentPatient.getPatientBirthDate());
+				prunedCurrentPatient.setLastUpdated(currentPatient.getLastUpdated());
+				prunedCurrentPatient.addStudy(study);
+				List<Item> patientItemsList = currentPatient.getItems();
+				for (Item item : patientItemsList) {
+					prunedCurrentPatient.addItem(item);
+				}
+				SearchResult prunedSearchResult = new SearchResult(selectedDataSearchResult.getDataSourceDescription());
+				prunedSearchResult.setOriginalCriteria(selectedDataSearchResult.getOriginalCriteria());
+				prunedSearchResult.addPatient(prunedCurrentPatient);
+				List<Item> itemsList = selectedDataSearchResult.getItems();
+				for (Item item : itemsList) {
+					prunedSearchResult.addItem(item);
+				}
+				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target, selectedDataSearchResult);
 			
 			// ** SERIES TARGET ** //
 			} else if(this.target == IterationTarget.SERIES) {
@@ -465,7 +493,36 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				}	
 				SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
 				subElements.add(seriesSubElement);
-				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target);
+				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
+				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
+				// as they may be needed for evaluation of this TargetElement.
+				Study prunedCurrentStudy = new Study(currentStudy.getStudyDate(), 
+						currentStudy.getStudyID(), 
+						currentStudy.getStudyDesc(),
+						currentStudy.getStudyInstanceUID());
+				prunedCurrentStudy.setLastUpdated(currentStudy.getLastUpdated());
+				prunedCurrentStudy.addSeries(series);
+				List<Item> studyItemsList = currentStudy.getItems();
+				for (Item item : studyItemsList) {
+					prunedCurrentStudy.addItem(item);
+				}
+				Patient prunedCurrentPatient = new Patient(currentPatient.getPatientName(), 
+						currentPatient.getPatientID(), 
+						currentPatient.getPatientBirthDate());
+				prunedCurrentPatient.setLastUpdated(currentPatient.getLastUpdated());
+				prunedCurrentPatient.addStudy(prunedCurrentStudy);
+				List<Item> patientItemsList = currentPatient.getItems();
+				for (Item item : patientItemsList) {
+					prunedCurrentPatient.addItem(item);
+				}
+				SearchResult prunedSearchResult = new SearchResult(selectedDataSearchResult.getDataSourceDescription());
+				prunedSearchResult.setOriginalCriteria(selectedDataSearchResult.getOriginalCriteria());
+				prunedSearchResult.addPatient(prunedCurrentPatient);
+				List<Item> itemsList = selectedDataSearchResult.getItems();
+				for (Item item : itemsList) {
+					prunedSearchResult.addItem(item);
+				}
+				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target, prunedSearchResult);
 			} else
 				throw new NoSuchElementException();
 		} else {

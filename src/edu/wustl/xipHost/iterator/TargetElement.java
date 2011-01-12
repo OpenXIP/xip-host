@@ -5,6 +5,8 @@ package edu.wustl.xipHost.iterator;
 
 import java.util.List;
 
+import edu.wustl.xipHost.dataModel.SearchResult;
+
 /**
  * @author Jaroslaw Krych
  *
@@ -15,11 +17,13 @@ public class TargetElement {
 	String id;
 	List<SubElement> subElements;
 	IterationTarget target;
+	SearchResult subSearchResult;
 	
-	public TargetElement(String id, List<SubElement> subElements, IterationTarget target) {
+	public TargetElement(String id, List<SubElement> subElements, IterationTarget target, SearchResult subSearchResult) {
 		this.id = id;
 		this.subElements = subElements;
 		this.target = target;
+		this.subSearchResult = subSearchResult;
 	}
 
 	public String getId() {
@@ -32,6 +36,10 @@ public class TargetElement {
 
 	public IterationTarget getTarget() {
 		return target;
+	}
+
+	public SearchResult getSubSearchResult() {
+		return subSearchResult;
 	}
 
 }
