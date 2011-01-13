@@ -20,6 +20,7 @@ public class InsertDICOM {
 			return;
 		}		
 		PacsLocation loc = new PacsLocation("127.0.0.1", 3001, "WORKSTATION1", "XIPHost embedded database");
+		//PacsLocation loc = new PacsLocation("127.0.0.1", 3002, "WORKSTATION2", "XIPHost test database");
 		DicomManager dicomMgr = DicomManagerFactory.getInstance();
 		dicomMgr.runDicomStartupSequence();
 		DicomManagerFactory.getInstance().submit(files, loc);		

@@ -180,7 +180,8 @@ public class DicomManagerImpl implements DicomManager{
 	    if(criteria == null || location == null){
 	    	return null;
 	    }		
-	    //Connecting to the server	    
+	    //Connecting to the server
+	    logger.debug("Queried source: " + location.toString());
 		String hostName = location.getAddress();
 		int port = location.getPort();
 		calledAETitle = location.getAETitle();
@@ -411,6 +412,7 @@ public class DicomManagerImpl implements DicomManager{
 	public void startHSQLDB() {
 		hsqldbServer = new Server();
 		hsqldbServer.putPropertiesFromFile("./pixelmed-server-hsqldb/server");		
+		//hsqldbServer.putPropertiesFromFile("./pixelmed-server-hsqldb/testServer");
 		hsqldbServer.start();
 	}
 	
@@ -419,6 +421,7 @@ public class DicomManagerImpl implements DicomManager{
 	public boolean startPixelmedServer(){		
 		try {
 			prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation1.properties"));
+			//prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation2.properties"));
 			server = new DicomAndWebStorageServer(prop);			
 		} catch (FileNotFoundException e) {			
 			return false;

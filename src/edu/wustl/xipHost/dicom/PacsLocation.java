@@ -88,7 +88,7 @@ public class PacsLocation {
 	}*/
 	
 	public String toString(){
-		return "Address: " + hostAddress + "Port: " + hostPort + "AETitle: " + hostAETitle + "Short name: " + hostShortName;		
+		return "Address: " + hostAddress + " Port: " + hostPort + " AETitle: " + hostAETitle + " Short name: " + hostShortName;		
 	}
 	
 	public static void main (String args []){

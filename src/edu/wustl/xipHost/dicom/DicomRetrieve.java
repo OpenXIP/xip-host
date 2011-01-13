@@ -9,18 +9,23 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import com.pixelmed.database.StudySeriesInstanceModel;
+import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
+import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomException;
+import com.pixelmed.dicom.PersonNameAttribute;
 import com.pixelmed.dicom.SetOfDicomFiles;
+import com.pixelmed.dicom.ShortStringAttribute;
+import com.pixelmed.dicom.SpecificCharacterSet;
+import com.pixelmed.dicom.TagFromName;
+import com.pixelmed.dicom.UniqueIdentifierAttribute;
 import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.query.QueryResponseGenerator;
 import com.pixelmed.query.QueryResponseGeneratorFactory;
 import com.pixelmed.query.RetrieveResponseGenerator;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
 import com.pixelmed.query.StudyRootQueryInformationModel;
-
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
@@ -53,6 +58,32 @@ public class DicomRetrieve implements Retrieve {
 	@Override
 	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
 		this.targetElement = targetElement;
+		/*
+		List<SubElement> subElements = targetElement.getSubElements();
+		for(SubElement subElement : subElements){
+			Map<Integer, Object> dicomCriteria = subElement.getCriteria().getDICOMCriteria();
+			Iterator<Integer> iter = dicomCriteria.keySet().iterator();
+			while(iter.hasNext()){
+				Integer key = iter.next();
+				Object value = dicomCriteria.get(key);
+			}
+			
+		}
+		*/
+		
+		
+		AttributeList filter = new AttributeList();
+		
+			String[] characterSets = { "ISO_IR 100" };
+			SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			try{
+				{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("1.3.6.1.4.1.9328.50.1.0022"); filter.put(t,a); }
+				{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue("1.3.6.1.4.1.9328.50.1.10607"); filter.put(t,a); }
+				{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue("1.3.6.1.4.1.9328.50.1.10697"); filter.put(t,a); }
+			} catch (Exception e) {
+				e.printStackTrace(System.err);			
+			}
+		this.criteria = filter;	
 		this.retrieveTarget = retrieveTarget; 
 	}
 
@@ -111,7 +142,7 @@ public class DicomRetrieve implements Retrieve {
 				Iterator<?> it = dicomFiles.iterator();			  
 				while (it.hasNext() ) {
 					SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
-					//System.out.println("Dicom file: " + x.getFileName());			    
+					System.out.println("Dicom file: " + x.getFileName());			    
 					retrievedFiles.add(new File(x.getFileName()).toURI());
 				}		
 				localResults = mQueryResponseGenerator.next();
