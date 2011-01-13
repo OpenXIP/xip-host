@@ -35,7 +35,6 @@ import org.nema.dicom.wg23.Series;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uuid;
-import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
 import edu.wustl.xipHost.avt2ext.AVTUtil;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
