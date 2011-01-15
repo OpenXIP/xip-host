@@ -49,7 +49,6 @@ import edu.wustl.xipHost.iterator.NotificationRunner;
 import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
-import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dicom.DicomRetrieve;
 import edu.wustl.xipHost.dicom.DicomUtil;
@@ -724,7 +723,12 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		if(listUUIDs == null){
 			return new ArrayList<ObjectLocator>();
 		} else {
+			List<URI> retrievedFiles = null;
+			if(retrieve instanceof DicomRetrieve){
+				retrievedFiles = ((DicomRetrieve) retrieve).getRetrievedFilesURIs();
+			}			
 			ArrayList<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();
+			int i = 0;
 			for(Uuid uuid : listUUIDs){
 				String strUuid = uuid.getUuid();
 				Collection<?> objs = (Collection<?>) wg23DataModelItems.get(strUuid);
@@ -733,10 +737,18 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					Object object = iterObjs.next();
 					if(object instanceof ObjectLocator){
 						ObjectLocator objLoc = (ObjectLocator)object;
+						if(retrieve instanceof DicomRetrieve){												
+								try {
+									objLoc.setUri(retrievedFiles.get(i).toURL().toExternalForm());
+								} catch (MalformedURLException e1) {
+									logger.error(e1, e1);
+								}							
+						}
 						listObjLocs.add(objLoc);
 						logger.debug("Item location: " + strUuid + " " + objLoc.getUri());
 					}
 				}
+				i++;
 			}
 			return listObjLocs;
 		}		
@@ -756,6 +768,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	}
 
 	List<String> retrievedTargetElements = new ArrayList<String>();
+	
 	@Override
 	public void retrieveResultsAvailable(RetrieveEvent e) {
 		synchronized(retrievedTargetElements){
