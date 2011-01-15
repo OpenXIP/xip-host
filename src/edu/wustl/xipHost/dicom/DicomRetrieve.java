@@ -65,20 +65,21 @@ public class DicomRetrieve implements Retrieve {
 	}
 
 	
-	List<File> files = new ArrayList<File>();
 	public void run() {
 		logger.info("Executing DICOM retrieve.");				
 		retrieve(targetElement, retrieveTarget);
 		fireResultsAvailable(targetElement.getId());						
 	}
 	
-	List<URI> retrievedFiles;
+	List<URI> retrievedFilesURIs;
+	List<File> retrievedFiles;
 	/**
 	 * 1. Method performed hierarchical move from remote location to calling location first.
 	 * 2. To get retrieved files' URIs method performs query but on the local server (calling)
 	 */
 	public List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling) {		
-		retrievedFiles = new ArrayList<URI>();	    	    		    	    		        
+		retrievedFilesURIs = new ArrayList<URI>();
+		retrievedFiles = new ArrayList<File>();
         try {
         	String hostName = called.getAddress();
         	logger.debug("Host name: " + hostName);
@@ -130,7 +131,9 @@ public class DicomRetrieve implements Retrieve {
 				while (it.hasNext() ) {
 					SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
 					System.out.println("Dicom file: " + x.getFileName());			    
-					retrievedFiles.add(new File(x.getFileName()).toURI());
+					File dcm = new File(x.getFileName());
+					retrievedFiles.add(dcm);
+					retrievedFilesURIs.add(dcm.toURI());
 				}		
 				localResults = mQueryResponseGenerator.next();
 			}			
@@ -138,11 +141,11 @@ public class DicomRetrieve implements Retrieve {
     		logger.error(e, e);
     		return null;
     	}      	    	    	
-    	return retrievedFiles;
+    	return retrievedFilesURIs;
 	}
 	
 	void retrieve(TargetElement targetElement, RetrieveTarget retrieveTarget){		
-		retrievedFiles = new ArrayList<URI>();
+		retrievedFilesURIs = new ArrayList<URI>();
 		String hostName = called.getAddress();
 		int port = called.getPort();
 		String calledAETitle = called.getAETitle();
@@ -205,21 +208,25 @@ public class DicomRetrieve implements Retrieve {
 						while (it.hasNext() ) {
 							SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
 							logger.debug("Dicom file: " + x.getFileName());			    							
-							retrievedFiles.add(new File(x.getFileName()).toURI());
+							retrievedFilesURIs.add(new File(x.getFileName()).toURI());
 						}		
 						localResults = mQueryResponseGenerator.next();
 					}			
 		    	} catch (Exception e) {
 		    		logger.error(e, e);
 		    	} 
-		    	subElement.setFileURIs(retrievedFiles);
+		    	subElement.setFileURIs(retrievedFilesURIs);
 		    	subElement.setPath(null);		    	
 			}
 		}		
 	}
 	
+	public List<URI> getRetrievedFilesURIs(){
+		return retrievedFilesURIs;
+	}
+	
 	public List<File> getRetrievedFiles(){
-		return files;
+		return retrievedFiles;
 	}
 	
 	void fireResultsAvailable(String targetElementID){
