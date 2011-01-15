@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
 import org.hsqldb.Server;
 import org.jdom.Document;
@@ -24,6 +26,11 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.nema.dicom.wg23.Modality;
+import org.nema.dicom.wg23.ObjectDescriptor;
+import org.nema.dicom.wg23.Uid;
+import org.nema.dicom.wg23.Uuid;
+
 import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.PatientStudySeriesConcatenationInstanceModel;
 import com.pixelmed.dicom.Attribute;
@@ -313,8 +320,22 @@ public class DicomManagerImpl implements DicomManager{
 				String imageNumber = attValues.get("(0x0020,0x0013)");
 				if(imageNumber == null){imageNumber = "";}								
 				Item image = new ImageItem(imageNumber);				
-				if(!series.containsItem(imageNumber)){
+				if(!series.containsItem(imageNumber)){					
 					series.addItem(image);
+					ObjectDescriptor objDesc = new ObjectDescriptor();					
+					Uuid objDescUUID = new Uuid();
+					objDescUUID.setUuid(UUID.randomUUID().toString());
+					objDesc.setUuid(objDescUUID);													
+					objDesc.setMimeType("application/dicom");			
+					Uid uid = new Uid();
+					String classUID = "";
+					uid.setUid(classUID);
+					objDesc.setClassUID(uid);
+					String modCode = "";						
+					Modality modality = new Modality();
+					modality.setModality(modCode);
+					objDesc.setModality(modality);
+					image.setObjectDescriptor(objDesc);
 				} 
 			}else{
 				return null;
@@ -322,6 +343,7 @@ public class DicomManagerImpl implements DicomManager{
 		}
 		return result;
 	}			
+	
 	
 	Map<String, String> attValues;
 	/**

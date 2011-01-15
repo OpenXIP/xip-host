@@ -333,5 +333,8 @@ public class DicomUtil {
 		String  convolutionKernel = criteria.get(TagFromName.ConvolutionKernel).getDelimitedStringValuesOrEmptyString();
 		if(!convolutionKernel.isEmpty()){adCriteria.put(Tag.ConvolutionKernel, convolutionKernel);}
 		return adCriteria;
-	}	
+	}
+	
+	
+	
 }
