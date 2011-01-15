@@ -201,18 +201,20 @@ public class DicomRetrieve implements Retrieve {
 					while(localResults != null) {							 					
 						mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
 						SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
-						Iterator<?> it = dicomFiles.iterator();			  
+						Iterator<?> it = dicomFiles.iterator();			  						
 						while (it.hasNext() ) {
 							SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
-							logger.debug("Dicom file: " + x.getFileName());			    
+							logger.debug("Dicom file: " + x.getFileName());			    							
 							retrievedFiles.add(new File(x.getFileName()).toURI());
 						}		
 						localResults = mQueryResponseGenerator.next();
 					}			
 		    	} catch (Exception e) {
 		    		logger.error(e, e);
-		    	}      	    	    	
-			}		
+		    	} 
+		    	subElement.setFileURIs(retrievedFiles);
+		    	subElement.setPath(null);		    	
+			}
 		}		
 	}
 	
