@@ -3,7 +3,10 @@
  */
 package edu.wustl.xipHost.dicom;
 
+import java.util.List;
 import java.util.Map;
+
+import org.nema.dicom.wg23.ObjectDescriptor;
 
 import com.pixelmed.dicom.AttributeList;
 
@@ -38,7 +41,7 @@ public class DicomQuery implements Query {
 		
 	}
 	
-	SearchResult result;	
+	SearchResult result;
 	public void run(){						
 			if(criteriaList == null){return;}					
 			if(criteriaList != null && pacsLoc != null){																
