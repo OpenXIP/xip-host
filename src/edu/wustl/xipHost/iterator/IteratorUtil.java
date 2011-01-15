@@ -64,18 +64,8 @@ public class IteratorUtil {
 				String studyInstanceUID = subElement.getCriteria().getDICOMCriteria().get(new Integer(2097165)).toString(); //studyInstanceUID
 				String path = subElement.getPath();
 				Iterator<File> files;
-				if(path == null){
-					List<URI> uris = subElement.getFileURIs();
-					List<File> dicomFiles = new ArrayList<File>();
-					for(URI uri : uris){
-						File file = new File(uri);
-						dicomFiles.add(file);
-					}
-					files = dicomFiles.iterator();
-				} else {
-					IOFileFilter fileFilter = FileFilterUtils.trueFileFilter();
-					files = FileUtils.iterateFiles(new File(path), fileFilter, null);
-				}				
+				IOFileFilter fileFilter = FileFilterUtils.trueFileFilter();
+				files = FileUtils.iterateFiles(new File(path), fileFilter, null);
 				if(currentStudyInstanceUID == null || !currentStudyInstanceUID.equalsIgnoreCase(studyInstanceUID)){
 					currentStudyInstanceUID = studyInstanceUID;
 					org.nema.dicom.wg23.Study study = new org.nema.dicom.wg23.Study();
