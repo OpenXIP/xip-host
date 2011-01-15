@@ -548,6 +548,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 
 	@Override
 	synchronized public void queryResultsAvailable(QueryEvent e) {
-		selectedDataSearchResult = (SearchResult) e.getSource();
+		Query source = (Query)e.getSource();
+		selectedDataSearchResult = source.getSearchResult();
 	}
 }
