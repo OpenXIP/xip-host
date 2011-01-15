@@ -3,6 +3,8 @@
  */
 package edu.wustl.xipHost.dataModel;
 
+import org.nema.dicom.wg23.ObjectDescriptor;
+import org.nema.dicom.wg23.ObjectLocator;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
 
@@ -50,4 +52,23 @@ public class XDSDocumentItem implements Item {
 		return id + " / " + availability + " / " + language + " / " + mime;
 	}
 
+	ObjectDescriptor objDesc;
+	@Override
+	public ObjectDescriptor getObjectDescriptor() {
+		return objDesc;
+	}
+	
+	public void setObjectDescriptor(ObjectDescriptor objDesc){
+		this.objDesc = objDesc;
+	}
+
+	ObjectLocator objLoc;
+	@Override
+	public ObjectLocator getObjectLocator() {
+		return objLoc;
+	}
+	
+	public void setObjectLocator(ObjectLocator objLoc){
+		this.objLoc = objLoc;
+	}
 }
