@@ -35,12 +35,12 @@ import org.nema.dicom.wg23.Series;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uuid;
-import edu.wustl.xipHost.avt2ext.AVTUtil;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.iterator.IteratorUtil;
 import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.iterator.IteratorElementEvent;
@@ -49,7 +49,9 @@ import edu.wustl.xipHost.iterator.NotificationRunner;
 import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dicom.DicomRetrieve;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.hostControl.Util;
@@ -77,7 +79,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	IterationTarget iterationTarget;
 	int numStateNotificationThreads = 2;
 	ExecutorService exeService = Executors.newFixedThreadPool(numStateNotificationThreads);	
-	AVTUtil util = new AVTUtil();
 	
 	/* Application is a WG23 compatibile application*/	
 	public Application(String name, File exePath, String vendor, String version, File iconFile,
@@ -398,9 +399,14 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					}
 				}
 				TargetElement element = targetElements.get(numberOfSentNotifications);
-				WG23DataModel wg23data = util.getWG23DataModel(element);
+				WG23DataModel wg23data = IteratorUtil.getWG23DataModel(element);
+				//List<Item> topLevelItems = element.getSubSearchResult().getItems();
 				//Extract all ObjectDescriptors UUIDs and construct MultiValueMap containing UUID (key), ObjectDescriptor (value), ObjectLocator (value) 
 				List<ObjectDescriptor> objDescsTopLevel = wg23data.getAvailableData().getObjectDescriptors().getObjectDescriptor();
+				/*List<ObjectDescriptor> objDescsTopLevel = new ArrayList<ObjectDescriptor>();
+				for(Item item : topLevelItems){
+					objDescsTopLevel.add(item.getObjectDescriptor());
+				}*/
 				for(ObjectDescriptor objDesc : objDescsTopLevel){
 					String uuid = objDesc.getUuid().getUuid();
 					wg23DataModelItems.put(uuid, objDesc);
