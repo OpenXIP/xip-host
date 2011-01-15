@@ -148,6 +148,9 @@
   <logger name="edu.wustl.xipHost.dicom.DicomRetrieve">
 	<appender-ref ref="FileDataSource_Appender"/>
   </logger>	
+  <logger name="edu.wustl.xipHost.iterator.IteratorUtil">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>		
   	
   <root>
     <!-- level value="debug"/-->
