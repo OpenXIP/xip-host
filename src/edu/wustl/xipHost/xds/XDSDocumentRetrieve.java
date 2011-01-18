@@ -4,13 +4,19 @@
 package edu.wustl.xipHost.xds;
 
 import java.io.File;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.wg23.Uuid;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
-
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataModel.Item;
+import edu.wustl.xipHost.dataModel.Patient;
+import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 
@@ -25,6 +31,7 @@ public class XDSDocumentRetrieve implements Retrieve {
 	String homeCommunityId = null;
 	TargetElement targetElement;
 	RetrieveTarget retrieveTarget;
+	
 	
 	public XDSDocumentRetrieve(){
 		
@@ -44,9 +51,21 @@ public class XDSDocumentRetrieve implements Retrieve {
 	}	
 	
 	File xdsRetrievedFile;
+	Map<String, ObjectLocator> objectLocators;
 	@Override
 	public void run() {
+		objectLocators = new HashMap<String, ObjectLocator>();
 		xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId, homeCommunityId);				
+		SearchResult subSearchResult = targetElement.getSubSearchResult();
+		List<Patient> patients = subSearchResult.getPatients();
+		Patient patient = patients.get(0);
+		Item item = patient.getItems().get(0);
+		ObjectLocator objLoc = new ObjectLocator();				
+		Uuid itemUUID = item.getObjectDescriptor().getUuid();
+		objLoc.setUuid(itemUUID);				
+		objLoc.setUri(xdsRetrievedFile.getAbsolutePath()); 
+		item.setObjectLocator(objLoc);
+		objectLocators.put(itemUUID.getUuid(), objLoc);
 		fireResultsAvailable(targetElement.getId());
 		
 	}
@@ -64,5 +83,10 @@ public class XDSDocumentRetrieve implements Retrieve {
     @Override
 	public void addDataAccessListener(DataAccessListener l) {
     	 listener = l;          		
+	}
+
+	@Override
+	public Map<String, ObjectLocator> getObjectLocators() {
+		return objectLocators;
 	}
 }
