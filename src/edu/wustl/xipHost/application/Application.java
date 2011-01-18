@@ -11,9 +11,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,16 +24,13 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.nema.dicom.wg23.ArrayOfString;
 import org.nema.dicom.wg23.ArrayOfUUID;
+import org.nema.dicom.wg23.AvailableData;
 import org.nema.dicom.wg23.Host;
 import org.nema.dicom.wg23.ModelSetDescriptor;
-import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Patient;
 import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
-import org.nema.dicom.wg23.Series;
 import org.nema.dicom.wg23.State;
-import org.nema.dicom.wg23.Study;
 import org.nema.dicom.wg23.Uuid;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -50,7 +47,6 @@ import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dataModel.SearchResult;
-import edu.wustl.xipHost.dicom.DicomRetrieve;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.hostControl.Util;
@@ -263,8 +259,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	public void launch(URL hostServiceURL, URL appServiceURL){						
 		this.hostServiceURL = hostServiceURL;
 		this.appServiceURL = appServiceURL;				
-		setApplicationOutputDir(ApplicationManagerFactory.getInstance().getOutputDir());
-		setApplicationTmpDir(ApplicationManagerFactory.getInstance().getTmpDir());
+		setApplicationOutputDir(ApplicationManagerFactory.getInstance().getOutputDir());		
 		setApplicationPreferredSize(HostMainWindow.getApplicationPreferredSize());
 		//prepare native models
 		//createNativeModels(getWG23DataModel());		
@@ -349,8 +344,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	State state = null;
 	boolean firstLaunch = true;
 	int numberOfSentNotifications = 0;
-	MultiMap wg23DataModelItems = new MultiValueMap();
-	@SuppressWarnings("unchecked")
+	MultiMap wg23DataModelItems;
 	public void setState(State state){
 		priorState = this.state;
 		this.state = state;
@@ -360,6 +354,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				startClientToApplication();
 				notifyAddSideTab();
 				firstLaunch = false;
+				 wg23DataModelItems = new MultiValueMap();
 				StateExecutor stateExecutor = new StateExecutor(this);
 				stateExecutor.setState(State.INPROGRESS);
 				exeService.execute(stateExecutor);
@@ -397,57 +392,12 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 						logger.error(e, e);
 					}
 				}
+				
 				TargetElement element = targetElements.get(numberOfSentNotifications);
-				WG23DataModel wg23data = IteratorUtil.getWG23DataModel(element);
-				//List<Item> topLevelItems = element.getSubSearchResult().getItems();
-				//Extract all ObjectDescriptors UUIDs and construct MultiValueMap containing UUID (key), ObjectDescriptor (value), ObjectLocator (value) 
-				List<ObjectDescriptor> objDescsTopLevel = wg23data.getAvailableData().getObjectDescriptors().getObjectDescriptor();
-				/*List<ObjectDescriptor> objDescsTopLevel = new ArrayList<ObjectDescriptor>();
-				for(Item item : topLevelItems){
-					objDescsTopLevel.add(item.getObjectDescriptor());
-				}*/
-				for(ObjectDescriptor objDesc : objDescsTopLevel){
-					String uuid = objDesc.getUuid().getUuid();
-					wg23DataModelItems.put(uuid, objDesc);
-				}
-				List<Patient> listPatients = wg23data.getAvailableData().getPatients().getPatient();
-				for(Patient patient : listPatients){
-					List<ObjectDescriptor> objDescsPatientLevel = patient.getObjectDescriptors().getObjectDescriptor();
-					for(ObjectDescriptor objDesc : objDescsPatientLevel){
-						String uuid = objDesc.getUuid().getUuid();
-						wg23DataModelItems.put(uuid, objDesc);
-					}
-					List<Study> listStudies = patient.getStudies().getStudy();
-					for(Study study : listStudies){
-						List<ObjectDescriptor> objDescsStudyLevel = study.getObjectDescriptors().getObjectDescriptor();
-						for(ObjectDescriptor objDesc : objDescsStudyLevel){
-							String uuid = objDesc.getUuid().getUuid();
-							wg23DataModelItems.put(uuid, objDesc);
-						}
-						List<Series> listSeries = study.getSeries().getSeries();
-						for(Series series : listSeries){
-							List<ObjectDescriptor> objDescsSeriesLevel = series.getObjectDescriptors().getObjectDescriptor();
-							for(ObjectDescriptor objDesc : objDescsSeriesLevel){
-								String uuid = objDesc.getUuid().getUuid();
-								wg23DataModelItems.put(uuid, objDesc);
-							}	
-						}
-					}
-				}
-				Iterator<String> iterMultiValueMap = wg23DataModelItems.keySet().iterator();
-				ObjectLocator[] objLocators = wg23data.getObjectLocators();
-				while(iterMultiValueMap.hasNext()){
-					String uuid = iterMultiValueMap.next();
-					for(int i = 0; i < objLocators.length; i++){
-						ObjectLocator objLoc = objLocators[i];
-						String locUUID = objLoc.getUuid().getUuid();
-						if(locUUID.equalsIgnoreCase(uuid)){
-							wg23DataModelItems.put(uuid, objLoc);
-						}
-					}
-				}
+				AvailableData availableData = IteratorUtil.getAvailableData(element);
 				NotificationRunner runner = new NotificationRunner(this);
-				runner.setAvailableData(wg23data.getAvailableData());
+				//runner.setAvailableData(wg23data.getAvailableData());
+				runner.setAvailableData(availableData);
 				threadNotification = new Thread(runner);
 				threadNotification.start();
 				numberOfSentNotifications++;
@@ -697,7 +647,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		}
 	}
 	
-	
 	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
 		//Start data retrieval related to the element	
 		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
@@ -723,32 +672,13 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		if(listUUIDs == null){
 			return new ArrayList<ObjectLocator>();
 		} else {
-			List<URI> retrievedFiles = null;
-			if(retrieve instanceof DicomRetrieve){
-				retrievedFiles = ((DicomRetrieve) retrieve).getRetrievedFilesURIs();
-			}			
-			ArrayList<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();
-			int i = 0;
+			Map<String, ObjectLocator> objectLocators = retrieve.getObjectLocators();
+			List<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();			
 			for(Uuid uuid : listUUIDs){
 				String strUuid = uuid.getUuid();
-				Collection<?> objs = (Collection<?>) wg23DataModelItems.get(strUuid);
-				Iterator<?> iterObjs = objs.iterator();
-				while(iterObjs.hasNext()){
-					Object object = iterObjs.next();
-					if(object instanceof ObjectLocator){
-						ObjectLocator objLoc = (ObjectLocator)object;
-						if(retrieve instanceof DicomRetrieve){												
-								try {
-									objLoc.setUri(retrievedFiles.get(i).toURL().toExternalForm());
-								} catch (MalformedURLException e1) {
-									logger.error(e1, e1);
-								}							
-						}
-						listObjLocs.add(objLoc);
-						logger.debug("Item location: " + strUuid + " " + objLoc.getUri());
-					}
-				}
-				i++;
+				ObjectLocator objLoc = objectLocators.get(strUuid);				
+				listObjLocs.add(objLoc);
+				logger.debug("Item location: " + strUuid + " " + objLoc.getUri());				
 			}
 			return listObjLocs;
 		}		
@@ -767,15 +697,14 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		
 	}
 
-	List<String> retrievedTargetElements = new ArrayList<String>();
-	
+	List<String> retrievedTargetElements = new ArrayList<String>();	
 	@Override
 	public void retrieveResultsAvailable(RetrieveEvent e) {
-		synchronized(retrievedTargetElements){
+		synchronized(retrievedTargetElements){			
 			String elementID = (String)e.getSource();
 			retrievedTargetElements.add(elementID);
+			logger.debug("Data retrived for TargetElement: " + elementID + " at time: " + System.currentTimeMillis());		
 			retrievedTargetElements.notify();
-			logger.debug("Data retrived for TargetElement: " + elementID + " at time: " + System.currentTimeMillis());
 		}
 	}
 }
