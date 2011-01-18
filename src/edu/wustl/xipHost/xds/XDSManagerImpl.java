@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.jdom.Document;
@@ -23,6 +24,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.nema.dicom.wg23.Modality;
+import org.nema.dicom.wg23.ObjectDescriptor;
+import org.nema.dicom.wg23.Uid;
+import org.nema.dicom.wg23.Uuid;
 import org.openhealthtools.ihe.atna.auditor.PDQConsumerAuditor;
 import org.openhealthtools.ihe.common.ebxml._3._0.rim.ObjectRefType;
 import org.openhealthtools.ihe.common.hl7v2.CX;
@@ -552,7 +557,7 @@ public class XDSManagerImpl implements XDSManager{
 		if (patientAddress != null){
 			//TODO:Divide into constituent parts:
 			// streetAddress, city, county, state, country, zip, otherDesignation, type
-			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "", "");
+			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "");
 		}
 		//pdqQuery.addPatientAddress("10 PINETREE", "", "", "", "", "", "");
 		//pdqQuery.addPatientAddress(addressStreetAddress, addressCity, addressCounty, addressState, addressCountry, addressZip, addressOtherDesignation, addressType)
@@ -977,15 +982,25 @@ public class XDSManagerImpl implements XDSManager{
 			String docDesc = id + " / " + availability + " / " + language + " / " + mime;
 			System.out.println(docDesc);
 			Item item = new XDSDocumentItem(id, availability, language, mime, docDetails, patientId, homeCommunity);
-			//searchResult.addItem(item);
+			//Set itemFromAD WG23 object descriptor			
+			ObjectDescriptor objDesc = new ObjectDescriptor();
+			Uuid objDescUUID = new Uuid();
+			objDescUUID.setUuid(UUID.randomUUID().toString());
+			objDesc.setUuid(objDescUUID);
+			objDesc.setMimeType(mime);			
+			Uid uid = new Uid();
+			String sopClassUID = "";
+			uid.setUid(sopClassUID);
+			objDesc.setClassUID(uid);				
+			Modality mod = new Modality();
+			mod.setModality("");
+			objDesc.setModality(mod);
+			item.setObjectDescriptor(objDesc);
 			patient.addItem(item);
-		}
-			
+		}			
 		return searchResult;
-		
-	
-		// TODO Track the paging - we have two responses - one with all UUIDs, and one with just the info on the first 10.
-		
+			
+		// TODO Track the paging - we have two responses - one with all UUIDs, and one with just the info on the first 10.		
 		//return responseDetails;				
 	}
 
