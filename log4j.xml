@@ -145,7 +145,13 @@
   <logger name="edu.wustl.xipHost.localFileSystem.FileManagerImpl">
 	<appender-ref ref="FileDataSource_Appender"/>
   </logger>	
+  <logger name="edu.wustl.xipHost.gui.InputDialog">
+	<appender-ref ref="FileDataSource_Appender"/>
+  </logger>	
   <logger name="edu.wustl.xipHost.dicom.DicomRetrieve">
+	<appender-ref ref="FileDataSource_Appender"/>
+  </logger>	
+  <logger name="du.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve">
 	<appender-ref ref="FileDataSource_Appender"/>
   </logger>	
   <logger name="edu.wustl.xipHost.iterator.IteratorUtil">
