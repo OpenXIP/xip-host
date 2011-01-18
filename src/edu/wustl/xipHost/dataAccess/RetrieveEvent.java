@@ -4,7 +4,6 @@
 package edu.wustl.xipHost.dataAccess;
 
 import java.util.EventObject;
-
 /**
  * @author Jaroslaw Krych
  *
