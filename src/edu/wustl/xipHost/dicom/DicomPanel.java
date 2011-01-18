@@ -16,11 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -39,13 +35,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
-import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.AttributeTag;
-import com.pixelmed.dicom.CodeStringAttribute;
-import com.pixelmed.dicom.DicomException;
-import com.pixelmed.dicom.TagFromName;
-import com.pixelmed.dicom.UniqueIdentifierAttribute;
 import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationEvent;
@@ -58,8 +48,6 @@ import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
-import edu.wustl.xipHost.dataModel.Series;
-import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
@@ -72,8 +60,6 @@ import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
-import edu.wustl.xipHost.localFileSystem.FileManager;
-import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 
 /**
  * @author Jaroslaw Krych
@@ -399,28 +385,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}
-		} /*else if(e.getSource() == btnRetrieve){			
-			allRetrivedFiles = new ArrayList<File>();
-			numRetrieveThreadsStarted = 0;
-			numRetrieveThreadsReturned = 0;
-			List<AttributeList> criterias = getRetrieveCriteria();
-			if(criterias.size() > 0 && calledPacsLocation != null && callingPacsLocation != null){
-				progressBar.setString("Processing retrieve request ...");
-				progressBar.setIndeterminate(true);
-				progressBar.updateUI();	
-				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-				criteriaPanel.getQueryButton().setEnabled(false);
-				btnRetrieve.setBackground(Color.GRAY);
-				btnRetrieve.setEnabled(false);												
-				for(int i = 0; i < criterias.size(); i++){
-					DicomRetrieve dicomRetrieve = new DicomRetrieve(criterias.get(i), calledPacsLocation, callingPacsLocation);
-					dicomRetrieve.addDicomRetrieveListener(this);
-					Thread t = new Thread(dicomRetrieve);
-					t.start();
-					numRetrieveThreadsStarted++;
-				}				
-			}			
-		}	*/		
+		} 
 	}
 
 	AttributeList criteria;	
@@ -442,27 +407,10 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		progressBar.setIndeterminate(false);		
 	}
 	
-	
-	List<File> allRetrivedFiles;
-	int numRetrieveThreadsStarted;
-	int numRetrieveThreadsReturned;
+
 	@Override
 	public void retrieveResultsAvailable(RetrieveEvent e) {
-		//check if all retrieve calls returned
-		DicomRetrieve dicomRetrieve = (DicomRetrieve)e.getSource();
-		List<File> result = dicomRetrieve.getRetrievedFiles();
-		allRetrivedFiles.addAll(result);
-		numRetrieveThreadsReturned++;
-		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
-			progressBar.setString("DicomRetrieve finished");
-			progressBar.setIndeterminate(false);
-			criteriaPanel.getQueryButton().setBackground(xipBtn);
-			criteriaPanel.getQueryButton().setEnabled(true);		
-			File[] files = new File[allRetrivedFiles.size()];
-			allRetrivedFiles.toArray(files);		
-			FileManager fileMgr = FileManagerFactory.getInstance();						
-	        fileMgr.run(files);
-		}		       	
+		   	
 	}
 	
 	class ComboBoxRenderer extends JLabel implements ListCellRenderer {
@@ -485,50 +433,8 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			    }			    
 			    renderer.setPreferredSize(preferredSize);
 			    return renderer;
-			  }
-		
+			  }		
 	}	
-	
-	List<AttributeList> getRetrieveCriteria() {
-		List<AttributeList> retrieveCriterias = new ArrayList<AttributeList>();
-		Map<Series, Study> map = resultTree.getSelectedSeries();
-		Set<Series> seriesSet = map.keySet();
-		Iterator<Series> iter = seriesSet.iterator();
-		while (iter.hasNext()){
-			Series series = iter.next();
-			String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
-			String selectedStudyInstanceUID = ((Study)map.get(series)).getStudyInstanceUID();
-			AttributeList retrieveCriteria = new AttributeList();
-			try{				
-				if(!selectedStudyInstanceUID.equalsIgnoreCase("")){
-					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(selectedStudyInstanceUID); retrieveCriteria.put(t,a); }
-				}							
-				if(!selectedSeriesInstanceUID.equalsIgnoreCase("")){ 
-				  AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(selectedSeriesInstanceUID); retrieveCriteria.put(t,a);
-				}
-				//{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue("*"); retrieveCriteria.put(t,a); }
-				{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("SERIES"); retrieveCriteria.put(t,a); }
-				/*DicomDictionary dictionary = AttributeList.getDictionary();
-			    Iterator iter = dictionary.getTagIterator();        
-			    String strAtt = null;
-			    String attValue = null;
-			    while(iter.hasNext()){
-			    	AttributeTag attTag  = (AttributeTag)iter.next();
-					strAtt = attTag.toString();									
-					attValue = Attribute.getSingleStringValueOrEmptyString(retrieveCriteria, attTag);
-					if(!attValue.isEmpty()){
-						System.out.println(strAtt + " " + attValue);				
-					}
-			    }*/		
-				if(criteriaPanel.verifyCriteria(retrieveCriteria)){
-					retrieveCriterias.add(retrieveCriteria);
-				}				
-			} catch (DicomException excep){
-				
-			}			
-		}
-		return retrieveCriterias;																													
-	}
 	
 	Application targetApp = null;
 	@Override
@@ -627,6 +533,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			//If yes, create new application instance
 			State state = app.getState();
 			Query query = new DicomQuery();
+			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
 			DicomRetrieve retrieve = new DicomRetrieve(criteriaPanel.getFilterList(), calledPacsLocation, callingPacsLocation);
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
@@ -635,6 +542,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				instanceApp.setQueryDataSource(query);
 				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
+				instanceApp.setApplicationTmpDir(tmpDir);
 				appMgr.addApplication(instanceApp);		
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = instanceApp;
@@ -642,6 +550,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
 				app.setRetrieveDataSource(retrieve);
+				app.setApplicationTmpDir(tmpDir);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = app;
 			}	
