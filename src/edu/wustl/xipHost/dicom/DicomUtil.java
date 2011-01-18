@@ -9,9 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-
 import org.dcm4che2.data.Tag;
 import com.pixelmed.dicom.AgeStringAttribute;
 import com.pixelmed.dicom.Attribute;
@@ -21,7 +19,6 @@ import com.pixelmed.dicom.CodeStringAttribute;
 import com.pixelmed.dicom.DateAttribute;
 import com.pixelmed.dicom.DateTimeAttribute;
 import com.pixelmed.dicom.DecimalStringAttribute;
-import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.IntegerStringAttribute;
 import com.pixelmed.dicom.LongStringAttribute;
 import com.pixelmed.dicom.LongTextAttribute;
