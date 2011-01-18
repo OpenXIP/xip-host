@@ -34,6 +34,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
+import org.openhealthtools.ihe.common.hl7v2.CX;
+import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;
@@ -47,6 +49,7 @@ import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
@@ -55,8 +58,6 @@ import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.iterator.IterationTarget;
-import edu.wustl.xipHost.localFileSystem.FileManager;
-import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import edu.wustl.xipHost.pdq.PDQLocation;
 import edu.wustl.xipHost.xds.CheckBoxTree.SearchResultTree;
 
@@ -378,29 +379,13 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		criteriaPanel.getQueryButton().setEnabled(true);
 	}
 	
-	List<File> allRetrivedFiles;
-	int numRetrieveThreadsStarted;
-	int numRetrieveThreadsReturned;
-	Application targetApp = null;
+	
 	@Override
 	public void retrieveResultsAvailable(RetrieveEvent e) {
-		XDSDocumentRetrieve source = (XDSDocumentRetrieve)e.getSource();
-		File xdsRetrievedFile = source.getRetrievedXSDFile();
-		allRetrivedFiles.add(xdsRetrievedFile);
-		numRetrieveThreadsReturned++;
-		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
-			progressBar.setString("XDS Retrieve finished");
-			progressBar.setIndeterminate(false);
-			criteriaPanel.getQueryButton().setBackground(xipBtn);
-			criteriaPanel.getQueryButton().setEnabled(true);		
-			File[] files = new File[allRetrivedFiles.size()];
-			allRetrivedFiles.toArray(files);		
-			FileManager fileMgr = FileManagerFactory.getInstance();						
-	        fileMgr.run(files);
-		}		
+		
 	}
 
-
+	Application targetApp = null;
 	@Override
 	public void launchApplication(ApplicationEvent event) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
@@ -442,6 +427,17 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		//If yes, create new application instance
 		State state = app.getState();
 		Query query = new XDSDocumentQuery();
+		File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
+		List<XDSDocumentItem> selectedItems = resultTree.getSelectedItems();
+		for(int i = 0; i < selectedItems.size(); i++){
+			XDSDocumentItem xdsDocItem = selectedItems.get(i);
+			DocumentEntryType docType = xdsDocItem.getDocumentType();
+			CX patientId = xdsDocItem.getPatientId();
+			String homeCommunityId = xdsDocItem.getHomeCommunityId();
+			XDSDocumentRetrieve xdsRetrieve = new XDSDocumentRetrieve(docType, patientId, homeCommunityId);
+		}						
+		
+		
 		Retrieve retrieve = new XDSDocumentRetrieve();
 		if(state != null && !state.equals(State.EXIT)){
 			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
@@ -450,6 +446,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			instanceApp.setQueryDataSource(query);
 			instanceApp.setRetrieveDataSource(retrieve);
 			instanceApp.setDoSave(false);
+			instanceApp.setApplicationTmpDir(tmpDir);
 			appMgr.addApplication(instanceApp);		
 			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			targetApp = instanceApp;
@@ -457,31 +454,10 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			app.setSelectedDataSearchResult(selectedDataSearchResult);
 			app.setQueryDataSource(query);
 			app.setRetrieveDataSource(retrieve);
+			app.setApplicationTmpDir(tmpDir);
 			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			targetApp = app;
 		}	
-		
-		/*
-		// Start background retrieving of data that could eventually be given to the application
-		allRetrivedFiles = new ArrayList<File>();
-		numRetrieveThreadsStarted = 0;
-		numRetrieveThreadsReturned = 0;
-		progressBar.setString("Processing search request ...");
-		progressBar.setIndeterminate(true);
-		progressBar.updateUI();
-		List<XDSDocumentItem> selectedItems = resultTree.getSelectedItems();
-		for(int i = 0; i < selectedItems.size(); i++){
-			XDSDocumentItem xdsDocItem = selectedItems.get(i);
-			DocumentEntryType docType = xdsDocItem.getDocumentType();
-			CX patientId = xdsDocItem.getPatientId();
-			String homeCommunityId = xdsDocItem.getHomeCommunityId();
-			XDSDocumentRetrieve xdsRetrieve = new XDSDocumentRetrieve(docType, patientId, homeCommunityId);
-			xdsRetrieve.addXDSRetrieveListener(this);
-			Thread t = new Thread(xdsRetrieve);
-			t.start();
-			numRetrieveThreadsStarted++;
-		}						
-		*/
 	}
 
 	@Override
