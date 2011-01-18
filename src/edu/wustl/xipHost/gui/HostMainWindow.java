@@ -311,4 +311,13 @@ public class HostMainWindow extends JFrame implements ActionListener {
     public Component getSelectedSearchTab() {
     	return tabPaneCenter.getSelectedComponent();
     }
+    
+    InputDialog inputDialog;
+    public void setInputDialog(InputDialog inputDialog){
+    	this.inputDialog = inputDialog;
+    }
+    
+    public InputDialog getInputDialog(){
+    	return inputDialog;
+    }
 }
