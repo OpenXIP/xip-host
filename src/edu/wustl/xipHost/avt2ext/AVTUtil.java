@@ -3,34 +3,20 @@
  */
 package edu.wustl.xipHost.avt2ext;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
+
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
-import org.nema.dicom.wg23.ArrayOfPatient;
-import org.nema.dicom.wg23.ArrayOfSeries;
-import org.nema.dicom.wg23.ArrayOfStudy;
-import org.nema.dicom.wg23.AvailableData;
 import org.nema.dicom.wg23.Modality;
 import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uid;
 import org.nema.dicom.wg23.Uuid;
-import edu.wustl.xipHost.iterator.IterationTarget;
-import edu.wustl.xipHost.iterator.SubElement;
-import edu.wustl.xipHost.iterator.TargetElement;
+
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -38,8 +24,6 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.localFileSystem.WG23DataModelFileSystemImpl;
-import edu.wustl.xipHost.wg23.WG23DataModel;
 
 /**
  * @author Jaroslaw Krych
@@ -129,19 +113,43 @@ public class AVTUtil {
 				studyFromAD.setLastUpdated(lastUpdated);
 			} else if(selectedObject instanceof Series){
 				seriesFromAD = Series.class.cast(selectedObject);
+				//Set itemFromAD WG23 object descriptor			
+				ObjectDescriptor objDesc = new ObjectDescriptor();
+				Uuid objDescUUID = new Uuid();
+				objDescUUID.setUuid(UUID.randomUUID().toString());
+				objDesc.setUuid(objDescUUID);
 				if(obj instanceof com.siemens.scr.avt.ad.dicom.GeneralImage){
 					com.siemens.scr.avt.ad.dicom.GeneralImage itemAD = com.siemens.scr.avt.ad.dicom.GeneralImage.class.cast(obj);
-					String itemSOPInstanceUID = itemAD.getSOPInstanceUID();				
+					String itemSOPInstanceUID = itemAD.getSOPInstanceUID();
 					if(itemSOPInstanceUID == null){itemSOPInstanceUID = "";} 				
 					if(seriesFromAD.containsItem(itemSOPInstanceUID) == false){
-						itemFromAD = new ImageItem(itemSOPInstanceUID);							
+						itemFromAD = new ImageItem(itemSOPInstanceUID);														
+						String mimeType = "application/dicom";
+						objDesc.setMimeType(mimeType);			
+						Uid uid = new Uid();
+						String sopClassUID = "";
+						uid.setUid(sopClassUID);
+						objDesc.setClassUID(uid);				
+						Modality mod = new Modality();
+						mod.setModality("");
+						objDesc.setModality(mod);
+						itemFromAD.setObjectDescriptor(objDesc);
 					}
 				}else if(obj instanceof String){
 					String imageAnnotationType = "";
 					String dateTime = "";
 					String authorName = "";
 					String aimUID = String.class.cast(obj);
-					itemFromAD = new AIMItem(imageAnnotationType, dateTime, authorName, aimUID);
+					itemFromAD = new AIMItem(imageAnnotationType, dateTime, authorName, aimUID);					
+					String mimeType = "text/xml";
+					objDesc.setMimeType(mimeType);			
+					Uid uid = new Uid();
+					String sopClassUID = "";
+					uid.setUid(sopClassUID);
+					objDesc.setClassUID(uid);				
+					Modality mod = new Modality();
+					mod.setModality("");
+					objDesc.setModality(mod);
 				}
 				seriesFromAD.addItem(itemFromAD);
 				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
