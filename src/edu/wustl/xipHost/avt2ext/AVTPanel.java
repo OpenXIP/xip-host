@@ -289,54 +289,10 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		progressBar.setIndeterminate(false);				
 	}
 	
-	List<File> retrivedFiles;
-	List<File> allRetrivedFiles;
-	int numRetrieveThreadsStarted;
-	int numRetrieveThreadsReturned;
 	@Override
-	@SuppressWarnings("unchecked")
 	public void retrieveResultsAvailable(RetrieveEvent e) {		
-		retrivedFiles = (List<File>) e.getSource();	
-		synchronized(retrivedFiles){
-			allRetrivedFiles.addAll(retrivedFiles);
-		}		
-		numRetrieveThreadsReturned++;
-		if(numRetrieveThreadsStarted == numRetrieveThreadsReturned){
-			finalizeRetrieve();
-		}
-	}	
 		
-	synchronized void finalizeRetrieve(){		
-		progressBar.setString("AD Retrieve finished");
-		progressBar.setIndeterminate(false);						
-		//allretrivedFiles are checked for duplicate items, both DICOM and AIM
-		//File names are compared. Duplicate items are removed.
-		int size = allRetrivedFiles.size();
-		Map<String, String> filePaths = new LinkedHashMap<String, String>();
-		for(int i = 0; i < size; i++){
-			try {
-				String fileName = allRetrivedFiles.get(i).getName();
-				String filePath = allRetrivedFiles.get(i).getCanonicalPath();
-				filePaths.put(fileName, filePath);
-			} catch (IOException e) {
-				logger.error(e, e);
-				notifyException(e.getMessage());
-			}
-		}
-		allRetrivedFiles.clear();
-		Iterator<String> iter = filePaths.keySet().iterator();
-		while(iter.hasNext()){
-			String key = iter.next();
-			String filePath = filePaths.get(key);
-			allRetrivedFiles.add(new File(filePath));
-		}
-		File[] files = new File[allRetrivedFiles.size()];		 
-		allRetrivedFiles.toArray(files);		
-		FileManager fileMgr = FileManagerFactory.getInstance();						
-        fileMgr.run(files);
-        criteriaPanel.getQueryButton().setBackground(xipBtn);
-		criteriaPanel.getQueryButton().setEnabled(true);						
-	}
+	}	
 	
 	@Override
 	public void notifyException(String message) {
@@ -642,7 +598,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			//If yes, create new application instance
 			State state = app.getState();
 			Query query = (Query) avtQuery;
-			Retrieve retrieve = new AVTRetrieve2(); 
+			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
+			Retrieve retrieve = new AVTRetrieve2(tmpDir); 
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
@@ -650,12 +607,14 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				instanceApp.setQueryDataSource(query);
 				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
+				instanceApp.setApplicationTmpDir(tmpDir);
 				appMgr.addApplication(instanceApp);		
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
 				app.setRetrieveDataSource(retrieve);
+				app.setApplicationTmpDir(tmpDir);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
 			}	
 		}				
