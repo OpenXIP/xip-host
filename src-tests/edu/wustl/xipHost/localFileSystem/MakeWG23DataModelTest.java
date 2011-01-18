@@ -26,6 +26,8 @@ public class MakeWG23DataModelTest extends TestCase {
 		mgr = new FileManagerImpl();
 	}
 	
+	/* voided on 01/17/2011
+	
 	//FileManagerImpl 1Aa - basic flow. Data sets are valid, not null, size > 0.
 	public void testMakeWg23DataModel1Aa() {						
 		File[] files = new File[filesCurr.size()];		
@@ -134,4 +136,6 @@ public class MakeWG23DataModelTest extends TestCase {
 		assertNull("Invalid patients.", arrayOfPatients);
 		assertNotNull("System failed to produce a valid data model.", dm);		
 	}	
+	
+	*/
 }
