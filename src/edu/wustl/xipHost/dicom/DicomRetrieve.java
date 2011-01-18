@@ -7,10 +7,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.wg23.Uuid;
+
 import com.pixelmed.database.StudySeriesInstanceModel;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
@@ -30,6 +34,11 @@ import com.pixelmed.query.StudyRootQueryInformationModel;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataModel.Item;
+import edu.wustl.xipHost.dataModel.Patient;
+import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.Series;
+import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.SubElement;
 import edu.wustl.xipHost.iterator.TargetElement;
@@ -47,10 +56,6 @@ public class DicomRetrieve implements Retrieve {
 	TargetElement targetElement;
 	RetrieveTarget retrieveTarget;
 	
-	public DicomRetrieve(){
-		
-	}
-	
 	public DicomRetrieve(AttributeList criteria, PacsLocation called, PacsLocation calling){
 		this.criteria = criteria;
 		this.called = called;
@@ -67,16 +72,15 @@ public class DicomRetrieve implements Retrieve {
 	
 	public void run() {
 		logger.info("Executing DICOM retrieve.");				
-		retrieve(targetElement, retrieveTarget);
+		retrieve(targetElement);
 		fireResultsAvailable(targetElement.getId());						
 	}
 	
-	List<URI> retrievedFilesURIs;
-	List<File> retrievedFiles;
 	/**
 	 * 1. Method performed hierarchical move from remote location to calling location first.
 	 * 2. To get retrieved files' URIs method performs query but on the local server (calling)
 	 */
+	/*
 	public List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling) {		
 		retrievedFilesURIs = new ArrayList<URI>();
 		retrievedFiles = new ArrayList<File>();
@@ -142,10 +146,11 @@ public class DicomRetrieve implements Retrieve {
     		return null;
     	}      	    	    	
     	return retrievedFilesURIs;
-	}
+	}*/
 	
-	void retrieve(TargetElement targetElement, RetrieveTarget retrieveTarget){		
-		retrievedFilesURIs = new ArrayList<URI>();
+	Map<String, ObjectLocator> objectLocators;
+	void retrieve(TargetElement targetElement){		
+		objectLocators = new HashMap<String, ObjectLocator>();
 		String hostName = called.getAddress();
 		int port = called.getPort();
 		String calledAETitle = called.getAETitle();
@@ -201,32 +206,52 @@ public class DicomRetrieve implements Retrieve {
 					QueryResponseGenerator mQueryResponseGenerator = mQueryResponseGeneratorFactory.newInstance();						
 					mQueryResponseGenerator.performQuery("1.2.840.10008.5.1.4.1.2.2.1", criteria, true);	// Study Root						
 					AttributeList localResults = mQueryResponseGenerator.next();			
+					List<String> retrievedFilesURIs = new ArrayList<String>();
 					while(localResults != null) {							 					
 						mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
 						SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
 						Iterator<?> it = dicomFiles.iterator();			  						
 						while (it.hasNext() ) {
 							SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
-							logger.debug("Dicom file: " + x.getFileName());			    							
-							retrievedFilesURIs.add(new File(x.getFileName()).toURI());
+							logger.debug("Dicom file: " + x.getFileName());			    														
+							String fileURI = (new File(x.getFileName()).toURI()).toURL().toExternalForm();
+							retrievedFilesURIs.add(fileURI);							
 						}		
 						localResults = mQueryResponseGenerator.next();
-					}			
+					}
+					SearchResult subSearchResult = targetElement.getSubSearchResult();
+					List<Patient> searchResultPatients = subSearchResult.getPatients();
+					for(int i = 0; i < searchResultPatients.size(); i++){
+						Patient searchResultPatient = searchResultPatients.get(i);						
+						List<Study> searchResultStudies = searchResultPatient.getStudies();
+						for(int j = 0; j < searchResultStudies.size(); j++){
+							Study searchResultStudy = searchResultStudies.get(j);								
+							List<Series> searchResultSeries = searchResultStudy.getSeries();
+							for(int k = 0; k < searchResultSeries.size(); k++){
+								Series series = searchResultSeries.get(k);
+								List<Item> seriesItems = series.getItems();
+								if(seriesItems.size() == retrievedFilesURIs.size()){
+									for(int m = 0; m < seriesItems.size(); m++){
+										Item item = seriesItems.get(m);
+										ObjectLocator objLoc = new ObjectLocator();														
+										Uuid itemUUID = item.getObjectDescriptor().getUuid();
+										objLoc.setUuid(itemUUID);				
+										objLoc.setUri(retrievedFilesURIs.get(m)); 
+										item.setObjectLocator(objLoc);
+										objectLocators.put(itemUUID.getUuid(), objLoc);
+									}
+								} else {
+									logger.warn("Number of expected DICOM objects: " + seriesItems.size() + ". Actual number: " + retrievedFilesURIs.size() + ".");									
+								}
+								
+							}
+						}
+					}
 		    	} catch (Exception e) {
 		    		logger.error(e, e);
-		    	} 
-		    	subElement.setFileURIs(retrievedFilesURIs);
-		    	subElement.setPath(null);		    	
+		    	} 		    	
 			}
 		}		
-	}
-	
-	public List<URI> getRetrievedFilesURIs(){
-		return retrievedFilesURIs;
-	}
-	
-	public List<File> getRetrievedFiles(){
-		return retrievedFiles;
 	}
 	
 	void fireResultsAvailable(String targetElementID){
@@ -238,5 +263,10 @@ public class DicomRetrieve implements Retrieve {
 	@Override
 	public void addDataAccessListener(DataAccessListener l) {
 		listener = l;
+	}
+
+	@Override
+	public Map<String, ObjectLocator> getObjectLocators() {
+		return objectLocators;
 	}
 }
