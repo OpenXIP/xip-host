@@ -317,7 +317,9 @@ public class DicomManagerImpl implements DicomManager{
 				}
 				resolveToSearchResult(child);
 			}else if(level.equalsIgnoreCase("Image")){
-				String imageNumber = attValues.get("(0x0020,0x0013)");
+				String imageNumber = attValues.get("(0x0008,0x0018)");	//SOPIntanceUID
+				String sopClassUID = attValues.get("(0x0008,0x0016)");	//SOPClassUID
+				String modCode = attValues.get("(0x0008,0x0060)");		//Modality
 				if(imageNumber == null){imageNumber = "";}								
 				Item image = new ImageItem(imageNumber);				
 				if(!series.containsItem(imageNumber)){					
@@ -328,10 +330,9 @@ public class DicomManagerImpl implements DicomManager{
 					objDesc.setUuid(objDescUUID);													
 					objDesc.setMimeType("application/dicom");			
 					Uid uid = new Uid();
-					String classUID = "";
+					String classUID = sopClassUID;
 					uid.setUid(classUID);
-					objDesc.setClassUID(uid);
-					String modCode = "";						
+					objDesc.setClassUID(uid);											
 					Modality modality = new Modality();
 					modality.setModality(modCode);
 					objDesc.setModality(modality);
