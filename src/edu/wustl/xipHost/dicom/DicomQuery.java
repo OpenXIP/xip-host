@@ -3,13 +3,8 @@
  */
 package edu.wustl.xipHost.dicom;
 
-import java.util.List;
 import java.util.Map;
-
-import org.nema.dicom.wg23.ObjectDescriptor;
-
 import com.pixelmed.dicom.AttributeList;
-
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
@@ -54,10 +49,10 @@ public class DicomQuery implements Query {
 				}
 				if(stop){					
 					result = null;
-					fireUpdateUI();
+					fireQueryResultsAvailable();
 					return;
 				}else{
-					fireUpdateUI();					
+					fireQueryResultsAvailable();					
 				}				
 			}else{									
 				return;
@@ -81,7 +76,7 @@ public class DicomQuery implements Query {
 		return result;
 	}
 	
-	void fireUpdateUI(){
+	void fireQueryResultsAvailable(){
 		QueryEvent event = new QueryEvent(this);
 		listener.queryResultsAvailable(event);
 	}
