@@ -374,6 +374,26 @@ public class XDSManagerImpl implements XDSManager{
 			//pdqQuery.addQueryPatientAddressStreetAddress("10 PINETREE");
 			//pdqQuery.addQueryPatientAddressStateOrProvince("MD"); // For NIST testing
 
+			String patientMother = queryKeys.get(TagFromName.PatientMotherBirthName).getDelimitedStringValuesOrNull();
+			if (patientMother != null){
+				// TODO Parse name fields into constituent parts to feed into pdqQuery
+				Vector <String> nameComponents = (Vector <String>) PersonNameAttribute.getNameComponents(patientMother);
+			    if ((nameComponents.size() > 0) && nameComponents.get(0) != "") {
+			    	pdqQuery.addQueryPatientMothersMaidenFamilyName(nameComponents.get(0));
+			    }
+			    if ((nameComponents.size() > 1) && nameComponents.get(1) != "") {
+			    	pdqQuery.addQueryPatientMothersMaidenGivenName(nameComponents.get(1));
+			    }
+			    if ((nameComponents.size() > 2) && nameComponents.get(2) != "") {
+			    	pdqQuery.addQueryPatientMothersMaidenOtherName(nameComponents.get(2));
+			    }
+			}
+
+			String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumber).getDelimitedStringValuesOrNull();
+			if (patientPhone != null){
+				pdqQuery.addQueryPatientPhoneHomeUnformattedTelephoneNumber(patientPhone);
+			}
+
 			String specificCharSet = queryKeys.get(TagFromName.SpecificCharacterSet).getSingleStringValueOrNull();
 			if (specificCharSet != null){
 				try {
@@ -530,8 +550,8 @@ public class XDSManagerImpl implements XDSManager{
 		    //	degree = nameComponents.get(5);
 			//	wildcard |= degree.contains("*");
 		    //}
-		    //pdqQuery.addPatientName(wildcard, family, given, other, suffix, prefix);
-		    pdqQuery.addPatientName(true, family, given, other, suffix, prefix);
+		    pdqQuery.addPatientName(wildcard, family, given, other, suffix, prefix);
+		    //pdqQuery.addPatientName(true, family, given, other, suffix, prefix);
 		}
 		
 		String patientID = queryKeys.get(TagFromName.PatientID).getSingleStringValueOrNull();
@@ -557,11 +577,56 @@ public class XDSManagerImpl implements XDSManager{
 		if (patientAddress != null){
 			//TODO:Divide into constituent parts:
 			// streetAddress, city, county, state, country, zip, otherDesignation, type
-			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "");
+			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "", "");
 		}
 		//pdqQuery.addPatientAddress("10 PINETREE", "", "", "", "", "", "");
 		//pdqQuery.addPatientAddress(addressStreetAddress, addressCity, addressCounty, addressState, addressCountry, addressZip, addressOtherDesignation, addressType)
 		//pdqQuery.addPatientAddress("1905 Romrog Way", "ROCK SPRINGS", "", "WY", "", "82901", "", ""); // For NIST testing
+
+		String patientMother = queryKeys.get(TagFromName.PatientMotherBirthName).getDelimitedStringValuesOrNull();
+		if (patientMother != null){
+			String family = "";
+			String given = "";
+			String other = "";
+			String prefix = "";
+			String suffix = "";
+			//String degree = "";
+			
+			Boolean wildcard = false;
+			
+			Vector <String> nameComponents = (Vector <String>) PersonNameAttribute.getNameComponents(patientMother);
+		    if ((nameComponents.size() > 0) && nameComponents.get(0) != "") {
+		    	family =nameComponents.get(0);
+		    	wildcard |= family.contains("*");
+		    }
+		    if ((nameComponents.size() > 1) && nameComponents.get(1) != "") {
+		    	given = nameComponents.get(1);
+		    	wildcard |= given.contains("*");
+		    }
+		    if ((nameComponents.size() > 2) && nameComponents.get(2) != "") {
+		    	other = nameComponents.get(2);
+		    	wildcard |= other.contains("*");
+		    }
+		    if ((nameComponents.size() > 3) && nameComponents.get(3) != "") {
+		    	prefix = nameComponents.get(3);
+		    	wildcard |= prefix.contains("*");
+		    }
+		    if ((nameComponents.size() > 4) && nameComponents.get(4) != "") {
+		    	suffix = nameComponents.get(4);
+		    	wildcard |= suffix.contains("*");
+		    }
+		    //if ((nameComponents.size() > 5) && nameComponents.get(5) != "") {
+		    //	degree = nameComponents.get(5);
+			//	wildcard |= degree.contains("*");
+		    //}
+		    //pdqQuery.addPatientMothersMaidenName(wildcard, family, given, other, suffix, prefix);
+		    pdqQuery.addPatientMothersMaidenName(true, family, given, other, suffix, prefix);
+		}
+
+		String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumber).getDelimitedStringValuesOrNull();
+		if (patientPhone != null){
+			pdqQuery.addPatientTelecom(patientPhone, "HP");
+		}
 
 		//TODO Set the return domain from a config file?
 		// per MESA docs
@@ -634,6 +699,9 @@ public class XDSManagerImpl implements XDSManager{
 	
 	//public XDSQueryResponseType queryDocuments(String [] patientIDin) {		
 	public	SearchResult queryDocuments(String [] patientIDin) {
+		if (patientIDin == null){
+			return null;
+		}
 		String patIDString = "ID passed into query: " + patientIDin[0];
     	for (int i=1; i < patientIDin.length; i++) {
     		if (patientIDin [i] != "") {
@@ -697,6 +765,9 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "https://174.129.27.111:8080/InteropSandbox/IheAdapter/XdsRegistryService/XdsRegistryService"; //CareEvolution
 		//String registryURL = "https://xds-ibm.lgs.com:9443/IBMXDSRegistry/XDSb/SOAP12/Registry"; //IBM
 		//String registryURL = "https://72.248.114.66:8011/axis2/services/xdsregistryb"; //eCW
+		
+		// 2011 NA Connectathon
+		//String registryURL = "https://tiani-cisco6:8443/SpiritProxy/registry"; // Tiani-XUA
 			
 		// TODO Get URI from a config file
 		URI registryURI = null;
@@ -733,6 +804,9 @@ public class XDSManagerImpl implements XDSManager{
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1050";//EMC_IIG
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1030";//CareFx
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1150";//MOSS
+		
+		// 2011 NA Connectationg
+		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1180"; // Tiani
 
 		URI XDS_B_INITIATING_GATEWAY = null;
 		URI XDS_B_REPOSITORY_URI = null;
@@ -745,6 +819,9 @@ public class XDSManagerImpl implements XDSManager{
 			XDS_B_INITIATING_GATEWAY = new URI(NIST_INITIATING_GATEWAY);
 
 			//String NIST_B_STORED_QUERY_SECURED = "https://nist1.ihe.net:9085/tf5/services/xdsrepositoryb";
+			
+			// 2011 NA Connectathon
+			//XDS_B_REPOSITORY_URI = new URI("https://tiani-cisco6:8443/SpiritProxy/repository"); // Spirit XUA
 
 			XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb"); // NIST net; 2010, 2011
 			//XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xcarepository");

@@ -78,9 +78,15 @@ public class Patient {
 	public void addItem(Item item){
 		this.items.add(item);
 	}
+
+	public void removeItem(Item item){
+		studies.remove(item);
+	}
+	
 	public List<Item> getItems(){
 		return items;
 	}
+
 	public boolean containsItem(String itemID){
 		for(int i = 0; i < items.size(); i++){
 			if(items.get(i).getItemID().equalsIgnoreCase(itemID)){return true;}
@@ -88,6 +94,15 @@ public class Patient {
 		return false;
 	}
 
+	public Item getItem(String itemID){
+		for(Item item : items){
+			if(item.getItemID().equalsIgnoreCase(itemID)){
+				return item;
+			} 
+		}
+		return null;
+	}
+	
 	public Timestamp getLastUpdated() {
 		return lastUpdated;
 	}

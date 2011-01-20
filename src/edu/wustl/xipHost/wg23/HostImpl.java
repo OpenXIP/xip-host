@@ -181,7 +181,7 @@ public class HostImpl implements Host{
             	if(currState.equals(State.IDLE)){
             		app.setState(state);
             	}else{
-            		throw new StateChangeException("Requested state: " + state.toString() + ", current app state: " + currState);					
+            		// throw new StateChangeException("Requested state: " + state.toString() + ", current app state: " + currState);					
             	}
             	break;   
             default: 

@@ -29,8 +29,19 @@ public class XDSDocumentItem implements Item {
 		this.homeCommunityId = homeCommunityId;
 	}
 	
+	public String getAvailability() {
+		return availability;
+	}
+	
+	public String getLanguage() {
+		return language;
+	}
+	
+	public String getMimeType() {
+		return mime;
+	}
+	
 	public String getHomeCommunityId() {
-		// TODO Auto-generated method stub
 		return homeCommunityId;
 	}
 	
@@ -44,7 +55,6 @@ public class XDSDocumentItem implements Item {
 	
 	@Override
 	public String getItemID() {
-		// TODO Auto-generated method stub
 		return id;
 	}
 	

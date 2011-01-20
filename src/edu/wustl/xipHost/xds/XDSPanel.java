@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -28,10 +29,13 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.State;
 import org.openhealthtools.ihe.common.hl7v2.CX;
@@ -48,6 +52,7 @@ import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.gui.ExceptionDialog;
@@ -55,11 +60,15 @@ import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.ItemNode;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
+import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
+import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.pdq.PDQLocation;
-import edu.wustl.xipHost.xds.CheckBoxTree.SearchResultTree;
 
 /**
  * @author Jaroslaw Krych
@@ -135,6 +144,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		criteriaPanel.getPatientList().addListSelectionListener(this);
 		leftPanel.add(pdqLocationSelectionPanel);
 		leftPanel.add(criteriaPanel);				
+		resultTree.addMouseListener(ml);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);	
@@ -311,6 +321,25 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         layout.setConstraints(lblGlobus, constraints);                
 	}
 	
+	boolean wasDoubleClick = false;
+	MouseListener ml = new MouseAdapter(){  
+		public void mouseClicked(final MouseEvent e) {
+			int x = e.getX();
+	     	int y = e.getY();
+	     	nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSelectionCoordinates(x, y);
+	     	nodeSelectionListener.setSearchResult(result);
+	    	if (e.getClickCount() == 2){
+	    		wasDoubleClick = true;
+	    		nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
+	        } else {
+	        	Timer timer = new Timer(300, nodeSelectionListener);
+	        	timer.setRepeats(false);
+	        	timer.start();
+	        }
+	    }
+	};
+
 	class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 		DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 		Dimension preferredSize = new Dimension(440, 15);
@@ -390,74 +419,171 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	public void launchApplication(ApplicationEvent event) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
 		// If nothing is selected, there is nothing to launch with
-	   	if(resultTree.getSelectedItems().size() == 0){
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
+		boolean isDataSelected = false;
+		if(rootNode != null){
+			if(rootNode.getChildCount() != 0){
+				DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+				int numOfPatients = locationNode.getChildCount();
+				if (numOfPatients == 0){
+					logger.warn("No data is selected");
+					new ExceptionDialog("Cannot launch selected application.", 
+							"No dataset selected. Please query and select data nodes.",
+							"Launch Application Dialog");
+					return;
+				} else {
+					for(int i = 0; i < numOfPatients; i++){
+						DefaultMutableTreeNode childLocationNode = (DefaultMutableTreeNode) locationNode.getChildAt(i);
+						if (childLocationNode.getUserObject() instanceof Item) {
+							ItemNode existingItemNode = (ItemNode) childLocationNode;
+							if (existingItemNode.isSelected() == true) {
+								isDataSelected = true;
+								break;
+							} else {
+								continue;
+							}
+						}
+						PatientNode existingPatientNode = (PatientNode) childLocationNode;
+						if(existingPatientNode.isSelected() == true){
+							isDataSelected = true;
+							break;
+						} else {
+							int numOfStudies = existingPatientNode.getChildCount();
+							for(int j = 0; j < numOfStudies; j++){
+								DefaultMutableTreeNode childPatientNode = (DefaultMutableTreeNode) existingPatientNode.getChildAt(j);
+								if (childPatientNode.getUserObject() instanceof Item) {
+									ItemNode existingItemNode = (ItemNode) childPatientNode;
+									if (existingItemNode.isSelected() == true) {
+										isDataSelected = true;
+										break;
+									} else {
+										continue;
+									}
+								}
+								StudyNode existingStudyNode = (StudyNode)childPatientNode;
+								if(existingStudyNode.isSelected() == true){
+									isDataSelected = true;
+									break;
+								} else {
+									int numOfSeries = existingStudyNode.getChildCount();
+									for(int k = 0; k < numOfSeries; k++){
+										DefaultMutableTreeNode childStudyNode = (DefaultMutableTreeNode) existingStudyNode.getChildAt(k);
+										if (childStudyNode.getUserObject() instanceof Item) {
+											ItemNode existingItemNode = (ItemNode) childStudyNode;
+											if (existingItemNode.isSelected() == true) {
+												isDataSelected = true;
+												break;
+											} else {
+												continue;
+											}
+										}
+										SeriesNode existingSeriesNode = (SeriesNode)childStudyNode;
+										if(existingSeriesNode.isSelected() == true){
+											isDataSelected = true;
+											break;
+										} else {
+											int numOfItems = existingSeriesNode.getChildCount();
+											for(int m = 0; m < numOfItems; m++) {
+												ItemNode existingItemNode = (ItemNode) existingSeriesNode.getChildAt(m);
+												if (existingItemNode.isSelected() == true) {
+													isDataSelected = true;
+													break;
+												}
+												
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					if(isDataSelected == false){
+						logger.warn("No data is selected");
+						new ExceptionDialog("Cannot launch selected application.", 
+								"No dataset selected. Please select data nodes.",
+								"Launch Application Dialog");
+						return;
+					}
+				}
+			} else {
+				logger.warn("No data is selected");
+				new ExceptionDialog("Cannot launch selected application.", 
+						"No dataset selected. Please query and select data nodes.",
+						"Launch Application Dialog");
+				return;
+			}
+		} else {
 			logger.warn("No data is selected");
 			new ExceptionDialog("Cannot launch selected application.", 
 					"No dataset selected. Please query and select data nodes.",
 					"Launch Application Dialog");
 			return;
 		}
-		// Determine which application button the user clicked, and retrieve info about the application
-		AppButton btn = (AppButton)event.getSource();
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(btn.getApplicationUUID());
-		String appID = app.getID().toString();
-		logger.debug("Application internal id: " + appID);
-		String instanceName = app.getName();
-		logger.debug("Application name: " + instanceName);
-		File instanceExePath = app.getExePath();
-		logger.debug("Exe path: " + instanceExePath);
-		String instanceVendor = app.getVendor();
-		logger.debug("Vendor: " + instanceVendor);
-		String instanceVersion = app.getVersion();
-		logger.debug("Version: " + instanceVersion);
-		File instanceIconFile = app.getIconFile();
-		String type = app.getType();
-		logger.debug("Type: " + type);
-		boolean requiresGUI = app.requiresGUI();
-		logger.debug("Requires GUI: " + requiresGUI);
-		String wg23DataModelType = app.getWG23DataModelType();
-		logger.debug("WG23 data model type: " + wg23DataModelType);
-		int concurrentInstances = app.getConcurrentInstances();
-		logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
-		IterationTarget iterationTarget = app.getIterationTarget();
-		logger.debug("IterationTarget: " + iterationTarget.toString());
+
+		if(isDataSelected){
+			// Determine which application button the user clicked, and retrieve info about the application
+			AppButton btn = (AppButton)event.getSource();
+			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+			Application app = appMgr.getApplication(btn.getApplicationUUID());
+			String appID = app.getID().toString();
+			logger.debug("Application internal id: " + appID);
+			String instanceName = app.getName();
+			logger.debug("Application name: " + instanceName);
+			File instanceExePath = app.getExePath();
+			logger.debug("Exe path: " + instanceExePath);
+			String instanceVendor = app.getVendor();
+			logger.debug("Vendor: " + instanceVendor);
+			String instanceVersion = app.getVersion();
+			logger.debug("Version: " + instanceVersion);
+			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			logger.debug("Type: " + type);
+			boolean requiresGUI = app.requiresGUI();
+			logger.debug("Requires GUI: " + requiresGUI);
+			String wg23DataModelType = app.getWG23DataModelType();
+			logger.debug("WG23 data model type: " + wg23DataModelType);
+			int concurrentInstances = app.getConcurrentInstances();
+			logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+			IterationTarget iterationTarget = app.getIterationTarget();
+			logger.debug("IterationTarget: " + iterationTarget.toString());
+			
+			//Check if application to be launched is not running.
+			//If yes, create new application instance
+			State state = app.getState();
+			Query query = new XDSDocumentQuery();
+			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
+			/*
+			List<XDSDocumentItem> selectedItems = resultTree.getSelectedItems();
+			for(int i = 0; i < selectedItems.size(); i++){
+				XDSDocumentItem xdsDocItem = selectedItems.get(i);
+				DocumentEntryType docType = xdsDocItem.getDocumentType();
+				CX patientId = xdsDocItem.getPatientId();
+				String homeCommunityId = xdsDocItem.getHomeCommunityId();
+				XDSDocumentRetrieve xdsRetrieve = new XDSDocumentRetrieve(docType, patientId, homeCommunityId);
+			}						
+			*/
 		
-		//Check if application to be launched is not running.
-		//If yes, create new application instance
-		State state = app.getState();
-		Query query = new XDSDocumentQuery();
-		File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
-		List<XDSDocumentItem> selectedItems = resultTree.getSelectedItems();
-		for(int i = 0; i < selectedItems.size(); i++){
-			XDSDocumentItem xdsDocItem = selectedItems.get(i);
-			DocumentEntryType docType = xdsDocItem.getDocumentType();
-			CX patientId = xdsDocItem.getPatientId();
-			String homeCommunityId = xdsDocItem.getHomeCommunityId();
-			XDSDocumentRetrieve xdsRetrieve = new XDSDocumentRetrieve(docType, patientId, homeCommunityId);
-		}						
-		
-		
-		Retrieve retrieve = new XDSDocumentRetrieve();
-		if(state != null && !state.equals(State.EXIT)){
-			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-			instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
-			instanceApp.setQueryDataSource(query);
-			instanceApp.setRetrieveDataSource(retrieve);
-			instanceApp.setDoSave(false);
-			instanceApp.setApplicationTmpDir(tmpDir);
-			appMgr.addApplication(instanceApp);		
-			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-			targetApp = instanceApp;
-		}else{
-			app.setSelectedDataSearchResult(selectedDataSearchResult);
-			app.setQueryDataSource(query);
-			app.setRetrieveDataSource(retrieve);
-			app.setApplicationTmpDir(tmpDir);
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-			targetApp = app;
-		}	
+			Retrieve retrieve = new XDSDocumentRetrieve();
+			if(state != null && !state.equals(State.EXIT)){
+				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
+				instanceApp.setQueryDataSource(query);
+				instanceApp.setRetrieveDataSource(retrieve);
+				instanceApp.setDoSave(false);
+				instanceApp.setApplicationTmpDir(tmpDir);
+				appMgr.addApplication(instanceApp);		
+				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = instanceApp;
+			}else{
+				app.setSelectedDataSearchResult(selectedDataSearchResult);
+				app.setQueryDataSource(query);
+				app.setRetrieveDataSource(retrieve);
+				app.setApplicationTmpDir(tmpDir);
+				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = app;
+			}	
+		}
 	}
 
 	@Override

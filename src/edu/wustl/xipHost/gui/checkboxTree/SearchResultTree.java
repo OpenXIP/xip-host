@@ -24,6 +24,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.gui.checkboxTree.ItemNode;
 
 public class SearchResultTree extends JTree {	
 	final static Logger logger = Logger.getLogger(SearchResultTree.class);
@@ -63,6 +64,22 @@ public class SearchResultTree extends JTree {
 		}
 	    //getting new nodes	    				
 		DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
+		for(int j = 0; j < result.getItems().size(); j++){												
+			final Item item = result.getItems().get(j);
+			ItemNode itemNode = new ItemNode(item){
+				public String toString(){															
+					String itemDesc = item.toString();
+					if(itemDesc == null){
+						itemDesc = "";
+					}	
+					return itemDesc;						
+				}
+				public Object getUserObject(){
+					return item;
+				}					
+			};
+			locationNode.add(itemNode);					
+		}
 		for(int i = 0; i < result.getPatients().size(); i++){
 			final Patient patient = result.getPatients().get(i);						
 			PatientNode patientNode = new PatientNode(patient){
@@ -75,6 +92,22 @@ public class SearchResultTree extends JTree {
 				}
 			};
 			locationNode.add(patientNode);
+			for(int j = 0; j < patient.getItems().size(); j++){												
+				final Item item = patient.getItems().get(j);
+				ItemNode itemNode = new ItemNode(item){
+					public String toString(){															
+						String itemDesc = item.toString();
+						if(itemDesc == null){
+							itemDesc = "";
+						}	
+						return itemDesc;						
+					}
+					public Object getUserObject(){
+						return item;
+					}					
+				};
+				patientNode.add(itemNode);					
+			}
 			for(int j = 0; j < patient.getStudies().size(); j++){
 				final Study study = patient.getStudies().get(j);
 				StudyNode studyNode = new StudyNode(study){
@@ -90,6 +123,22 @@ public class SearchResultTree extends JTree {
 					}					
 				};
 				patientNode.add(studyNode);
+				for(int k = 0; k < study.getItems().size(); k++){												
+					final Item item = study.getItems().get(k);
+					ItemNode itemNode = new ItemNode(item){
+						public String toString(){															
+							String itemDesc = item.toString();
+							if(itemDesc == null){
+								itemDesc = "";
+							}	
+							return itemDesc;						
+						}
+						public Object getUserObject(){
+							return item;
+						}					
+					};
+					studyNode.add(itemNode);					
+				}
 				for(int k = 0; k < study.getSeries().size(); k++){
 					final Series series = study.getSeries().get(k);
 					SeriesNode seriesNode = new SeriesNode(series){
@@ -97,8 +146,6 @@ public class SearchResultTree extends JTree {
 							String seriesDesc = series.toString();
 							if(seriesDesc == null){
 								seriesDesc = "";
-							}else{
-								
 							}	
 							return seriesDesc;
 						}
@@ -109,13 +156,11 @@ public class SearchResultTree extends JTree {
 					studyNode.add(seriesNode);
 					for(int m = 0; m < series.getItems().size(); m++){
 						final Item item = series.getItems().get(m);
-						DefaultMutableTreeNode itemNode = new DefaultMutableTreeNode(item){
+						ItemNode itemNode = new ItemNode(item){
 							public String toString(){						
 								String imageDesc = item.toString();
 								if(imageDesc == null){
 									imageDesc = "";
-								}else{
-									
 								}
 								return imageDesc;							
 							}

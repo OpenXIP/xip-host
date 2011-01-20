@@ -17,6 +17,7 @@ import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 
@@ -55,11 +56,14 @@ public class XDSDocumentRetrieve implements Retrieve {
 	@Override
 	public void run() {
 		objectLocators = new HashMap<String, ObjectLocator>();
-		xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId, homeCommunityId);				
 		SearchResult subSearchResult = targetElement.getSubSearchResult();
 		List<Patient> patients = subSearchResult.getPatients();
 		Patient patient = patients.get(0);
-		Item item = patient.getItems().get(0);
+		XDSDocumentItem item = (XDSDocumentItem)patient.getItems().get(0);
+		docEntryDetails = item.getDocumentType();
+		patientId = item.getPatientId();
+		homeCommunityId = item.getHomeCommunityId();
+		xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId, homeCommunityId);				
 		ObjectLocator objLoc = new ObjectLocator();				
 		Uuid itemUUID = item.getObjectDescriptor().getUuid();
 		objLoc.setUuid(itemUUID);				

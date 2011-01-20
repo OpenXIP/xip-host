@@ -15,9 +15,12 @@ import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
+
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dataModel.Patient;
+import edu.wustl.xipHost.gui.checkboxTree.ItemNode;
 
 /**
  * @author Jaroslaw Krych
@@ -74,6 +77,11 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
         	checkBox.setFont(font);
         	Boolean booleanValue = (Boolean) UIManager.get("Tree.drawsFocusBorderAroundIcon");
      	    checkBox.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));     	   
+    	} else if(((DefaultMutableTreeNode)value).getUserObject() instanceof Item){
+    		checkBox = ((ItemNode)value).getCheckBox();
+        	checkBox.setFont(font);
+        	Boolean booleanValue = (Boolean) UIManager.get("Tree.drawsFocusBorderAroundIcon");
+     	    checkBox.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
     	}
     		       	
     	if (selected && checkBox != null) {
@@ -101,6 +109,12 @@ public class CheckBoxTreeRenderer implements TreeCellRenderer {
 	        	returnValue = checkBox;
 	        	return returnValue;
 	        } else if (userObject instanceof Series) {			        		        	
+	        	checkBox.setText(stringValue);
+	        	checkBox.setSelected(checkBox.isSelected());
+	        	checkBox.setEnabled(tree.isEnabled());		        		
+	        	returnValue = checkBox;
+	        	return returnValue;
+	        } else if (userObject instanceof Item) {			        		        	
 	        	checkBox.setText(stringValue);
 	        	checkBox.setSelected(checkBox.isSelected());
 	        	checkBox.setEnabled(tree.isEnabled());		        		
