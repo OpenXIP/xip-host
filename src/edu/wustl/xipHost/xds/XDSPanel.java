@@ -550,7 +550,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			//Check if application to be launched is not running.
 			//If yes, create new application instance
 			State state = app.getState();
-			Query query = new XDSDocumentQuery();
+			Query query = new XDSDocumentQuery(selectedID.getPatID());
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
 			/*
 			List<XDSDocumentItem> selectedItems = resultTree.getSelectedItems();

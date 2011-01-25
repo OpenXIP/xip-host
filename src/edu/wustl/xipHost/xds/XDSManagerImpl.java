@@ -12,7 +12,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -1081,6 +1083,8 @@ public class XDSManagerImpl implements XDSManager{
 		int numOfResponses = response.getDocumentEntryResponses().size();
 		SearchResult searchResult = new SearchResult("XDS Repository: " + registryURI.toString());
 		Patient patient = new Patient("", patIDString, "");
+		Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+		patient.setLastUpdated(lastUpdated);
 		searchResult.addPatient(patient);		
 		for(int i = 0; i < numOfResponses; i++){
 			DocumentEntryType docDetails = ((DocumentEntryResponseType)response.getDocumentEntryResponses().get(i)).getDocumentEntry();
