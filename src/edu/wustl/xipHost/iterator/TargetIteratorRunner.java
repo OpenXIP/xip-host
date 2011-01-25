@@ -446,7 +446,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				for (Item item : itemsList) {
 					prunedSearchResult.addItem(item);
 				}
-				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target, selectedDataSearchResult);
+				targetElement = new TargetElement(study.getStudyInstanceUID(), subElements, target, prunedSearchResult);
 			
 			// ** SERIES TARGET ** //
 			} else if(this.target == IterationTarget.SERIES) {
