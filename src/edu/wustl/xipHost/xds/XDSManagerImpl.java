@@ -325,31 +325,31 @@ public class XDSManagerImpl implements XDSManager{
 		try {
 			pdqQuery = pdq.createDemographicQuery();
 			String patientName = queryKeys.get(TagFromName.PatientName).getSingleStringValueOrNull();
-			if (patientName != null){
+			if ((patientName != null) && ( ! patientName.isEmpty())){
 				// TODO Parse name fields into constituent parts to feed into pdqQuery
 				Vector <String> nameComponents = (Vector <String>) PersonNameAttribute.getNameComponents(patientName);
-			    if ((nameComponents.size() > 0) && nameComponents.get(0) != "") {
+			    if ((nameComponents.size() > 0) && ( ! nameComponents.get(0).isEmpty())) {
 			    	pdqQuery.addQueryPatientNameFamilyName(nameComponents.get(0));
 			    }
-			    if ((nameComponents.size() > 1) && nameComponents.get(1) != "") {
+			    if ((nameComponents.size() > 1) && ( ! nameComponents.get(1).isEmpty())) {
 			    	pdqQuery.addQueryPatientNameGivenName(nameComponents.get(1));
 			    }
-			    if ((nameComponents.size() > 2) && nameComponents.get(2) != "") {
+			    if ((nameComponents.size() > 2) && ( ! nameComponents.get(2).isEmpty())) {
 			    	pdqQuery.addQueryPatientNameOtherName(nameComponents.get(2));
 			    }
-			    if ((nameComponents.size() > 3) && nameComponents.get(3) != "") {
+			    if ((nameComponents.size() > 3) && ( ! nameComponents.get(3).isEmpty())) {
 			    	pdqQuery.addQueryPatientNamePrefix(nameComponents.get(3));
 			    }
-			    if ((nameComponents.size() > 4) && nameComponents.get(4) != "") {
+			    if ((nameComponents.size() > 4) && ( ! nameComponents.get(4).isEmpty())) {
 			    	pdqQuery.addQueryPatientNameSuffix(nameComponents.get(4));
 			    }
-			    if ((nameComponents.size() > 5) && nameComponents.get(5) != "") {
+			    if ((nameComponents.size() > 5) && ( ! nameComponents.get(5).isEmpty())) {
 			    	pdqQuery.addQueryPatientNameDegree(nameComponents.get(5));
 			    }
 			}
 			
 			String patientID = queryKeys.get(TagFromName.PatientID).getSingleStringValueOrNull();
-			if (patientID != null){
+			if ((patientID != null) && ( ! patientID.isEmpty())){
 				String assigningAuthority = queryKeys.get(TagFromName.IssuerOfPatientID).getSingleStringValueOrEmptyString();
 				pdqQuery.addQueryPatientID(patientID, assigningAuthority, "", "");
 				//pdqQuery.addQueryPatientID(patientID, assigningAuthority, "1.2.3.4.5.1000", "ISO"); // for NIST testing
@@ -357,45 +357,45 @@ public class XDSManagerImpl implements XDSManager{
 			}
 			
 			String birthdate = queryKeys.get(TagFromName.PatientBirthDate).getSingleStringValueOrNull();
-			if (birthdate != null){
+			if ((birthdate != null) && ( ! birthdate.isEmpty())){
 				pdqQuery.addQueryPatientDateOfBirth(birthdate);
 			}
 			
 			String sex = queryKeys.get(TagFromName.PatientSex).getSingleStringValueOrNull();
-			if (sex != null){
+			if ((sex != null) && ( ! sex.isEmpty())){
 				pdqQuery.addQueryPatientSex(sex);
 			}
 			
 			// TODO Optionally parse Patient Address and add Patient Account fields
 			String patientAddress = queryKeys.get(TagFromName.PatientAddress).getDelimitedStringValuesOrNull();
-			if (patientAddress != null){
+			if ((patientAddress != null) && ( ! patientAddress.isEmpty())){
 				pdqQuery.addQueryPatientAddressStreetAddress(patientAddress);
 			}
 			//pdqQuery.addQueryPatientAddressStreetAddress("10 PINETREE");
 			//pdqQuery.addQueryPatientAddressStateOrProvince("MD"); // For NIST testing
 
 			String patientMother = queryKeys.get(TagFromName.PatientMotherBirthName).getDelimitedStringValuesOrNull();
-			if (patientMother != null){
+			if ((patientMother != null) && ( ! patientMother.isEmpty())){
 				// TODO Parse name fields into constituent parts to feed into pdqQuery
 				Vector <String> nameComponents = (Vector <String>) PersonNameAttribute.getNameComponents(patientMother);
-			    if ((nameComponents.size() > 0) && nameComponents.get(0) != "") {
+			    if ((nameComponents.size() > 0) && ( ! nameComponents.get(0).isEmpty())) {
 			    	pdqQuery.addQueryPatientMothersMaidenFamilyName(nameComponents.get(0));
 			    }
-			    if ((nameComponents.size() > 1) && nameComponents.get(1) != "") {
+			    if ((nameComponents.size() > 1) && ( ! nameComponents.get(1).isEmpty())) {
 			    	pdqQuery.addQueryPatientMothersMaidenGivenName(nameComponents.get(1));
 			    }
-			    if ((nameComponents.size() > 2) && nameComponents.get(2) != "") {
+			    if ((nameComponents.size() > 2) && ( ! nameComponents.get(2).isEmpty())) {
 			    	pdqQuery.addQueryPatientMothersMaidenOtherName(nameComponents.get(2));
 			    }
 			}
 
 			String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumber).getDelimitedStringValuesOrNull();
-			if (patientPhone != null){
+			if ((patientPhone != null) && ( ! patientPhone.isEmpty())){
 				pdqQuery.addQueryPatientPhoneHomeUnformattedTelephoneNumber(patientPhone);
 			}
 
 			String specificCharSet = queryKeys.get(TagFromName.SpecificCharacterSet).getSingleStringValueOrNull();
-			if (specificCharSet != null){
+			if ((specificCharSet != null) && ( ! specificCharSet.isEmpty())){
 				try {
 					pdqQuery.changeDefaultCharacterSet(specificCharSet);
 				} catch (PixPdqMessageException e) {
@@ -515,7 +515,7 @@ public class XDSManagerImpl implements XDSManager{
 		pdqQuery.setPatientSex("M");
 		*/
 		String patientName = queryKeys.get(TagFromName.PatientName).getSingleStringValueOrNull();
-		if (patientName != null){
+		if ((patientName != null) && ( ! patientName.isEmpty())){
 			String family = "";
 			String given = "";
 			String other = "";
@@ -526,25 +526,40 @@ public class XDSManagerImpl implements XDSManager{
 			Boolean wildcard = false;
 			
 			Vector <String> nameComponents = (Vector <String>) PersonNameAttribute.getNameComponents(patientName);
-		    if ((nameComponents.size() > 0) && nameComponents.get(0) != "") {
+		    if ((nameComponents.size() > 0) && (!nameComponents.get(0).isEmpty())) {
 		    	family =nameComponents.get(0);
-		    	wildcard |= family.contains("*");
+		    	if (family.contains("*")) {
+			    	wildcard |= true;
+			    	family.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 1) && nameComponents.get(1) != "") {
+		    if ((nameComponents.size() > 1) && (!nameComponents.get(1).isEmpty())) {
 		    	given = nameComponents.get(1);
-		    	wildcard |= given.contains("*");
+		    	if (given.contains("*")) {
+			    	wildcard |= true;
+			    	given.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 2) && nameComponents.get(2) != "") {
+		    if ((nameComponents.size() > 2) && (!nameComponents.get(2).isEmpty())) {
 		    	other = nameComponents.get(2);
-		    	wildcard |= other.contains("*");
+		    	if (other.contains("*")) {
+			    	wildcard |= true;
+			    	other.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 3) && nameComponents.get(3) != "") {
+		    if ((nameComponents.size() > 3) && (!nameComponents.get(3).isEmpty())) {
 		    	prefix = nameComponents.get(3);
-		    	wildcard |= prefix.contains("*");
+		    	if (prefix.contains("*")) {
+			    	wildcard |= true;
+			    	prefix.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 4) && nameComponents.get(4) != "") {
+		    if ((nameComponents.size() > 4) && (!nameComponents.get(4).isEmpty())) {
 		    	suffix = nameComponents.get(4);
-		    	wildcard |= suffix.contains("*");
+		    	if (suffix.contains("*")) {
+			    	wildcard |= true;
+			    	suffix.replaceAll("*", "");
+		    	}
 		    }
 		    //if ((nameComponents.size() > 5) && nameComponents.get(5) != "") {
 		    //	degree = nameComponents.get(5);
@@ -555,7 +570,7 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		
 		String patientID = queryKeys.get(TagFromName.PatientID).getSingleStringValueOrNull();
-		if (patientID != null){
+		if ((patientID != null) && ( ! patientID.isEmpty())){
 			String assigningAuthority = queryKeys.get(TagFromName.IssuerOfPatientID).getSingleStringValueOrEmptyString();
 			pdqQuery.addPatientID("", patientID, assigningAuthority);
 			//pdqQuery.addPatientID( "1.2.3.4.5.1000", patientID, assigningAuthority); // for NIST testing
@@ -563,18 +578,18 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		
 		String birthdate = queryKeys.get(TagFromName.PatientBirthDate).getSingleStringValueOrNull();
-		if (birthdate != null){
+		if ((birthdate != null) && ( ! birthdate.isEmpty())){
 			pdqQuery.setPatientDateOfBirth(birthdate);
 		}
 		
 		String sex = queryKeys.get(TagFromName.PatientSex).getSingleStringValueOrNull();
-		if (sex != null){
+		if ((sex != null) && ( ! sex.isEmpty())){
 			pdqQuery.setPatientSex(sex);
 		}
 		
 		// TODO Optionally parse Patient Address and add Patient Account fields
 		String patientAddress = queryKeys.get(TagFromName.PatientAddress).getDelimitedStringValuesOrNull();
-		if (patientAddress != null){
+		if ((patientAddress != null) && ( ! patientAddress.isEmpty())){
 			//TODO:Divide into constituent parts:
 			// streetAddress, city, county, state, country, zip, otherDesignation, type
 			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "", "");
@@ -584,7 +599,7 @@ public class XDSManagerImpl implements XDSManager{
 		//pdqQuery.addPatientAddress("1905 Romrog Way", "ROCK SPRINGS", "", "WY", "", "82901", "", ""); // For NIST testing
 
 		String patientMother = queryKeys.get(TagFromName.PatientMotherBirthName).getDelimitedStringValuesOrNull();
-		if (patientMother != null){
+		if ((patientMother != null) &&(patientMother.isEmpty())){
 			String family = "";
 			String given = "";
 			String other = "";
@@ -595,36 +610,51 @@ public class XDSManagerImpl implements XDSManager{
 			Boolean wildcard = false;
 			
 			Vector <String> nameComponents = (Vector <String>) PersonNameAttribute.getNameComponents(patientMother);
-		    if ((nameComponents.size() > 0) && nameComponents.get(0) != "") {
+		    if ((nameComponents.size() > 0) && (!nameComponents.get(0).isEmpty())) {
 		    	family =nameComponents.get(0);
-		    	wildcard |= family.contains("*");
+		    	if (family.contains("*")) {
+			    	wildcard |= true;
+			    	family.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 1) && nameComponents.get(1) != "") {
+		    if ((nameComponents.size() > 1) && (!nameComponents.get(1).isEmpty())) {
 		    	given = nameComponents.get(1);
-		    	wildcard |= given.contains("*");
+		    	if (given.contains("*")) {
+			    	wildcard |= true;
+			    	given.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 2) && nameComponents.get(2) != "") {
+		    if ((nameComponents.size() > 2) && (!nameComponents.get(2).isEmpty())) {
 		    	other = nameComponents.get(2);
-		    	wildcard |= other.contains("*");
+		    	if (other.contains("*")) {
+			    	wildcard |= true;
+			    	other.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 3) && nameComponents.get(3) != "") {
+		    if ((nameComponents.size() > 3) && (!nameComponents.get(3).isEmpty())) {
 		    	prefix = nameComponents.get(3);
-		    	wildcard |= prefix.contains("*");
+		    	if (prefix.contains("*")) {
+			    	wildcard |= true;
+			    	prefix.replaceAll("*", "");
+		    	}
 		    }
-		    if ((nameComponents.size() > 4) && nameComponents.get(4) != "") {
+		    if ((nameComponents.size() > 4) && (!nameComponents.get(4).isEmpty())) {
 		    	suffix = nameComponents.get(4);
-		    	wildcard |= suffix.contains("*");
+		    	if (suffix.contains("*")) {
+			    	wildcard |= true;
+			    	suffix.replaceAll("*", "");
+		    	}
 		    }
 		    //if ((nameComponents.size() > 5) && nameComponents.get(5) != "") {
 		    //	degree = nameComponents.get(5);
 			//	wildcard |= degree.contains("*");
 		    //}
-		    //pdqQuery.addPatientMothersMaidenName(wildcard, family, given, other, suffix, prefix);
-		    pdqQuery.addPatientMothersMaidenName(true, family, given, other, suffix, prefix);
+		    pdqQuery.addPatientMothersMaidenName(wildcard, family, given, other, suffix, prefix);
+		    //pdqQuery.addPatientMothersMaidenName(true, family, given, other, suffix, prefix);
 		}
 
 		String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumber).getDelimitedStringValuesOrNull();
-		if (patientPhone != null){
+		if ((patientPhone != null) && ( ! patientPhone.isEmpty())){
 			pdqQuery.addPatientTelecom(patientPhone, "HP");
 		}
 
@@ -637,6 +667,7 @@ public class XDSManagerImpl implements XDSManager{
 		
 		// Let's check out the message to see what we are sending
 		System.out.println(pdqQuery.getQueryParams());
+		System.out.println(pdqQuery.toString());
 	    
 	    // TODO Return an array of pdqResponse structures with demographics and IDs to choose from
 	    //PdqConsumerResponse pdqResponse = pdq.sendQuery(pdqQuery, false, "MIR CABIG");
@@ -663,6 +694,8 @@ public class XDSManagerImpl implements XDSManager{
 			System.out.println("Error in PD Query");
 			return null;
 		}
+		
+		System.out.println(pdqResponse.toString());
 		
 		System.out.println("Number of patients returned = " + pdqResponse.getNumRecordsCurrent());
 		patIDRspListOut = new ArrayList<XDSPatientIDResponse> (pdqResponse.getNumRecordsCurrent());
