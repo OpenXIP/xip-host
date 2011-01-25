@@ -104,6 +104,8 @@ public class HostConfigurator {
 		System.setProperty("javax.net.ssl.keyStorePassword","caBIG2011");
 		System.setProperty("javax.net.ssl.trustStore","/MESA/runtime/certs-ca-signed/2011_CA_Cert.jks");
 		System.setProperty("javax.net.ssl.trustStorePassword","connectathon");
+		System.setProperty("https.ciphersuites","TLS_RSA_WITH_AES_128_CBC_SHA");
+		//System.setProperty("javax.net.debug","all");
 
 		// Set up audit configuration.  Must be done before login.
 		// TODO Get URI and possibly other parameters from the config file
