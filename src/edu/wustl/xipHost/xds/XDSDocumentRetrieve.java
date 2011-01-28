@@ -49,6 +49,7 @@ public class XDSDocumentRetrieve implements Retrieve {
 	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
 		this.targetElement = targetElement;
 		this.retrieveTarget = retrieveTarget; 
+		xdsMgr = XDSManagerFactory.getInstance();		
 	}	
 	
 	File xdsRetrievedFile;
