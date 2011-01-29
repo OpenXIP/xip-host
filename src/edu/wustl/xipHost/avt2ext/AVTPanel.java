@@ -18,9 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -73,8 +71,6 @@ import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
-import edu.wustl.xipHost.localFileSystem.FileManager;
-import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 
 public class AVTPanel extends JPanel implements ActionListener, ItemListener, DataAccessListener, ApplicationListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(AVTPanel.class);
