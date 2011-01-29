@@ -178,68 +178,6 @@ public class SearchResultTree extends JTree {
 		}
 	}		
 	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());			
-			//UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InstantiationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}		  
-		SearchResultTree searchTree = new SearchResultTree();
-		JFrame frame = new JFrame();
-		frame.getContentPane().add(searchTree, BorderLayout.CENTER);		
-		frame.setSize(650, 300);
-	    frame.setVisible(true);
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	    
-		SearchResult result = new SearchResult("WashU Test");
-	    Patient patient1 = new Patient("Jaroslaw Krych", "1010101", "19730718");
-	    Patient patient2 = new Patient("Jarek Krych", "2020202", "19730718");
-	    Item otherItem1 = new OtherItem("1234", "XDS 1");	    
-	    Item otherItem2 = new OtherItem("2345", "XDS 2");
-	    Item otherItem3 = new OtherItem("3456", "XDS 3");
-	    result.addPatient(patient1);
-	    result.addPatient(patient2);
-	    result.addItem(otherItem1);
-	    Study study1 = new Study("01/13/2009", "12345678", "Test study 1", "123.123.123.123");
-	    Study study2 = new Study("01/13/2009", "23456789", "Test study 2", "123.123.123.124");
-	    study2.addItem(otherItem2);
-		Series series1 = new Series("12345", "CT", "Test Series 1", "1.2.3.4.5");
-		series1.addItem(otherItem3);
-		Series series2 = new Series("23456", "CT", "Test Series 2", "1.2.3.4.6");
-	    Item imageItem1 = new ImageItem("1");
-	    Item imageItem2 = new ImageItem("2");
-	    Item imageItem3 = new ImageItem("3");
-	    Item imageItem4 = new ImageItem("4");
-	    Item imageItem5 = new ImageItem("5");
-	    Item aimItem1 = new AIMItem("Baseline", "01/13/2009", "Jarek Krych", "123456789");
-		series1.addItem(imageItem1);
-		series1.addItem(imageItem2);
-		series1.addItem(imageItem3);
-		series1.addItem(aimItem1);
-		series2.addItem(imageItem4);
-		series2.addItem(imageItem5);
-	    study1.addSeries(series1);
-	    study2.addSeries(series2);
-		patient1.addStudy(study1);
-		patient2.addStudy(study2);
-	    //searchTree.updateNodes(result);
-		searchTree.updateNodes2(result);
-	}	
-	
 	public void expandAll() {
 		expandSubTree(getPathForRow(0));
     }

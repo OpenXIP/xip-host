@@ -3,11 +3,7 @@
  */
 package edu.wustl.xipHost.gui.checkboxTree;
 
-import java.awt.BorderLayout;
-import javax.swing.JFrame;
 import javax.swing.JTree;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -137,7 +133,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 													if(numOfItemNodes == 0){
 														for(int m = 0; m < series.getItems().size(); m++){
 															final Item item = series.getItems().get(m);
-															DefaultMutableTreeNode itemNode = new DefaultMutableTreeNode(item){
+															ItemNode itemNode = new ItemNode(item){
 																public String toString(){															
 																	String itemDesc = item.toString();
 																	if(itemDesc == null){
@@ -196,38 +192,5 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 	         p = p.pathByAddingChild(node);
 	    }
 	    tree.scrollPathToVisible(p);
-	}
-
-	
-	 public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());			
-			//UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InstantiationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}		  
-		SearchResultTreeProgressive searchTree = new SearchResultTreeProgressive();
-		JFrame frame = new JFrame();
-		frame.getContentPane().add(searchTree, BorderLayout.CENTER);		
-		frame.setSize(650, 300);
-	    frame.setVisible(true);
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	    
-		SearchResult result = new SearchResult("WashU Test");
-	    Patient patient1 = new Patient("Jaroslaw Krych", "1010101", "19730718");
-	    Patient patient2 = new Patient("Jarek Krych", "2020202", "19730718");
-	    result.addPatient(patient1);
-	    result.addPatient(patient2);
-	    //searchTree.updateNodes(result);
-	    searchTree.updateNodes2(result);
 	}
 }
