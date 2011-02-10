@@ -8,6 +8,7 @@ import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
+import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
 /**
@@ -17,9 +18,15 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 public class XDSDocumentQuery implements Query {
 	XDSManager xdsMgr;
 	String [] patientID;
-	
+
+	Map<Integer, Object> dicomCriteria;
+	Map<String, Object> aimCriteria;
+	QueryTarget target;
+	SearchResult previousSearchResult;
+	Object queriedObject;
+
 	public XDSDocumentQuery(){
-		
+		xdsMgr = XDSManagerFactory.getInstance();
 	}
 	
 	public XDSDocumentQuery(String [] patientID){
@@ -29,7 +36,16 @@ public class XDSDocumentQuery implements Query {
 	
 	@Override
 	public void setQuery(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) {
+		this.dicomCriteria = dicomCriteria; 
+		this.aimCriteria = aimCriteria; 
+		this.target = target; 
+		this.previousSearchResult = previousSearchResult;
+		this.queriedObject = queriedObject; 
 		
+		if (queriedObject instanceof Patient){
+			Patient patient = (Patient) queriedObject;
+			patientID[0] = patient.getPatientID();
+		}
 	}
 	
 	SearchResult searchResult;
