@@ -322,7 +322,7 @@ public class DicomManagerImpl implements DicomManager{
 				String modCode = attValues.get("(0x0008,0x0060)");		//Modality
 				if(imageNumber == null){imageNumber = "";}								
 				Item image = new ImageItem(imageNumber);				
-				if(!series.containsItem(imageNumber)){					
+				if(!series.contains(imageNumber)){					
 					series.addItem(image);
 					ObjectDescriptor objDesc = new ObjectDescriptor();					
 					Uuid objDescUUID = new Uuid();

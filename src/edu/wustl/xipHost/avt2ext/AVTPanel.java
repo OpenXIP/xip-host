@@ -55,6 +55,7 @@ import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -169,6 +170,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				//pass adCriteria to AVTQuery
 				avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
 				avtQuery.addDataAccessListener(this);
+				nodeSelectionListener.resetSelectedDataSearchResult();
 				Thread t = new Thread(avtQuery);
 				t.start();
 			}else{
@@ -672,9 +674,64 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 							}						
 						}		
 					}						 
+				} else if (node instanceof SeriesNode){
+					Series series = (Series)node.getUserObject();
+					StudyNode studyNode = (StudyNode)node.getParent();
+					Study study = (Study)studyNode.getUserObject();
+					PatientNode patientNode = (PatientNode) studyNode.getParent();
+					Patient patient = (Patient)patientNode.getUserObject();
+					if(selectedDataSearchResult != null){
+						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+						if(selectedPatient != null){
+							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+							if(selectedStudy != null){
+								Series selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
+								if(selectedSeries != null){
+									if(((SeriesNode) node).isSelected()){
+										Series updatedSeries = result.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID()).getSeries(series.getSeriesInstanceUID());
+										List<Item> items = updatedSeries.getItems();
+										for(Item item : items){
+											if(!selectedSeries.contains(item.getItemID())){
+												//selectedSeries.addItem(item);
+											}
+										}
+									}
+								} 
+							}						
+						}		
+					}	
 				}
 			} catch (InterruptedException e) {
 				logger.error(e, e);
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("Value of selectedDataSearchresult: ");
+				if(selectedDataSearchResult != null){
+					List<Patient> patients = selectedDataSearchResult.getPatients();					
+					for (Patient logPatient : patients) {
+						if(logPatient != null){
+							logger.debug(logPatient.toString());
+							List<Study> studies = logPatient.getStudies();
+							for (Study logStudy : studies) {
+								if(logStudy != null){
+									logger.debug("   " + logStudy.toString());
+									List<Series> series = logStudy.getSeries();
+									for (Series logSeries : series) {
+										if(logSeries != null){
+											logger.debug("      " + logSeries.toString());
+											List<Item> items = logSeries.getItems();
+											for(Item logItem : items){
+												if(logItem != null){
+													logger.debug("         " + logItem.toString());
+												}											
+											}
+										}									
+									}
+								}	
+							}
+						}					
+					}
+				}
 			}
 		}
 	}

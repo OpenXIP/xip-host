@@ -122,7 +122,7 @@ public class AVTUtil {
 					com.siemens.scr.avt.ad.dicom.GeneralImage itemAD = com.siemens.scr.avt.ad.dicom.GeneralImage.class.cast(obj);
 					String itemSOPInstanceUID = itemAD.getSOPInstanceUID();
 					if(itemSOPInstanceUID == null){itemSOPInstanceUID = "";} 				
-					if(seriesFromAD.containsItem(itemSOPInstanceUID) == false){
+					if(seriesFromAD.contains(itemSOPInstanceUID) == false){
 						itemFromAD = new ImageItem(itemSOPInstanceUID);														
 						String mimeType = "application/dicom";
 						objDesc.setMimeType(mimeType);			
