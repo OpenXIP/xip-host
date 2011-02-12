@@ -147,9 +147,14 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 																	return item;
 																}
 															};
+															if(seriesNode.isSelected()){
+																itemNode.setSelected(true);
+							      		     					itemNode.getCheckBox().setSelected(true);
+															}
 															seriesNode.add(itemNode);
 														}	
 													} else {
+														/*
 														DefaultMutableTreeNode itemNode = null;
 														for(int m = 0; m < series.getItems().size(); m++){
 															final Item item = series.getItems().get(m);
@@ -158,7 +163,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 															if(item.equals(existingItem)){
 																itemNode = existingItemNode;
 															}
-														}
+														}*/
 													}	
 												} 
 											}	

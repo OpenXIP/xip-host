@@ -16,7 +16,6 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 
 /**
  * @author Jaroslaw Krych
@@ -35,6 +34,10 @@ public class NodeSelectionListener implements ActionListener {
 	 * 
 	 */
 	public NodeSelectionListener() {
+		selectedDataSearchResult = new SearchResult();
+	}
+	
+	public void resetSelectedDataSearchResult(){
 		selectedDataSearchResult = new SearchResult();
 	}
 
@@ -57,11 +60,9 @@ public class NodeSelectionListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent evt) {
-		// TODO check for items selected at levels other than child of Patient
 		if (wasDoubleClick) {
-			wasDoubleClick = false; // reset flag
+			wasDoubleClick = false; 	//Reset flag
 		} else {
-			//
 			selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
 			selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
 			int row = resultTree.getRowForLocation(x, y);
@@ -73,499 +74,129 @@ public class NodeSelectionListener implements ActionListener {
 				if (!node.isRoot()) {
 					Object selectedNode = node.getUserObject();
 					if (selectedNode instanceof Patient) {
-						PatientNode patientNode = (PatientNode) node;
-						int patientChildCount = patientNode.getChildCount();
-						if (patientNode.isSelected()) {
-							patientNode.setSelected(false);
-							patientNode.getCheckBox().setSelected(false);
-							Patient patient = null;
-							if (patientNode.getUserObject() instanceof Patient) {
-								patient = (Patient) patientNode.getUserObject();
-							}
-							if (patientChildCount == 0) {
-								Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-								selectedDataSearchResult.removePatient(selectedPatient);
-							}
-							for (int i = 0; i < patientChildCount; i++) {
-								DefaultMutableTreeNode childPatientNode = (DefaultMutableTreeNode) patientNode.getChildAt(i);
-								if (childPatientNode.getUserObject() instanceof Item) {
-									ItemNode itemNode = (ItemNode) childPatientNode;
-									itemNode.setSelected(false);
-									itemNode.getCheckBox().setSelected(false);
-									// Remove item from selectedDataSearchResult
-									Item item = null;
-									if (itemNode.getUserObject() instanceof Item) {
-										item = (Item) itemNode.getUserObject();
-									}
-									if (selectedDataSearchResult.contains(patient.getPatientID())) {
-										Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-										if (item != null) {
-											Item selectedItem = selectedPatient.getItem(item.getItemID());
-											selectedPatient.removeItem(selectedItem);
-										}
-										if ((selectedPatient.getStudies().size() == 0) && (selectedPatient.getItems().size() == 0)) {
-											selectedDataSearchResult.removePatient(selectedPatient);
-										}
-									}
-								} else if (childPatientNode.getUserObject() instanceof Study){
-									StudyNode studyNode = (StudyNode) childPatientNode;
-									studyNode.setSelected(false);
-									studyNode.getCheckBox().setSelected(false);
-									int seriesCount = studyNode.getChildCount();
-									Study study = null;
-									if (studyNode.getUserObject() instanceof Study) {
-										study = (Study) studyNode.getUserObject();
-									}
-									if (seriesCount == 0) {
-										if (selectedDataSearchResult.contains(patient.getPatientID())) {
-											Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-											if (study != null) {
-												Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-												selectedPatient.removeStudy(selectedStudy);
+						PatientNode patientNode = (PatientNode) node;						
+						boolean selected = !patientNode.isSelected();
+						Patient patient = null;
+						if (patientNode.getUserObject() instanceof Patient) {
+							patient = (Patient) patientNode.getUserObject();
+						}
+						updateSelection(patientNode, selected);
+						updateSelectedDataSearchResult(patient, selected);
+						//If data pre-queried, correct selectedDataSearchResult
+						//When PatientNode selected, include StudyNode and SeriesNode but not individual ItemNodes
+						if(selected){
+							int patientChildCount = patientNode.getChildCount();
+							if(patientChildCount > 0){
+								for(int i = 0; i < patientChildCount; i++){
+									StudyNode studyNode = (StudyNode)patientNode.getChildAt(i);
+									int studyChildCount = studyNode.getChildCount();
+									if(studyChildCount > 0){
+										for(int j = 0; j < studyChildCount; j++){
+											SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(j);
+											int seriesChildCount = seriesNode.getChildCount();
+											if(seriesChildCount > 0){
+												correctSelectedDataSearchResult((Series)seriesNode.getUserObject(), (Study)studyNode.getUserObject(), (Patient)patientNode.getUserObject());
 											}
-											if (selectedPatient.getStudies().size() == 0) {
-												selectedDataSearchResult.removePatient(selectedPatient);
-											}
-										}
-									}
-									for (int j = 0; j < seriesCount; j++) {
-										SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
-										seriesNode.setSelected(false);
-										seriesNode.getCheckBox().setSelected(false);
-										// Updating selectedDataSearchresult
-										Series series = null;
-										if (seriesNode.getUserObject() instanceof Series) {
-											series = (Series) seriesNode.getUserObject();
-										}
-										Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-										Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-										selectedStudy.removeSeries(series);
-										if (selectedStudy.getSeries().size() == 0) {
-											selectedPatient.removeStudy(selectedStudy);
-										}
-										if (selectedPatient.getStudies().size() == 0) {
-											selectedDataSearchResult.removePatient(selectedPatient);
-										}
-									}
-								}
-							}
-						} else if (patientNode.isSelected() == false) {
-							patientNode.setSelected(true);
-							patientNode.getCheckBox().setSelected(true);
-							Patient patient = null;
-							if (patientNode.getUserObject() instanceof Patient) {
-								patient = (Patient) patientNode.getUserObject();
-							}
-							if (patientChildCount == 0) {
-								Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-								newPatient.setLastUpdated(patient.getLastUpdated());
-								selectedDataSearchResult.addPatient(newPatient);
-							}
-							for (int i = 0; i < patientChildCount; i++) {
-								DefaultMutableTreeNode childPatientNode = (DefaultMutableTreeNode) patientNode.getChildAt(i);
-								if (childPatientNode.getUserObject() instanceof Item) {
-									ItemNode itemNode = (ItemNode) childPatientNode;
-									itemNode.setSelected(true);
-									itemNode.getCheckBox().setSelected(true);
-									Item item = (Item) itemNode.getUserObject();
-									if (item instanceof XDSDocumentItem) {
-										XDSDocumentItem xdsItem = (XDSDocumentItem) item;
-										if (!selectedDataSearchResult.contains(patient.getPatientID())) {
-											XDSDocumentItem newItem = new XDSDocumentItem(
-													xdsItem.getItemID(),
-													xdsItem.getAvailability(),
-													xdsItem.getLanguage(),
-													xdsItem.getMimeType(),
-													xdsItem.getDocumentType(),
-													xdsItem.getPatientId(),
-													xdsItem.getHomeCommunityId());
-											newItem.setObjectDescriptor(xdsItem.getObjectDescriptor());
-											newItem.setObjectLocator(xdsItem.getObjectLocator());
-											Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-											newPatient.setLastUpdated(patient.getLastUpdated());
-											newPatient.addItem(newItem);
-											selectedDataSearchResult.addPatient(newPatient);
-										} else if (selectedDataSearchResult.contains(patient.getPatientID())) {
-											Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-											if (!selectedPatient.contains(item.getItemID())) {
-												XDSDocumentItem newItem = new XDSDocumentItem(
-														xdsItem.getItemID(),
-														xdsItem.getAvailability(),
-														xdsItem.getLanguage(),
-														xdsItem.getMimeType(),
-														xdsItem.getDocumentType(),
-														xdsItem.getPatientId(),
-														xdsItem.getHomeCommunityId());
-												newItem.setObjectDescriptor(xdsItem.getObjectDescriptor());
-												newItem.setObjectLocator(xdsItem.getObjectLocator());
-												selectedPatient.addItem(newItem);
-											}
-										}
-									}
-								} else if (childPatientNode.getUserObject() instanceof Study) {
-									StudyNode studyNode = (StudyNode) patientNode.getChildAt(i);
-									studyNode.setSelected(true);
-									studyNode.getCheckBox().setSelected(true);
-									int seriesCount = studyNode.getChildCount();
-									Study study = null;
-									if (studyNode.getUserObject() instanceof Study) {
-										study = (Study) studyNode.getUserObject();
-									}
-									if (seriesCount == 0) {
-										if (!selectedDataSearchResult.contains(patient.getPatientID())) {
-											Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-											newStudy.setLastUpdated(study.getLastUpdated());
-											Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-											newPatient.setLastUpdated(patient.getLastUpdated());
-											newPatient.addStudy(newStudy);
-											selectedDataSearchResult.addPatient(newPatient);
-										} else if (selectedDataSearchResult.contains(patient.getPatientID())) {
-											Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-											if (!selectedPatient.contains(study.getStudyInstanceUID())) {
-												Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-												newStudy.setLastUpdated(study.getLastUpdated());
-												selectedPatient.addStudy(newStudy);
-											}
-										}
-									}
-									for (int j = 0; j < seriesCount; j++) {
-										SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
-										seriesNode.setSelected(true);
-										seriesNode.getCheckBox().setSelected(true);
-										// Update selectedDataSearchResult
-										Series series = null;
-										if (seriesNode.getUserObject() instanceof Series) {
-											series = (Series) seriesNode.getUserObject();
-										}
-										if (!selectedDataSearchResult.contains(patient.getPatientID())) {
-											Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-											newStudy.addSeries(series);
-											newStudy.setLastUpdated(study.getLastUpdated());
-											Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-											newPatient.setLastUpdated(patient.getLastUpdated());
-											newPatient.addStudy(newStudy);
-											selectedDataSearchResult.addPatient(newPatient);
-										} else if (selectedDataSearchResult.contains(patient.getPatientID())) {
-											Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-											if (!selectedPatient.contains(study.getStudyInstanceUID())) {
-												Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-												newStudy.setLastUpdated(study.getLastUpdated());
-												newStudy.addSeries(series);
-												selectedPatient.addStudy(newStudy);
-											} else if (selectedPatient.contains(study.getStudyInstanceUID())) {
-												Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-												if (!selectedStudy.contains(series.getSeriesInstanceUID())) {
-													selectedStudy.addSeries(series);
-												}
-											}
-										}
+										}										
 									}
 								}
 							}
 						}
-						resultTree.repaint();
 					} else if (selectedNode instanceof Study) {
 						StudyNode studyNode = (StudyNode) node;
-						int seriesCount = studyNode.getChildCount();
+						boolean selected = !studyNode.isSelected();
 						PatientNode patientNode = (PatientNode) studyNode.getParent();
-						if (studyNode.isSelected()) {
-							studyNode.setSelected(false);
-							studyNode.getCheckBox().setSelected(false);
-							patientNode.setSelected(false);
-							patientNode.getCheckBox().setSelected(false);
-							Patient patient = null;
-							if (patientNode.getUserObject() instanceof Patient) {
-								patient = (Patient) patientNode.getUserObject();
+						Patient patient = null;
+						if (patientNode.getUserObject() instanceof Patient) {
+							patient = (Patient) patientNode.getUserObject();
+						}
+						updateSelection(studyNode, patientNode, selected);
+						Study study = null;
+						if (studyNode.getUserObject() instanceof Study) {
+							study = (Study) studyNode.getUserObject();
+						}
+						int studyChildCount = studyNode.getChildCount();
+						if(studyChildCount > 0){
+							for(int i = 0; i < studyChildCount; i++){
+								DefaultMutableTreeNode studyChildNode = (DefaultMutableTreeNode)studyNode.getChildAt(i);
+								if(studyChildNode.getUserObject() instanceof Series){
+									Series series = (Series)studyChildNode.getUserObject();
+									updateSelectedDataSearchResult(series, study, patient, selected);
+								} else {
+									
+								}
 							}
-							Study study = null;
-							if (studyNode.getUserObject() instanceof Study) {
-								study = (Study) studyNode.getUserObject();
-							}
-							if (seriesCount == 0) {
-								if (selectedDataSearchResult.contains(patient.getPatientID())) {
-									Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-									Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-									selectedPatient.removeStudy(selectedStudy);
-									if (selectedPatient.getStudies().size() == 0) {
-										selectedDataSearchResult.removePatient(selectedPatient);
+						} else if (studyChildCount == 0){
+							updateSelectedDataSearchResult(study, patient, selected);
+						}
+						//If data pre-queried, correct selectedDataSearchResult
+						//When StudyNode selected, include SeriesNode but not individual ItemNodes
+						if(selected){
+							if(studyChildCount > 0){
+								for(int j = 0; j < studyChildCount; j++){
+									SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(j);
+									int seriesChildCount = seriesNode.getChildCount();
+									if(seriesChildCount > 0){
+										correctSelectedDataSearchResult((Series)seriesNode.getUserObject(), (Study)studyNode.getUserObject(), (Patient)patientNode.getUserObject());
 									}
-								}
-							}
-							for (int j = 0; j < seriesCount; j++) {
-								SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
-								seriesNode.setSelected(false);
-								seriesNode.getCheckBox().setSelected(false);
-								// Updating selectedDataSearchresult
-								Series series = null;
-								if (seriesNode.getUserObject() instanceof Series) {
-									series = (Series) seriesNode.getUserObject();
-								}
-								Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-								Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-								selectedStudy.removeSeries(series);
-								if (selectedStudy.getSeries().size() == 0) {
-									selectedPatient.removeStudy(selectedStudy);
-								}
-								if (selectedPatient.getStudies().size() == 0) {
-									selectedDataSearchResult.removePatient(selectedPatient);
-								}
-							}
-						} else if (studyNode.isSelected() == false) {
-							studyNode.setSelected(true);
-							studyNode.getCheckBox().setSelected(true);
-							Patient patient = null;
-							if (patientNode.getUserObject() instanceof Patient) {
-								patient = (Patient) patientNode.getUserObject();
-							}
-							Study study = null;
-							if (studyNode.getUserObject() instanceof Study) {
-								study = (Study) studyNode.getUserObject();
-							}
-							if (seriesCount == 0) {
-								if (!selectedDataSearchResult.contains(patient
-										.getPatientID())) {
-									Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-									newStudy.setLastUpdated(study.getLastUpdated());
-									Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-									newPatient.setLastUpdated(patient.getLastUpdated());
-									newPatient.addStudy(newStudy);
-									selectedDataSearchResult.addPatient(newPatient);
-								} else if (selectedDataSearchResult.contains(patient.getPatientID())) {
-									Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-									if (!selectedPatient.contains(study.getStudyInstanceUID())) {
-										Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-										newStudy.setLastUpdated(study.getLastUpdated());
-										selectedPatient.addStudy(newStudy);
-									}
-								}
-							}
-							for (int j = 0; j < seriesCount; j++) {
-								SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
-								seriesNode.setSelected(true);
-								seriesNode.getCheckBox().setSelected(true);
-								// Update selectedDataSearchResult
-								Series series = null;
-								if (seriesNode.getUserObject() instanceof Series) {
-									series = (Series) seriesNode.getUserObject();
-								}
-								if (!selectedDataSearchResult.contains(patient.getPatientID())) {
-									Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-									newStudy.addSeries(series);
-									newStudy.setLastUpdated(study.getLastUpdated());
-									Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-									newPatient.setLastUpdated(patient.getLastUpdated());
-									newPatient.addStudy(newStudy);
-									selectedDataSearchResult.addPatient(newPatient);
-								} else if (selectedDataSearchResult.contains(patient.getPatientID())) {
-									Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-									if (!selectedPatient.contains(study.getStudyInstanceUID())) {
-										Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-										newStudy.setLastUpdated(study.getLastUpdated());
-										newStudy.addSeries(series);
-										selectedPatient.addStudy(newStudy);
-									} else if (selectedPatient.contains(study.getStudyInstanceUID())) {
-										Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-										if (!selectedStudy.contains(series.getSeriesInstanceUID())) {
-											selectedStudy.addSeries(series);
-										}
-									}
-								}
-							}
-							// Check if all other studies selected. If yes, set
-							// patientNode check box to selected.
-							int studyCount = patientNode.getChildCount();
-							boolean allStudiesSelected = true;
-							for (int i = 0; i < studyCount; i++) {
-								StudyNode studyNodeOther = (StudyNode) patientNode.getChildAt(i);
-								if (studyNodeOther.isSelected() == false) {
-									allStudiesSelected = false;
-								}
-							}
-							if (allStudiesSelected) {
-								patientNode.setSelected(true);
-								patientNode.getCheckBox().setSelected(true);
+								}										
 							}
 						}
-						resultTree.repaint();
 					} else if (selectedNode instanceof Series) {
 						SeriesNode seriesNode = (SeriesNode) node;
+						boolean selected = !seriesNode.isSelected();
 						StudyNode studyNode = (StudyNode) node.getParent();
 						Study study = null;
 						if (studyNode.getUserObject() instanceof Study) {
 							study = (Study) studyNode.getUserObject();
 						}
-						if (seriesNode.isSelected()) {
-							seriesNode.setSelected(false);
-							seriesNode.getCheckBox().setSelected(false);
-							studyNode.setSelected(false);
-							studyNode.getCheckBox().setSelected(false);
-							PatientNode patientNode = (PatientNode) studyNode.getParent();
-							patientNode.setSelected(false);
-							((PatientNode) patientNode).getCheckBox().setSelected(false);
-							// Updating selectedDataSearchresult
-							Patient patient = null;
-							if (patientNode.getUserObject() instanceof Patient) {
-								patient = (Patient) patientNode.getUserObject();
-							}
-							Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-							selectedStudy.removeSeries((Series) selectedNode);
-							if (selectedStudy.getSeries().size() == 0) {
-								selectedPatient.removeStudy(selectedStudy);
-							}
-							if (selectedPatient.getStudies().size() == 0) {
-								selectedDataSearchResult.removePatient(selectedPatient);
-							}
-						} else if (seriesNode.isSelected() == false) {
-							seriesNode.setSelected(true);
-							seriesNode.getCheckBox().setSelected(true);
-							// Check if all series selected for this study. If
-							// yes, set study selected
-							int seriesCount = studyNode.getChildCount();
-							boolean allSeriesSelected = true;
-							for (int i = 0; i < seriesCount; i++) {
-								SeriesNode seriesNodeOther = (SeriesNode) studyNode.getChildAt(i);
-								if (seriesNodeOther.isSelected() == false) {
-									allSeriesSelected = false;
-								}
-							}
-							if (allSeriesSelected) {
-								studyNode.setSelected(true);
-								studyNode.getCheckBox().setSelected(true);
-							}
-							// check if all studies selected for this patient.
-							// If yes, select this patient
-							PatientNode patientNode = (PatientNode) studyNode.getParent();
-							int studyCount = patientNode.getChildCount();
-							boolean allStudiesSelected = true;
-							for (int i = 0; i < studyCount; i++) {
-								StudyNode studyNodeOther = (StudyNode) patientNode.getChildAt(i);
-								if (studyNodeOther.isSelected() == false) {
-									allStudiesSelected = false;
-								}
-							}
-							if (allStudiesSelected) {
-								patientNode.setSelected(true);
-								patientNode.getCheckBox().setSelected(true);
-							}
-							// Update selectedDataSearchresult
-							Patient patient = null;
-							if (patientNode.getUserObject() instanceof Patient) {
-								patient = (Patient) patientNode.getUserObject();
-							}
-							if (!selectedDataSearchResult.contains(patient.getPatientID())) {
-								Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-								newStudy.addSeries((Series) selectedNode);
-								newStudy.setLastUpdated(study.getLastUpdated());
-								Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-								newPatient.setLastUpdated(patient.getLastUpdated());
-								newPatient.addStudy(newStudy);
-								selectedDataSearchResult.addPatient(newPatient);
-							} else if (selectedDataSearchResult.contains(patient.getPatientID())) {
-								Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-								if (!selectedPatient.contains(study.getStudyInstanceUID())) {
-									Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
-									newStudy.setLastUpdated(study.getLastUpdated());
-									newStudy.addSeries((Series) selectedNode);
-									selectedPatient.addStudy(newStudy);
-								} else if (selectedPatient.contains(study.getStudyInstanceUID())) {
-									Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-									if (!selectedStudy.contains(((Series) selectedNode).getSeriesInstanceUID())) {
-										selectedStudy.addSeries((Series) selectedNode);
-									}
-								}
+						PatientNode patientNode = (PatientNode)studyNode.getParent();
+						Patient patient = null;
+						if(patientNode.getUserObject() instanceof Patient){
+							patient = (Patient)patientNode.getUserObject();
+						}
+						updateSelection(seriesNode, studyNode, selected);
+						Series series = null;
+						if(seriesNode.getUserObject() instanceof Series){
+							series = (Series)seriesNode.getUserObject();							
+						}
+						updateSelectedDataSearchResult(series, study, patient, selected);
+						//If data pre-queried, correct selectedDataSearchResult
+						//When SeriesNode selected, keep the SeriesNode but not individual ItemNodes
+						if(selected){					
+							int seriesChildCount = seriesNode.getChildCount();
+							if(seriesChildCount > 0){
+								correctSelectedDataSearchResult((Series)seriesNode.getUserObject(), (Study)studyNode.getUserObject(), (Patient)patientNode.getUserObject());
 							}
 						}
 					} else if (selectedNode instanceof Item) {
 						ItemNode itemNode = (ItemNode) node;
+						boolean selected = !itemNode.isSelected();
+						SeriesNode seriesNode = (SeriesNode)itemNode.getParent();
+						updateSelection(itemNode, seriesNode, selected);
 						Item item = (Item) node.getUserObject();
-						DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
-						Object parentObject = parentNode.getUserObject();
-						if (itemNode.isSelected()) {
-							itemNode.setSelected(false);
-							itemNode.getCheckBox().setSelected(false);
-							// Remove from selectedDataSearchResult
-							// If parent is empty, remove parent.
-							if (parentObject instanceof Patient) {
-								Patient patient = (Patient) parentObject;
-								Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-								Item selectedItem = selectedPatient.getItem(item.getItemID());
-								selectedPatient.removeItem(selectedItem);
-								if ((selectedPatient.getItems().size() == 0) && (selectedPatient.getStudies().size() == 0)) {
-									selectedDataSearchResult.removePatient(selectedPatient);
-								}
-							}							
-						} else if (itemNode.isSelected() == false) {
-							itemNode.setSelected(true);
-							itemNode.getCheckBox().setSelected(true);
-							int siblingCount = parentNode.getChildCount();
-							boolean allSiblingsSelected = true;
-							for (int i = 0; i < siblingCount; i++) {
-								DefaultMutableTreeNode siblingNode = (DefaultMutableTreeNode) parentNode.getChildAt(i);
-								Object siblingObject = siblingNode.getUserObject();
-								if (siblingObject instanceof Item) {
-									ItemNode siblingItemNode = (ItemNode) siblingNode;
-									if (siblingItemNode.isSelected() == false) {
-										allSiblingsSelected = false;
-									}
+						Series series = (Series)seriesNode.getUserObject();
+						StudyNode studyNode = (StudyNode)seriesNode.getParent();
+						Study study = (Study)studyNode.getUserObject();
+						PatientNode patientNode = (PatientNode)studyNode.getParent();
+						Patient patient = (Patient)patientNode.getUserObject();
+						updateSelectedDataSearchResult(item, series, study, patient, selected);
+						int seriesChildCount = seriesNode.getChildCount();
+						boolean allSeriesChildrenSelected = true;
+						for(int i = 0; i < seriesChildCount; i++){
+							DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) seriesNode.getChildAt(i);
+							if (childSeriesNode.getUserObject() instanceof Item) {
+								ItemNode otherItemNode = (ItemNode) childSeriesNode;
+								if(otherItemNode.isSelected() == false){
+									allSeriesChildrenSelected = false;
+									break;
 								}
 							}
-							if (allSiblingsSelected) {
-								if (parentObject instanceof Patient) {
-									PatientNode patientNode = (PatientNode) parentNode;
-									patientNode.setSelected(true);
-									patientNode.getCheckBox().setSelected(true);
-								} else if (parentObject instanceof Series){
-									SeriesNode seriesNode = (SeriesNode)parentNode;
-									seriesNode.setSelected(true);
-									seriesNode.getCheckBox().setSelected(true);									
-								} 
-							}							
-							// Update selectedDataSearchresult
-							if (parentObject instanceof Patient) {
-								Patient patient = (Patient) parentObject;
-								if (item instanceof XDSDocumentItem) {
-									XDSDocumentItem xdsItem = (XDSDocumentItem) item;
-									if (!selectedDataSearchResult.contains(patient.getPatientID())) {
-										XDSDocumentItem newItem = new XDSDocumentItem(
-												xdsItem.getItemID(),
-												xdsItem.getAvailability(),
-												xdsItem.getLanguage(),
-												xdsItem.getMimeType(),
-												xdsItem.getDocumentType(),
-												xdsItem.getPatientId(),
-												xdsItem.getHomeCommunityId());
-										newItem.setObjectDescriptor(xdsItem.getObjectDescriptor());
-										newItem.setObjectLocator(xdsItem.getObjectLocator());
-										Patient newPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
-										newPatient.setLastUpdated(patient.getLastUpdated());
-										newPatient.addItem(newItem);
-										selectedDataSearchResult.addPatient(newPatient);
-									} else if (selectedDataSearchResult.contains(patient.getPatientID())) {
-										Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-										if (!selectedPatient.contains(item.getItemID())) {
-											XDSDocumentItem newItem = new XDSDocumentItem(
-													xdsItem.getItemID(),
-													xdsItem.getAvailability(),
-													xdsItem.getLanguage(),
-													xdsItem.getMimeType(),
-													xdsItem.getDocumentType(),
-													xdsItem.getPatientId(),
-													xdsItem.getHomeCommunityId());
-											newItem.setObjectDescriptor(xdsItem.getObjectDescriptor());
-											newItem.setObjectLocator(xdsItem.getObjectLocator());
-											selectedPatient.addItem(newItem);
-										}
-									}
-								}
-							} else if (parentObject instanceof Series){
-								Series seriesObject = (Series)parentObject;
-								if (item instanceof ImageItem){
-									ImageItem imageItem = (ImageItem)item;
-									
-										
-								}
-							}
+						}
+						if(allSeriesChildrenSelected){
+							//Correct selectedDataSearchResult by removing all item from Series
+							//System will proceed with the retrieve at the series level as oppose single item level
+							correctSelectedDataSearchResult(series, study, patient);
 						}
 					}
 				}
@@ -582,6 +213,10 @@ public class NodeSelectionListener implements ActionListener {
 						List<Series> series = logStudy.getSeries();
 						for (Series logSeries : series) {
 							logger.debug("      " + logSeries.toString());
+							List<Item> items = logSeries.getItems();
+							for(Item logItem : items){
+								logger.debug("         " + logItem.toString());
+							}
 						}
 					}
 				}
@@ -589,16 +224,429 @@ public class NodeSelectionListener implements ActionListener {
 			notifyDataSelectionChanged(selectedDataSearchResult);
 		}
 	}
+	
+	
+	void updateSelection(PatientNode patientNode, boolean selected){
+		int patientChildCount = patientNode.getChildCount();
+		patientNode.setSelected(selected);
+		patientNode.getCheckBox().setSelected(selected);						
+		for(int i = 0; i < patientChildCount; i++){
+			DefaultMutableTreeNode childPatientNode = (DefaultMutableTreeNode) patientNode.getChildAt(i);
+			if (childPatientNode.getUserObject() instanceof Item) {
+				ItemNode itemNode = (ItemNode) childPatientNode;
+				updateSelection(itemNode, patientNode, selected);
+			} else if (childPatientNode.getUserObject() instanceof Study) {
+				StudyNode studyNode = (StudyNode) patientNode.getChildAt(i);
+				updateSelection(studyNode, patientNode, selected);
+			}								
+		}
+		resultTree.repaint();
+	}
+	
+	void updateSelection(StudyNode studyNode, PatientNode parentOfStudyNode, boolean selected){	
+		studyNode.setSelected(selected);
+		studyNode.getCheckBox().setSelected(selected);
+		int studyChildCount = studyNode.getChildCount();
+		for (int j = 0; j < studyChildCount; j++) {
+			DefaultMutableTreeNode childStudyNode = (DefaultMutableTreeNode) studyNode.getChildAt(j);
+			if(childStudyNode.getUserObject() instanceof Series){
+				SeriesNode seriesNode = (SeriesNode) studyNode.getChildAt(j);
+				updateSelection(seriesNode, studyNode, selected);
+			} else if (childStudyNode.getUserObject() instanceof Item){
+				ItemNode itemNode = (ItemNode) childStudyNode;
+				updateSelection(itemNode, studyNode, selected);
+			}
+		}
+		//Select PatientNode if all StudyNodes and ItemNodes for this PatientNode are selected
+		PatientNode patientNode = parentOfStudyNode;
+		int patientChildCount = patientNode.getChildCount();
+		boolean allPatientChildrenSelected = true;
+		for(int i = 0; i < patientChildCount; i++){
+			DefaultMutableTreeNode childPatientNode = (DefaultMutableTreeNode) patientNode.getChildAt(i);
+			if (childPatientNode.getUserObject() instanceof Item) {
+				ItemNode itemNode = (ItemNode)childPatientNode;
+				if(itemNode.isSelected() == false){
+					allPatientChildrenSelected = false;
+					break;
+				}
+			} else if (childPatientNode.getUserObject() instanceof Study){
+				StudyNode otherStudyNode = (StudyNode)childPatientNode;
+				if(otherStudyNode.isSelected() == false){
+					allPatientChildrenSelected = false;
+					break;
+				}
+			}
+		}
+		if(allPatientChildrenSelected){
+			patientNode.setSelected(true);
+			patientNode.getCheckBox().setSelected(true);	
+		} else {
+			patientNode.setSelected(false);
+			patientNode.getCheckBox().setSelected(false);
+		}
+		resultTree.repaint();
+	}
+	
+	void updateSelection(SeriesNode seriesNode, StudyNode parentOfSeriesNode, boolean selected){
+		seriesNode.setSelected(selected);
+		seriesNode.getCheckBox().setSelected(selected);
+		int seriesChildCount = seriesNode.getChildCount();
+		for(int k = 0; k < seriesChildCount; k++){
+			DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) seriesNode.getChildAt(k);
+			ItemNode itemNode = (ItemNode) childSeriesNode;
+			updateSelection(itemNode, seriesNode, selected);
+		}
+		//Update StudyNode if all SeriesNodes and ItemNodes for this StudyNode are selected
+		StudyNode studyNode = parentOfSeriesNode;
+		int studyChildCount = studyNode.getChildCount();
+		boolean allStudyChildrenSelected = true;
+		for(int i = 0; i < studyChildCount; i++){
+			DefaultMutableTreeNode childStudyNode = (DefaultMutableTreeNode) studyNode.getChildAt(i);
+			if(childStudyNode.getUserObject() instanceof Item){
+				ItemNode itemNode = (ItemNode)childStudyNode;
+				if(itemNode.isSelected() == false){
+					allStudyChildrenSelected = false;
+					break;
+				}
+			} else if (childStudyNode.getUserObject() instanceof Series){
+				SeriesNode otherSeriesNode = (SeriesNode)childStudyNode;
+				if(otherSeriesNode.isSelected() == false){
+					allStudyChildrenSelected = false;
+					break;
+				}
+			}
+		}
+		if(allStudyChildrenSelected){
+			studyNode.setSelected(true);
+			studyNode.getCheckBox().setSelected(true);
+		} else {
+			studyNode.setSelected(false);
+			studyNode.getCheckBox().setSelected(false);
+		}
+		PatientNode patientNode = (PatientNode)studyNode.getParent();
+		int patientChildCount = patientNode.getChildCount();
+		boolean allPatientChildrenSelected = true;
+		for(int i = 0; i < patientChildCount; i++){
+			DefaultMutableTreeNode childPatientNode = (DefaultMutableTreeNode) patientNode.getChildAt(i);
+			if (childPatientNode.getUserObject() instanceof Item) {
+				ItemNode itemNode = (ItemNode)childPatientNode;
+				if(itemNode.isSelected() == false){
+					allPatientChildrenSelected = false;
+					break;
+				}
+			} else if (childPatientNode.getUserObject() instanceof Study){
+				StudyNode otherStudyNode = (StudyNode)childPatientNode;
+				if(otherStudyNode.isSelected() == false){
+					allPatientChildrenSelected = false;
+					break;
+				}
+			}
+		}
+		if(allPatientChildrenSelected){
+			patientNode.setSelected(true);
+			patientNode.getCheckBox().setSelected(true);	
+		} else {
+			patientNode.setSelected(false);
+			patientNode.getCheckBox().setSelected(false);
+		}
+		resultTree.repaint();
+	}
+	
+	void updateSelection(ItemNode itemNode, SeriesNode seriesNode, boolean selected){
+		itemNode.setSelected(selected);
+		itemNode.getCheckBox().setSelected(selected);
+		int seriesChildCount = seriesNode.getChildCount();
+		boolean allSeriesChildrenSelected = true;
+		for(int i = 0; i < seriesChildCount; i++){
+			DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) seriesNode.getChildAt(i);
+			if(childSeriesNode.getUserObject() instanceof Item){
+				ItemNode otherItemNode = (ItemNode)childSeriesNode;
+				if(otherItemNode.isSelected() == false){
+					allSeriesChildrenSelected = false;
+					break;
+				}
+			} 
+		}
+		StudyNode studyNode = (StudyNode)seriesNode.getParent();
+		ItemNode emptyItemNode = null;
+		if(allSeriesChildrenSelected){
+			seriesNode.setSelected(true);
+			seriesNode.getCheckBox().setSelected(true);
+			updateSelection(emptyItemNode, studyNode, true);
+		} else {
+			seriesNode.setSelected(false);
+			seriesNode.getCheckBox().setSelected(false);
+			updateSelection(emptyItemNode, studyNode, false);
+		}
+		resultTree.repaint();
+	}
+	
+	void updateSelection(ItemNode itemNode, StudyNode studyNode, boolean selected){
+		if(itemNode != null){
+			itemNode.setSelected(selected);
+			itemNode.getCheckBox().setSelected(selected);
+		}		
+		int studyChildCount = studyNode.getChildCount();
+		boolean allStudyChildrenSelected = true;
+		for(int i = 0; i < studyChildCount; i++){
+			DefaultMutableTreeNode childStudyNode = (DefaultMutableTreeNode) studyNode.getChildAt(i);
+			if(childStudyNode.getUserObject() instanceof Item){
+				ItemNode otherItemNode = (ItemNode)childStudyNode;
+				if(otherItemNode.isSelected() == false){
+					allStudyChildrenSelected = false;
+					break;
+				}
+			} else if (childStudyNode.getUserObject() instanceof Series){
+				SeriesNode seriesNode = (SeriesNode)childStudyNode;
+				if(seriesNode.isSelected() == false){
+					allStudyChildrenSelected = false;
+					break;
+				}
+			}
+		}
+		PatientNode patientNode = (PatientNode)studyNode.getParent();
+		ItemNode emptyItemNode = null;
+		if(allStudyChildrenSelected){
+			studyNode.setSelected(true);
+			studyNode.getCheckBox().setSelected(true);
+			updateSelection(emptyItemNode, patientNode, true);
+		} else {
+			studyNode.setSelected(false);
+			studyNode.getCheckBox().setSelected(false);
+			updateSelection(emptyItemNode, patientNode, true);
+		}
+		resultTree.repaint();
+	}
+	
+	void updateSelection(ItemNode itemNode, PatientNode patientNode, boolean selected){
+		if(itemNode != null){
+			itemNode.setSelected(selected);
+			itemNode.getCheckBox().setSelected(selected);
+		}		
+		int patientChildCount = patientNode.getChildCount();
+		boolean allPatientChildrenSelected = true;
+		for(int i = 0; i < patientChildCount; i++){
+			DefaultMutableTreeNode childPatientNode = (DefaultMutableTreeNode) patientNode.getChildAt(i);
+			if(childPatientNode.getUserObject() instanceof Item){
+				ItemNode otherItemNode = (ItemNode)childPatientNode;
+				if(otherItemNode.isSelected() == false){
+					allPatientChildrenSelected = false;
+					break;
+				}
+			} else if (childPatientNode.getUserObject() instanceof Study){
+				StudyNode studyNode = (StudyNode)childPatientNode;
+				if(studyNode.isSelected() == false){
+					allPatientChildrenSelected = false;
+					break;
+				}
+			}
+		}
+		if(allPatientChildrenSelected){
+			patientNode.setSelected(true);
+			patientNode.getCheckBox().setSelected(true);
+		} else {
+			patientNode.setSelected(false);
+			patientNode.getCheckBox().setSelected(false);
+		}
+		resultTree.repaint();
+	}
+	
+	
+	void updateSelectedDataSearchResult(Patient patient, boolean selected){
+		if (selected == false && selectedDataSearchResult.contains(patient.getPatientID())){
+			Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+			selectedDataSearchResult.removePatient(selectedPatient);
+			return;	
+		} else if (selected == true){
+			List<Item> items = patient.getItems();
+			List<Study> studies = patient.getStudies();
+			Patient selectedPatient = null;
+			if(!selectedDataSearchResult.contains(patient.getPatientID())){
+				selectedPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
+				selectedPatient.setLastUpdated(patient.getLastUpdated());
+				selectedDataSearchResult.addPatient(selectedPatient);		
+			} else {
+				selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+			}
+			for (int i = 0; i < items.size(); i++) {	
+				Item item = items.get(i);									
+				/*
+				if (item instanceof XDSDocumentItem) {
+					XDSDocumentItem xdsItem = (XDSDocumentItem) item;	
+					XDSDocumentItem newItem = new XDSDocumentItem(
+							xdsItem.getItemID(),
+							xdsItem.getAvailability(),
+							xdsItem.getLanguage(),
+							xdsItem.getMimeType(),
+							xdsItem.getDocumentType(),
+							xdsItem.getPatientId(),
+							xdsItem.getHomeCommunityId());
+					newItem.setObjectDescriptor(xdsItem.getObjectDescriptor());
+					newItem.setObjectLocator(xdsItem.getObjectLocator());
+				}*/
+				if (item != null) {
+					selectedPatient.addItem(item);
+				}				
+			}
+			for (int i = 0; i < studies.size(); i++) {	
+				Study study = studies.get(i);					
+				if (study != null) {
+					if(!selectedPatient.contains(study.getStudyInstanceUID())){
+						selectedPatient.addStudy(study);
+					}
+				}
+			}
+		}
+	}
+	
+	void updateSelectedDataSearchResult(Study study, Patient parentOfStudy, boolean selected){
+		Patient patient = parentOfStudy;
+		Patient selectedPatient = null;
+		if(selectedDataSearchResult.contains(patient.getPatientID())){
+			selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+		} else {
+			selectedPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
+			selectedPatient.setLastUpdated(patient.getLastUpdated());
+			selectedDataSearchResult.addPatient(selectedPatient);
+		}
+		if (selected == false){			
+			Study selectedStudy = null;
+			if(selectedPatient.contains(study.getStudyInstanceUID())){
+				selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+				selectedPatient.removeStudy(selectedStudy);
+			}
+			if (selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0) {
+				selectedDataSearchResult.removePatient(selectedPatient);
+			}
+			return;		
+		} else if (selected == true){
+			if(!selectedPatient.contains(study.getStudyInstanceUID())){
+				Study newStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+				newStudy.setLastUpdated(study.getLastUpdated());
+				List<Item> items = study.getItems();
+				for (int i = 0; i < items.size(); i++) {	
+					Item item = items.get(i);									
+					if (item != null) {
+						newStudy.addItem(item);
+					}				
+				}
+				selectedPatient.addStudy(newStudy);
+			}
+		}
+	}
+	
+	void updateSelectedDataSearchResult(Series series, Study study, Patient patient, boolean selected){
+		Patient selectedPatient = null;
+		if(selectedDataSearchResult.contains(patient.getPatientID())){
+			selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+		} else {
+			selectedPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
+			selectedPatient.setLastUpdated(patient.getLastUpdated());
+			selectedDataSearchResult.addPatient(selectedPatient);
+		}
+		Study selectedStudy = null;
+		if(selectedPatient.contains(study.getStudyInstanceUID())){
+			selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+		} else {
+			selectedStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+			selectedStudy.setLastUpdated(study.getLastUpdated());
+			selectedPatient.addStudy(selectedStudy);
+		}
+		if (selected == false){	
+			Series selectedSeries = null;
+			if(selectedStudy.contains(series.getSeriesInstanceUID())){
+				selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
+				selectedStudy.removeSeries(selectedSeries);
+			}
+			if (selectedStudy.getSeries().size() == 0 && selectedStudy.getItems().size() == 0) {
+				selectedPatient.removeStudy(selectedStudy);
+			}
+			if (selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0) {
+				selectedDataSearchResult.removePatient(selectedPatient);
+			}
+			return;		
+		} else if (selected == true){
+			if(!selectedStudy.contains(series.getSeriesInstanceUID())){
+				Series newSeries = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+				newSeries.setLastUpdated(series.getLastUpdated());
+				List<Item> items = series.getItems();
+				for (int i = 0; i < items.size(); i++) {	
+					Item item = items.get(i);									
+					if (item != null) {
+						newSeries.addItem(item);
+					}				
+				}
+				selectedStudy.addSeries(newSeries);
+			}
+		}
+	}
+	
+	void updateSelectedDataSearchResult(Item item, Series series, Study study, Patient patient, boolean selected){
+		Patient selectedPatient = null;
+		if(selectedDataSearchResult.contains(patient.getPatientID())){
+			selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+		} else {
+			selectedPatient = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
+			selectedPatient.setLastUpdated(patient.getLastUpdated());
+			selectedDataSearchResult.addPatient(selectedPatient);
+		}
+		Study selectedStudy = null;
+		if(selectedPatient.contains(study.getStudyInstanceUID())){
+			selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+		} else {
+			selectedStudy = new Study(study.getStudyDate(), study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+			selectedStudy.setLastUpdated(study.getLastUpdated());
+			selectedPatient.addStudy(selectedStudy);
+		}
+		Series selectedSeries = null;
+		if(selectedStudy.contains(series.getSeriesInstanceUID())){
+			selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
+		} else {
+			selectedSeries = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+			selectedSeries.setLastUpdated(series.getLastUpdated());
+			selectedStudy.addSeries(selectedSeries);
+		}
+		if (selected == false){	
+			Item selectedItem = null;
+			if(selectedSeries.contains(item.getItemID())){
+				selectedItem = selectedSeries.getItem(item.getItemID());
+				selectedSeries.removeItem(selectedItem);
+			}
+			if(selectedSeries.getItems().size() == 0){
+				selectedStudy.removeSeries(selectedSeries);
+			}
+			if (selectedStudy.getSeries().size() == 0 && selectedStudy.getItems().size() == 0) {
+				selectedPatient.removeStudy(selectedStudy);
+			}
+			if (selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0) {
+				selectedDataSearchResult.removePatient(selectedPatient);
+			}
+			return;		
+		} else if (selected == true){
+			if(!selectedSeries.contains(item.getItemID())){
+				Item newItem = new ImageItem(item.getItemID());			
+				newItem.setObjectDescriptor(item.getObjectDescriptor());
+				newItem.setObjectLocator(item.getObjectLocator());
+				selectedSeries.addItem(newItem);
+			}
+		}
+	}
+	
+	void correctSelectedDataSearchResult(Series series, Study study, Patient patient){
+		Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+		Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+		Series selectedSeries =	selectedStudy.getSeries(series.getSeriesInstanceUID());
+		selectedSeries.removeItems();
+	}
 
 	DataSelectionListener listener;
-
 	public void addDataSelectionListener(DataSelectionListener l) {
 		listener = l;
 	}
 
 	void notifyDataSelectionChanged(SearchResult selectedDataSearchResult) {
-		DataSelectionEvent event = new DataSelectionEvent(
-				selectedDataSearchResult);
+		DataSelectionEvent event = new DataSelectionEvent(selectedDataSearchResult);
 		listener.dataSelectionChanged(event);
 	}
 }
+ 
