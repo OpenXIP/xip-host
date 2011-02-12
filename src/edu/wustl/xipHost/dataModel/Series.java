@@ -55,7 +55,25 @@ public class Series {
 	public List<Item> getItems(){
 		return items;
 	}
-	public boolean containsItem(String itemID){
+	
+	public void removeItem(Item itemToRemove){
+		items.remove(itemToRemove);
+	}
+	
+	public void removeItems(){
+		items.clear();
+	}
+	
+	public Item getItem(String itemID){
+		for(Item item : items){
+			if(item.getItemID().equalsIgnoreCase(itemID)){
+				return item;
+			}
+		}
+		return null;
+	}
+	
+	public boolean contains(String itemID){
 		for(int i = 0; i < items.size(); i++){
 			if(items.get(i).getItemID().equalsIgnoreCase(itemID)){return true;}
 		}			
