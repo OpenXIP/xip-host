@@ -172,7 +172,7 @@ public class AVTQueryStub implements Query {
 					Item itemAD = Item.class.cast(obj);
 					String itemSOPInstanceUID = itemAD.getItemID();				
 					if(itemSOPInstanceUID == null){itemSOPInstanceUID = "";} 				
-					if(seriesFromAD.containsItem(itemSOPInstanceUID) == false){
+					if(seriesFromAD.contains(itemSOPInstanceUID) == false){
 						itemFromAD = new ImageItem(itemSOPInstanceUID);							
 					}
 				}else if(obj instanceof String){

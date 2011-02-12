@@ -352,7 +352,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 		String sopInstanceUID = result[13][1];
 		String fileLocation = result[9][1];
 		Item item = new ImageItem(sopInstanceUID);
-		if(!series.containsItem(sopInstanceUID)){
+		if(!series.contains(sopInstanceUID)){
 			ObjectDescriptor objDesc = new ObjectDescriptor();
 			Uuid objDescUUID = new Uuid();
 			objDescUUID.setUuid(UUID.randomUUID().toString());
