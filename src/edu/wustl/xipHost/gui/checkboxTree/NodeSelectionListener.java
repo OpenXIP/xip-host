@@ -82,26 +82,6 @@ public class NodeSelectionListener implements ActionListener {
 						}
 						updateSelection(patientNode, selected);
 						updateSelectedDataSearchResult(patient, selected);
-						//If data pre-queried, correct selectedDataSearchResult
-						//When PatientNode selected, include StudyNode and SeriesNode but not individual ItemNodes
-						if(selected){
-							int patientChildCount = patientNode.getChildCount();
-							if(patientChildCount > 0){
-								for(int i = 0; i < patientChildCount; i++){
-									StudyNode studyNode = (StudyNode)patientNode.getChildAt(i);
-									int studyChildCount = studyNode.getChildCount();
-									if(studyChildCount > 0){
-										for(int j = 0; j < studyChildCount; j++){
-											SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(j);
-											int seriesChildCount = seriesNode.getChildCount();
-											if(seriesChildCount > 0){
-												correctSelectedDataSearchResult((Series)seriesNode.getUserObject(), (Study)studyNode.getUserObject(), (Patient)patientNode.getUserObject());
-											}
-										}										
-									}
-								}
-							}
-						}
 					} else if (selectedNode instanceof Study) {
 						StudyNode studyNode = (StudyNode) node;
 						boolean selected = !studyNode.isSelected();
@@ -129,19 +109,6 @@ public class NodeSelectionListener implements ActionListener {
 						} else if (studyChildCount == 0){
 							updateSelectedDataSearchResult(study, patient, selected);
 						}
-						//If data pre-queried, correct selectedDataSearchResult
-						//When StudyNode selected, include SeriesNode but not individual ItemNodes
-						if(selected){
-							if(studyChildCount > 0){
-								for(int j = 0; j < studyChildCount; j++){
-									SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(j);
-									int seriesChildCount = seriesNode.getChildCount();
-									if(seriesChildCount > 0){
-										correctSelectedDataSearchResult((Series)seriesNode.getUserObject(), (Study)studyNode.getUserObject(), (Patient)patientNode.getUserObject());
-									}
-								}										
-							}
-						}
 					} else if (selectedNode instanceof Series) {
 						SeriesNode seriesNode = (SeriesNode) node;
 						boolean selected = !seriesNode.isSelected();
@@ -161,14 +128,6 @@ public class NodeSelectionListener implements ActionListener {
 							series = (Series)seriesNode.getUserObject();							
 						}
 						updateSelectedDataSearchResult(series, study, patient, selected);
-						//If data pre-queried, correct selectedDataSearchResult
-						//When SeriesNode selected, keep the SeriesNode but not individual ItemNodes
-						if(selected){					
-							int seriesChildCount = seriesNode.getChildCount();
-							if(seriesChildCount > 0){
-								correctSelectedDataSearchResult((Series)seriesNode.getUserObject(), (Study)studyNode.getUserObject(), (Patient)patientNode.getUserObject());
-							}
-						}
 					} else if (selectedNode instanceof Item) {
 						ItemNode itemNode = (ItemNode) node;
 						boolean selected = !itemNode.isSelected();
@@ -192,12 +151,10 @@ public class NodeSelectionListener implements ActionListener {
 									break;
 								}
 							}
-						}
-						if(allSeriesChildrenSelected){
-							//Correct selectedDataSearchResult by removing all item from Series
-							//System will proceed with the retrieve at the series level as oppose single item level
-							correctSelectedDataSearchResult(series, study, patient);
-						}
+						}						
+						boolean subsetOfItems = !allSeriesChildrenSelected;
+						setSeriesDatasetFlag(series, study, patient, subsetOfItems);
+						
 					}
 				}
 			}
@@ -212,7 +169,7 @@ public class NodeSelectionListener implements ActionListener {
 						logger.debug("   " + logStudy.toString());
 						List<Series> series = logStudy.getSeries();
 						for (Series logSeries : series) {
-							logger.debug("      " + logSeries.toString());
+							logger.debug("      " + logSeries.toString() + " Contains all items: " + logSeries.containsSubsetOfItems());
 							List<Item> items = logSeries.getItems();
 							for(Item logItem : items){
 								logger.debug("         " + logItem.toString());
@@ -632,13 +589,13 @@ public class NodeSelectionListener implements ActionListener {
 		}
 	}
 	
-	void correctSelectedDataSearchResult(Series series, Study study, Patient patient){
+	synchronized  void setSeriesDatasetFlag(Series series, Study study, Patient patient, boolean subsetOfItems){
 		Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
 		Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-		Series selectedSeries =	selectedStudy.getSeries(series.getSeriesInstanceUID());
-		selectedSeries.removeItems();
+		Series selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
+		selectedSeries.setContainsSubsetOfItems(subsetOfItems);
 	}
-
+	
 	DataSelectionListener listener;
 	public void addDataSelectionListener(DataSelectionListener l) {
 		listener = l;

@@ -153,18 +153,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 															}
 															seriesNode.add(itemNode);
 														}	
-													} else {
-														/*
-														DefaultMutableTreeNode itemNode = null;
-														for(int m = 0; m < series.getItems().size(); m++){
-															final Item item = series.getItems().get(m);
-															DefaultMutableTreeNode existingItemNode = (DefaultMutableTreeNode)seriesNode.getChildAt(m);
-															Item existingItem = (Item)existingItemNode.getUserObject();
-															if(item.equals(existingItem)){
-																itemNode = existingItemNode;
-															}
-														}*/
-													}	
+													} 
 												} 
 											}	
 										}
