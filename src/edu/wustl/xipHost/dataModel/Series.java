@@ -19,6 +19,7 @@ public class Series {
 	String seriesDesc;
 	String seriesInstanceUID;	
 	List<Item> items = new ArrayList<Item>();
+	boolean containsSubsetOfItems = false;
 	Timestamp lastUpdated = null;
 	
 	public Series(String seriesNumber, String modality, String seriesDesc, String seriesInstanceUID){
@@ -97,6 +98,14 @@ public class Series {
 	}
 	public void setLastUpdated(Timestamp lastUpdated) {
 		this.lastUpdated = lastUpdated;
+	}
+	
+	public boolean containsSubsetOfItems(){
+		return containsSubsetOfItems;
+	}
+	
+	public void setContainsSubsetOfItems(boolean containsSubsetOfItems){
+		this.containsSubsetOfItems = containsSubsetOfItems;
 	}
 	
 	@Override
