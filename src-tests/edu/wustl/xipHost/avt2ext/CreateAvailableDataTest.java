@@ -8,13 +8,10 @@ import java.util.Iterator;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.iterator.IteratorEvent;
-import edu.wustl.xipHost.iterator.IteratorUtil;
 import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.dataModel.SearchResult;
-import edu.wustl.xipHost.hostControl.Util;
-import edu.wustl.xipHost.wg23.WG23DataModel;
 import junit.framework.TestCase;
 
 /**
@@ -30,10 +27,6 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		tmpDir = new File("./test-content", "TmpAVTTest");	
-		if(tmpDir.exists() == false){
-			tmpDir.mkdir();
-		}
 	}
 
 	/* (non-Javadoc)
@@ -41,7 +34,6 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		Util.delete(tmpDir);
 	}
 	
 	//AVUtil - getWG23DataModel. Basic flow
@@ -51,7 +43,7 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		SearchResultSetupAvailableData resultForAvailableData = new SearchResultSetupAvailableData();
 		SearchResult selectedDataSearchResult = resultForAvailableData.getSearchResult();
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -60,7 +52,6 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 			//logger.error(e, e);
 		}
 		targetElement = iter.next();
-		WG23DataModel wg23data = IteratorUtil.getWG23DataModel(targetElement);
 		
 	}
 
@@ -71,7 +62,7 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		SearchResultSetupAvailableData resultForAvailableData = new SearchResultSetupAvailableData();
 		SearchResult selectedDataSearchResult = resultForAvailableData.getSearchResult();
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -80,7 +71,6 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 			//logger.error(e, e);
 		}
 		targetElement = iter.next();
-		WG23DataModel wg23data = IteratorUtil.getWG23DataModel(targetElement);
 		
 	}
 	
@@ -91,7 +81,7 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		SearchResultSetupAvailableData resultForAvailableData = new SearchResultSetupAvailableData();
 		SearchResult selectedDataSearchResult = resultForAvailableData.getSearchResult();
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -100,7 +90,7 @@ public class CreateAvailableDataTest extends TestCase implements TargetIteratorL
 			//logger.error(e, e);
 		}
 		targetElement = iter.next();
-		WG23DataModel wg23data = IteratorUtil.getWG23DataModel(targetElement);
+	
 		
 	}
 

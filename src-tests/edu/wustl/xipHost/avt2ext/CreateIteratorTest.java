@@ -3,7 +3,6 @@
  */
 package edu.wustl.xipHost.avt2ext;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataModel.SearchResult;
-import edu.wustl.xipHost.hostControl.Util;
 import edu.wustl.xipHost.iterator.Criteria;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.iterator.IteratorElementEvent;
@@ -30,7 +28,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	final static Logger logger = Logger.getLogger(CreateIteratorTest.class);
 	SearchResult selectedDataSearchResult;
 	SearchResult selectedDataSearchResultForSubqueries;
-	File tmpDir;
 	
 	public CreateIteratorTest(String name){
 		super(name);
@@ -42,16 +39,10 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		selectedDataSearchResult = result.getSearchResult();
 		SearchResultSetupSubqueries resultForSubqueries = new SearchResultSetupSubqueries();
 		selectedDataSearchResultForSubqueries = resultForSubqueries.getSearchResult();
-		tmpDir = new File("./test-content", "TmpAVTTest");		
-		if(tmpDir.exists() == false){
-			tmpDir.mkdir();
-		}
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		//tmpDir.delete();
-		Util.delete(tmpDir);
 	}
 	
 	//TargetIteratorRunner. Basic flow
@@ -60,7 +51,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	//IterationTarget.PATIENT
 	public void testCreateIterator_1A(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -77,7 +68,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	//IterationTarget.STUDY
 	public void testCreateIterator_1B(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -94,7 +85,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	//IterationTarget.SERIES
 	public void testCreateIterator_1C(){
 		Query avtQuery = new AVTQuery(null, null, null, null, null);
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -111,7 +102,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	//IterationTarget: PATIENT
 	public void testCreateIterator_2A(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -128,7 +119,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	//IterationTarget: STUDY
 	public void testCreateIterator_2B(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -146,7 +137,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	//IterationTarget: SERIES
 	public void testCreateIterator_2C(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -165,7 +156,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_3A(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		try{
-			TargetIteratorRunner targetIter = new TargetIteratorRunner(null, IterationTarget.STUDY, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(null, IterationTarget.STUDY, avtQuery, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -186,7 +177,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_3B(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		try{
-			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, null, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, null, avtQuery, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -207,7 +198,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_3C(){
 		AVTQueryStub avtQuery = null;
 		try{
-			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -228,7 +219,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	public void testCreateIterator_3D(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
 		try{
-			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, null, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -248,9 +239,8 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 	//IterationTarget: SERIES
 	public void testCreateIterator_3E(){
 		AVTQueryStub avtQuery = new AVTQueryStub(null, null, null, null, null);
-		tmpDir = new File("./test-content-no-existing", "TmpAVTTest");		
 		try{
-			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -273,7 +263,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		Query avtQuery = new AVTQueryStubNoPatientID(null, null, null, null, null);
 		SearchResultSetupNoPatientID resultNoID = new SearchResultSetupNoPatientID();
 		SearchResult selectedDataSearchResultNoPatientID = resultNoID.getSearchResult();
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultNoPatientID, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultNoPatientID, IterationTarget.PATIENT, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
@@ -316,7 +306,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 		Query avtQuery = new AVTQueryStubConnectException(null, null, null, null, null);
 		
 		try{
-			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, tmpDir, this);
+			TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, this);
 			try {
 				Thread t = new Thread(targetIter);
 				t.start();
@@ -369,9 +359,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
 				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path1 = subElement1.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("111");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek1");
 				boolean blnValue3 = value3.toString().equalsIgnoreCase("101.101");
@@ -404,9 +391,7 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value6 = dicomCriteria2.get(new Integer(1048592));	//patientName
 				Object value7 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
 				Object value8 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
-				String path2 = subElement2.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
+				
 				boolean blnValue5 = value5.toString().equalsIgnoreCase("111");
 				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek1");
 				boolean blnValue7 = value7.toString().equalsIgnoreCase("202.202");
@@ -707,9 +692,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studySeriesUID
 				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path1 = subElement1.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("111");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek1");
 				boolean blnValue3 = value3.toString().equalsIgnoreCase("101.101");
@@ -767,9 +749,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
 				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path1 = subElement1.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("222");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek2");
 				boolean blnValue3 = value3.toString().equalsIgnoreCase("303.303");
@@ -805,9 +784,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value7 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
 				Object value8 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path2 = subElement2.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue5 = value5.toString().equalsIgnoreCase("222");
 				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek2");
 				boolean blnValue7 = value7.toString().equalsIgnoreCase("303.303");
@@ -843,9 +819,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value11 = dicomCriteria3.get(new Integer(2097165));	//studyInstanceUID
 				Object value12 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path3 = subElement3.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue9 = value9.toString().equalsIgnoreCase("222");
 				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek2");
 				boolean blnValue11 = value11.toString().equalsIgnoreCase("303.303");
@@ -906,9 +879,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
 				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path1 = subElement1.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("333");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek3");
 				boolean blnValue3 = value3.toString().equalsIgnoreCase("606.606");
@@ -944,9 +914,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value7 = dicomCriteria2.get(new Integer(2097165));	//studyInstanceUID
 				Object value8 = dicomCriteria2.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path2 = subElement2.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue5 = value5.toString().equalsIgnoreCase("333");
 				boolean blnValue6 = value6.toString().equalsIgnoreCase("Jarek3");
 				boolean blnValue7 = value7.toString().equalsIgnoreCase("606.606");
@@ -982,9 +949,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value11 = dicomCriteria3.get(new Integer(2097165));	//studyInstanceUID
 				Object value12 = dicomCriteria3.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path3 = subElement3.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue9 = value9.toString().equalsIgnoreCase("333");
 				boolean blnValue10 = value10.toString().equalsIgnoreCase("Jarek3");
 				boolean blnValue11 = value11.toString().equalsIgnoreCase("606.606");
@@ -1071,9 +1035,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
 				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path1 = subElement1.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("111");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek1");
 				boolean blnValue3 = value3.toString().equalsIgnoreCase("101.101");
@@ -1128,9 +1089,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
 				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path1 = subElement1.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("222");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek2");
 				boolean blnValue3 = value3.toString().equalsIgnoreCase("303.303");
@@ -1185,9 +1143,6 @@ public class CreateIteratorTest extends TestCase implements TargetIteratorListen
 				Object value3 = dicomCriteria1.get(new Integer(2097165));	//studyInstanceUID
 				Object value4 = dicomCriteria1.get(new Integer(2097166));	//seriesInstanceUID
 				
-				String path1 = subElement1.getPath();
-				//check if path exists
-				//getPaths last directory equating to seriesINstanceUID
 				boolean blnValue1 = value1.toString().equalsIgnoreCase("333");
 				boolean blnValue2 = value2.toString().equalsIgnoreCase("Jarek3");
 				boolean blnValue3 = value3.toString().equalsIgnoreCase("606.606");
