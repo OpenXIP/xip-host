@@ -3,15 +3,12 @@
  */
 package edu.wustl.xipHost.iterator;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
@@ -35,30 +32,24 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 	IterationTarget target;
 	Query query;
 	Patient currentPatient = null;
-	Iterator<Patient> patientIt = null;
+	Iterator<Patient> patientsIter = null;
 	Item currentPatientItem;
-	Iterator<Item> patientItemIt = null;
+	Iterator<Item> patientItemIter = null;
 	Study currentStudy;
-	Iterator<Study> studyIt = null;
-	Iterator<Series> seriesIt = null;
-	
+	Series currentSeries;
+	Iterator<Study> studyIter = null;
+	Iterator<Series> seriesIter = null;
+	Iterator<Item> seriesLevelItemsIter = null;
 	List<TargetElement> targetElementList = new ArrayList<TargetElement>();
 	Iterator<TargetElement> targetIterator = null; 
-	
-	String pathRoot;
 		
-	public TargetIteratorRunner(SearchResult selectedDataSearchResult, IterationTarget target, Query query, File pathTmpDir, TargetIteratorListener targetListener) throws NullPointerException {
+	public TargetIteratorRunner(SearchResult selectedDataSearchResult, IterationTarget target, Query query, TargetIteratorListener targetListener) throws NullPointerException {
 		if(selectedDataSearchResult == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null SearchResult pointer");
 		if(target == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null IterationTarget");
 		if(query == null)
 			throw new NullPointerException("Cannot initialize TargetIterator with null Query");
-		if(pathTmpDir == null)
-			throw new NullPointerException("Cannot initialize TargetIterator with null value of path Tmp directory");
-		if(pathTmpDir.exists() == false){
-				throw new IllegalArgumentException("Tmporary Directory: " + pathTmpDir.getAbsolutePath() + " doesn't exists");
-		}
 		this.selectedDataSearchResult = selectedDataSearchResult;
 		if(logger.isDebugEnabled()){
 			List<Patient> patients = selectedDataSearchResult.getPatients();
@@ -70,7 +61,11 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 					logger.debug("   " + logStudy.toString());
 					List<Series> series = logStudy.getSeries();
 					for(Series logSeries : series){
-						logger.debug("      " + logSeries.toString());
+						logger.debug("      " + logSeries.toString() +  " Contains all items: " + logSeries.containsSubsetOfItems());
+						List<Item> items = logSeries.getItems();
+						for(Item logItem : items){
+							logger.debug("         " + logItem.toString());
+						}
 					}
 				}
 			}
@@ -80,12 +75,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 		this.query = query;
 		logger.debug("Query class: " + query.getClass().getName());
 		this.listener = targetListener;
-		try {
-			pathRoot = pathTmpDir.getCanonicalPath();
-			logger.debug("TargetIterator temp directory is: " + pathRoot );
-		} catch (IOException e) {
-			logger.error(e, e);
-		}
 	}
 	
 	
@@ -94,17 +83,16 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 	public void run() {
 		// Set internal target iterators
 		try {
-			if(this.selectedDataSearchResult.getPatients() != null) {
-				List<Patient> patients = this.selectedDataSearchResult.getPatients();
-				patientIt = patients.iterator();
+			if(selectedDataSearchResult.getPatients() != null) {
+				List<Patient> patients = selectedDataSearchResult.getPatients();
+				patientsIter = patients.iterator();
 			}
 		} catch(Exception e) {
 			notifyException(e.getMessage());
 			logger.error(e, e);
 		}
 		// Fill targetElementsList with target elements from searchResult
-		while(hasNextSearchResult())
-		{
+		while(hasNextSearchResult()) {
 			TargetElement element = loadNextSearchResult();
 			targetElementList.add(element);
 			notifyTargetIteratorElementAvailable(element);
@@ -244,59 +232,51 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 	
 	private boolean hasNextSearchResult() {
 		if(target == IterationTarget.PATIENT) {
-			return this.patientIt.hasNext();
-		
+			return patientsIter.hasNext();
 		} else if(target == IterationTarget.STUDY) {
 			// study list defined and contains additional entries
-			if(this.studyIt != null && this.studyIt.hasNext()) {
+			if(studyIter != null && studyIter.hasNext()) {
 				return true;
-			} else if(this.patientItemIt != null && this.patientItemIt.hasNext()) {
+			} else if(patientItemIter != null && patientItemIter.hasNext()) {
 				return true;
-
 			// end of study list for this patient, load list from next (or first) patient
-			} else if(patientIt.hasNext() == true) {
-				this.currentPatient = patientIt.next();
-				updatePatient(this.currentPatient);
-				studyIt = this.currentPatient.getStudies().iterator();
-				patientItemIt = this.currentPatient.getItems().iterator();
-				boolean hasNextStudyOrItem = (this.studyIt != null && this.studyIt.hasNext())
-					|| (this.patientItemIt != null && this.patientItemIt.hasNext());
+			} else if(patientsIter.hasNext() == true) {
+				currentPatient = patientsIter.next();
+				updatePatient(currentPatient);
+				studyIter = currentPatient.getStudies().iterator();
+				patientItemIter = currentPatient.getItems().iterator();
+				boolean hasNextStudyOrItem = (studyIter != null && studyIter.hasNext())
+					|| (patientItemIter != null && patientItemIter.hasNext());
 				return (hasNextStudyOrItem);
-			
 			// no additional entries in study list, no further patients in results
 			} else
 				return false;
-		
 		} else if(target == IterationTarget.SERIES) {
 			// series list defined and contains additional entries
-			if(this.seriesIt != null && this.seriesIt.hasNext()) {
-				return true;
-			
+			if(seriesIter != null && seriesIter.hasNext()) {
+				return true;			
 			// end of series list for this study, load list from next (or first) study
-			} else if(studyIt != null && studyIt.hasNext()) {
-				this.currentStudy = studyIt.next();
-				updateStudy(this.currentStudy);
-				seriesIt = this.currentStudy.getSeries().iterator();
-				return seriesIt.hasNext();
-			
+			} else if(studyIter != null && studyIter.hasNext()) {
+				currentStudy = studyIter.next();
+				updateStudy(currentStudy);
+				seriesIter = currentStudy.getSeries().iterator();
+				return seriesIter.hasNext();
 			// end of series list for this patient, load list from next (or first) patient/study
-			} else if(patientIt.hasNext() == true) {
-				this.currentPatient = patientIt.next();
-				updatePatient(this.currentPatient);
-				studyIt = this.currentPatient.getStudies().iterator();
-				this.currentStudy = studyIt.next();
-				updateStudy(this.currentStudy);
-				seriesIt = this.currentStudy.getSeries().iterator();
-				return seriesIt.hasNext();
+			} else if(patientsIter.hasNext() == true) {
+				currentPatient = patientsIter.next();
+				updatePatient(currentPatient);
+				studyIter = currentPatient.getStudies().iterator();
+				currentStudy = studyIter.next();
+				updateStudy(currentStudy);
+				seriesIter = currentStudy.getSeries().iterator();
+				return seriesIter.hasNext();
 				// TODO Need logic to support skipping empty series lists in intermediate Patient, etc.
 				// TODO hasNext() currently returns false 
 			
 			// no additional entries in series list, no further patients/studies in results
 			} else
 				return false;
-			
 		}
-			
 		return false;
 	}
 		
@@ -306,11 +286,10 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 	private TargetElement loadNextSearchResult() {
 		TargetElement targetElement = null;
 		if(targetElementList != null){
-			
 			// ** PATIENT TARGET ** //
-			if(this.target == IterationTarget.PATIENT) {
+			if(target == IterationTarget.PATIENT) {
 				// Update all elements below current patient
-				Patient patient = patientIt.next();
+				Patient patient = patientsIter.next();
 				updatePatient(patient);
 				for(Study study : patient.getStudies()) {
 					updateStudy(study);
@@ -320,7 +299,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				}
 				// Build Criteria and path for patient
 				Criteria patientCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-				String patientPath = pathRoot;
 				patientCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				patientCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(patient.getPatientName() != null && !patient.getPatientName().isEmpty()) {
@@ -328,46 +306,25 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				}
 				if(patient.getPatientID() != null && !patient.getPatientID().isEmpty()) {
 					patientCriteria.getDICOMCriteria().put(Tag.PatientID, patient.getPatientID());
-					patientPath += File.separator + patient.getPatientID();
-					new File(patientPath).mkdir();
 				}
-	
 				// Build Criteria and path for each Patient/Study/Series SubElement
 				// Plus create empty files for all items found in Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				for(Study study : patient.getStudies()) {
 					Criteria studyCriteria= new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());		
-					String studyPath = patientPath;
 					studyCriteria.getDICOMCriteria().putAll(patientCriteria.getDICOMCriteria());
 					studyCriteria.getAIMCriteria().putAll(patientCriteria.getAIMCriteria());
 					if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
 						studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
-						studyPath += File.separator + study.getStudyInstanceUID();
-						new File(studyPath).mkdir();
 					}
 					for(Series series : study.getSeries()) {
 						Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-						String seriesPath = studyPath;
 						seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
 						seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
 						if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
-							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
-							//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
-							seriesPath += File.separator + series.getSeriesInstanceUID();
-							new File(seriesPath).mkdir();
-							List<Item> items = series.getItems();
-							for(Item item : items){
-								try {
-									File file = new File(seriesPath + File.separatorChar + item.getItemID());
-									if(!file.exists()){
-										file.createNewFile();
-									}
-								} catch (IOException e) {
-									logger.error(e, e);
-								}
-							}	
+							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());							
 						}
-						SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
+						SubElement seriesSubElement = new SubElement(seriesCriteria);
 						subElements.add(seriesSubElement);
 					}
 				}
@@ -391,8 +348,8 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 
 				// Update all elements below current study
 				List<SubElement> subElements = new ArrayList<SubElement>();
-				if ((this.studyIt != null) && (this.studyIt.hasNext())){
-					study = studyIt.next();
+				if ((this.studyIter != null) && (this.studyIter.hasNext())){
+					study = studyIter.next();
 				}
 				if (study != null){
 					updateStudy(study);
@@ -402,7 +359,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 
 					// Build Criteria and path for Study/Series
 					Criteria studyCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-					String studyPath = pathRoot;
 					studyCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 					studyCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 					if(currentPatient.getPatientName() != null && !currentPatient.getPatientName().isEmpty()) {
@@ -410,75 +366,63 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 					}
 					if(currentPatient.getPatientID() != null && !currentPatient.getPatientID().isEmpty()) {
 						studyCriteria.getDICOMCriteria().put(Tag.PatientID, currentPatient.getPatientID());
-						studyPath += File.separator + currentPatient.getPatientID();
-						new File(studyPath).mkdir();
 					}
 					if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
 						studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
-						studyPath += File.separator + study.getStudyInstanceUID();
-						new File(studyPath).mkdir();
 					}
 					for(Series series : study.getSeries()) {
 						Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-						String seriesPath = studyPath;
 						seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
 						seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
 						if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
-							//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
-							seriesPath += File.separator + series.getSeriesInstanceUID();
-							new File(seriesPath).mkdir();
-							List<Item> items = series.getItems();
-							for(Item item : items){
-								try {
-									File file = new File(seriesPath + File.separatorChar + item.getItemID());
-									if(!file.exists()){
-										file.createNewFile();
-									}
-								} catch (IOException e) {
-									logger.error(e, e);
-								}
-							}	
 						}
-						SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
+						SubElement seriesSubElement = new SubElement(seriesCriteria);
 						subElements.add(seriesSubElement);
 					}
-				} else if (patientItemIt != null){
-					patientItem = patientItemIt.next();
+				} else if (patientItemIter != null){
+					patientItem = patientItemIter.next();
 				}
 
 				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
 				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
 				// as they may be needed for evaluation of this TargetElement.
-				Patient prunedCurrentPatient = new Patient(currentPatient.getPatientName(), currentPatient.getPatientID(), 
+				Patient prunedCurrentPatient = new Patient(currentPatient.getPatientName(), 
+						currentPatient.getPatientID(), 
 						currentPatient.getPatientBirthDate());
-				prunedCurrentPatient.setLastUpdated(currentPatient.getLastUpdated());
+				prunedCurrentPatient.setLastUpdated(currentPatient.getLastUpdated());				
+				List<Item> patientItemsList = currentPatient.getItems();
+				for (Item item : patientItemsList) {
+					prunedCurrentPatient.addItem(item);
+				}
+				prunedCurrentPatient.addStudy(study);
+				//targetID = study.getStudyInstanceUID();
+				/*
 				if (study != null) {
 					prunedCurrentPatient.addStudy(study);
 					targetID = study.getStudyInstanceUID();
 				} else if (patientItem != null) {
 					prunedCurrentPatient.addItem(patientItem);
 					targetID = patientItem.getItemID();
-				}
+				}*/
 				SearchResult prunedSearchResult = new SearchResult(selectedDataSearchResult.getDataSourceDescription());
 				prunedSearchResult.setOriginalCriteria(selectedDataSearchResult.getOriginalCriteria());
+				prunedSearchResult.addPatient(prunedCurrentPatient);
 				prunedSearchResult.addPatient(prunedCurrentPatient);
 				List<Item> itemsList = selectedDataSearchResult.getItems();
 				for (Item item : itemsList) {
 					prunedSearchResult.addItem(item);
 				}
 				targetElement = new TargetElement(targetID, subElements, target, prunedSearchResult);
-			
 			// ** SERIES TARGET ** //
 			} else if(this.target == IterationTarget.SERIES) {
 				// Update Item list in series
-				Series series = seriesIt.next();
+				Series series = seriesIter.next();
 				updateSeries(series);
 				
 				// Build Criteria for Series
 				List<SubElement> subElements = new ArrayList<SubElement>();
 				Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-				String seriesPath = pathRoot;
 				seriesCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
 				seriesCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
 				if(this.currentPatient.getPatientName() != null && !this.currentPatient.getPatientName().isEmpty()) {
@@ -486,41 +430,20 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				}
 				if(this.currentPatient.getPatientID() != null && !this.currentPatient.getPatientID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.PatientID, this.currentPatient.getPatientID());
-					seriesPath += File.separator + currentPatient.getPatientID();
-					new File(seriesPath).mkdir();
 				}
 				if(this.currentStudy.getStudyInstanceUID() != null && !this.currentStudy.getStudyInstanceUID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, this.currentStudy.getStudyInstanceUID());
-					//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
-					seriesPath += File.separator + currentStudy.getStudyInstanceUID();
-					new File(seriesPath).mkdir();
 				}
 				if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
 					seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
-					//seriesCriteria.getDICOMCriteria().put(Tag.Modality, series.getModality());
-					seriesPath += File.separator + series.getSeriesInstanceUID();
-					new File(seriesPath).mkdir();
 				}
-				List<Item> items = series.getItems();
-				for(Item item : items){
-					try {
-						File file = new File(seriesPath + File.separatorChar + item.getItemID());
-						if(!file.exists()){
-							file.createNewFile();
-						}
-					} catch (IOException e) {
-						logger.error(e, e);
-					}
-				}	
-				SubElement seriesSubElement = new SubElement(seriesCriteria, seriesPath);
+				SubElement seriesSubElement = new SubElement(seriesCriteria);
 				subElements.add(seriesSubElement);
 				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
 				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
 				// as they may be needed for evaluation of this TargetElement.
-				Study prunedCurrentStudy = new Study(currentStudy.getStudyDate(), 
-						currentStudy.getStudyID(), 
-						currentStudy.getStudyDesc(),
-						currentStudy.getStudyInstanceUID());
+				Study prunedCurrentStudy = new Study(currentStudy.getStudyDate(), currentStudy.getStudyID(), 
+						currentStudy.getStudyDesc(), currentStudy.getStudyInstanceUID());
 				prunedCurrentStudy.setLastUpdated(currentStudy.getLastUpdated());
 				prunedCurrentStudy.addSeries(series);
 				List<Item> studyItemsList = currentStudy.getItems();
