@@ -9,23 +9,13 @@ package edu.wustl.xipHost.iterator;
  */
 public class SubElement {
 	Criteria criteria;
-	String path;
 	
-	public SubElement(Criteria criteria, String path) {
+	public SubElement(Criteria criteria) {
 		super();
 		this.criteria = criteria;
-		this.path = path;
 	}
 
 	public Criteria getCriteria() {
 		return criteria;
-	}
-
-	public String getPath() {
-		return path;
-	}
-	
-	public void setPath(String strPath){
-		path = strPath;
 	}
 }
