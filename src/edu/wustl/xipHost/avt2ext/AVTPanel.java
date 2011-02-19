@@ -65,6 +65,7 @@ import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.ItemNode;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -471,7 +472,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	        	timer.setRepeats(false);
 	        	timer.start();
 	        }
-	    }
+     	}
 	};
 	
 	
@@ -538,6 +539,15 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 										if(existingSeriesNode.isSelected() == true){
 											isDataSelected = true;
 											break;
+										} else {
+											int numOfItems = existingSeriesNode.getChildCount();
+											for(int m = 0; m < numOfItems; m++){
+												ItemNode existingItemNode = (ItemNode)existingSeriesNode.getChildAt(m);
+												if(existingItemNode.isSelected() == true){
+													isDataSelected = true;
+													break;
+												}
+											}
 										}
 									}
 								}
