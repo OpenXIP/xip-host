@@ -299,7 +299,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		} catch (MalformedURLException e) {
 			logger.error(e, e);	
 		}
-		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, getIterationTarget(), query, getApplicationTmpDir(), this);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, getIterationTarget(), query, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
