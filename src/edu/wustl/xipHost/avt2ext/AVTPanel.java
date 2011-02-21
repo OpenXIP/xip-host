@@ -65,7 +65,7 @@ import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
-import edu.wustl.xipHost.gui.checkboxTree.ItemNode;
+import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
@@ -508,74 +508,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
     	}
 		//check if selectedDataSearchresult is not null and at least one PatientNode is selected
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
-		boolean isDataSelected = false;
-		if(rootNode != null){
-			if(rootNode.getChildCount() != 0){
-				DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
-				int numOfPatients = locationNode.getChildCount();
-				if (numOfPatients == 0){
-					logger.warn("No data is selected");
-					new ExceptionDialog("Cannot launch selected application.", 
-							"No dataset selected. Please query and select data nodes.",
-							"Launch Application Dialog");
-					return;
-				} else {
-					for(int i = 0; i < numOfPatients; i++){
-						PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(i);
-						if(existingPatientNode.isSelected() == true){
-							isDataSelected = true;
-							break;
-						} else {
-							int numOfStudies = existingPatientNode.getChildCount();
-							for(int j = 0; j < numOfStudies; j++){
-								StudyNode existingStudyNode = (StudyNode)existingPatientNode.getChildAt(j);
-								if(existingStudyNode.isSelected() == true){
-									isDataSelected = true;
-									break;
-								} else {
-									int numOfSeries = existingStudyNode.getChildCount();
-									for(int k = 0; k < numOfSeries; k++){
-										SeriesNode existingSeriesNode = (SeriesNode)existingStudyNode.getChildAt(k);
-										if(existingSeriesNode.isSelected() == true){
-											isDataSelected = true;
-											break;
-										} else {
-											int numOfItems = existingSeriesNode.getChildCount();
-											for(int m = 0; m < numOfItems; m++){
-												ItemNode existingItemNode = (ItemNode)existingSeriesNode.getChildAt(m);
-												if(existingItemNode.isSelected() == true){
-													isDataSelected = true;
-													break;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-					if(isDataSelected == false){
-						logger.warn("No data is selected");
-						new ExceptionDialog("Cannot launch selected application.", 
-								"No dataset selected. Please select data nodes.",
-								"Launch Application Dialog");
-						return;
-					}
-				}
-			} else {
-				logger.warn("No data is selected");
-				new ExceptionDialog("Cannot launch selected application.", 
-						"No dataset selected. Please query and select data nodes.",
-						"Launch Application Dialog");
-				return;
-			}
-		} else {
-			logger.warn("No data is selected");
-			new ExceptionDialog("Cannot launch selected application.", 
-					"No dataset selected. Please query and select data nodes.",
-					"Launch Application Dialog");
-			return;
-		}
+		boolean isDataSelected = DataSelectionValidator.isDataSelected(rootNode);
 		if(isDataSelected){
 			AppButton btn = (AppButton)event.getSource();
 			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
