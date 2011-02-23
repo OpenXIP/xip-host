@@ -297,37 +297,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 						updateSeries(series);
 					}
 				}
-				// Build Criteria and path for patient
-				Criteria patientCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-				patientCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
-				patientCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
-				if(patient.getPatientName() != null && !patient.getPatientName().isEmpty()) {
-					patientCriteria.getDICOMCriteria().put(Tag.PatientName, patient.getPatientName());
-				}
-				if(patient.getPatientID() != null && !patient.getPatientID().isEmpty()) {
-					patientCriteria.getDICOMCriteria().put(Tag.PatientID, patient.getPatientID());
-				}
-				// Build Criteria and path for each Patient/Study/Series SubElement
-				// Plus create empty files for all items found in Series
-				List<SubElement> subElements = new ArrayList<SubElement>();
-				for(Study study : patient.getStudies()) {
-					Criteria studyCriteria= new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());		
-					studyCriteria.getDICOMCriteria().putAll(patientCriteria.getDICOMCriteria());
-					studyCriteria.getAIMCriteria().putAll(patientCriteria.getAIMCriteria());
-					if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
-						studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
-					}
-					for(Series series : study.getSeries()) {
-						Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-						seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
-						seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
-						if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
-							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());							
-						}
-						SubElement seriesSubElement = new SubElement(seriesCriteria);
-						subElements.add(seriesSubElement);
-					}
-				}
 				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
 				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
 				// as they may be needed for evaluation of this TargetElement.
@@ -338,16 +307,14 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				for (Item item : itemsList) {
 					prunedSearchResult.addItem(item);
 				}
-				targetElement = new TargetElement(patient.getPatientID(), subElements, target, prunedSearchResult);
+				targetElement = new TargetElement(patient.getPatientID(), target, prunedSearchResult);
 			
 			// ** STUDY TARGET ** //
 			} else if(this.target == IterationTarget.STUDY) {
 				Study study = null;
 				Item patientItem = null;
-				String targetID = "";
 
 				// Update all elements below current study
-				List<SubElement> subElements = new ArrayList<SubElement>();
 				if ((this.studyIter != null) && (this.studyIter.hasNext())){
 					study = studyIter.next();
 				}
@@ -355,30 +322,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 					updateStudy(study);
 					for(Series series : study.getSeries()) {
 						updateSeries(series);
-					}
-
-					// Build Criteria and path for Study/Series
-					Criteria studyCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-					studyCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
-					studyCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
-					if(currentPatient.getPatientName() != null && !currentPatient.getPatientName().isEmpty()) {
-						studyCriteria.getDICOMCriteria().put(Tag.PatientName, currentPatient.getPatientName());
-					}
-					if(currentPatient.getPatientID() != null && !currentPatient.getPatientID().isEmpty()) {
-						studyCriteria.getDICOMCriteria().put(Tag.PatientID, currentPatient.getPatientID());
-					}
-					if(study.getStudyInstanceUID() != null && !study.getStudyInstanceUID().isEmpty()) {
-						studyCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
-					}
-					for(Series series : study.getSeries()) {
-						Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-						seriesCriteria.getDICOMCriteria().putAll(studyCriteria.getDICOMCriteria());
-						seriesCriteria.getAIMCriteria().putAll(studyCriteria.getAIMCriteria());
-						if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
-							seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
-						}
-						SubElement seriesSubElement = new SubElement(seriesCriteria);
-						subElements.add(seriesSubElement);
 					}
 				} else if (patientItemIter != null){
 					patientItem = patientItemIter.next();
@@ -396,15 +339,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 					prunedCurrentPatient.addItem(item);
 				}
 				prunedCurrentPatient.addStudy(study);
-				//targetID = study.getStudyInstanceUID();
-				/*
-				if (study != null) {
-					prunedCurrentPatient.addStudy(study);
-					targetID = study.getStudyInstanceUID();
-				} else if (patientItem != null) {
-					prunedCurrentPatient.addItem(patientItem);
-					targetID = patientItem.getItemID();
-				}*/
 				SearchResult prunedSearchResult = new SearchResult(selectedDataSearchResult.getDataSourceDescription());
 				prunedSearchResult.setOriginalCriteria(selectedDataSearchResult.getOriginalCriteria());
 				prunedSearchResult.addPatient(prunedCurrentPatient);
@@ -413,32 +347,12 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				for (Item item : itemsList) {
 					prunedSearchResult.addItem(item);
 				}
-				targetElement = new TargetElement(targetID, subElements, target, prunedSearchResult);
+				targetElement = new TargetElement(study.getStudyInstanceUID(), target, prunedSearchResult);
 			// ** SERIES TARGET ** //
 			} else if(this.target == IterationTarget.SERIES) {
 				// Update Item list in series
 				Series series = seriesIter.next();
 				updateSeries(series);
-				
-				// Build Criteria for Series
-				List<SubElement> subElements = new ArrayList<SubElement>();
-				Criteria seriesCriteria = new Criteria(new HashMap<Integer, Object>(), new HashMap<String, Object>());
-				seriesCriteria.getDICOMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getDICOMCriteria());
-				seriesCriteria.getAIMCriteria().putAll(selectedDataSearchResult.getOriginalCriteria().getAIMCriteria());
-				if(this.currentPatient.getPatientName() != null && !this.currentPatient.getPatientName().isEmpty()) {
-					seriesCriteria.getDICOMCriteria().put(Tag.PatientName, this.currentPatient.getPatientName());
-				}
-				if(this.currentPatient.getPatientID() != null && !this.currentPatient.getPatientID().isEmpty()) {
-					seriesCriteria.getDICOMCriteria().put(Tag.PatientID, this.currentPatient.getPatientID());
-				}
-				if(this.currentStudy.getStudyInstanceUID() != null && !this.currentStudy.getStudyInstanceUID().isEmpty()) {
-					seriesCriteria.getDICOMCriteria().put(Tag.StudyInstanceUID, this.currentStudy.getStudyInstanceUID());
-				}
-				if(series.getSeriesInstanceUID() != null && !series.getSeriesInstanceUID().isEmpty()) {
-					seriesCriteria.getDICOMCriteria().put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
-				}
-				SubElement seriesSubElement = new SubElement(seriesCriteria);
-				subElements.add(seriesSubElement);
 				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
 				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
 				// as they may be needed for evaluation of this TargetElement.
@@ -466,7 +380,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				for (Item item : itemsList) {
 					prunedSearchResult.addItem(item);
 				}
-				targetElement = new TargetElement(series.getSeriesInstanceUID(), subElements, target, prunedSearchResult);
+				targetElement = new TargetElement(series.getSeriesInstanceUID(), target, prunedSearchResult);
 			} else
 				throw new NoSuchElementException();
 		} else {
