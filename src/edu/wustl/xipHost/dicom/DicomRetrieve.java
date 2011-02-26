@@ -96,11 +96,11 @@ public class DicomRetrieve implements Retrieve {
 			for(Patient patient : patients){
 				try{
 					List<Study> studies = patient.getStudies();
-					for(Study study : studies){
+					for(Study study : studies){						
 						{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(study.getStudyInstanceUID()); criteria.put(t,a); }
 						{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("IMAGE"); criteria.put(t,a); }
 						List<Series> series = study.getSeries();
-						for(Series oneSeries : series){					
+						for(Series oneSeries : series){												
 							{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(oneSeries.getSeriesInstanceUID()); criteria.put(t,a); }							
 							List<ObjectDescriptor> objectDescriptors = new ArrayList<ObjectDescriptor>();
 							List<Item> items = oneSeries.getItems();
@@ -140,12 +140,13 @@ public class DicomRetrieve implements Retrieve {
 												retrievedFilesURIs.add(fileURI);							
 											}		
 											localResults = mQueryResponseGenerator.next();
-										}										 	
+										}
+										//Reset value of SOPInstanceUID in criteria
+										{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.removeValues(); criteria.put(t,a); }
 									}
-								} else {																               	
-						        	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        	
-						        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());
-						        	
+								} else {																               																			
+									StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        	
+						        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());						        	
 						        	//System.out.println("Local server is: " + getDBFileName());
 									StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(dicomMgr.getDBFileName());			
 						    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
@@ -202,8 +203,13 @@ public class DicomRetrieve implements Retrieve {
 								logger.error(e, e);
 							} catch (DicomNetworkException e) {						
 								logger.error(e, e);
-							}	
+							}
+							//Reset DICOM SERIES level values in criteria
+							{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.removeValues(); criteria.put(t,a); }
 						}
+						//Reset DICOM STUDY level values in criteria
+						{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.removeValues(); criteria.put(t,a); }
+						{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.removeValues(); criteria.put(t,a); }
 					}
 				} catch (Exception e) {
 					logger.error(e, e);			
