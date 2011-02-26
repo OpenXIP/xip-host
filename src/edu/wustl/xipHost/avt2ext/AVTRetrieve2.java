@@ -213,6 +213,8 @@ public class AVTRetrieve2 implements Retrieve {
 							    	}	  
 								}		
 							}
+							//Reset value of SOPInstanceUID in dicomCriteria
+							dicomCriteria.remove(Tag.SOPInstanceUID);
 						} else {
 							List<DicomObject> retrievedDICOM = adService.retrieveDicomObjs(dicomCriteria, aimCriteria);											
 							int i = 0;
@@ -306,9 +308,16 @@ public class AVTRetrieve2 implements Retrieve {
 						    	}	  
 							}	
 						}
-					}					
+					}
+					//Reset Series level dicomCriteria
+					dicomCriteria.remove(Tag.SeriesInstanceUID);
 				}
+				//Reset Study level dicomCriteria
+				dicomCriteria.remove(Tag.StudyInstanceUID);
 			}
+			//Reset Patient level dicomCriteria
+			dicomCriteria.remove(Tag.PatientName);
+			dicomCriteria.remove(Tag.PatientID);
 		}
 	}		
 	
