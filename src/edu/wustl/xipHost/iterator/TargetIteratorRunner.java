@@ -312,7 +312,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 			// ** STUDY TARGET ** //
 			} else if(this.target == IterationTarget.STUDY) {
 				Study study = null;
-				Item patientItem = null;
 
 				// Update all elements below current study
 				if ((this.studyIter != null) && (this.studyIter.hasNext())){
@@ -323,10 +322,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 					for(Series series : study.getSeries()) {
 						updateSeries(series);
 					}
-				} else if (patientItemIter != null){
-					patientItem = patientItemIter.next();
-				}
-
+				} 
 				// Create a pruned subtree of the selectedDataSearchResult, including just the Items covered
 				// by this TargetElement.  Do include the upper level Items, leading up to this TargetElement, 
 				// as they may be needed for evaluation of this TargetElement.
@@ -341,7 +337,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 				prunedCurrentPatient.addStudy(study);
 				SearchResult prunedSearchResult = new SearchResult(selectedDataSearchResult.getDataSourceDescription());
 				prunedSearchResult.setOriginalCriteria(selectedDataSearchResult.getOriginalCriteria());
-				prunedSearchResult.addPatient(prunedCurrentPatient);
 				prunedSearchResult.addPatient(prunedCurrentPatient);
 				List<Item> itemsList = selectedDataSearchResult.getItems();
 				for (Item item : itemsList) {
