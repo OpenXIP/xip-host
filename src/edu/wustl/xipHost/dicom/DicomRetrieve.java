@@ -19,6 +19,7 @@ import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.CodeStringAttribute;
+import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.SetOfDicomFiles;
 import com.pixelmed.dicom.TagFromName;
@@ -109,10 +110,22 @@ public class DicomRetrieve implements Retrieve {
 									for(Item item : items){
 										objectDescriptors.add(item.getObjectDescriptor());
 										String itemSOPInstanceUID = item.getItemID();
-										{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(itemSOPInstanceUID); criteria.put(t,a); }								           	
-							        	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        	
-							        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());
-							        	
+										{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(itemSOPInstanceUID); criteria.put(t,a); }			
+										logger.debug("DICOM retrieve criteria:");
+										DicomDictionary dictionary = AttributeList.getDictionary();
+									    Iterator<?> iter = dictionary.getTagIterator();        
+									    String strAtt = null;
+									    String attValue = null;
+									    while(iter.hasNext()){
+									    	AttributeTag attTag  = (AttributeTag)iter.next();					    	
+									    	strAtt = attTag.toString();									
+											attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);			
+											if(!attValue.isEmpty()){
+												logger.debug(strAtt + " " + attValue);				
+											}
+									    }	    
+							        	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        								        	
+							        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());							        	
 							        	//System.out.println("Local server is: " + getDBFileName());
 										StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(dicomMgr.getDBFileName());			
 							    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
