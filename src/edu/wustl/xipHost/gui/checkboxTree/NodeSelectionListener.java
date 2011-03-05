@@ -82,6 +82,37 @@ public class NodeSelectionListener implements ActionListener {
 						}
 						updateSelection(patientNode, selected);
 						updateSelectedDataSearchResult(patient, selected);
+						//Reset Series flag containsSubsetOfData 
+						int patientChildCount = patientNode.getChildCount();
+						if(patientChildCount > 0){
+							for(int i = 0; i < patientChildCount; i++){
+								DefaultMutableTreeNode patientChildNode = (DefaultMutableTreeNode)patientNode.getChildAt(i);
+								StudyNode studyNode = (StudyNode)patientChildNode;
+								Study study =(Study)studyNode.getUserObject();
+								int studyChildCount = studyNode.getChildCount();
+								if(studyChildCount > 0){
+									for(int j = 0; j < studyChildCount; j++){
+										DefaultMutableTreeNode studyChildNode = (DefaultMutableTreeNode)studyNode.getChildAt(j);										
+										SeriesNode seriesNode = (SeriesNode)studyChildNode;
+										Series series = (Series)seriesNode.getUserObject();
+										int seriesChildCount = seriesNode.getChildCount();
+										boolean allSeriesChildrenSelected = true;
+										for(int m = 0; m < seriesChildCount; m++){
+											DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) seriesNode.getChildAt(m);
+											if (childSeriesNode.getUserObject() instanceof Item) {
+												ItemNode otherItemNode = (ItemNode) childSeriesNode;
+												if(otherItemNode.isSelected() == false){
+													allSeriesChildrenSelected = false;
+													break;
+												}
+											}
+										}						
+										boolean subsetOfItems = !allSeriesChildrenSelected;
+										setSeriesDatasetFlag(series, study, patient, subsetOfItems);
+									}									
+								}								
+							}
+						}						
 					} else if (selectedNode instanceof Study) {
 						StudyNode studyNode = (StudyNode) node;
 						boolean selected = !studyNode.isSelected();
@@ -102,13 +133,29 @@ public class NodeSelectionListener implements ActionListener {
 								if(studyChildNode.getUserObject() instanceof Series){
 									Series series = (Series)studyChildNode.getUserObject();
 									updateSelectedDataSearchResult(series, study, patient, selected);
+									//Reset Series flag containsSubsetOfData 
+									SeriesNode seriesNode = (SeriesNode)studyChildNode;
+									int seriesChildCount = seriesNode.getChildCount();
+									boolean allSeriesChildrenSelected = true;
+									for(int j = 0; j < seriesChildCount; j++){
+										DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) seriesNode.getChildAt(j);
+										if (childSeriesNode.getUserObject() instanceof Item) {
+											ItemNode otherItemNode = (ItemNode) childSeriesNode;
+											if(otherItemNode.isSelected() == false){
+												allSeriesChildrenSelected = false;
+												break;
+											}
+										}
+									}						
+									boolean subsetOfItems = !allSeriesChildrenSelected;
+									setSeriesDatasetFlag(series, study, patient, subsetOfItems);
 								} else {
 									
 								}
 							}
 						} else if (studyChildCount == 0){
 							updateSelectedDataSearchResult(study, patient, selected);
-						}
+						}						
 					} else if (selectedNode instanceof Series) {
 						SeriesNode seriesNode = (SeriesNode) node;
 						boolean selected = !seriesNode.isSelected();
@@ -128,6 +175,21 @@ public class NodeSelectionListener implements ActionListener {
 						}
 						updateSelection(seriesNode, studyNode, selected);
 						updateSelectedDataSearchResult(series, study, patient, selected);
+						//Reset Series flag containsSubsetOfData 
+						int seriesChildCount = seriesNode.getChildCount();
+						boolean allSeriesChildrenSelected = true;
+						for(int i = 0; i < seriesChildCount; i++){
+							DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) seriesNode.getChildAt(i);
+							if (childSeriesNode.getUserObject() instanceof Item) {
+								ItemNode otherItemNode = (ItemNode) childSeriesNode;
+								if(otherItemNode.isSelected() == false){
+									allSeriesChildrenSelected = false;
+									break;
+								}
+							}
+						}						
+						boolean subsetOfItems = !allSeriesChildrenSelected;
+						setSeriesDatasetFlag(series, study, patient, subsetOfItems);
 					} else if (selectedNode instanceof Item) {
 						ItemNode itemNode = (ItemNode) node;
 						boolean selected = !itemNode.isSelected();
@@ -153,8 +215,7 @@ public class NodeSelectionListener implements ActionListener {
 							}
 						}						
 						boolean subsetOfItems = !allSeriesChildrenSelected;
-						setSeriesDatasetFlag(series, study, patient, subsetOfItems);
-						
+						setSeriesDatasetFlag(series, study, patient, subsetOfItems);						
 					}
 				}
 			}
@@ -169,7 +230,7 @@ public class NodeSelectionListener implements ActionListener {
 						logger.debug("   " + logStudy.toString());
 						List<Series> series = logStudy.getSeries();
 						for (Series logSeries : series) {
-							logger.debug("      " + logSeries.toString() + " Contains all items: " + logSeries.containsSubsetOfItems());
+							logger.debug("      " + logSeries.toString() + " Subset of items: " + logSeries.containsSubsetOfItems());
 							List<Item> items = logSeries.getItems();
 							for(Item logItem : items){
 								logger.debug("         " + logItem.toString());
