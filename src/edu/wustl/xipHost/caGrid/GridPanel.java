@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +27,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -60,28 +58,31 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
+import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
 import edu.wustl.xipHost.caGrid.GridUtil;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dicom.DicomRetrieve;
-import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
-import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
-import edu.wustl.xipHost.xds.XDSPanel;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
@@ -90,7 +91,7 @@ import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
  * @author Jaroslaw Krych
  *
  */
-public class GridPanel extends JPanel implements ActionListener, ApplicationListener, GridSearchListener, GridRetrieveListener, DataSelectionListener {	
+public class GridPanel extends JPanel implements ActionListener, ApplicationListener, DataAccessListener, DataSelectionListener {	
 	final static Logger logger = Logger.getLogger(GridPanel.class);
 	JPanel locationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select caGRID DICOM Service Location:");		
@@ -109,8 +110,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	Color xipBtn = new Color(56, 73, 150);
 	Color xipLightBlue = new Color(156, 162, 189);
 	GridManager gridMgr;
-	GridSearchListener l;
 	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
+	DataAccessListener l;
 	
 	public GridPanel(){
 		l = this;
@@ -313,17 +314,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
         layout.setConstraints(criteriaPanel, constraints); 
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		GridPanel panel = new GridPanel();
-		frame.getContentPane().add(panel);
-		frame.setVisible(true);
-		frame.pack();
-	}	
-
 	
 	GridLocation selectedGridTypeDicomService;
 	GridLocation selectedGridTypeAimService;	
@@ -350,7 +340,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);							
 				activeSubqueryMonitor = false;
 				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, null, null);				
-				gridQuery.addGridSearchListener(this);
+				gridQuery.addDataAccessListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();									
 			}else{
@@ -394,25 +384,25 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	SearchResult result;
 	boolean activeSubqueryMonitor;
 	boolean subqueryCompleted;
-	public void searchResultAvailable(GridSearchEvent e) {
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {
+		synchronized(this){
+			GridQuery gridQuery = (GridQuery)e.getSource();
+			result = gridQuery.getSearchResult();
+			if(activeSubqueryMonitor == true){
+				subqueryCompleted = true;
+			}
+			synchronized(result){
+				rightPanel.getGridJTreePanel().updateNodes2(result);
+				if(activeSubqueryMonitor){
+					result.notify();
+				}
+				activeSubqueryMonitor = true;
+			}
+		}	
 		progressBar.setString("GridSearch finished");
 		progressBar.setIndeterminate(false);
-		if(e.getSource().getClass() == GridQuery.class){
-			synchronized(this){
-				GridQuery gridQuery = (GridQuery)e.getSource();
-				result = gridQuery.getSearchResult();
-				if(activeSubqueryMonitor == true){
-					subqueryCompleted = true;
-				}
-				synchronized(result){
-					rightPanel.getGridJTreePanel().updateNodes2(result);
-					if(activeSubqueryMonitor){
-						result.notify();
-					}
-					activeSubqueryMonitor = true;
-				}
-			}
-		}												
+		/*
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -420,7 +410,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				int visibleRows = resultTree.getVisibleRowCount();
 				resultTree.scrollRowToVisible(queryNodeIndex + visibleRows);
 			}			 
-		});	
+		});*/	
 	}
 	
 	@Override
@@ -552,7 +542,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 										}
 		     							initialCriteria.put(t,a);}
 			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
-			     					gridQuery.addGridSearchListener(l);
+			     					gridQuery.addDataAccessListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
 			     				}else{
@@ -593,7 +583,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 											e1.printStackTrace();
 										}		     						
 			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
-			     					gridQuery.addGridSearchListener(l);
+			     					gridQuery.addDataAccessListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
 			     				}else{
@@ -646,21 +636,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		}			
 	}
 	
-	Map<Series, Study> getSelectedSeries(){
-		Map<Series, Study> selectedSeries = new LinkedHashMap<Series, Study>();
-		List<Patient> patients = selectedDataSearchResult.getPatients();
-		for(Patient patient : patients){
-			List<Study> studies = patient.getStudies();
-			for(Study study : studies){
-				List<Series> series = study.getSeries();
-				for(Series oneSeries : series){
-					selectedSeries.put(oneSeries, study);			
-				}
-			}
-		}
-		return selectedSeries;
-	}
-
+	
 	SearchResult selectedDataSearchResult;
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
@@ -718,82 +694,49 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 							}						
 						}		
 					}						 
-				}
+				} 
 			} catch (InterruptedException e) {
 				logger.error(e, e);
 			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("Value of selectedDataSearchresult: ");
+				if(selectedDataSearchResult != null){
+					List<Patient> patients = selectedDataSearchResult.getPatients();					
+					for (Patient logPatient : patients) {
+						if(logPatient != null){
+							logger.debug(logPatient.toString());
+							List<Study> studies = logPatient.getStudies();
+							for (Study logStudy : studies) {
+								if(logStudy != null){
+									logger.debug("   " + logStudy.toString());
+									List<Series> series = logStudy.getSeries();
+									for (Series logSeries : series) {
+										if(logSeries != null){
+											logger.debug("      " + logSeries.toString());
+											List<Item> items = logSeries.getItems();
+											for(Item logItem : items){
+												if(logItem != null){
+													logger.debug("         " + logItem.toString());
+												}											
+											}
+										}									
+									}
+								}	
+							}
+						}					
+					}
+				}
+			}
 		}
 	}
-	Application targetApp = null;
 	@Override
 	public void launchApplication(ApplicationEvent event) {
-		logger.debug("Current data source tab: " + XDSPanel.class.getName());
-		
+		logger.debug("Current data source tab: " + this.getClass().getName());
 		// If nothing is selected, there is nothing to launch with
 		//check if selectedDataSearchresult is not null and at least one PatientNode is selected
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
-		boolean isDataSelected = false;
-		if(rootNode != null){
-			if(rootNode.getChildCount() != 0){
-				DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
-				int numOfPatients = locationNode.getChildCount();
-				if (numOfPatients == 0){
-					logger.warn("No data is selected");
-					new ExceptionDialog("Cannot launch selected application.", 
-							"No dataset selected. Please query and select data nodes.",
-							"Launch Application Dialog");
-					return;
-				} else {
-					for(int i = 0; i < numOfPatients; i++){
-						PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(i);
-						if(existingPatientNode.isSelected() == true){
-							isDataSelected = true;
-							break;
-						} else {
-							int numOfStudies = existingPatientNode.getChildCount();
-							for(int j = 0; j < numOfStudies; j++){
-								StudyNode existingStudyNode = (StudyNode)existingPatientNode.getChildAt(j);
-								if(existingStudyNode.isSelected() == true){
-									isDataSelected = true;
-									break;
-								} else {
-									int numOfSeries = existingStudyNode.getChildCount();
-									for(int k = 0; k < numOfSeries; k++){
-										SeriesNode existingSeriesNode = (SeriesNode)existingStudyNode.getChildAt(k);
-										if(existingSeriesNode.isSelected() == true){
-											isDataSelected = true;
-											break;
-										}
-									}
-								}
-							}
-						}
-					}
-					if(isDataSelected == false){
-						logger.warn("No data is selected");
-						new ExceptionDialog("Cannot launch selected application.", 
-								"No dataset selected. Please select data nodes.",
-								"Launch Application Dialog");
-						return;
-					}
-				}
-			} else {
-				logger.warn("No data is selected");
-				new ExceptionDialog("Cannot launch selected application.", 
-						"No dataset selected. Please query and select data nodes.",
-						"Launch Application Dialog");
-				return;
-			}
-		} else {
-			logger.warn("No data is selected");
-			new ExceptionDialog("Cannot launch selected application.", 
-					"No dataset selected. Please query and select data nodes.",
-					"Launch Application Dialog");
-			return;
-		}
+		boolean isDataSelected = DataSelectionValidator.isDataSelected(rootNode);
 		if(isDataSelected){
-		   	
-			// Determine which application button the user clicked, and retrieve info about the application
 			AppButton btn = (AppButton)event.getSource();
 			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
 			Application app = appMgr.getApplication(btn.getApplicationUUID());
@@ -822,24 +765,30 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			//Check if application to be launched is not running.
 			//If yes, create new application instance
 			State state = app.getState();
-			// TODO Fill in with whatever is needed to make this work with XDS
-			Query query = new AVTQuery();// so what do we add here?  AVTQuery doesn't seem appropriate.
+			// TODO Fill in with whatever is needed to make this work with Grid
+			// TODO replace AVTQuery and AVTRetrieve2 with GridQuery and GridRetrieve
+			Query query = new AVTQuery();
+			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
+			Retrieve retrieve = new AVTRetrieve2(tmpDir); 
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
+				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
 				appMgr.addApplication(instanceApp);		
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-				targetApp = instanceApp;
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
+				app.setRetrieveDataSource(retrieve);
+				app.setApplicationTmpDir(tmpDir);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-				targetApp = app;
 			}	
 	
+			
+			//TODO Remove all the following
 			// Start background retrieving of data that could eventually be given to the application
 			numRetrieveThreadsReturned = 0;
 			List<CQLQuery> criteriasDicom = getDicomRetrieveCriteria();
@@ -861,7 +810,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 						try {
 							//Retrieve Dicom						
 							GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-							gridRetrieve.addGridRetrieveListener(this);						
+							gridRetrieve.addDataAccessListener(this);						
 							Thread t = new Thread(gridRetrieve);
 							t.start();						
 							numRetrieveThreadsStarted++;							
@@ -881,7 +830,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 						Series series = iter.next();
 						String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
 						GridRetrieveNCIA nciaRetrieve = new GridRetrieveNCIA(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-						nciaRetrieve.addGridRetrieveListener(this);
+						nciaRetrieve.addDataAccessListener(l);
 						Thread t = new Thread(nciaRetrieve);
 						t.start();
 						numRetrieveThreadsStarted++;
@@ -894,7 +843,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 					CQLQuery aimCQL = criteriasAim.get(i);						
 					try {
 						AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
-						aimRetrieve.addGridRetrieveListener(this);
+						aimRetrieve.addDataAccessListener(l);
 						Thread t = new Thread(aimRetrieve);
 						t.start();
 						numRetrieveThreadsStarted++;
@@ -905,6 +854,17 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				}					
 			}
 		}
+	}
+
+	
+	Map<Series, Study>  getSelectedSeries(){
+		return null;
+	}
+	
+	@Override
+	public void retrieveResultsAvailable(RetrieveEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
