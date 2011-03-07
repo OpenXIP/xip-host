@@ -9,6 +9,9 @@ import java.net.ConnectException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
@@ -22,7 +25,7 @@ import junit.framework.TestCase;
  * @author Jaroslaw Krych
  *
  */
-public class QueryGridLocationTest extends TestCase implements GridSearchListener {
+public class QueryGridLocationTest extends TestCase implements DataAccessListener {
 	//GridLocation gridLoc = new GridLocation("http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "OSU");
 	GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "OSU");
 	CQLQuery cqlQuery = null;
@@ -72,7 +75,7 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 	public void testQueryGridLocation1A() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              				
 		SearchResult result = null;
 		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
-		gridQuery.addGridSearchListener(this);
+		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
 		try {
@@ -117,7 +120,7 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 			e1.printStackTrace();
 		}		
 		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
-		gridQuery.addGridSearchListener(this);
+		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
 		try {
@@ -143,7 +146,7 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 	public void testQueryGridLocation1D() throws RemoteException, ConnectException {										              
 		gridLoc = new GridLocation("http://127.0.0.1", Type.DICOM, "DICOM", "Test Location");	//There is no repository at http://127.0.0.1 		
 		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
-		gridQuery.addGridSearchListener(this);
+		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
 		try {
@@ -158,7 +161,7 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 	//CQL statement is null and GridLocation is valid.
 	public void testQueryGridLocation1E() throws org.apache.axis.types.URI.MalformedURIException, ConnectException {										              
 		GridQuery gridQuery = new GridQuery(null, gridLoc, null, null);
-		gridQuery.addGridSearchListener(this);
+		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
 		try {
@@ -174,7 +177,7 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 	//CQL statement is valid but GridLocation is null.
 	public void testQueryGridLocation1F() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              		
 		GridQuery gridQuery = new GridQuery(cqlQuery, null, null, null);
-		gridQuery.addGridSearchListener(this);
+		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
 		try {
@@ -190,7 +193,7 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 	//CQL statement is valid and GridLocation is valid. Test if location desc is not null and not empty string.
 	public void testQueryGridLocation1G() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              		
 		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
-		gridQuery.addGridSearchListener(this);
+		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
 		try {
@@ -203,14 +206,21 @@ public class QueryGridLocationTest extends TestCase implements GridSearchListene
 		assertTrue("Location description is missing in teh returned value.", isLocDescValid);
 	}
 
+
 	@Override
-	public void searchResultAvailable(GridSearchEvent e) {
+	public void notifyException(String message) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void notifyException(String message) {
+	public void queryResultsAvailable(QueryEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void retrieveResultsAvailable(RetrieveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dicom.BasicDicomParser2;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.hostControl.Util;
@@ -16,7 +19,7 @@ import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
 import junit.framework.TestCase;
 
-public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListener{
+public class RetrieveDicomDataTest extends TestCase implements DataAccessListener{
 	GridLocation gridLoc;
 	CQLQuery cqlQuery = null;
 	BasicDicomParser2 parser;
@@ -91,7 +94,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 		String seriesInstanceUID = "1.3.6.1.4.1.9328.50.1.20036";
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);				
 		GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, importDir);
-		gridRetrieve.addGridRetrieveListener(this);
+		gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -128,7 +131,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 		String seriesInstanceUID = null;
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);				
 		GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, importDir);
-		gridRetrieve.addGridRetrieveListener(this);
+		gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -188,7 +191,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 			e1.printStackTrace();
 		}					
 		GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, gridLoc, importDir);
-		gridRetrieve.addGridRetrieveListener(this);
+		gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -205,7 +208,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 	public void testRetrieveDicomData1Cb() throws IOException {
 		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");			
 		GridRetrieve gridRetrieve = new GridRetrieve(null, gridLoc, importDir);
-		gridRetrieve.addGridRetrieveListener(this);
+		gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -224,7 +227,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 		String seriesInstanceUID = "1.3.6.1.4.1.9328.50.1.20036";
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);		
 		GridRetrieve gridRetrieve = new GridRetrieve(cql, null, importDir);
-		gridRetrieve.addGridRetrieveListener(this);
+		gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -248,7 +251,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);
 		try{			
 			GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, importDir);
-			gridRetrieve.addGridRetrieveListener(this);
+			gridRetrieve.addDataAccessListener(this);
 			Thread t = new Thread(gridRetrieve);
 			t.start();
 			try {
@@ -271,7 +274,7 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);
 		try{			
 			GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, null);
-			gridRetrieve.addGridRetrieveListener(this);
+			gridRetrieve.addDataAccessListener(this);
 			Thread t = new Thread(gridRetrieve);
 			t.start();
 			try {
@@ -287,5 +290,23 @@ public class RetrieveDicomDataTest extends TestCase implements GridRetrieveListe
 
 	public void importedFilesAvailable(GridRetrieveEvent e) {
 				
+	}
+
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void retrieveResultsAvailable(RetrieveEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }
