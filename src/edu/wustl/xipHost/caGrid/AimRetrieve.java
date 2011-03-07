@@ -3,6 +3,11 @@
  */
 package edu.wustl.xipHost.caGrid;
 
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.iterator.RetrieveTarget;
+import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 import java.io.ByteArrayInputStream;
@@ -14,19 +19,22 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 import org.apache.axis.types.URI.MalformedURIException;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.nema.dicom.wg23.ObjectLocator;
 
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class AimRetrieve implements Runnable{
+public class AimRetrieve implements Retrieve{
 
 	CQLQuery cqlQuery;
 	GridLocation gridLoc;
@@ -43,12 +51,17 @@ public class AimRetrieve implements Runnable{
 		}	
 	}
 	
+	@Override
+	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	List<File> retrievedAIMs;
 	public void run() {
 		try {
 			retrievedAIMs = retrieve();
-			fireUpdateUI();
+			//fireResultsAvailable();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,7 +72,8 @@ public class AimRetrieve implements Runnable{
 	public List<File> getRetrievedFiles(){
 		return retrievedAIMs;
 	}
-			
+	
+	Map<String, ObjectLocator> objectLocators;
 	public List<File> retrieve() throws IOException{		
 		File inputDir = File.createTempFile("AIM-XIPHOST", null, importDir);			
 		importDir = inputDir;		
@@ -115,12 +129,21 @@ public class AimRetrieve implements Runnable{
 	}		
 	
 	
-	GridRetrieveListener listener;
-    public void addGridRetrieveListener(GridRetrieveListener l) {        
-        listener = l;          
-    }
-	void fireUpdateUI(){
-		GridRetrieveEvent event = new GridRetrieveEvent(this);         		
-        listener.importedFilesAvailable(event);
+	void fireResultsAvailable(String targetElementID){
+		RetrieveEvent event = new RetrieveEvent(targetElementID);         		        
+		listener.retrieveResultsAvailable(event);
 	}
+
+	DataAccessListener listener;
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		listener = l;
+	}	
+
+	@Override
+	public Map<String, ObjectLocator> getObjectLocators() {
+		return objectLocators;
+	}
+
+	
 }
