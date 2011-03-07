@@ -61,7 +61,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 					logger.debug("   " + logStudy.toString());
 					List<Series> series = logStudy.getSeries();
 					for(Series logSeries : series){
-						logger.debug("      " + logSeries.toString() +  " Contains all items: " + logSeries.containsSubsetOfItems());
+						logger.debug("      " + logSeries.toString() +  " Contains sebset of items: " + logSeries.containsSubsetOfItems());
 						List<Item> items = logSeries.getItems();
 						for(Item logItem : items){
 							logger.debug("         " + logItem.toString());
