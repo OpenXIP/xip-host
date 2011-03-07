@@ -35,9 +35,11 @@ import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.caGrid.GridRetrieve;
 import edu.wustl.xipHost.caGrid.GridRetrieveEvent;
-import edu.wustl.xipHost.caGrid.GridRetrieveListener;
 import edu.wustl.xipHost.caGrid.GridRetrieveNCIA;
 import edu.wustl.xipHost.caGrid.GridUtil;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dicom.BasicDicomParser2;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.wg23.WG23DataModel;
@@ -48,7 +50,7 @@ import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
  * @author Jaroslaw Krych
  *
  */
-public class WorklistEntry implements Runnable, GridRetrieveListener {
+public class WorklistEntry implements Runnable, DataAccessListener {
 	String subjectName;
 	String subjectID;
 	String studyDate;
@@ -253,11 +255,11 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 		}
 		if(gridLocDICOM.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
 			nbiaRetrievePrev = new GridRetrieveNCIA(getSeriesInstanceUIDPrev(), gridLocDICOM, importLocation);
-			nbiaRetrievePrev.addGridRetrieveListener(this);
+			nbiaRetrievePrev.addDataAccessListener(this);
 			Thread t1 = new Thread(nbiaRetrievePrev);
 			t1.start();
 			nbiaRetrieveCurr = new GridRetrieveNCIA(getSeriesInstanceUIDCurr(), gridLocDICOM, importLocation);
-			nbiaRetrieveCurr.addGridRetrieveListener(this);
+			nbiaRetrieveCurr.addDataAccessListener(this);
 			Thread t2 = new Thread(nbiaRetrieveCurr);
 			t2.start();			
 		}else if(gridLocDICOM.getProtocolVersion().equalsIgnoreCase("DICOM")){
@@ -270,7 +272,7 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				gridRetrievePrev.addGridRetrieveListener(this);		
+				gridRetrievePrev.addDataAccessListener(this);		
 				Thread t = new Thread(gridRetrievePrev);
 				t.start();
 				
@@ -284,7 +286,7 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				gridRetrieveCurr.addGridRetrieveListener(this);		
+				gridRetrieveCurr.addDataAccessListener(this);		
 				Thread t2 = new Thread(gridRetrieveCurr);
 				t2.start();
 			}
@@ -307,7 +309,7 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			aimRetrievePrev.addGridRetrieveListener(this);
+			aimRetrievePrev.addDataAccessListener(this);
 			Thread t1AIM = new Thread(aimRetrievePrev);
 			t1AIM.start();
 			
@@ -319,7 +321,7 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			aimRetrieveCurr.addGridRetrieveListener(this);
+			aimRetrieveCurr.addDataAccessListener(this);
 			Thread t2AIM = new Thread(aimRetrieveCurr);
 			t2AIM.start();
 		}else{
@@ -559,5 +561,22 @@ public class WorklistEntry implements Runnable, GridRetrieveListener {
 	WG23DataModel dm;
 	public WG23DataModel getDataModel(){
 		return dm;
+	}
+	
+	@Override
+	public void notifyException(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void queryResultsAvailable(QueryEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void retrieveResultsAvailable(RetrieveEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }
