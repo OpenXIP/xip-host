@@ -7,18 +7,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
+import org.nema.dicom.wg23.ObjectLocator;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.iterator.RetrieveTarget;
+import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.DICOMDataServiceHelper;
-import gov.nih.nci.ivi.helper.NCIADataServiceHelper;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class GridRetrieve implements Runnable {	
+public class GridRetrieve implements Retrieve {	
 	CQLQuery cqlQuery;
 	GridLocation gridLoc;
 	File importDir;
@@ -35,11 +41,18 @@ public class GridRetrieve implements Runnable {
 		}		
 	}	
 	
+	@Override
+	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
+		// TODO Auto-generated method stub
+		
+	}	
+	
 	List<File> files;
 	public void run(){		
 		try {
-			files = retrieveDicomData(cqlQuery, gridLoc, importDir);
-			notifyDicomAvailable();
+			retrieveDicomData(cqlQuery, gridLoc, importDir);
+			
+			//fireResultsAvailable();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -50,17 +63,15 @@ public class GridRetrieve implements Runnable {
 		return files;
 	}
 	
-	GridRetrieveListener listener;
-    public void addGridRetrieveListener(GridRetrieveListener l) {        
-        listener = l;          
-    }
-	void notifyDicomAvailable(){
-		GridRetrieveEvent event = new GridRetrieveEvent(this);         		
-        listener.importedFilesAvailable(event);
+	
+	void fireResultsAvailable(String targetElementID){
+		RetrieveEvent event = new RetrieveEvent(targetElementID);         		        
+		listener.retrieveResultsAvailable(event);
 	}
 	
 	DICOMDataServiceHelper dicomHelper = new DICOMDataServiceHelper();					
 	//NCIADataServiceHelper nciaHelper = new NCIADataServiceHelper();
+	Map<String, ObjectLocator> objectLocators;
 	public List<File> retrieveDicomData(CQLQuery cqlQuery, GridLocation location, File importDir) throws IOException {						
 		if(importDir == null){
 			throw new NullPointerException();
@@ -97,5 +108,16 @@ public class GridRetrieve implements Runnable {
 			dicomFiles.add(new File(importDir + File.separator + retrievedFiles[i]));
 		}
 		return dicomFiles;
+	}
+
+	DataAccessListener listener;
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		listener = l;
 	}	
+
+	@Override
+	public Map<String, ObjectLocator> getObjectLocators() {
+		return objectLocators;
+	}
 }

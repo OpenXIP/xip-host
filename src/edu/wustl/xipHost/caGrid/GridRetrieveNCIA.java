@@ -13,13 +13,21 @@ import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 import org.apache.axis.types.URI.MalformedURIException;
 import org.cagrid.transfer.context.client.TransferServiceContextClient;
 import org.cagrid.transfer.context.client.helper.TransferClientHelper;
 import org.cagrid.transfer.context.stubs.types.TransferServiceContextReference;
+import org.nema.dicom.wg23.ObjectLocator;
+
 import edu.osu.bmi.utils.io.zip.ZipEntryInputStream;
 import edu.wustl.xipHost.caGrid.GridLocation;
+import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Retrieve;
+import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.iterator.RetrieveTarget;
+import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
 
 /**
@@ -27,7 +35,7 @@ import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
  *
  */
 
-public class GridRetrieveNCIA implements Runnable {
+public class GridRetrieveNCIA implements Retrieve {
 	String seriesInstanceUID;
 	GridLocation gridLocation;
 	File importLocation;
@@ -61,6 +69,12 @@ public class GridRetrieveNCIA implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
+	}
+	
+	@Override
+	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
+		// TODO Auto-generated method stub
+		
 	}
 		
 	public void run() {
@@ -122,7 +136,7 @@ public class GridRetrieveNCIA implements Runnable {
 		} catch (RemoteException e) {
 			e.printStackTrace();			
 		}
-		notifyDicomAvailable();
+		//fireResultsAvailable();
 	}
 	
 	public List<File> getRetrievedFiles(){
@@ -134,12 +148,21 @@ public class GridRetrieveNCIA implements Runnable {
 		return files;
 	}
 	
-	GridRetrieveListener listener;
-    public void addGridRetrieveListener(GridRetrieveListener l) {        
-        listener = l;          
-    }
-	void notifyDicomAvailable(){
-		GridRetrieveEvent event = new GridRetrieveEvent(this);         		
-        listener.importedFilesAvailable(event);
+	
+	void fireResultsAvailable(String targetElementID){
+		RetrieveEvent event = new RetrieveEvent(targetElementID);         		        
+		listener.retrieveResultsAvailable(event);
+	}
+
+	DataAccessListener listener;
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		listener = l;
+	}	
+
+	@Override
+	public Map<String, ObjectLocator> getObjectLocators() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
