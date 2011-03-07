@@ -16,6 +16,7 @@ import javax.xml.namespace.QName;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -88,7 +89,7 @@ public class GridQuery implements Query {
 		try {		 
 			searchResult = query(cql, gridLocation, previousSearchResult, queriedObject);
 			logger.info("GRID query finished.");
-			fireUpdateUI();			
+			fireResultsAvailable();			
 		} catch (MalformedURIException e) {
 			logger.error(e, e);
 			searchResult = null;
@@ -148,22 +149,18 @@ public class GridQuery implements Query {
 		return searchResult;
 	}
 	
-	GridSearchListener listener;
-    public void addGridSearchListener(GridSearchListener l) {        
-        listener = l;          
-    }
-	void fireUpdateUI(){
-		GridSearchEvent event = new GridSearchEvent(this);         		
-        listener.searchResultAvailable(event);
+	DataAccessListener listener;
+	@Override
+	public void addDataAccessListener(DataAccessListener l) {
+		listener = l; 
+		
+	}
+	
+	void fireResultsAvailable(){
+		QueryEvent event = new QueryEvent(this);         		
+        listener.queryResultsAvailable(event);
 	}
 	void notifyException(String message){         		
         listener.notifyException(message);
-	}
-
-
-	@Override
-	public void addDataAccessListener(DataAccessListener l) {
-		// TODO Auto-generated method stub
-		
 	}
 }
