@@ -650,38 +650,42 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
 		//Start data retrieval related to the element	
 		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
-		TargetElement element = null;
-		synchronized(targetElements){
-			element = targetElements.get(numberOfSentNotifications - 1);
-			retrieve.setRetrieve(element, retrieveTarget);
-			retrieve.addDataAccessListener(this);
-		}			
-		Thread t = new Thread(retrieve);
-		t.start();
-		//Wait for actual data being retrieved before sending file pointers
-		String retrievedElementID = element.getId();
-		synchronized(retrievedTargetElements){
-			while(!retrievedTargetElements.contains(retrievedElementID)){
-				try {
-					retrievedTargetElements.wait();
-				} catch (InterruptedException e) {
-					logger.error(e, e);
+		synchronized(retrieve){
+			TargetElement element = null;
+			synchronized(targetElements){
+				element = targetElements.get(numberOfSentNotifications - 1);
+				retrieve.setRetrieve(element, retrieveTarget);
+				retrieve.addDataAccessListener(this);
+			}			
+			
+			Thread t = new Thread(retrieve);
+			t.start();
+			//Wait for actual data being retrieved before sending file pointers
+			synchronized(retrievedTargetElements){
+				String retrievedElementID = element.getId();
+				while(!retrievedTargetElements.contains(retrievedElementID)){
+					try {
+						retrievedTargetElements.wait();
+					} catch (InterruptedException e) {
+						logger.error(e, e);
+					}
 				}
 			}
-		}		
-		if(listUUIDs == null){
-			return new ArrayList<ObjectLocator>();
-		} else {
-			Map<String, ObjectLocator> objectLocators = retrieve.getObjectLocators();
-			List<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();			
-			for(Uuid uuid : listUUIDs){
-				String strUuid = uuid.getUuid();
-				ObjectLocator objLoc = objectLocators.get(strUuid);				
-				listObjLocs.add(objLoc);
-				logger.debug("Item location: " + strUuid + " " + objLoc.getUri());				
-			}
-			return listObjLocs;
-		}		
+			
+			if(listUUIDs == null){
+				return new ArrayList<ObjectLocator>();
+			} else {
+				Map<String, ObjectLocator> objectLocators = retrieve.getObjectLocators();
+				List<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();			
+				for(Uuid uuid : listUUIDs){
+					String strUuid = uuid.getUuid();
+					ObjectLocator objLoc = objectLocators.get(strUuid);				
+					listObjLocs.add(objLoc);
+					logger.debug("Item location: " + strUuid + " " + objLoc.getUri());				
+				}
+				return listObjLocs;
+			}	
+		}			
 	}
 	
 	@Override
@@ -703,7 +707,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		synchronized(retrievedTargetElements){			
 			String elementID = (String)e.getSource();
 			retrievedTargetElements.add(elementID);
-			logger.debug("Data retrived for TargetElement: " + elementID + " at time: " + System.currentTimeMillis());		
+			logger.debug("Data retrieved for TargetElement: " + elementID + " at time: " + System.currentTimeMillis());		
 			retrievedTargetElements.notify();
 		}
 	}
