@@ -131,7 +131,7 @@ public class QueryPacsLocationTest extends TestCase {
 		assertTrue("System did not return correct number of patients, studies or series.", bln);		
 	}
 	
-	//DicomManagerImpl 1H - alternative flow. AttributeList valid, PacsLocation invalid. 	
+	//DicomManagerImpl 1H - alternative flow. AttributeList valid, PacsLocation invalid (invalid port).	
 	public void testQueryPacsLocation1H(){								
 		criteria = setup.getCriteria();
 		PacsLocation loc = new PacsLocation("127.0.0.1", 30002, "WORKSTATION2", "WashU WS2");				
