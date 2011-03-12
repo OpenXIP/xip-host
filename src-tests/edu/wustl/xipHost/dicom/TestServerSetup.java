@@ -108,7 +108,14 @@ public class TestServerSetup extends TestSetup{
 			{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.SOPClassUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
-			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue(characterSets[0]); }			
+			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue(characterSets[0]); }
+			
+			{ AttributeTag t = TagFromName.Exposure; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.SpiralPitchFactor; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.SingleCollimationWidth; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.TotalCollimationWidth; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.SliceThickness; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.ConvolutionKernel; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
 		}
 		catch (Exception e) {
 			e.printStackTrace(System.err);			
