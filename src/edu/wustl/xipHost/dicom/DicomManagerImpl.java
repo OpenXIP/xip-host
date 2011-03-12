@@ -193,7 +193,10 @@ public class DicomManagerImpl implements DicomManager{
 		int port = location.getPort();
 		calledAETitle = location.getAETitle();
 		//ensure callingAETitle is not empty (not all stations allow empty value). 
-		String callingAETitle = HostConfigurator.getHostConfigurator().getAETitle();
+		String callingAETitle = "";
+		if(HostConfigurator.getHostConfigurator() != null){
+			callingAETitle = HostConfigurator.getHostConfigurator().getAETitle();
+		}
 		if (callingAETitle == "") {
 			callingAETitle = "XIPDefault";
 		}
