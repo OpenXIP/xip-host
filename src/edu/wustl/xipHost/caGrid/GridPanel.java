@@ -481,14 +481,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	int queryNodeIndex = 0;
 	boolean wasDoubleClick = false;
 	MouseListener ml = new MouseAdapter(){
-	     public void mousePressed(MouseEvent e) {
-	    	 if(getSelectedSeries().size() > 0){
-	 			rightPanel.cbxAnnot.setEnabled(true);
-	    	 }else{
-	 			rightPanel.cbxAnnot.setEnabled(true);
-	    	 }
-	     }
-	     
 	    
 	     public void mouseClicked(final MouseEvent e) {	        
 	    	 	int x = e.getX();
