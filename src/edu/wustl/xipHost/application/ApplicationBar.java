@@ -52,6 +52,8 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		double preferredWidth = btn.getPreferredSize().getWidth();
 		if(preferredWidth < 100){
 			btn.setPreferredSize(new Dimension(100, 25));
+		} else {
+			btn.setPreferredSize(new Dimension((int)preferredWidth, 25));
 		}
 		btn.setApplicationUUID(app.getID());
 		btn.setForeground(Color.BLACK);			
