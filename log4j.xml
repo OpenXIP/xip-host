@@ -160,6 +160,9 @@
   <logger name="edu.wustl.xipHost.iterator.IteratorUtil">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>		
+  <logger name="edu.wustl.xipHost.dicom.RetrieveFromPacsLocationTest">
+	<appender-ref ref="Dicom_Appender"/>
+  </logger>		
   	
   <root>
     <!-- level value="debug"/-->
