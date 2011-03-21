@@ -159,7 +159,7 @@ public class DicomRetrieve implements Retrieve {
 										//Reset value of SOPInstanceUID in criteria
 										{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.removeValues(); criteria.put(t,a); }
 									}
-								} else {																               																			
+								} else {
 									StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        	
 						        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());						        	
 						        	//System.out.println("Local server is: " + getDBFileName());

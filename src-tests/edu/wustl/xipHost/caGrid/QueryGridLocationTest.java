@@ -27,7 +27,8 @@ import junit.framework.TestCase;
  */
 public class QueryGridLocationTest extends TestCase implements DataAccessListener {
 	//GridLocation gridLoc = new GridLocation("http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "OSU");
-	GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "OSU");
+	//GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "OSU");
+	GridLocation gridLoc = new GridLocation("http://node05.cci.emory.edu:8081/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "DICOM Server Emory");
 	CQLQuery cqlQuery = null;
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -86,7 +87,8 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 		result = gridQuery.getSearchResult();		
 		//Check if return type is an instance of DicomSearchResult and is not null						                
         Boolean blnType = result instanceof SearchResult; //blnType will be false when result would be null        	         		
-		assertTrue("Expected returned value should be CQLQueryResultsIterator but system did not define it this way.", blnType);
+		//assert if value of result is as expected        
+        assertTrue("Expected returned value should be CQLQueryResultsIterator but system did not define it this way.", blnType);
 	}
 
 	//GridManagerImpl - query grid 1B - alternative flow. 

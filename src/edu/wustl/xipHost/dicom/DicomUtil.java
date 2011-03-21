@@ -203,7 +203,7 @@ public class DicomUtil {
 				System.out.println(strAtt + " " + attValue);				
 			}
 	    }*/	    	    
-	    String patientName = criteria.get(TagFromName.PatientName).getDelimitedStringValuesOrEmptyString();
+		String patientName = criteria.get(TagFromName.PatientName).getDelimitedStringValuesOrEmptyString();
 	    if(!patientName.isEmpty()){adCriteria.put(Tag.PatientName, patientName);}			
 	    String patientID = criteria.get(TagFromName.PatientID).getDelimitedStringValuesOrEmptyString();
 	    if(!patientID.isEmpty()){adCriteria.put(Tag.PatientID, patientID);}

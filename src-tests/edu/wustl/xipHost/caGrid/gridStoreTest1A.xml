@@ -4,11 +4,13 @@
     <gridAddress>http://127.0.0.1</gridAddress>
     <shortName>Test Location</shortName>
     <type>DICOM</type>
+    <protocolVersion>DICOM</protocolVersion>
   </grid_location>
   <grid_location>
     <gridAddress>http://127.0.0.1</gridAddress>
     <shortName>Test Loc</shortName>
     <type>AIM</type>
+    <protocolVersion>AIM-0.9</protocolVersion>
   </grid_location>
 </locations>
 
