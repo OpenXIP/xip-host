@@ -472,13 +472,16 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			State state = app.getState();
 			Query query = new DicomQuery();
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
-			DicomRetrieve retrieve = new DicomRetrieve(criteriaPanel.getFilterList(), calledPacsLocation, callingPacsLocation);
+			dicomMgr.setDefaultCallingPacsLOcation(callingPacsLocation);
+			//DicomRetrieve retrieve = new DicomRetrieve(criteriaPanel.getFilterList(), calledPacsLocation, callingPacsLocation);
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
-				instanceApp.setRetrieveDataSource(retrieve);
+				//instanceApp.setRetrieveDataSource(retrieve);
+				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.dicom.DicomRetrieve");
+				instanceApp.setDataSource(callingPacsLocation);
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
 				appMgr.addApplication(instanceApp);		
@@ -487,7 +490,9 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
-				app.setRetrieveDataSource(retrieve);
+				//app.setRetrieveDataSource(retrieve);
+				app.setDataSourceDomainName("edu.wustl.xipHost.dicom.DicomRetrieve");
+				app.setDataSource(callingPacsLocation);
 				app.setApplicationTmpDir(tmpDir);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = app;
