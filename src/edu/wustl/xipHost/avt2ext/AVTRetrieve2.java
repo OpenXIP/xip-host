@@ -31,15 +31,17 @@ import org.nema.dicom.wg23.Uuid;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveListener;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.iterator.Criteria;
-import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 
 public class AVTRetrieve2 implements Retrieve {
@@ -335,5 +337,48 @@ public class AVTRetrieve2 implements Retrieve {
 	
 	public Map<String, ObjectLocator> getObjectLocators(){
 		return objectLocators;
+	}
+
+	RetrieveListener l; 
+	@Override
+	public void addRetrieveListener(RetrieveListener l) {
+		this.l = l;		
+	}
+
+	@Override
+	public void setCriteria(Map<Integer, Object> dicomCriteria,
+			Map<String, Object> aimCriteria) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCriteria(Object criteria) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDataSource(DataSource dataSource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImportDir(File importDir) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectDescriptors(List<ObjectDescriptor> objectDescriptors) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRetrieveTarget(RetrieveTarget retrieveTarget) {
+		// TODO Auto-generated method stub
+		
 	}
 }
