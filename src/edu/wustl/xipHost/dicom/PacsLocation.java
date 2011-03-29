@@ -6,6 +6,7 @@ package edu.wustl.xipHost.dicom;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
+import edu.wustl.xipHost.dataAccess.DataSource;
 
 /**
  * <font  face="Tahoma" size="2">
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
  * @author Jaroslaw Krych
  * </font>
  */
-public class PacsLocation {
+public class PacsLocation implements DataSource {
 	String hostAddress;
 	int hostPort;
 	String hostAETitle;
@@ -94,5 +95,16 @@ public class PacsLocation {
 	public static void main (String args []){
 		PacsLocation loc = new PacsLocation("10.252.175.60", 3001, " ", "TestLocation");
 		System.out.println(loc == null);
+	}
+
+	@Override
+	public String getDataSourceId() {
+		return null;
+	}
+	
+	String id;
+	@Override
+	public void setDataSourceId(String id) {
+		this.id = id;
 	}
 }
