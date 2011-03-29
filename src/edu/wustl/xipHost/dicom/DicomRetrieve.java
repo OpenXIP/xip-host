@@ -31,14 +31,16 @@ import com.pixelmed.query.RetrieveResponseGenerator;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveListener;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 
 /**
@@ -48,31 +50,163 @@ import edu.wustl.xipHost.iterator.TargetElement;
 public class DicomRetrieve implements Retrieve {
 	final static Logger logger = Logger.getLogger(DicomRetrieve.class);	
 	DicomManager dicomMgr;
-	AttributeList criteria;
 	PacsLocation called;
 	PacsLocation calling;
-	TargetElement targetElement;
+	//TargetElement targetElement;
+	Map<Integer, Object> dicomCriteria;
+	Map<String, Object> aimCriteria;
+	List<ObjectDescriptor> objectDescriptors;
+	File importDir;
 	RetrieveTarget retrieveTarget;
+	//DataSource dataSource;
 	
+	public DicomRetrieve(){
+		
+	}
+	
+	public DicomRetrieve(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, File importDir, RetrieveTarget retrieveTarget, DataSource dataSource){
+		this.dicomCriteria = dicomCriteria;
+		this.aimCriteria = aimCriteria;
+		this.importDir = importDir;
+		this.retrieveTarget = retrieveTarget;
+		this.called = (PacsLocation) dataSource;
+		dicomMgr = DicomManagerFactory.getInstance();
+		calling = dicomMgr.getDefaultCallingPacsLocation();
+	}
+	
+	/*
 	public DicomRetrieve(AttributeList criteria, PacsLocation called, PacsLocation calling){
 		this.criteria = criteria;
 		this.called = called;
 		this.calling = calling;
 		dicomMgr = DicomManagerFactory.getInstance();
+	}*/
+	
+	@Override
+	public void setCriteria(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria) {
+		this.dicomCriteria = dicomCriteria;
+		this.aimCriteria = aimCriteria;
+		dicomMgr = DicomManagerFactory.getInstance();
+		calling = dicomMgr.getDefaultCallingPacsLocation();
+	}
+
+	@Override
+	public void setCriteria(Object criteria) {
+		// TODO Auto-generated method stub	
+	}
+	
+	@Override
+	public void setObjectDescriptors(List<ObjectDescriptor> objectDescriptors) {
+		this.objectDescriptors = objectDescriptors;		
+	}
+	
+	@Override
+	public void setImportDir(File importDir) {
+		this.importDir = importDir;	
+	}
+	
+	@Override
+	public void setRetrieveTarget(RetrieveTarget retrieveTarget) {
+		this.retrieveTarget = retrieveTarget;		
+	}
+
+	@Override
+	public void setDataSource(DataSource dataSource) {
+		this.called = (PacsLocation) dataSource;
 	}
 	
 	@Override
 	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		this.targetElement = targetElement;
-		this.retrieveTarget = retrieveTarget; 
+		//this.targetElement = targetElement;
+		this.retrieveTarget = retrieveTarget;
+		//TODO to be removed
 	}
 
 	
 	public void run() {
 		logger.info("Executing DICOM retrieve.");				
-		retrieve(targetElement);
-		fireResultsAvailable(targetElement.getId());						
+		Map<String, ObjectLocator> objectLocs = retrieve(dicomCriteria);
+		fireResultsAvailable(objectLocs);						
 	}
+	
+	// TODO Move crietria inside the retrieve() method after all retrieve() removed
+	AttributeList criteria;
+	Map<String, ObjectLocator> retrieve(Map<Integer, Object> dicomCriteria){
+		String hostName = called.getAddress();
+		int port = called.getPort();
+		String calledAETitle = called.getAETitle();
+		String callingAETitle = calling.getAETitle();
+		if(called != null && calling != null){	
+			if(logger.isDebugEnabled()){			
+		    	logger.debug("Host name: " + hostName);	    	
+		    	logger.debug("Port: " + port);	    
+		    	logger.debug("CalledAETitle: " + calledAETitle);	    	
+		    	logger.debug("CallingAETitle: " + callingAETitle);
+		    	logger.debug("DBFileName: " + dicomMgr.getDBFileName());
+			}
+			objectLocators = new HashMap<String, ObjectLocator>();	
+			if(retrieveTarget == RetrieveTarget.DICOM_AND_AIM){
+				criteria = DicomUtil.convertToPixelmedDicomCriteria(dicomCriteria);			    	   
+				logger.debug("DICOM retrieve criteria:");
+				DicomDictionary dictionary = AttributeList.getDictionary();
+			    Iterator<?> iter = dictionary.getTagIterator();        
+			    String strAtt = null;
+			    String attValue = null;
+			    while(iter.hasNext()){
+			    	AttributeTag attTag  = (AttributeTag)iter.next();					    	
+			    	strAtt = attTag.toString();									
+					attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);			
+					if(!attValue.isEmpty()){
+						logger.debug(strAtt + " " + attValue);				
+					}
+			    }	    
+			    try {
+			    	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);
+					mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());										        	
+		        	logger.debug("Local server is: " + dicomMgr.getDBFileName());
+					StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(dicomMgr.getDBFileName());			
+		    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
+		    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
+		    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
+		    		RetrieveResponseGenerator mRetrieveResponseGenerator = mRetrieveResponseGeneratorFactory.newInstance();
+					QueryResponseGenerator mQueryResponseGenerator = mQueryResponseGeneratorFactory.newInstance();						
+					mQueryResponseGenerator.performQuery("1.2.840.10008.5.1.4.1.2.2.1", criteria, true);	// Study Root						
+					AttributeList localResults = mQueryResponseGenerator.next();			
+					while(localResults != null) {							 					
+						mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
+						SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
+						if(dicomFiles.size() == objectDescriptors.size()){
+							Iterator<?> it = dicomFiles.iterator();
+							int i = 0;
+							while (it.hasNext() ) {
+								SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
+								logger.debug("Dicom file: " + x.getFileName());			    														
+								String fileURI = (new File(x.getFileName()).toURI()).toURL().toExternalForm();
+								ObjectLocator objLoc = new ObjectLocator();														
+								Uuid itemUUID = objectDescriptors.get(i).getUuid();
+								objLoc.setUuid(itemUUID);				
+								objLoc.setUri(fileURI); 
+								objectLocators.put(itemUUID.getUuid(), objLoc);
+								i++;
+							}		
+							localResults = mQueryResponseGenerator.next();
+						}
+					}
+			    } catch (IOException e) {
+					logger.error(e, e);
+					return null;
+				} catch (DicomException e) {
+					logger.error(e, e);
+					return null;
+				} catch (DicomNetworkException e) {
+					logger.error(e, e);
+					return null;
+				}	
+			}
+		}	
+		return objectLocators;
+	}
+	
 	
 	/**
 	 * 1. Method performed hierarchical move from remote location to calling location first.
@@ -259,19 +393,26 @@ public class DicomRetrieve implements Retrieve {
 		}		
 	}
 	
-	void fireResultsAvailable(String targetElementID){
-		RetrieveEvent event = new RetrieveEvent(targetElementID);
+	void fireResultsAvailable(Map<String, ObjectLocator> objectLocators){
+		RetrieveEvent event = new RetrieveEvent(objectLocators);         		        
 		listener.retrieveResultsAvailable(event);
 	}
 
-	DataAccessListener listener;
+	
 	@Override
 	public void addDataAccessListener(DataAccessListener l) {
-		listener = l;
+		
 	}
 
 	@Override
 	public Map<String, ObjectLocator> getObjectLocators() {
 		return objectLocators;
+		//TODO to be removed
+	}
+
+	RetrieveListener listener;
+	@Override
+	public void addRetrieveListener(RetrieveListener l) {
+		listener = l;
 	}
 }
