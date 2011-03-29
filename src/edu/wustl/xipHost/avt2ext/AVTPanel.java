@@ -540,13 +540,14 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			State state = app.getState();
 			Query query = (Query) avtQuery;
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
-			Retrieve retrieve = new AVTRetrieve2(tmpDir); 
+			//Retrieve retrieve = new AVTRetrieve2(tmpDir); 
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
-				instanceApp.setRetrieveDataSource(retrieve);
+				//instanceApp.setRetrieveDataSource(retrieve);
+				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.avt2ext.AVTRetrieve");
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
 				appMgr.addApplication(instanceApp);		
@@ -554,7 +555,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
-				app.setRetrieveDataSource(retrieve);
+				//app.setRetrieveDataSource(retrieve);
+				app.setDataSourceDomainName("edu.wustl.xipHost.avt2ext.AVTRetrieve");
 				app.setApplicationTmpDir(tmpDir);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
 			}	
