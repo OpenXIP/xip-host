@@ -492,4 +492,14 @@ public class DicomManagerImpl implements DicomManager{
 		dicomMgr.runShutDownSequence();
 		dicomMgr.startPixelmedServer();
 	}
+
+	@Override
+	public PacsLocation getDefaultCallingPacsLocation() {
+		return callingPacsLocation;
+	}
+	
+	PacsLocation callingPacsLocation;
+	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation){
+		this.callingPacsLocation = callingPacsLocation;
+	}
 }
