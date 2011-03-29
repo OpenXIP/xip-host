@@ -28,4 +28,6 @@ public interface DicomManager {
 	public abstract List<PacsLocation> getPacsLocations();	
 	public abstract boolean runDicomStartupSequence();
 	public String getDBFileName();
+	public PacsLocation getDefaultCallingPacsLocation();
+	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation);
 }

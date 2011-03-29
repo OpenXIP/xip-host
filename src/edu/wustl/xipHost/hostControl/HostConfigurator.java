@@ -65,7 +65,6 @@ public class HostConfigurator {
 
 	public boolean runHostStartupSequence(){		
 		logger.info("Launching XIP Host. Platform " + OS);
-
 		hostConfig = new File("./config/xipConfig.xml");
 		if(loadHostConfigParameters(hostConfig) == false){		
 			new ExceptionDialog("Unable to load Host configuration parameters.", 
