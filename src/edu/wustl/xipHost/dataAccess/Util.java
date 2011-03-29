@@ -52,39 +52,4 @@ public class Util {
 			 }
 		}
 	}
-	
-	public static String toDicomHex(int i){
-		String hexValue = Integer.toHexString(i);
-		int length = hexValue.length();
-		String firstPart = hexValue.substring(0, length - 4);
-		String secondPart = hexValue.substring(length - 4, length);
-		if(firstPart.length() == 4){
-			firstPart = "0x" + firstPart.toUpperCase();
-		} else {
-			int needed = 4 - firstPart.length();
-			String neededStr = null;
-	        switch (needed) {
-	            case 1: neededStr = "0"; break;
-	            case 2: neededStr = "00"; break;
-	            case 3: neededStr = "000"; break;
-	            case 4: neededStr = "0000"; break;
-	        }
-	        firstPart = "0x" + (neededStr + firstPart).toUpperCase();
-		}
-		if(secondPart.length() == 4){
-			secondPart = "0x" + secondPart.toUpperCase();
-		} else {
-			int needed = 4 - secondPart.length();
-			String neededStr = null;
-	        switch (needed) {
-	            case 1: neededStr = "0"; break;
-	            case 2: neededStr = "00"; break;
-	            case 3: neededStr = "000"; break;
-	            case 4: neededStr = "0000"; break;
-	        }
-	        secondPart = "0x" + (neededStr + secondPart).toUpperCase();
-		}
-		String dicomHex = "(" + firstPart + "," + secondPart + ")";
-		return dicomHex;
-	}
 }
