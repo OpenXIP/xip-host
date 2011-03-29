@@ -9,6 +9,7 @@ import java.util.EventListener;
  * @author Jaroslaw Krych
  *
  */
+//TODO to be removed
 public interface DataAccessListener extends EventListener{
 	public void queryResultsAvailable(QueryEvent e);
 	public void retrieveResultsAvailable(RetrieveEvent e);
