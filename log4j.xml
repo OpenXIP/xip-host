@@ -86,6 +86,9 @@
   <logger name="edu.wustl.xipHost.dicom.AttributePanel">
 	<appender-ref ref="Dicom_Appender"/>
   </logger>
+  <logger name="edu.wustl.xipHost.dicom.DicomUtil">
+	<appender-ref ref="Dicom_Appender"/>
+  </logger>
 
   <logger name="edu.wustl.xipHost.avt2ext.AVTPanel">
 	<appender-ref ref="AVT_Appender"/>
