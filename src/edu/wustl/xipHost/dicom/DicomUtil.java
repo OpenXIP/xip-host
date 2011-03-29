@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 import com.pixelmed.dicom.AgeStringAttribute;
 import com.pixelmed.dicom.Attribute;
@@ -19,6 +20,7 @@ import com.pixelmed.dicom.CodeStringAttribute;
 import com.pixelmed.dicom.DateAttribute;
 import com.pixelmed.dicom.DateTimeAttribute;
 import com.pixelmed.dicom.DecimalStringAttribute;
+import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.IntegerStringAttribute;
 import com.pixelmed.dicom.LongStringAttribute;
 import com.pixelmed.dicom.LongTextAttribute;
@@ -29,7 +31,6 @@ import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.TimeAttribute;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-
 import eu.medsea.util.MimeUtil;
 
 /**
@@ -37,7 +38,7 @@ import eu.medsea.util.MimeUtil;
  *
  */
 public class DicomUtil {
-
+	final static Logger logger = Logger.getLogger(DicomUtil.class);	
 	 /*
      * Enhance mimeType by Macintosh DICM file type
      */
@@ -332,6 +333,73 @@ public class DicomUtil {
 		return adCriteria;
 	}
 	
+	//TODO to be finished to include all Pixelmed criteria
+	public static AttributeList convertToPixelmedDicomCriteria(Map<Integer, Object> dicomCriteria){
+		AttributeList criteria = new AttributeList();
+		String[] characterSets = { "ISO_IR 100" };
+		SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);					
+		try {
+			String patientName = (String)dicomCriteria.get(Tag.PatientName);	    
+			if(patientName != null){
+				{ AttributeTag t = TagFromName.PatientName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); a.addValue(patientName); criteria.put(t,a); }	
+			}
+		    String patientID = (String)dicomCriteria.get(Tag.PatientID);
+		    if(patientID != null){
+		    	{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientID); criteria.put(t,a); }
+		    }
+		    String studyInstanceUID = (String)dicomCriteria.get(Tag.StudyInstanceUID);
+		    if(studyInstanceUID != null){
+		    	{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(studyInstanceUID); criteria.put(t,a); }
+		    }
+		    String seriesInstanceUID = (String)dicomCriteria.get(Tag.SeriesInstanceUID);
+		    if(seriesInstanceUID != null){
+		    	{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(seriesInstanceUID); criteria.put(t,a); }
+		    }
+			String sopInstanceUID = (String)dicomCriteria.get(Tag.SOPInstanceUID);
+			if(sopInstanceUID != null){
+				{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(sopInstanceUID); criteria.put(t,a); }
+			}
+			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); criteria.put(t,a); a.addValue(characterSets[0]); }
+			{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("IMAGE"); criteria.put(t,a); }
+		} catch (DicomException e) {
+			logger.error(e, e);
+		} 
+		return criteria;
+	}
 	
+	public static String toDicomHex(int i){
+		String hexValue = Integer.toHexString(i);
+		int length = hexValue.length();
+		String firstPart = hexValue.substring(0, length - 4);
+		String secondPart = hexValue.substring(length - 4, length);
+		if(firstPart.length() == 4){
+			firstPart = "0x" + firstPart.toUpperCase();
+		} else {
+			int needed = 4 - firstPart.length();
+			String neededStr = null;
+	        switch (needed) {
+	            case 1: neededStr = "0"; break;
+	            case 2: neededStr = "00"; break;
+	            case 3: neededStr = "000"; break;
+	            case 4: neededStr = "0000"; break;
+	        }
+	        firstPart = "0x" + (neededStr + firstPart).toUpperCase();
+		}
+		if(secondPart.length() == 4){
+			secondPart = "0x" + secondPart.toUpperCase();
+		} else {
+			int needed = 4 - secondPart.length();
+			String neededStr = null;
+	        switch (needed) {
+	            case 1: neededStr = "0"; break;
+	            case 2: neededStr = "00"; break;
+	            case 3: neededStr = "000"; break;
+	            case 4: neededStr = "0000"; break;
+	        }
+	        secondPart = "0x" + (neededStr + secondPart).toUpperCase();
+		}
+		String dicomHex = "(" + firstPart + "," + secondPart + ")";
+		return dicomHex;
+	}
 	
 }
