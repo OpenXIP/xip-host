@@ -11,9 +11,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,24 +23,30 @@ import javax.xml.ws.Endpoint;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.log4j.Logger;
+import org.dcm4che2.data.Tag;
 import org.jdom.Document;
 import org.nema.dicom.wg23.ArrayOfString;
 import org.nema.dicom.wg23.ArrayOfUUID;
 import org.nema.dicom.wg23.AvailableData;
 import org.nema.dicom.wg23.Host;
 import org.nema.dicom.wg23.ModelSetDescriptor;
+import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveFactory;
+import edu.wustl.xipHost.dataAccess.RetrieveListener;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
+import edu.wustl.xipHost.iterator.Criteria;
 import edu.wustl.xipHost.iterator.IteratorUtil;
-import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.iterator.IteratorElementEvent;
 import edu.wustl.xipHost.iterator.IteratorEvent;
@@ -46,7 +54,11 @@ import edu.wustl.xipHost.iterator.NotificationRunner;
 import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
+import edu.wustl.xipHost.dataModel.Item;
+import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.Series;
+import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.hostControl.Util;
@@ -59,7 +71,7 @@ import edu.wustl.xipHost.wg23.NativeModelRunner;
 import edu.wustl.xipHost.wg23.StateExecutor;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
-public class Application implements NativeModelListener, TargetIteratorListener, DataAccessListener {	
+public class Application implements NativeModelListener, TargetIteratorListener, DataAccessListener, RetrieveListener {	
 	final static Logger logger = Logger.getLogger(Application.class);
 	UUID id;
 	String name;
@@ -647,6 +659,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		}
 	}
 	
+	/*
 	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
 		//Start data retrieval related to the element	
 		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
@@ -687,6 +700,154 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			}	
 		}			
 	}
+	*/
+	
+	String dataSourceDomainName;
+	public void setDataSourceDomainName(String dataSourceDomainName){
+		this.dataSourceDomainName = dataSourceDomainName;
+	}
+	
+	DataSource dataSource;
+	public void setDataSource(DataSource dataSource){
+		this.dataSource = dataSource;
+	}
+	
+	
+	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
+		//First check if data was already retrieved
+		boolean retrieveComplete = true;
+		List<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();		
+		if(!retrievedData.isEmpty()){
+			for(Uuid uuid : listUUIDs){
+				String strUuid = uuid.getUuid();
+				ObjectLocator objLoc = retrievedData.get(strUuid);
+				if(objLoc != null){
+					logger.debug(strUuid + " " + objLoc.getUri());
+					listObjLocs.add(objLoc);
+				} else {					
+					retrieveComplete = false;
+					listObjLocs.clear();	
+				}
+			}
+			if(retrieveComplete){					
+				return listObjLocs;
+			}
+		}
+		//Start data retrieval related to the element	
+		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
+		TargetElement element = null;
+		synchronized(targetElements){
+			element = targetElements.get(numberOfSentNotifications - 1);
+			//1. Find targetElement where uuids are; Optimization task
+			
+			Retrieve retrieve = RetrieveFactory.getInstance(dataSourceDomainName);				
+			File importDir = getApplicationTmpDir();
+			retrieve.setImportDir(importDir);
+			retrieve.setRetrieveTarget(retrieveTarget);
+			retrieve.setDataSource(dataSource);
+			retrieve.addRetrieveListener(this);
+			SearchResult subSearchResult = element.getSubSearchResult();
+			Criteria originalCriteria = subSearchResult.getOriginalCriteria();
+			Map<Integer, Object> dicomCriteria = originalCriteria.getDICOMCriteria();
+			Map<String, Object> aimCriteria = originalCriteria.getAIMCriteria();
+			List<Patient> patients = subSearchResult.getPatients();
+			for(Patient patient : patients){
+				dicomCriteria.put(Tag.PatientName, patient.getPatientName());
+				dicomCriteria.put(Tag.PatientID, patient.getPatientID());
+				List<Study> studies = patient.getStudies();
+				for(Study study : studies){
+					dicomCriteria.put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
+					List<Series> series = study.getSeries();
+					for(Series oneSeries : series){					
+						dicomCriteria.put(Tag.SeriesInstanceUID, oneSeries.getSeriesInstanceUID());
+						if(aimCriteria == null){
+							logger.debug("AD AIM criteria: " + aimCriteria);
+						}else{
+							logger.debug("AD AIM retrieve criteria:");
+							Set<String> keys = aimCriteria.keySet();
+							Iterator<String> iter = keys.iterator();
+							while(iter.hasNext()){
+								String key = iter.next();
+								String value = (String) aimCriteria.get(key);
+								if(!value.isEmpty()){
+									logger.debug("Key: " + key + " Value: " + value);
+								}					
+							}				
+						}
+						List<ObjectDescriptor> objectDescriptors = new ArrayList<ObjectDescriptor>();
+						List<Item> items = oneSeries.getItems();
+						for(Item item : items){
+							objectDescriptors.add(item.getObjectDescriptor());
+						}
+						
+						//If oneSeries contains subset of items, narrow dicomCriteria to individual SOPInstanceUIDs
+						//Then retrieve data item by item
+						if(oneSeries.containsSubsetOfItems()){
+							for(Item item : items){
+								String itemSOPInstanceUID = item.getItemID();
+								dicomCriteria.put(Tag.SOPInstanceUID, itemSOPInstanceUID);
+								retrieve.setCriteria(dicomCriteria, aimCriteria);
+								List<ObjectDescriptor> objectDesc = new ArrayList<ObjectDescriptor>();
+								objectDesc.add(item.getObjectDescriptor());
+								retrieve.setObjectDescriptors(objectDesc);
+								Thread t = new Thread(retrieve);
+								t.start();
+								//dicomCriteria.remove(Tag.SOPInstanceUID);
+								try {
+									t.join();
+									//Reset value of SOPInstanceUID in dicomCriteria
+									dicomCriteria.remove(Tag.SOPInstanceUID);
+								} catch (InterruptedException e) {
+									logger.error(e, e);
+								}
+							}
+						} else {
+							retrieve.setCriteria(dicomCriteria, aimCriteria);
+							retrieve.setObjectDescriptors(objectDescriptors);
+							Thread t = new Thread(retrieve);
+							t.start();
+							try {
+								t.join();
+							} catch (InterruptedException e) {
+								logger.error(e, e);
+							}
+						}						
+						//Reset Series level dicomCriteria
+						dicomCriteria.remove(Tag.SeriesInstanceUID);
+					}
+					//Reset Study level dicomCriteria
+					dicomCriteria.remove(Tag.StudyInstanceUID);
+				}
+				//Reset Patient level dicomCriteria
+				dicomCriteria.remove(Tag.PatientName);
+				dicomCriteria.remove(Tag.PatientID);
+			}				
+		}			
+		
+		
+		//Wait for actual data being retrieved before sending file pointers
+		synchronized(retrievedData){
+			while(retrievedData.isEmpty()){
+				try {
+					retrievedData.wait();
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
+		}
+		if(listUUIDs == null){
+			return new ArrayList<ObjectLocator>();
+		} else {		
+			for(Uuid uuid : listUUIDs){
+				String strUuid = uuid.getUuid();
+				ObjectLocator objLoc = retrievedData.get(strUuid);				
+				logger.debug(strUuid + " " + objLoc.getUri());
+				listObjLocs.add(objLoc);			
+			}
+			return listObjLocs;
+		}			
+	}
+	
 	
 	@Override
 	public void notifyException(String message) {
@@ -702,6 +863,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	}
 
 	List<String> retrievedTargetElements = new ArrayList<String>();	
+	/*
 	@Override
 	public void retrieveResultsAvailable(RetrieveEvent e) {
 		synchronized(retrievedTargetElements){			
@@ -709,6 +871,24 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			retrievedTargetElements.add(elementID);
 			logger.debug("Data retrieved for TargetElement: " + elementID + " at time: " + System.currentTimeMillis());		
 			retrievedTargetElements.notify();
+		}
+	}*/
+	
+	Map <String, ObjectLocator> retrievedData = new HashMap<String, ObjectLocator>();
+	@SuppressWarnings("unchecked")
+	@Override
+	public void retrieveResultsAvailable(RetrieveEvent e) {
+		synchronized(retrievedData){			
+			Map<String, ObjectLocator> objectLocators = (Map<String, ObjectLocator>) e.getSource();
+			retrievedData.putAll(objectLocators);
+			Iterator<String> keySet = objectLocators.keySet().iterator();
+			logger.debug("Items retrieved: ");
+			while(keySet.hasNext()){
+				String uuid = keySet.next();
+				ObjectLocator objLoc = objectLocators.get(uuid);
+				logger.debug("UUID: " + uuid + " Item location: " + objLoc.getUri());
+			}		
+			retrievedData.notify();
 		}
 	}
 }
