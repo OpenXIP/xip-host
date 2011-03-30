@@ -8,5 +8,5 @@ package edu.wustl.xipHost.dataAccess;
  *
  */
 public enum RetrieveTarget {
-	SERIES, DICOM_AND_AIM, AIM_SEG, ANY
+	DICOM, DICOM_AND_AIM, AIM_SEG, ANY
 }
