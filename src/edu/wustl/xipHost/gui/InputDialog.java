@@ -61,7 +61,6 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.dataAccess.Query;
-import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -75,8 +74,6 @@ import edu.wustl.xipHost.localFileSystem.DicomParseEvent;
 import edu.wustl.xipHost.localFileSystem.DicomParseListener;
 import edu.wustl.xipHost.localFileSystem.FileRunner;
 import edu.wustl.xipHost.localFileSystem.LocalFileSystemQuery;
-import edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve;
-
 
 /**
  * @author Jaroslaw Krych
@@ -376,6 +373,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 			item.setObjectLocator(objLoc);
 			series.addItem(item);
 			series.setLastUpdated(lastUpdated);
+			series.setContainsSubsetOfItems(true);
 		} 
 	}
 	
@@ -428,6 +426,10 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 					List<Series> series = logStudy.getSeries();
 					for(Series logSeries : series){
 						logger.debug("      " + logSeries.toString());
+						List<Item> items = logSeries.getItems();
+						for(Item logItem : items){
+							logger.debug("         " + logItem.toString());
+						}
 					}
 				}
 			}
@@ -463,13 +465,14 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 		State state = app.getState();
 		Query query = new LocalFileSystemQuery(selectedDataSearchResult);
 		File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
-		Retrieve retrieve = new LocalFileSystemRetrieve(selectedDataSearchResult);
+		//Retrieve retrieve = new LocalFileSystemRetrieve(selectedDataSearchResult);
 		if(state != null && !state.equals(State.EXIT)){
 			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 			instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 			instanceApp.setQueryDataSource(query);
-			instanceApp.setRetrieveDataSource(retrieve);
+			//instanceApp.setRetrieveDataSource(retrieve);
+			instanceApp.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 			instanceApp.setDoSave(false);
 			instanceApp.setApplicationTmpDir(tmpDir);
 			appMgr.addApplication(instanceApp);		
@@ -478,7 +481,8 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 		}else{
 			app.setSelectedDataSearchResult(selectedDataSearchResult);
 			app.setQueryDataSource(query);
-			app.setRetrieveDataSource(retrieve);
+			//app.setRetrieveDataSource(retrieve);
+			app.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 			app.setApplicationTmpDir(tmpDir);
 			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			targetApp = app;
