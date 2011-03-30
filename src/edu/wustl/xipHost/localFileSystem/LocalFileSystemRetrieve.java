@@ -3,20 +3,24 @@
  */
 package edu.wustl.xipHost.localFileSystem;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveListener;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 
 /**
@@ -31,25 +35,60 @@ public class LocalFileSystemRetrieve implements Retrieve {
 	/**
 	 * 
 	 */
+	public LocalFileSystemRetrieve(){
+		
+	}
+	/*
 	public LocalFileSystemRetrieve(SearchResult selectedDataSearchResult) {
 		this.selectedDataSearchResult = selectedDataSearchResult;
+		//TODO to be removed
+	}*/
+	
+	@Override
+	public void setCriteria(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria) {
+		
+	}
+
+	@Override
+	public void setCriteria(Object criteria) {
+		this.selectedDataSearchResult = (SearchResult) criteria;
+	}
+
+	@Override
+	public void setDataSource(DataSource dataSource) {
+				
+	}
+
+	@Override
+	public void setImportDir(File importDir) {
+		
+	}
+
+	@Override
+	public void setObjectDescriptors(List<ObjectDescriptor> objectDescriptors) {
+		// TODO Auto-generated method stub	
+	}
+	
+	@Override
+	public void setRetrieveTarget(RetrieveTarget retrieveTarget) {
+		
 	}
 	
 	@Override
 	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
 		this.targetElement = targetElement;
-		this.retrieveTarget = retrieveTarget;		
+		this.retrieveTarget = retrieveTarget;
+		//TODO to be removed
 	}
 
-	DataAccessListener listener;
 	@Override
 	public void addDataAccessListener(DataAccessListener l) {
-		listener = l;		
+		//TODO to be removed
 	}
 
 	@Override
 	public void run() {
-		objectLocators = new HashMap<String, ObjectLocator>();
+		Map<String, ObjectLocator> objectLocs = new HashMap<String, ObjectLocator>();
 		List<Patient> patients = selectedDataSearchResult.getPatients();
 		for(Patient patient : patients){
 			List<Study> studies = patient.getStudies();
@@ -60,21 +99,31 @@ public class LocalFileSystemRetrieve implements Retrieve {
 					for(Item item : items){
 						String uuid = item.getObjectLocator().getUuid().getUuid();
 						ObjectLocator objLoc = item.getObjectLocator();
-						objectLocators.put(uuid, objLoc);
+						objectLocs.put(uuid, objLoc);
 					}
 				}
 			}
 		}
-		fireResultsAvailable(targetElement.getId());		
+		
+		fireResultsAvailable(objectLocs);		
 	}
 	
-	void fireResultsAvailable(String targetElementID){
-		RetrieveEvent event = new RetrieveEvent(targetElementID);         		
+	void fireResultsAvailable(Map<String, ObjectLocator> objectLocs){
+		RetrieveEvent event = new RetrieveEvent(objectLocs);         		
         listener.retrieveResultsAvailable(event);
 	}
 
-	Map<String, ObjectLocator> objectLocators;
+	
+	//Map<String, ObjectLocator> objectLocators;
 	public Map<String, ObjectLocator> getObjectLocators() {		
-		return objectLocators;
+		//return objectLocators;
+		return null;
+		//TODO to be removed
+	}
+
+	RetrieveListener listener;
+	@Override
+	public void addRetrieveListener(RetrieveListener l) {
+		listener = l;
 	}
 }
