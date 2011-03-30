@@ -66,6 +66,10 @@ public class Workstation3 {
 		}				
 	}
 	
+	public static Properties getServerConfig(){
+		return prop;
+	}
+	
 	public static boolean isRunning(){		
 		if(hsqldbServer == null){
 			return false;
@@ -82,7 +86,6 @@ public class Workstation3 {
 	}
 	
 	public static PatientStudySeriesConcatenationInstanceModel getDBModel(){
-		
 		try {
 			return new PatientStudySeriesConcatenationInstanceModel(prop.getProperty("Application.DatabaseFileName"));
 		} catch (DicomException e) {
