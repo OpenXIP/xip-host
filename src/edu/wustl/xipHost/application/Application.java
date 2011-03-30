@@ -802,6 +802,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 								}
 							}
 						} else {
+							dicomCriteria.put(Tag.SOPInstanceUID, "*");
 							retrieve.setCriteria(dicomCriteria, aimCriteria);
 							retrieve.setObjectDescriptors(objectDescriptors);
 							Thread t = new Thread(retrieve);
