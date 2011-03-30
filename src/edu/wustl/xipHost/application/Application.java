@@ -54,6 +54,7 @@ import edu.wustl.xipHost.iterator.NotificationRunner;
 import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
+import edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -786,7 +787,11 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 							for(Item item : items){
 								String itemSOPInstanceUID = item.getItemID();
 								dicomCriteria.put(Tag.SOPInstanceUID, itemSOPInstanceUID);
-								retrieve.setCriteria(dicomCriteria, aimCriteria);
+								if(retrieve instanceof LocalFileSystemRetrieve){
+									retrieve.setCriteria(selectedDataSearchResult);
+								} else {
+									retrieve.setCriteria(dicomCriteria, aimCriteria);
+								}
 								List<ObjectDescriptor> objectDesc = new ArrayList<ObjectDescriptor>();
 								objectDesc.add(item.getObjectDescriptor());
 								retrieve.setObjectDescriptors(objectDesc);
@@ -803,8 +808,12 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 							}
 						} else {
 							dicomCriteria.put(Tag.SOPInstanceUID, "*");
-							retrieve.setCriteria(dicomCriteria, aimCriteria);
-							retrieve.setObjectDescriptors(objectDescriptors);
+							if(retrieve instanceof LocalFileSystemRetrieve){
+								retrieve.setCriteria(selectedDataSearchResult);
+							} else {
+								retrieve.setCriteria(dicomCriteria, aimCriteria);
+								retrieve.setObjectDescriptors(objectDescriptors);
+							}														
 							Thread t = new Thread(retrieve);
 							t.start();
 							try {
