@@ -58,7 +58,7 @@ public class DicomRetrieve implements Retrieve {
 	List<ObjectDescriptor> objectDescriptors;
 	File importDir;
 	RetrieveTarget retrieveTarget;
-	//DataSource dataSource;
+	String databaseFileName;
 	
 	public DicomRetrieve(){
 		
@@ -72,6 +72,7 @@ public class DicomRetrieve implements Retrieve {
 		this.called = (PacsLocation) dataSource;
 		dicomMgr = DicomManagerFactory.getInstance();
 		calling = dicomMgr.getDefaultCallingPacsLocation();
+		databaseFileName = dicomMgr.getDBFileName();
 	}
 	
 	/*
@@ -88,6 +89,7 @@ public class DicomRetrieve implements Retrieve {
 		this.aimCriteria = aimCriteria;
 		dicomMgr = DicomManagerFactory.getInstance();
 		calling = dicomMgr.getDefaultCallingPacsLocation();
+		databaseFileName = dicomMgr.getDBFileName();
 	}
 
 	@Override
@@ -115,6 +117,14 @@ public class DicomRetrieve implements Retrieve {
 		this.called = (PacsLocation) dataSource;
 	}
 	
+	public void setDefaultCallingPacsLocation(DataSource defaultCallingPacsLocation){
+		calling = (PacsLocation) defaultCallingPacsLocation;
+	}
+	
+	public void setDatabaseFileName(String dbFileName){
+		databaseFileName = dbFileName;
+	}
+	
 	@Override
 	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
 		//this.targetElement = targetElement;
@@ -138,11 +148,15 @@ public class DicomRetrieve implements Retrieve {
 		String callingAETitle = calling.getAETitle();
 		if(called != null && calling != null){	
 			if(logger.isDebugEnabled()){			
-		    	logger.debug("Host name: " + hostName);	    	
-		    	logger.debug("Port: " + port);	    
+		    	logger.debug("Host name: " + hostName);
+		    	logger.debug("Port: " + port);		    
 		    	logger.debug("CalledAETitle: " + calledAETitle);	    	
 		    	logger.debug("CallingAETitle: " + callingAETitle);
-		    	logger.debug("DBFileName: " + dicomMgr.getDBFileName());
+		    	if(databaseFileName == null){
+		    		logger.error("DBFileName value is null!");
+		    	} else {
+			    	logger.debug("DBFileName: " + databaseFileName);
+		    	}
 			}
 			objectLocators = new HashMap<String, ObjectLocator>();	
 			if(retrieveTarget == RetrieveTarget.DICOM_AND_AIM){
@@ -163,8 +177,7 @@ public class DicomRetrieve implements Retrieve {
 			    try {
 			    	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);
 					mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());										        	
-		        	logger.debug("Local server is: " + dicomMgr.getDBFileName());
-					StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(dicomMgr.getDBFileName());			
+					StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(databaseFileName);			
 		    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
 		    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
 		    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
@@ -223,7 +236,7 @@ public class DicomRetrieve implements Retrieve {
 		    	logger.debug("Port: " + port);	    
 		    	logger.debug("CalledAETitle: " + calledAETitle);	    	
 		    	logger.debug("CallingAETitle: " + callingAETitle);
-		    	logger.debug("DBFileName: " + dicomMgr.getDBFileName());
+		    	logger.debug("DBFileName: " + databaseFileName);
 			}
 			SearchResult subSearchResult = targetElement.getSubSearchResult();
 			List<Patient> patients = subSearchResult.getPatients();
@@ -259,9 +272,7 @@ public class DicomRetrieve implements Retrieve {
 									    }	    
 							        	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        								        	
 							        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());							        	
-							        	//System.out.println("Local server is: " + getDBFileName());
-							        	logger.debug("Local server is: " + dicomMgr.getDBFileName());
-										StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(dicomMgr.getDBFileName());			
+							        	StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(databaseFileName);			
 							    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
 							    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
 							    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
@@ -295,7 +306,7 @@ public class DicomRetrieve implements Retrieve {
 									StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        	
 						        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());						        	
 						        	//System.out.println("Local server is: " + getDBFileName());
-									StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(dicomMgr.getDBFileName());			
+									StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(databaseFileName);			
 						    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
 						    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
 						    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
