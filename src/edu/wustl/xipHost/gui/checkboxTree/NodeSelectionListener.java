@@ -671,9 +671,19 @@ public class NodeSelectionListener implements ActionListener {
 	
 	synchronized  void setSeriesDatasetFlag(Series series, Study study, Patient patient, boolean subsetOfItems){
 		Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+		if(selectedPatient == null){
+			return;
+		}
 		Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+		if(selectedStudy == null){
+			return;
+		}		
 		Series selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
-		selectedSeries.setContainsSubsetOfItems(subsetOfItems);
+		if(selectedSeries == null){
+			return;
+		} else {
+			selectedSeries.setContainsSubsetOfItems(subsetOfItems);
+		}		
 	}
 	
 	DataSelectionListener listener;
