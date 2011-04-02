@@ -99,8 +99,8 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	
 	void fireLaunchApplication(AppButton btn){
 		ApplicationEvent event = new ApplicationEvent(btn);
-		Component inputDialog = HostConfigurator.getHostConfigurator().getMainWindow().getInputDialog();  
-		if( inputDialog != null){
+		//Component inputDialog = HostConfigurator.getHostConfigurator().getMainWindow().getInputDialog();  
+		/*if( inputDialog != null){
 			for (ApplicationListener listener : listenerList){
 				// Only launch applications for the currently active (selected, visible) search tab
 				if (inputDialog == listener){
@@ -114,6 +114,13 @@ public class ApplicationBar extends JPanel implements ActionListener {
 				if (component == listener){
 					listener.launchApplication(event);
 				}
+			}
+		}*/
+		Component component = HostConfigurator.getHostConfigurator().getMainWindow().getSelectedSearchTab();	
+		for (ApplicationListener listener : listenerList){
+			// Only launch applications for the currently active (selected, visible) search tab
+			if (component == listener){
+				listener.launchApplication(event);
 			}
 		}
 	}

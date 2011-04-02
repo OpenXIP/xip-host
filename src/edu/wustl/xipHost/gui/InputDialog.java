@@ -122,6 +122,7 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 		jsp.setPreferredSize(new Dimension(450, 180));
 		add(jsp);
 		buildLayout();
+		selectedDataSearchResult = new SearchResult("Local File System");
 	}
 	
 	class DicomTableModel extends AbstractTableModel {
@@ -313,9 +314,9 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 		String patientID = result[1][1];
 		String patientBirthDate = result[2][1];
 		Patient patient = new Patient(patientName, patientID, patientBirthDate);		
-		if(selectedDataSearchResult == null){
+		/*if(selectedDataSearchResult == null){
 			selectedDataSearchResult = new SearchResult("Local File System");
-		}
+		}*/
 		if(!selectedDataSearchResult.contains(patientID)){
 			selectedDataSearchResult.addPatient(patient);
 			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
@@ -394,9 +395,9 @@ public class InputDialog extends JPanel implements ListSelectionListener, DicomP
 		//Create selectedDataSearchResult from the selected files
 		numOfParsingRequestsSent = 0;
 		numOfParsingRequestsRecieved = 0;
-		if(selectedDataSearchResult == null){
+		/*if(selectedDataSearchResult == null){
 			selectedDataSearchResult = new SearchResult("Local File System");
-		}
+		}*/
 		File selectedFile = null;
 		for(int i = 0; i < selectedFiles.length; i++){
 			selectedFile = selectedFiles[i];
