@@ -14,6 +14,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.localFileSystem.FileManager;
 import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import edu.wustl.xipHost.localFileSystem.HostFileChooser;
+import edu.wustl.xipHost.localFileSystem.LocalFileSystemPanel;
 import edu.wustl.xipHost.worklist.WorklistPanel;
 import edu.wustl.xipHost.xds.XDSPanel;
 import java.awt.*;
@@ -48,6 +49,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 	GlobalSearchPanel globalSearchPanel;
 	XDSPanel xdsPanel;
 	AVTPanel avt2extPanel;
+	LocalFileSystemPanel localFileSystemPanel;
 	
 	static Dimension screenSize;	
 	
@@ -59,6 +61,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		globalSearchPanel = new GlobalSearchPanel();
 		avt2extPanel = new AVTPanel();
 		xdsPanel = new XDSPanel();
+		localFileSystemPanel = new LocalFileSystemPanel();
 		if(HostConfigurator.OS.contains("Windows")){
 			setUndecorated(true);
 		}else{
@@ -89,11 +92,12 @@ public class HostMainWindow extends JFrame implements ActionListener {
         tabPaneCenter.addTab("GlobalSearch", icon, globalSearchPanel, null);        
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
         tabPaneCenter.addTab("Worklist", icon, worklistPanel, null);
+        tabPaneCenter.addTab("Local File System", icon, localFileSystemPanel, null);
         tabPaneCenter.setFont(font);
         tabPaneCenter.setSelectedComponent(dicomPanel);
         
         toolBar.btnHost.addActionListener(this);
-        toolBar.btnLocal.addActionListener(this);
+        //toolBar.btnLocal.addActionListener(this);
         toolBar.btnOptions.addActionListener(this);
         toolBar.btnExit.addActionListener(this);
         toolBar.btnSuspend.addActionListener(this);
@@ -136,7 +140,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
     		toolBar.switchButtons(0);
     		setAlwaysOnTop(true);
 			setAlwaysOnTop(false);
-    	}else if (e.getSource() == toolBar.btnLocal){    		    		
+    	} /*else if (e.getSource() == toolBar.btnLocal){    		    		
     		HostFileChooser fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
     		fileChooser.setVisible(true);
     		File[] files = fileChooser.getSelectedItems();
@@ -145,7 +149,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
     		}
     		FileManager fileMgr = FileManagerFactory.getInstance();
     		fileMgr.run(files);    		    		
-    	}else if(e.getSource() == toolBar.btnOptions){
+    	} */else if(e.getSource() == toolBar.btnOptions){
     		int x = (int)((JButton)e.getSource()).getLocationOnScreen().getX();
     		int y = (int)((JButton)e.getSource()).getLocationOnScreen().getY() + 45;  
     		optionsDialog.display(x, y);

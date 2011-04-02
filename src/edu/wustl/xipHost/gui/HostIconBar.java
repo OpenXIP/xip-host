@@ -33,7 +33,7 @@ public class HostIconBar extends JPanel {
 	JLabel lblName = new JLabel();
 	JPanel hostTopPanel = new JPanel();
 	JPanel hostPanel = new JPanel();	
-	JButton btnLocal = new JButton("C:\\", new ImageIcon("./gif/folder-open.png"));
+	//JButton btnLocal = new JButton("C:\\", new ImageIcon("./gif/folder-open.png"));
 	JButton btnOptions = new JButton("Options", new ImageIcon("./gif/Options24.gif"));
 	JButton btnExit = new JButton("Exit", new ImageIcon("./gif/cup.gif"));
 	JPanel hostBtnPanel = new JPanel();			
@@ -56,14 +56,14 @@ public class HostIconBar extends JPanel {
     	lblName.setForeground(Color.WHITE);
     	lblHelp.setToolTipText("Help Contents");
     	lblAbout.setToolTipText("About");
-    	JButton[] btns = new JButton[7];
+    	JButton[] btns = new JButton[6];
     	btns[0] = btnHost;    	    	
-    	btns[1] = btnLocal;
-    	btns[2] = btnOptions;
-    	btns[3] = btnExit;
-    	btns[4] = btnSuspend;
-    	btns[5] = btnCancel;
-    	btns[6] = btnExitApp;
+    	//btns[1] = btnLocal;
+    	btns[1] = btnOptions;
+    	btns[2] = btnExit;
+    	btns[3] = btnSuspend;
+    	btns[4] = btnCancel;
+    	btns[5] = btnExitApp;
     	    	
     	for(int i = 0; i < btns.length; i++){    		
         	btns[i].setFont(font);
@@ -74,7 +74,7 @@ public class HostIconBar extends JPanel {
         	btns[i].setPreferredSize(new Dimension((int)btns[i].getPreferredSize().getWidth(), 30));
     	}    	
     	btnHost.setBackground(xipColor);
-    	btnLocal.setForeground(Color.BLACK);
+    	//btnLocal.setForeground(Color.BLACK);
     	btnOptions.setForeground(Color.BLACK);
     	btnExit.setForeground(Color.BLACK);
     	btnSuspend.setForeground(Color.BLACK);
@@ -85,7 +85,7 @@ public class HostIconBar extends JPanel {
     	hostPanel.add(lblAbout);
     	hostPanel.add(lblName);
     	hostPanel.setBackground(xipColor);
-    	hostBtnPanel.add(btnLocal);    	    	
+    	//hostBtnPanel.add(btnLocal);    	    	
     	hostBtnPanel.add(btnOptions);
     	hostBtnPanel.add(btnExit);
     	hostBtnPanel.setBackground(xipColor);
