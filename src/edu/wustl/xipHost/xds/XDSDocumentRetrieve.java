@@ -7,18 +7,22 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveListener;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
-import edu.wustl.xipHost.iterator.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 
 /**
@@ -93,5 +97,48 @@ public class XDSDocumentRetrieve implements Retrieve {
 	@Override
 	public Map<String, ObjectLocator> getObjectLocators() {
 		return objectLocators;
+	}
+
+	@Override
+	public void addRetrieveListener(RetrieveListener l) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCriteria(Map<Integer, Object> dicomCriteria,
+			Map<String, Object> aimCriteria) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCriteria(Object criteria) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDataSource(DataSource dataSource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImportDir(File importDir) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectDescriptors(List<ObjectDescriptor> objectDescriptors) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRetrieveTarget(RetrieveTarget retrieveTarget) {
+		// TODO Auto-generated method stub
+		
 	}
 }
