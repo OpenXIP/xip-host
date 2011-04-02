@@ -159,6 +159,9 @@
   </logger>	
   <logger name="du.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve">
 	<appender-ref ref="FileDataSource_Appender"/>
+  </logger>
+  <logger name="du.wustl.xipHost.localFileSystem.LocalFileSystemPanel">
+	<appender-ref ref="FileDataSource_Appender"/>
   </logger>	
   <logger name="edu.wustl.xipHost.iterator.IteratorUtil">
 	<appender-ref ref="HostMain_Appender"/>
