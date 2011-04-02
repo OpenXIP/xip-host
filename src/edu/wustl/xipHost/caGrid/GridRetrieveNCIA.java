@@ -19,14 +19,17 @@ import org.apache.axis.types.URI.MalformedURIException;
 import org.cagrid.transfer.context.client.TransferServiceContextClient;
 import org.cagrid.transfer.context.client.helper.TransferClientHelper;
 import org.cagrid.transfer.context.stubs.types.TransferServiceContextReference;
+import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 
 import edu.osu.bmi.utils.io.zip.ZipEntryInputStream;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
-import edu.wustl.xipHost.iterator.RetrieveTarget;
+import edu.wustl.xipHost.dataAccess.RetrieveListener;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
 
@@ -164,5 +167,48 @@ public class GridRetrieveNCIA implements Retrieve {
 	public Map<String, ObjectLocator> getObjectLocators() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void addRetrieveListener(RetrieveListener l) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCriteria(Map<Integer, Object> dicomCriteria,
+			Map<String, Object> aimCriteria) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCriteria(Object criteria) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDataSource(DataSource dataSource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImportDir(File importDir) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectDescriptors(List<ObjectDescriptor> objectDescriptors) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRetrieveTarget(RetrieveTarget retrieveTarget) {
+		// TODO Auto-generated method stub
+		
 	}
 }
