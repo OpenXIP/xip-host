@@ -727,7 +727,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					listObjLocs.add(objLoc);
 				} else {					
 					retrieveComplete = false;
-					listObjLocs.clear();	
+					listObjLocs.clear();
+					break;
 				}
 			}
 			if(retrieveComplete){					
