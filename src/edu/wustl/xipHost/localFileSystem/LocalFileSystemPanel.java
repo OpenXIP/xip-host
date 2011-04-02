@@ -27,6 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.Timer;
 import javax.swing.border.Border;
+import javax.swing.tree.DefaultMutableTreeNode;
+
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 import org.nema.dicom.wg23.Modality;
@@ -51,6 +53,7 @@ import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
+import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
 import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
@@ -133,58 +136,61 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	@Override
 	public void launchApplication(ApplicationEvent event) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
-		// Determine which application button the user clicked, and retrieve info about the application
-		AppButton btn = (AppButton)event.getSource();
-		ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
-		Application app = appMgr.getApplication(btn.getApplicationUUID());
-		String appID = app.getID().toString();
-		logger.debug("Application internal id: " + appID);
-		String instanceName = app.getName();
-		logger.debug("Application name: " + instanceName);
-		File instanceExePath = app.getExePath();
-		logger.debug("Exe path: " + instanceExePath);
-		String instanceVendor = app.getVendor();
-		logger.debug("Vendor: " + instanceVendor);
-		String instanceVersion = app.getVersion();
-		logger.debug("Version: " + instanceVersion);
-		File instanceIconFile = app.getIconFile();
-		String type = app.getType();
-		logger.debug("Type: " + type);
-		boolean requiresGUI = app.requiresGUI();
-		logger.debug("Requires GUI: " + requiresGUI);
-		String wg23DataModelType = app.getWG23DataModelType();
-		logger.debug("WG23 data model type: " + wg23DataModelType);
-		int concurrentInstances = app.getConcurrentInstances();
-		logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
-		IterationTarget iterationTarget = app.getIterationTarget();
-		logger.debug("IterationTarget: " + iterationTarget.toString());
-		
-		//Check if application to be launched is not running.
-		//If yes, create new application instance
-		State state = app.getState();
-		Query query = new LocalFileSystemQuery(selectedDataSearchResult);
-		File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
-		//Retrieve retrieve = new LocalFileSystemRetrieve(selectedDataSearchResult);
-		if(state != null && !state.equals(State.EXIT)){
-			Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
-					instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-			instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
-			instanceApp.setQueryDataSource(query);
-			//instanceApp.setRetrieveDataSource(retrieve);
-			instanceApp.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
-			instanceApp.setDoSave(false);
-			instanceApp.setApplicationTmpDir(tmpDir);
-			appMgr.addApplication(instanceApp);		
-			instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-			targetApp = instanceApp;
-		}else{
-			app.setSelectedDataSearchResult(selectedDataSearchResult);
-			app.setQueryDataSource(query);
-			//app.setRetrieveDataSource(retrieve);
-			app.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
-			app.setApplicationTmpDir(tmpDir);
-			app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-			targetApp = app;
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
+		boolean isDataSelected = DataSelectionValidator.isDataSelected(rootNode);
+		if(isDataSelected){
+			// Determine which application button the user clicked, and retrieve info about the application
+			AppButton btn = (AppButton)event.getSource();
+			ApplicationManager appMgr = ApplicationManagerFactory.getInstance(); 
+			Application app = appMgr.getApplication(btn.getApplicationUUID());
+			String appID = app.getID().toString();
+			logger.debug("Application internal id: " + appID);
+			String instanceName = app.getName();
+			logger.debug("Application name: " + instanceName);
+			File instanceExePath = app.getExePath();
+			logger.debug("Exe path: " + instanceExePath);
+			String instanceVendor = app.getVendor();
+			logger.debug("Vendor: " + instanceVendor);
+			String instanceVersion = app.getVersion();
+			logger.debug("Version: " + instanceVersion);
+			File instanceIconFile = app.getIconFile();
+			String type = app.getType();
+			logger.debug("Type: " + type);
+			boolean requiresGUI = app.requiresGUI();
+			logger.debug("Requires GUI: " + requiresGUI);
+			String wg23DataModelType = app.getWG23DataModelType();
+			logger.debug("WG23 data model type: " + wg23DataModelType);
+			int concurrentInstances = app.getConcurrentInstances();
+			logger.debug("Number of allowable concurrent instances: " + concurrentInstances);
+			IterationTarget iterationTarget = app.getIterationTarget();
+			logger.debug("IterationTarget: " + iterationTarget.toString());
+			//Check if application to be launched is not running.
+			//If yes, create new application instance
+			State state = app.getState();
+			Query query = new LocalFileSystemQuery(selectedDataSearchResult);
+			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
+			//Retrieve retrieve = new LocalFileSystemRetrieve(selectedDataSearchResult);
+			if(state != null && !state.equals(State.EXIT)){
+				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
+						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
+				instanceApp.setQueryDataSource(query);
+				//instanceApp.setRetrieveDataSource(retrieve);
+				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
+				instanceApp.setDoSave(false);
+				instanceApp.setApplicationTmpDir(tmpDir);
+				appMgr.addApplication(instanceApp);		
+				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = instanceApp;
+			}else{
+				app.setSelectedDataSearchResult(selectedDataSearchResult);
+				app.setQueryDataSource(query);
+				//app.setRetrieveDataSource(retrieve);
+				app.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
+				app.setApplicationTmpDir(tmpDir);
+				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
+				targetApp = app;
+			}
 		}
 	}
 	
