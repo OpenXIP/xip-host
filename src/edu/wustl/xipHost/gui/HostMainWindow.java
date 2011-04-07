@@ -86,15 +86,15 @@ public class HostMainWindow extends JFrame implements ActionListener {
                 
         //Add tabs        
         ImageIcon icon = null;
+        tabPaneCenter.addTab("Local File System", icon, localFileSystemPanel, null);
         tabPaneCenter.addTab("AVT AD", icon, avt2extPanel, null);
         tabPaneCenter.addTab("caGrid", icon, gridPanel, null);                      	   
         tabPaneCenter.addTab("PACS", icon, dicomPanel, null);	   
         tabPaneCenter.addTab("GlobalSearch", icon, globalSearchPanel, null);        
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
         tabPaneCenter.addTab("Worklist", icon, worklistPanel, null);
-        tabPaneCenter.addTab("Local File System", icon, localFileSystemPanel, null);
         tabPaneCenter.setFont(font);
-        tabPaneCenter.setSelectedComponent(dicomPanel);
+        tabPaneCenter.setSelectedComponent(localFileSystemPanel);
         
         toolBar.btnHost.addActionListener(this);
         //toolBar.btnLocal.addActionListener(this);
