@@ -202,13 +202,13 @@ public class DicomRetrieve implements Retrieve {
 							i++;
 						}		
 						localResults = mQueryResponseGenerator.next();
-					}
+					}		
 			    } catch (IOException e) {
 					logger.error(e, e);
 					return null;
 				} catch (DicomException e) {
 					logger.error(e, e);
-					return null;
+					return null;				
 				} catch (DicomNetworkException e) {
 					logger.error(e, e);
 					return null;

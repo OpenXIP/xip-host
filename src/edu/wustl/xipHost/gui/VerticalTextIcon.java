@@ -44,7 +44,7 @@ public class VerticalTextIcon implements Icon, SwingConstants{
         AffineTransform oldTransform = g2.getTransform(); 
  
         g.setFont(font); 
-        g.setColor(Color.WHITE); 
+        g.setColor(Color.BLACK); 
         if(clockwize){ 
             g2.translate(x + getIconWidth(), y); 
             g2.rotate(Math.PI/2); 
