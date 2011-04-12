@@ -106,8 +106,8 @@ public class DicomUtil {
 			{ AttributeTag t = TagFromName.StudyTime; Attribute a = new TimeAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.ReferringPhysicianName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.AccessionNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet); filter.put(t,a); }
-			{ AttributeTag t = TagFromName.PhysicianOfRecord; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
-			{ AttributeTag t = TagFromName.PhysicianReadingStudy; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.PhysiciansOfRecord; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.PhysiciansReadingStudyIdentificationSequence; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.AdmittingDiagnosesDescription; Attribute a = new LongStringAttribute(t,specificCharacterSet); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PatientAge; Attribute a = new AgeStringAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PatientSize; Attribute a = new DecimalStringAttribute(t); filter.put(t,a); }
@@ -123,7 +123,7 @@ public class DicomUtil {
 			{ AttributeTag t = TagFromName.SeriesTime; Attribute a = new TimeAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PerformingPhysicianName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.ProtocolName; Attribute a = new LongStringAttribute(t,specificCharacterSet); filter.put(t,a); }
-			{ AttributeTag t = TagFromName.OperatorName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.OperatorsName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.Laterality; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.BodyPartExamined; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.Manufacturer; Attribute a = new LongStringAttribute(t,specificCharacterSet); filter.put(t,a); }
@@ -181,7 +181,7 @@ public class DicomUtil {
 			{ AttributeTag t = TagFromName.PatientBirthDate; Attribute a = new DateAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PatientSex; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PatientAddress; Attribute a = new ShortStringAttribute(t,specificCharacterSet); filter.put(t,a); }			
-			{ AttributeTag t = TagFromName.PatientTelephoneNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet); filter.put(t,a); }			
+			{ AttributeTag t = TagFromName.PatientTelephoneNumbers; Attribute a = new ShortStringAttribute(t,specificCharacterSet); filter.put(t,a); }			
 			{ AttributeTag t = TagFromName.PatientMotherBirthName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }			
 			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue(characterSets[0]); }
 		}catch (Exception e) {
@@ -230,9 +230,9 @@ public class DicomUtil {
 		if(!referringPhysicianName.isEmpty()){adCriteria.put(Tag.ReferringPhysicianName, referringPhysicianName);}
 		String accessionNumber = criteria.get(TagFromName.AccessionNumber).getDelimitedStringValuesOrEmptyString();
 		if(!accessionNumber.isEmpty()){adCriteria.put(Tag.AccessionNumber, accessionNumber);}
-		String physicianOfRecord = criteria.get(TagFromName.PhysicianOfRecord).getDelimitedStringValuesOrEmptyString();
+		String physicianOfRecord = criteria.get(TagFromName.PhysiciansOfRecord).getDelimitedStringValuesOrEmptyString();
 		if(!physicianOfRecord.isEmpty()){adCriteria.put(Tag.PhysiciansOfRecord, physicianOfRecord);}
-		String physicianReadingStudy = criteria.get(TagFromName.PhysicianReadingStudy).getDelimitedStringValuesOrEmptyString();
+		String physicianReadingStudy = criteria.get(TagFromName.PhysiciansReadingStudyIdentificationSequence).getDelimitedStringValuesOrEmptyString();
 		if(!physicianReadingStudy.isEmpty()){adCriteria.put(Tag.PhysiciansReadingStudyIdentificationSequence, physicianReadingStudy);}		
 		String admittingDiagnosesDescription = criteria.get(TagFromName.AdmittingDiagnosesDescription).getDelimitedStringValuesOrEmptyString();
 		if(!admittingDiagnosesDescription.isEmpty()){adCriteria.put(Tag.AdmittingDiagnosesDescription, admittingDiagnosesDescription);}
@@ -260,7 +260,7 @@ public class DicomUtil {
 		if(!performingPhysicianName.isEmpty()){adCriteria.put(Tag.PerformingPhysicianName, performingPhysicianName);}
 		String protocolName = criteria.get(TagFromName.ProtocolName).getDelimitedStringValuesOrEmptyString();
 		if(!protocolName.isEmpty()){adCriteria.put(Tag.ProtocolName, protocolName);}
-		String operatorName = criteria.get(TagFromName.OperatorName).getDelimitedStringValuesOrEmptyString();
+		String operatorName = criteria.get(TagFromName.OperatorsName).getDelimitedStringValuesOrEmptyString();
 		if(!operatorName.isEmpty()){adCriteria.put(Tag.OperatorName, operatorName);}
 		String laterality = criteria.get(TagFromName.Laterality).getDelimitedStringValuesOrEmptyString();
 		if(!laterality.isEmpty()){adCriteria.put(Tag.Laterality, laterality);}

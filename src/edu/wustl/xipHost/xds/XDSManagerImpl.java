@@ -391,7 +391,7 @@ public class XDSManagerImpl implements XDSManager{
 			    }
 			}
 
-			String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumber).getDelimitedStringValuesOrNull();
+			String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumbers).getDelimitedStringValuesOrNull();
 			if ((patientPhone != null) && ( ! patientPhone.isEmpty())){
 				pdqQuery.addQueryPatientPhoneHomeUnformattedTelephoneNumber(patientPhone);
 			}
@@ -655,7 +655,7 @@ public class XDSManagerImpl implements XDSManager{
 		    //pdqQuery.addPatientMothersMaidenName(true, family, given, other, suffix, prefix);
 		}
 
-		String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumber).getDelimitedStringValuesOrNull();
+		String patientPhone = queryKeys.get(TagFromName.PatientTelephoneNumbers).getDelimitedStringValuesOrNull();
 		if ((patientPhone != null) && ( ! patientPhone.isEmpty())){
 			pdqQuery.addPatientTelecom(patientPhone, "HP");
 		}

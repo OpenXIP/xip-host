@@ -299,7 +299,7 @@ public abstract class DatabaseInformationModel {
 			/*
 			try {
 				Statement s = databaseConnection.createStatement();
-				//s.execute("SHUTDOWN COMPACT;");
+				s.execute("SHUTDOWN COMPACT;");
 				s.close();
 			} catch (SQLException e) {
 				e.printStackTrace(System.err);
