@@ -481,7 +481,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	int queryNodeIndex = 0;
 	boolean wasDoubleClick = false;
 	MouseListener ml = new MouseAdapter(){
-	    
 	     public void mouseClicked(final MouseEvent e) {	        
 	    	 	int x = e.getX();
 		     	int y = e.getY();
@@ -495,9 +494,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		        	subqueryCompleted = false;
 		        	nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
 			     	if (path != null) {    		
-			     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();										     					     					     		
-			     		//System.out.println(resultTree.getRowForPath(new TreePath(queryNode.getPath())));
-			     		//System.out.println("Checking set changed, leading path: " + e.getPath().toString());			    
+			     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		    
 			     		if (queryNode == null) return;		 
 			     		if (!queryNode.isRoot()) {
 			     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
@@ -518,9 +515,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     						a.addValue(selectedPatient.getPatientID());
 			     						initialCriteria.put(t,a); }
 								} catch (DicomException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								} 											     						
+									logger.error(e1, e1);
+									notifyException(e1.getMessage());								} 											     						
 			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
@@ -529,8 +525,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		     							try {
 											a.addValue("");
 										} catch (DicomException e1) {
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
+											logger.error(e1, e1);
+											notifyException(e1.getMessage());
 										}
 		     							initialCriteria.put(t,a);}
 			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
@@ -545,7 +541,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     			}else if(selectedNode instanceof Study){
 			     				Study selectedStudy = Study.class.cast(selectedNode);
 			     				logger.info("Starting node query: " + selectedStudy.toString());
-			     				//Retrieve studies for selected patient
+			     				//Retrieve series for selected study
 			     				rightPanel.cbxAnnot.setEnabled(true);
 			     				progressBar.setString("Processing search request ...");
 			     				progressBar.setIndeterminate(true);
@@ -557,8 +553,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				     					a.addValue(selectedStudy.getStudyInstanceUID());									 
 				     					initialCriteria.put(t,a); }
 								} catch (DicomException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
+									logger.error(e1, e1);
+									notifyException(e1.getMessage());
 								} 
 			     				//setCriteriaList(updatedCriteria);				
 			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
@@ -571,8 +567,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 											a.addValue("");										
 											initialCriteria.put(t,a);}
 										} catch (DicomException e1) {
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
+											logger.error(e1, e1);
+											notifyException(e1.getMessage());
 										}		     						
 			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addDataAccessListener(l);
@@ -583,6 +579,47 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     					progressBar.setIndeterminate(false);
 			     				}			     				
 			     				repaint();
+			     			} else if(selectedNode instanceof Series){
+			     				Series selectedSeries = Series.class.cast(selectedNode);
+			     				logger.info("Starting node query: " + selectedSeries.toString());
+			     				//Retrieve items for selected series
+			     				rightPanel.cbxAnnot.setEnabled(true);
+			     				progressBar.setString("Processing search request ...");
+			     				progressBar.setIndeterminate(true);
+			     				progressBar.updateUI();
+			     				String[] characterSets = { "ISO_IR 100" };
+			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			     				try {			     								     					 			     									     						
+			     					{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+				     					a.addValue(selectedSeries.getSeriesInstanceUID());									 
+				     					initialCriteria.put(t,a); }
+								} catch (DicomException e1) {
+									logger.error(e1, e1);
+									notifyException(e1.getMessage());
+								}
+								Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
+			     				if(bln && selectedGridTypeDicomService != null){											
+			     					GridUtil gridUtil = gridMgr.getGridUtil();
+			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.SERIES);	
+			     					try {
+			     						{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     							
+											a.addValue("");										
+											initialCriteria.put(t,a);}
+									} catch (DicomException e1) {
+											logger.error(e1, e1);
+											notifyException(e1.getMessage());
+									}		     						
+			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
+			     					gridQuery.addDataAccessListener(l);
+			     					Thread t = new Thread(gridQuery); 					
+			     					t.start();									
+			     				}else{
+			     					progressBar.setString("");
+			     					progressBar.setIndeterminate(false);
+			     				}			     				
+			     				repaint();
+			     				
+			     				
 			     			}
 			     		}
 			     	}
