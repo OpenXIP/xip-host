@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.log4j.Logger;
+
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -18,6 +21,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dicom.DicomUtil;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
@@ -26,6 +30,7 @@ import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
 
 public class GridUtil {
+	final static Logger logger = Logger.getLogger(GridUtil.class);
 	Properties prop = new Properties();
 	static Map<String, String> map;
 	
@@ -61,28 +66,35 @@ public class GridUtil {
 			return map.get(tag);
 		}		 
 	}
-		
+	
+	//if value of aaplyQueryModifier > 0 then QueryModifier is used
+	int numOfSeriesTargetsPassed = 0;
+	boolean applyQueryModifier = false;
 	public CQLQuery convertToCQLStatement(AttributeList criteriaList, CQLTargetName value){
 		if(criteriaList == null || value == null){
 			return null;
 		}
+		
 		HashMap<String, String> query = new HashMap<String, String>();
 		if(value == CQLTargetName.PATIENT){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Patient.class.getCanonicalName());
 		}else if( value == CQLTargetName.STUDY){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Study.class.getCanonicalName());
-		}else{
+		}else if(value == CQLTargetName.SERIES){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
-		}				
+			numOfSeriesTargetsPassed++;
+		}
 		CQLQuery cqlq = null;		
 		DicomDictionary dictionary = AttributeList.getDictionary();
-		Iterator iter = dictionary.getTagIterator();		
+		Iterator<?> iter = dictionary.getTagIterator();		
 		while(iter.hasNext()){
 			AttributeTag attTag  = (AttributeTag)iter.next();
 			String attValue = Attribute.getSingleStringValueOrEmptyString(criteriaList, attTag);
 			String nciaAttName = mapDicomTagToNCIATagName(attTag.toString());
+			
 			if(nciaAttName != null && !attValue.isEmpty()){
 				//System.out.println(nciaAttName + " " + attValue);
+				logger.debug("Attribute name: " + nciaAttName + " Value: " + attValue);
 				//wild card is not allowed with grid criteria and should be replaced by empty string 
 				if(attValue.equalsIgnoreCase("*")){attValue = "";}
 				query.put(nciaAttName, attValue);
@@ -96,8 +108,16 @@ public class GridUtil {
 				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
 			}
 			cqlq = h2cql.makeCQLQuery(query);
+			if(applyQueryModifier){
+				gov.nih.nci.cagrid.cqlquery.QueryModifier queryModifier = new gov.nih.nci.cagrid.cqlquery.QueryModifier();
+				queryModifier.setCountOnly(true);
+				cqlq.setQueryModifier(queryModifier);
+			}
 			/*System.err.println(ObjectSerializer.toString(cqlq, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));*/
+			if(numOfSeriesTargetsPassed > 0){
+				applyQueryModifier = true;
+			}
 			return cqlq;
 		} catch (FileNotFoundException e) {
 			return null;
@@ -179,6 +199,9 @@ public class GridUtil {
 					seriesFromGrid = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);	
 					studyFromGrid.addSeries(seriesFromGrid);
 				}
+			} else if(selectedObject instanceof Series){
+				seriesFromGrid = Series.class.cast(selectedObject);
+				
 			}
 		}
 		return resultGrid;
