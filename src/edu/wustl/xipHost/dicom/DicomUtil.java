@@ -333,7 +333,6 @@ public class DicomUtil {
 		return adCriteria;
 	}
 	
-	//TODO to be finished to include all Pixelmed criteria
 	public static AttributeList convertToPixelmedDicomCriteria(Map<Integer, Object> dicomCriteria){
 		AttributeList criteria = new AttributeList();
 		String[] characterSets = { "ISO_IR 100" };
@@ -347,6 +346,210 @@ public class DicomUtil {
 		    if(patientID != null){
 		    	{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientID); criteria.put(t,a); }
 		    }
+		    String patientBirthDate = (String)dicomCriteria.get(Tag.PatientBirthDate);
+		    if(patientBirthDate != null){
+		    	{ AttributeTag t = TagFromName.PatientBirthDate; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientBirthDate); criteria.put(t,a); }
+		    }
+			String patientSex = (String)dicomCriteria.get(Tag.PatientSex);
+			if(patientSex != null){
+				{ AttributeTag t = TagFromName.PatientSex; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientSex); criteria.put(t,a); }
+			}
+			String patientBirthTime = (String)dicomCriteria.get(Tag.PatientBirthTime);
+			if(patientBirthTime != null){
+				{ AttributeTag t = TagFromName.PatientBirthTime; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientBirthTime); criteria.put(t,a); }
+			}
+			String patientComments = (String)dicomCriteria.get(Tag.PatientComments);
+			if(patientComments != null){
+				{ AttributeTag t = TagFromName.PatientComments; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientComments); criteria.put(t,a); }
+			}	    
+			String studyID = (String)dicomCriteria.get(Tag.StudyID);
+			if(studyID != null){
+				{ AttributeTag t = TagFromName.StudyID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(studyID); criteria.put(t,a); }
+			}
+			String studyDescription = (String)dicomCriteria.get(Tag.StudyDescription);
+			if(studyDescription != null){
+				{ AttributeTag t = TagFromName.StudyDescription; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(studyDescription); criteria.put(t,a); }
+			}
+			String modalitiesInStudy = (String)dicomCriteria.get(Tag.ModalitiesInStudy);
+			if(modalitiesInStudy != null){
+				{ AttributeTag t = TagFromName.ModalitiesInStudy; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(modalitiesInStudy); criteria.put(t,a); }
+			}
+			String studyDate = (String)dicomCriteria.get(Tag.StudyDate);
+			if(studyDate != null){
+				{ AttributeTag t = TagFromName.StudyDate; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(studyDate); criteria.put(t,a); }
+			}
+			String studyTime = (String)dicomCriteria.get(Tag.StudyTime);
+			if(studyTime != null){
+				{ AttributeTag t = TagFromName.StudyTime; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(studyTime); criteria.put(t,a); }
+			}
+			String referringPhysicianName = (String)dicomCriteria.get(Tag.ReferringPhysicianName);
+			if(referringPhysicianName != null){
+				{ AttributeTag t = TagFromName.ReferringPhysicianName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(referringPhysicianName); criteria.put(t,a); }
+			}
+			String accessionNumber = (String)dicomCriteria.get(Tag.AccessionNumber);
+			if(accessionNumber != null){
+				{ AttributeTag t = TagFromName.AccessionNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(accessionNumber); criteria.put(t,a); }
+			}
+			String physicianOfRecord = (String)dicomCriteria.get(Tag.PhysiciansOfRecord);
+			if(physicianOfRecord != null){
+				{ AttributeTag t = TagFromName.PhysiciansOfRecord; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(physicianOfRecord); criteria.put(t,a); }
+			}
+			String physicianReadingStudy = (String)dicomCriteria.get(Tag.PhysiciansReadingStudyIdentificationSequence);
+			if(physicianReadingStudy != null){
+				{ AttributeTag t = TagFromName.PhysiciansReadingStudyIdentificationSequence; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(physicianReadingStudy); criteria.put(t,a); }
+			}
+			String admittingDiagnosesDescription = (String)dicomCriteria.get(Tag.AdmittingDiagnosesDescription);
+			if(admittingDiagnosesDescription != null){
+				{ AttributeTag t = TagFromName.AdmittingDiagnosesDescription; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(admittingDiagnosesDescription); criteria.put(t,a); }
+			}
+			String patientAge = (String)dicomCriteria.get(Tag.PatientAge);
+			if(patientAge != null){
+				{ AttributeTag t = TagFromName.PatientAge; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientAge); criteria.put(t,a); }
+			}
+			String patientSize = (String)dicomCriteria.get(Tag.PatientSize);
+			if(patientSize != null){
+				{ AttributeTag t = TagFromName.PatientSize; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientSize); criteria.put(t,a); }
+			}
+			String patientWeight = (String)dicomCriteria.get(Tag.PatientWeight);
+			if(patientWeight != null){
+				{ AttributeTag t = TagFromName.PatientWeight; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(patientWeight); criteria.put(t,a); }
+			}
+			String occupation = (String)dicomCriteria.get(Tag.Occupation);
+			if(occupation != null){
+				{ AttributeTag t = TagFromName.Occupation; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(occupation); criteria.put(t,a); }
+			}
+			String additionalPatientHistory = (String)dicomCriteria.get(Tag.AdditionalPatientHistory);
+			if(additionalPatientHistory != null){
+				{ AttributeTag t = TagFromName.AdditionalPatientHistory; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(additionalPatientHistory); criteria.put(t,a); }
+			}
+			String seriesDescription = (String)dicomCriteria.get(Tag.SeriesDescription);
+			if(seriesDescription != null){
+				{ AttributeTag t = TagFromName.SeriesDescription; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(seriesDescription); criteria.put(t,a); }
+			}
+			String seriesNumber = (String)dicomCriteria.get(Tag.SeriesNumber);
+			if(seriesNumber != null){
+				{ AttributeTag t = TagFromName.SeriesNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(seriesNumber); criteria.put(t,a); }
+			}
+			String modality = (String)dicomCriteria.get(Tag.Modality);
+			if(modality != null){
+				{ AttributeTag t = TagFromName.Modality; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(modality); criteria.put(t,a); }
+			}
+			String seriesDate = (String)dicomCriteria.get(Tag.SeriesDate);
+			if(seriesDate != null){
+				{ AttributeTag t = TagFromName.SeriesDate; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(seriesDate); criteria.put(t,a); }
+			}
+			String seriesTime = (String)dicomCriteria.get(Tag.SeriesTime);
+			if(seriesTime != null){
+				{ AttributeTag t = TagFromName.SeriesTime; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(seriesTime); criteria.put(t,a); }
+			}
+			String performingPhysicianName = (String)dicomCriteria.get(Tag.PerformingPhysicianName);
+			if(performingPhysicianName != null){
+				{ AttributeTag t = TagFromName.PerformingPhysicianName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(performingPhysicianName); criteria.put(t,a); }
+			}
+			String protocolName = (String)dicomCriteria.get(Tag.ProtocolName);
+			if(protocolName != null){
+				{ AttributeTag t = TagFromName.ProtocolName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(protocolName); criteria.put(t,a); }
+			}
+			String operatorName = (String)dicomCriteria.get(Tag.OperatorName);
+			if(operatorName != null){
+				{ AttributeTag t = TagFromName.OperatorsName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(operatorName); criteria.put(t,a); }
+			}
+			String laterality = (String)dicomCriteria.get(Tag.Laterality);
+			if(laterality != null){
+				{ AttributeTag t = TagFromName.Laterality; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(laterality); criteria.put(t,a); }
+			}
+			String bodyPartExamined = (String)dicomCriteria.get(Tag.BodyPartExamined);
+			if(bodyPartExamined != null){
+				{ AttributeTag t = TagFromName.BodyPartExamined; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(bodyPartExamined); criteria.put(t,a); }
+			}
+			String manufacturer = (String)dicomCriteria.get(Tag.Manufacturer);
+			if(manufacturer != null){
+				{ AttributeTag t = TagFromName.Manufacturer; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(manufacturer); criteria.put(t,a); }
+			}
+			String manufacturerModelName = (String)dicomCriteria.get(Tag.ManufacturerModelName);
+			if(manufacturerModelName != null){
+				{ AttributeTag t = TagFromName.ManufacturerModelName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(manufacturerModelName); criteria.put(t,a); }
+			}
+			String stationName = (String)dicomCriteria.get(Tag.StationName);
+			if(stationName != null){
+				{ AttributeTag t = TagFromName.StationName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(stationName); criteria.put(t,a); }
+			}
+			String institutionName = (String)dicomCriteria.get(Tag.InstitutionName);
+			if(institutionName != null){
+				{ AttributeTag t = TagFromName.InstitutionName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(institutionName); criteria.put(t,a); }
+			}
+			String institutionalDepartmentName = (String)dicomCriteria.get(Tag.InstitutionalDepartmentName);
+			if(institutionalDepartmentName != null){
+				{ AttributeTag t = TagFromName.InstitutionalDepartmentName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(institutionalDepartmentName); criteria.put(t,a); }
+			}
+			String instanceNumber = (String)dicomCriteria.get(Tag.InstanceNumber);
+			if(instanceNumber != null){
+				{ AttributeTag t = TagFromName.InstanceNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(instanceNumber); criteria.put(t,a); }
+			}
+			String imageComments = (String)dicomCriteria.get(Tag.ImageComments);
+			if(imageComments != null){
+				{ AttributeTag t = TagFromName.ImageComments; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(imageComments); criteria.put(t,a); }
+			}
+			String contentDate = (String)dicomCriteria.get(Tag.ContentDate);
+			if(contentDate != null){
+				{ AttributeTag t = TagFromName.ContentDate; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(contentDate); criteria.put(t,a); }
+			}
+			String contentTime = (String)dicomCriteria.get(Tag.ContentTime);
+			if(contentTime != null){
+				{ AttributeTag t = TagFromName.ContentTime; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(contentTime); criteria.put(t,a); }
+			}
+			String imageType = (String)dicomCriteria.get(Tag.ImageType);
+			if(imageType != null){
+				{ AttributeTag t = TagFromName.ImageType; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(imageType); criteria.put(t,a); }
+			}
+			String acquisitionNumber = (String)dicomCriteria.get(Tag.AcquisitionNumber);
+			if(acquisitionNumber != null){
+				{ AttributeTag t = TagFromName.AcquisitionNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(acquisitionNumber); criteria.put(t,a); }
+			}
+			String acquisitionDate = (String)dicomCriteria.get(Tag.AcquisitionDate);
+			if(acquisitionDate != null){
+				{ AttributeTag t = TagFromName.AcquisitionDate; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(acquisitionDate); criteria.put(t,a); }
+			}
+			String acquisitionTime = (String)dicomCriteria.get(Tag.AcquisitionTime);
+			if(acquisitionTime != null){
+				{ AttributeTag t = TagFromName.AcquisitionTime; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(acquisitionTime); criteria.put(t,a); }
+			}
+			String acquisitionDateTime = (String)dicomCriteria.get(Tag.AcquisitionDateTime);
+			if(acquisitionDateTime != null){
+				{ AttributeTag t = TagFromName.AcquisitionDateTime; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(acquisitionDateTime); criteria.put(t,a); }
+			}
+			String derivationDescription = (String)dicomCriteria.get(Tag.DerivationDescription);
+			if(derivationDescription != null){
+				{ AttributeTag t = TagFromName.DerivationDescription; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(derivationDescription); criteria.put(t,a); }
+			}
+			String qualityControlImage = (String)dicomCriteria.get(Tag.QualityControlImage);
+			if(qualityControlImage != null){
+				{ AttributeTag t = TagFromName.QualityControlImage; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(qualityControlImage); criteria.put(t,a); }
+			}
+			String burnedInAnnotation = (String)dicomCriteria.get(Tag.BurnedInAnnotation);
+			if(burnedInAnnotation != null){
+				{ AttributeTag t = TagFromName.BurnedInAnnotation; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(burnedInAnnotation); criteria.put(t,a); }
+			}
+			String lossyImageCompression = (String)dicomCriteria.get(Tag.LossyImageCompression);
+			if(lossyImageCompression != null){
+				{ AttributeTag t = TagFromName.LossyImageCompression; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(lossyImageCompression); criteria.put(t,a); }
+			}
+			String lossyImageCompressionRatio = (String)dicomCriteria.get(Tag.LossyImageCompressionRatio);
+			if(lossyImageCompressionRatio != null){
+				{ AttributeTag t = TagFromName.LossyImageCompressionRatio; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(lossyImageCompressionRatio); criteria.put(t,a); }
+			}
+			String lossyImageCompressionMethod = (String)dicomCriteria.get(Tag.LossyImageCompressionMethod);
+			if(lossyImageCompressionMethod != null){
+				{ AttributeTag t = TagFromName.LossyImageCompressionMethod; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(lossyImageCompressionMethod); criteria.put(t,a); }
+			}
+			String contrastBolusAgent = (String)dicomCriteria.get(Tag.ContrastBolusAgent);
+			if(contrastBolusAgent != null){
+				{ AttributeTag t = TagFromName.ContrastBolusAgent; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(contrastBolusAgent); criteria.put(t,a); }
+			}
+			String numberOfFrames = (String)dicomCriteria.get(Tag.NumberOfFrames);
+			if(numberOfFrames != null){
+				{ AttributeTag t = TagFromName.NumberOfFrames; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(numberOfFrames); criteria.put(t,a); }
+			}
 		    String studyInstanceUID = (String)dicomCriteria.get(Tag.StudyInstanceUID);
 		    if(studyInstanceUID != null){
 		    	{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(studyInstanceUID); criteria.put(t,a); }
@@ -358,6 +561,34 @@ public class DicomUtil {
 			String sopInstanceUID = (String)dicomCriteria.get(Tag.SOPInstanceUID);
 			if(sopInstanceUID != null){
 				{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(sopInstanceUID); criteria.put(t,a); }
+			}
+			String SOPClassUID = (String)dicomCriteria.get(Tag.SOPClassUID);
+			if(SOPClassUID != null){
+				{ AttributeTag t = TagFromName.SOPClassUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(SOPClassUID); criteria.put(t,a); }
+			}
+			String exposure = (String)dicomCriteria.get(Tag.Exposure);
+			if(exposure != null){
+				{ AttributeTag t = TagFromName.Exposure; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(exposure); criteria.put(t,a); }
+			}
+			String  spiralPitchFactor = (String)dicomCriteria.get(Tag.SpiralPitchFactor);
+			if(spiralPitchFactor != null){
+				{ AttributeTag t = TagFromName.SpiralPitchFactor; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(spiralPitchFactor); criteria.put(t,a); }
+			}
+			String  singleCollimationWidth = (String)dicomCriteria.get(Tag.SingleCollimationWidth);
+			if(singleCollimationWidth != null){
+				{ AttributeTag t = TagFromName.SingleCollimationWidth; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(singleCollimationWidth); criteria.put(t,a); }
+			}
+			String  totalCollimationWidth = (String)dicomCriteria.get(Tag.TotalCollimationWidth);
+			if(totalCollimationWidth != null){
+				{ AttributeTag t = TagFromName.TotalCollimationWidth; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(totalCollimationWidth); criteria.put(t,a); }
+			}
+			String  sliceThickness = (String)dicomCriteria.get(Tag.SliceThickness);
+			if(sliceThickness != null){
+				{ AttributeTag t = TagFromName.SliceThickness; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(sliceThickness); criteria.put(t,a); }
+			}
+			String  convolutionKernel = (String)dicomCriteria.get(Tag.ConvolutionKernel);
+			if(convolutionKernel != null){
+				{ AttributeTag t = TagFromName.ConvolutionKernel; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(convolutionKernel); criteria.put(t,a); }
 			}
 			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); criteria.put(t,a); a.addValue(characterSets[0]); }
 			{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("IMAGE"); criteria.put(t,a); }
