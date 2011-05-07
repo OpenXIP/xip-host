@@ -8,7 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/EXT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XINDICE"/>
 	<classpathentry kind="lib" path="endorsed/resolver.jar"/>
-	<classpathentry kind="lib" path="endorsed/xalan.jar"/>
 	<classpathentry kind="lib" path="endorsed/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="endorsed/xml-apis.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/AVT"/>
