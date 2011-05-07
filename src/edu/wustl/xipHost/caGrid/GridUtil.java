@@ -4,15 +4,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-
 import org.apache.log4j.Logger;
-
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -21,13 +19,13 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dicom.DicomUtil;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
+
 
 public class GridUtil {
 	final static Logger logger = Logger.getLogger(GridUtil.class);
@@ -159,7 +157,7 @@ public class GridUtil {
 					gov.nih.nci.ncia.domain.Patient patientGrid = gov.nih.nci.ncia.domain.Patient.class.cast(obj);			
 					String patientName = patientGrid.getPatientName(); if(patientName == null){patientName = "";}
 					String patientID = patientGrid.getPatientId(); if(patientID == null){patientID = "";}
-					Calendar patientBirthDate = patientGrid.getPatientBirthDate();				
+					Date patientBirthDate = patientGrid.getPatientBirthDate();				
 					String strPatientBirthDate = null;
 					if(patientBirthDate != null){
 						strPatientBirthDate = sdf.format(patientBirthDate.getTime());
@@ -177,7 +175,7 @@ public class GridUtil {
 			} else if(selectedObject instanceof Patient){
 				patientFromGrid = Patient.class.cast(selectedObject);
 				gov.nih.nci.ncia.domain.Study studyGrid = gov.nih.nci.ncia.domain.Study.class.cast(obj);				
-				Calendar calendar = studyGrid.getStudyDate(); 			
+				Date calendar = studyGrid.getStudyDate(); 			
 				String studyDate = null;
 				if(calendar != null){
 		        	studyDate = sdf.format(calendar.getTime());if(studyDate == null){studyDate = "";}
@@ -198,7 +196,7 @@ public class GridUtil {
 				String seriesNumber = seriesGrid.getSeriesNumber().toString();if(seriesNumber == null){seriesNumber = "";}
 				String modality = seriesGrid.getModality();if(modality == null){modality = "";}
 				String seriesDesc = seriesGrid.getSeriesDescription();if(seriesDesc == null){seriesDesc = "";}						
-				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}				
+				String seriesInstanceUID = seriesGrid.getInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}				
 				if(studyFromGrid.contains(seriesInstanceUID) == false){
 					seriesFromGrid = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);	
 					studyFromGrid.addSeries(seriesFromGrid);

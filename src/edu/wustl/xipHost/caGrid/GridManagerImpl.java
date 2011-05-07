@@ -8,11 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.ConnectException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.axis.types.URI.MalformedURIException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -22,13 +19,6 @@ import org.jdom.output.XMLOutputter;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.caGrid.GridUtil;
-import edu.wustl.xipHost.dataModel.SearchResult;
-import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
-import gov.nih.nci.cagrid.data.client.DataServiceClient;
-import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
-import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
-import gov.nih.nci.ivi.dicomdataservice.client.DICOMDataServiceClient;
 
 
 /**

@@ -8,7 +8,6 @@ import java.net.URI;
 import java.util.List;
 import org.nema.dicom.wg23.ObjectLocator;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
-import gov.nih.nci.ivi.helper.AIMDataServiceHelper;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
 /**

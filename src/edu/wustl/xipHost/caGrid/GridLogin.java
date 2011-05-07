@@ -5,15 +5,11 @@ import gov.nih.nci.cagrid.authentication.bean.Credential;
 import gov.nih.nci.cagrid.authentication.client.AuthenticationClient;
 import gov.nih.nci.cagrid.common.security.ProxyUtil;
 import gov.nih.nci.cagrid.dorian.client.IFSUserClient;
-import gov.nih.nci.cagrid.dorian.ifs.bean.ProxyLifetime;
+//import gov.nih.nci.cagrid.dorian.ifs.bean.ProxyLifetime;
 import gov.nih.nci.cagrid.opensaml.SAMLAssertion;
-
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
-
-
 import org.globus.gsi.GlobusCredential;
 
 /**
@@ -26,7 +22,7 @@ import org.globus.gsi.GlobusCredential;
 public class GridLogin {
 
 	
-	public boolean Login(String userName, String password) {				
+	public boolean login(String userName, String password) {				
 		//args[0] = "wustl";
 		//args[1] = "erlERL3r()";
 		//args[0] = "rater1";
@@ -60,6 +56,7 @@ public class GridLogin {
 			SAMLAssertion saml;
 			saml = client.authenticate();
 			IFSUserClient c2 = new IFSUserClient(url);
+			/* commented on May 7th, 2011
 			ProxyLifetime lifetime = new ProxyLifetime();
 			lifetime.setHours(12);
 			lifetime.setMinutes(0);
@@ -67,10 +64,9 @@ public class GridLogin {
 			int delegation = 1;
 			
 			GlobusCredential cred = c2.createProxy(saml, lifetime, delegation);
-			//ProxyManager.getInstance().addProxy(cred);
 			ProxyUtil.saveProxyAsDefault(cred);
-				
 			System.out.println("logged in with identity: " + cred.getIdentity() + ", saved proxy as default");
+			*/	
 			return new Boolean(true);
 		}catch(Exception e){
 			//System.out.print("Exception JK : "+ e);
@@ -84,7 +80,7 @@ public class GridLogin {
 	 */
 	public static void main(String[] args) throws Exception {		
 		GridLogin login = new GridLogin();
-		System.out.println(login.Login("wustl", "erlERL3r()"));
+		System.out.println(login.login("wustl", "erlERL3r()"));
 		
 	}
 

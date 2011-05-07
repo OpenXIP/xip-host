@@ -12,6 +12,7 @@ import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.namespace.QName;
 import org.apache.axis.types.URI.MalformedURIException;
 import org.globus.wsrf.encoding.ObjectSerializer;

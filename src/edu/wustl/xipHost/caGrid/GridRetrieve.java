@@ -23,6 +23,7 @@ import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.DICOMDataServiceHelper;
 
+
 /**
  * @author Jaroslaw Krych
  *
