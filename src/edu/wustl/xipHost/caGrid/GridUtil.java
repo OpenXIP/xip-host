@@ -20,6 +20,7 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
+import gov.nih.nci.cagrid.cqlquery.QueryModifier;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
@@ -108,7 +109,7 @@ public class GridUtil {
 			if(applyQueryModifier){
 				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Image.class.getCanonicalName());
 				cqlq = h2cql.makeCQLQuery(query);
-				gov.nih.nci.cagrid.cqlquery.QueryModifier queryModifier = new gov.nih.nci.cagrid.cqlquery.QueryModifier();
+				QueryModifier queryModifier = new QueryModifier();
 				queryModifier.setCountOnly(true);
 				cqlq.setQueryModifier(queryModifier);
 			} else {
@@ -122,14 +123,19 @@ public class GridUtil {
 			}
 			return cqlq;
 		} catch (FileNotFoundException e) {
+			logger.error(e, e);
 			return null;
 		} catch (ModelMapException e) {
+			logger.error(e, e);
 			return null;
 		} catch (IOException e) {
+			logger.error(e, e);
 			return null;
 		} catch (ClassNotFoundException e) {
+			logger.error(e, e);
 			return null;
 		} catch (MalformedQueryException e) {
+			logger.error(e, e);
 			return null;
 		}		
 	}

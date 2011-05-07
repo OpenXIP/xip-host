@@ -402,15 +402,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		}	
 		progressBar.setString("GridSearch finished");
 		progressBar.setIndeterminate(false);
-		/*
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				resultTree.scrollRowToVisible(queryNodeIndex);
-				int visibleRows = resultTree.getVisibleRowCount();
-				resultTree.scrollRowToVisible(queryNodeIndex + visibleRows);
-			}			 
-		});*/	
 	}
 	
 	@Override
@@ -758,6 +749,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			}
 		}
 	}
+	
 	@Override
 	public void launchApplication(ApplicationEvent event) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
