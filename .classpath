@@ -12,6 +12,7 @@
 	<classpathentry kind="lib" path="endorsed/xml-apis.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/AVT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/NBIA"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/NBIAHelper"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OHT"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
