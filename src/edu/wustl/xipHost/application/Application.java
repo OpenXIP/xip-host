@@ -20,8 +20,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.xml.ws.Endpoint;
-import org.apache.commons.collections.MultiMap;
-import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 import org.jdom.Document;
@@ -357,7 +355,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	State state = null;
 	boolean firstLaunch = true;
 	int numberOfSentNotifications = 0;
-	MultiMap wg23DataModelItems;
 	public void setState(State state){
 		priorState = this.state;
 		this.state = state;
@@ -367,7 +364,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				startClientToApplication();
 				notifyAddSideTab();
 				firstLaunch = false;
-				 wg23DataModelItems = new MultiValueMap();
 				StateExecutor stateExecutor = new StateExecutor(this);
 				stateExecutor.setState(State.INPROGRESS);
 				exeService.execute(stateExecutor);
@@ -660,49 +656,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		}
 	}
 	
-	/*
-	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
-		//Start data retrieval related to the element	
-		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
-		synchronized(retrieve){
-			TargetElement element = null;
-			synchronized(targetElements){
-				element = targetElements.get(numberOfSentNotifications - 1);
-				retrieve.setRetrieve(element, retrieveTarget);
-				retrieve.addDataAccessListener(this);
-			}			
-			
-			Thread t = new Thread(retrieve);
-			t.start();
-			//Wait for actual data being retrieved before sending file pointers
-			synchronized(retrievedTargetElements){
-				String retrievedElementID = element.getId();
-				while(!retrievedTargetElements.contains(retrievedElementID)){
-					try {
-						retrievedTargetElements.wait();
-					} catch (InterruptedException e) {
-						logger.error(e, e);
-					}
-				}
-			}
-			
-			if(listUUIDs == null){
-				return new ArrayList<ObjectLocator>();
-			} else {
-				Map<String, ObjectLocator> objectLocators = retrieve.getObjectLocators();
-				List<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();			
-				for(Uuid uuid : listUUIDs){
-					String strUuid = uuid.getUuid();
-					ObjectLocator objLoc = objectLocators.get(strUuid);				
-					listObjLocs.add(objLoc);
-					logger.debug("Item location: " + strUuid + " " + objLoc.getUri());				
-				}
-				return listObjLocs;
-			}	
-		}			
-	}
-	*/
-	
 	String dataSourceDomainName;
 	public void setDataSourceDomainName(String dataSourceDomainName){
 		this.dataSourceDomainName = dataSourceDomainName;
@@ -874,17 +827,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	}
 
 	List<String> retrievedTargetElements = new ArrayList<String>();	
-	/*
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		synchronized(retrievedTargetElements){			
-			String elementID = (String)e.getSource();
-			retrievedTargetElements.add(elementID);
-			logger.debug("Data retrieved for TargetElement: " + elementID + " at time: " + System.currentTimeMillis());		
-			retrievedTargetElements.notify();
-		}
-	}*/
-	
 	Map <String, ObjectLocator> retrievedData = new HashMap<String, ObjectLocator>();
 	@SuppressWarnings("unchecked")
 	@Override
