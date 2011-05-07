@@ -33,7 +33,7 @@ public class Login {
 
 		//set true if security enabled
 		if (validateGridSecur){
-			validUser = gridLogin.Login(user, password);
+			validUser = gridLogin.login(user, password);
 		}
 		if (useXUA) {
 			validUser = xuaLogin.Login(user, password);
