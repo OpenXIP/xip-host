@@ -107,12 +107,16 @@ public class GridUtil {
 				query = new HashMap<String, String>();
 				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
 			}
-			cqlq = h2cql.makeCQLQuery(query);
 			if(applyQueryModifier){
+				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Image.class.getCanonicalName());
+				cqlq = h2cql.makeCQLQuery(query);
 				gov.nih.nci.cagrid.cqlquery.QueryModifier queryModifier = new gov.nih.nci.cagrid.cqlquery.QueryModifier();
 				queryModifier.setCountOnly(true);
 				cqlq.setQueryModifier(queryModifier);
+			} else {
+				cqlq = h2cql.makeCQLQuery(query);
 			}
+				
 			/*System.err.println(ObjectSerializer.toString(cqlq, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));*/
 			if(numOfSeriesTargetsPassed > 0){
