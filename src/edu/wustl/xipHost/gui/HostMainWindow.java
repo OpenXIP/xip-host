@@ -11,9 +11,6 @@ import edu.wustl.xipHost.caGrid.GridPanel;
 import edu.wustl.xipHost.dicom.DicomPanel;
 import edu.wustl.xipHost.globalSearch.GlobalSearchPanel;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
-import edu.wustl.xipHost.localFileSystem.FileManager;
-import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
-import edu.wustl.xipHost.localFileSystem.HostFileChooser;
 import edu.wustl.xipHost.localFileSystem.LocalFileSystemPanel;
 import edu.wustl.xipHost.worklist.WorklistPanel;
 import edu.wustl.xipHost.xds.XDSPanel;
@@ -22,7 +19,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.UUID;
 
 /**
@@ -140,16 +136,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
     		toolBar.switchButtons(0);
     		setAlwaysOnTop(true);
 			setAlwaysOnTop(false);
-    	} /*else if (e.getSource() == toolBar.btnLocal){    		    		
-    		HostFileChooser fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
-    		fileChooser.setVisible(true);
-    		File[] files = fileChooser.getSelectedItems();
-    		if(files == null){
-    			return;
-    		}
-    		FileManager fileMgr = FileManagerFactory.getInstance();
-    		fileMgr.run(files);    		    		
-    	} */else if(e.getSource() == toolBar.btnOptions){
+    	} else if(e.getSource() == toolBar.btnOptions){
     		int x = (int)((JButton)e.getSource()).getLocationOnScreen().getX();
     		int y = (int)((JButton)e.getSource()).getLocationOnScreen().getY() + 45;  
     		optionsDialog.display(x, y);
@@ -314,14 +301,5 @@ public class HostMainWindow extends JFrame implements ActionListener {
     
     public Component getSelectedSearchTab() {
     	return tabPaneCenter.getSelectedComponent();
-    }
-    
-    InputDialog inputDialog;
-    public void setInputDialog(InputDialog inputDialog){
-    	this.inputDialog = inputDialog;
-    }
-    
-    public InputDialog getInputDialog(){
-    	return inputDialog;
     }
 }

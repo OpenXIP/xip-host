@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2009 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.gui.checkboxTree;
 

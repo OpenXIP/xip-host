@@ -33,7 +33,6 @@ public class HostIconBar extends JPanel {
 	JLabel lblName = new JLabel();
 	JPanel hostTopPanel = new JPanel();
 	JPanel hostPanel = new JPanel();	
-	//JButton btnLocal = new JButton("C:\\", new ImageIcon("./gif/folder-open.png"));
 	JButton btnOptions = new JButton("Options", new ImageIcon("./gif/Options24.gif"));
 	JButton btnExit = new JButton("Exit", new ImageIcon("./gif/cup.gif"));
 	JPanel hostBtnPanel = new JPanel();			
@@ -58,7 +57,6 @@ public class HostIconBar extends JPanel {
     	lblAbout.setToolTipText("About");
     	JButton[] btns = new JButton[6];
     	btns[0] = btnHost;    	    	
-    	//btns[1] = btnLocal;
     	btns[1] = btnOptions;
     	btns[2] = btnExit;
     	btns[3] = btnSuspend;
@@ -74,7 +72,6 @@ public class HostIconBar extends JPanel {
         	btns[i].setPreferredSize(new Dimension((int)btns[i].getPreferredSize().getWidth(), 30));
     	}    	
     	btnHost.setBackground(xipColor);
-    	//btnLocal.setForeground(Color.BLACK);
     	btnOptions.setForeground(Color.BLACK);
     	btnExit.setForeground(Color.BLACK);
     	btnSuspend.setForeground(Color.BLACK);
@@ -84,8 +81,7 @@ public class HostIconBar extends JPanel {
     	hostPanel.add(lblHelp);
     	hostPanel.add(lblAbout);
     	hostPanel.add(lblName);
-    	hostPanel.setBackground(xipColor);
-    	//hostBtnPanel.add(btnLocal);    	    	
+    	hostPanel.setBackground(xipColor);	    	
     	hostBtnPanel.add(btnOptions);
     	hostBtnPanel.add(btnExit);
     	hostBtnPanel.setBackground(xipColor);

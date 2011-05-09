@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.dataModel;
 
@@ -45,7 +45,8 @@ public class Series {
 		if(seriesNumber.isEmpty()){
 			str = "Series:" + seriesInstanceUID + " " + modality; 
 		}else{
-			str = "Series:" + seriesNumber + " " + modality; 
+			//str = "Series:" + seriesNumber + " " + modality; 
+			str = "Series:" + seriesInstanceUID + " " + modality; 
 		}			
 		return new String(str);
 	}

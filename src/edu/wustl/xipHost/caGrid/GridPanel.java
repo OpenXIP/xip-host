@@ -81,8 +81,8 @@ import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.iterator.IterationTarget;
-import edu.wustl.xipHost.localFileSystem.FileManager;
-import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
+//import edu.wustl.xipHost.localFileSystem.FileManager;
+//import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
@@ -651,8 +651,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			criteriaPanel.getQueryButton().setEnabled(true);
 			File[] files = new File[allRetrivedFiles.size()];
 			allRetrivedFiles.toArray(files);		
-			FileManager fileMgr = FileManagerFactory.getInstance();						
-	        fileMgr.run(files);
+			//FileManager fileMgr = FileManagerFactory.getInstance();						
+	        //fileMgr.run(files);
 		}			
 	}
 	

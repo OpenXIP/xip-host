@@ -14,6 +14,7 @@ import edu.wustl.xipHost.wg23.WG23DataModel;
 import junit.framework.TestCase;
 
 public class MakeWG23DataModelTest extends TestCase {
+	/* voided on 05/09/2011
 	FileManagerImpl mgr;	
 	List<File> filesCurr;
 	protected void setUp() throws Exception {
@@ -25,7 +26,7 @@ public class MakeWG23DataModelTest extends TestCase {
 		filesCurr.add(new File("./test-content/WorlistDataset/1.3.6.1.4.1.9328.50.1.19624.dcm"));
 		mgr = new FileManagerImpl();
 	}
-	
+	*/
 	/* voided on 01/17/2011
 	
 	//FileManagerImpl 1Aa - basic flow. Data sets are valid, not null, size > 0.

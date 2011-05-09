@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in Saint Louis. All Rights Reserved.
+ * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.dataModel;
 
@@ -49,7 +49,8 @@ public class Study {
 		}else{
 			studyId = this.studyID;
 		}
-		return new String("Study:" + this.studyDate + " " + studyId + " " + this.studyDesc);
+		//return new String("Study:" + this.studyDate + " " + studyId + " " + this.studyDesc);
+		return new String("Study:" + this.studyDate + " " + studyId + " " + this.studyDesc + " " + this.getStudyInstanceUID());
 	}
 	
 	public void addSeries(Series series){

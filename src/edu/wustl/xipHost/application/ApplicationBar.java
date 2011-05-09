@@ -46,8 +46,6 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		}else{
 			iconFile = new ImageIcon(app.getIconFile().getPath());
 		}
-		//ImageIcon imageIcon = new ImageIcon("./gif/app2-32x32.png");
-		//JLabel label = new JLabel(imageIcon);
 		final AppButton btn = new AppButton(app.getName(), iconFile);
 		double preferredWidth = btn.getPreferredSize().getWidth();
 		if(preferredWidth < 100){
@@ -60,7 +58,6 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		btn.addActionListener(this);
 		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		add(btn);
-		//add(label);
 	}
 
 	
@@ -99,23 +96,6 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	
 	void fireLaunchApplication(AppButton btn){
 		ApplicationEvent event = new ApplicationEvent(btn);
-		//Component inputDialog = HostConfigurator.getHostConfigurator().getMainWindow().getInputDialog();  
-		/*if( inputDialog != null){
-			for (ApplicationListener listener : listenerList){
-				// Only launch applications for the currently active (selected, visible) search tab
-				if (inputDialog == listener){
-					listener.launchApplication(event);
-				}
-			}
-		} else {
-			Component component = HostConfigurator.getHostConfigurator().getMainWindow().getSelectedSearchTab();	
-			for (ApplicationListener listener : listenerList){
-				// Only launch applications for the currently active (selected, visible) search tab
-				if (component == listener){
-					listener.launchApplication(event);
-				}
-			}
-		}*/
 		Component component = HostConfigurator.getHostConfigurator().getMainWindow().getSelectedSearchTab();	
 		for (ApplicationListener listener : listenerList){
 			// Only launch applications for the currently active (selected, visible) search tab

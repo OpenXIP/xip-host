@@ -73,7 +73,6 @@ public class GridUtil {
 		if(criteriaList == null || value == null){
 			return null;
 		}
-		
 		HashMap<String, String> query = new HashMap<String, String>();
 		if(value == CQLTargetName.PATIENT){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Patient.class.getCanonicalName());
