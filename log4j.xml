@@ -117,6 +117,9 @@
   <logger name="edu.wustl.xipHost.avt2ext.TargetIterator">
 	<appender-ref ref="AVT_Appender"/>
   </logger>
+  <logger name="edu.wustl.xipHost.avt2ext.QueryADTest">
+	<appender-ref ref="AVT_Appender"/>
+  </logger>
   
   <logger name="edu.wustl.xipHost.hostControl.HostConfigurator">
 	<appender-ref ref="HostMain_Appender"/>
