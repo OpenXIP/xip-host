@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.iterator.IteratorElementEvent;
@@ -50,8 +51,8 @@ public class CreateIteratorTest implements TargetIteratorListener {
 	
 	//TargetIteratorRunner - basic flow.
 	//Parameters: valid
-	//IterationTarget.PATIENT
-	//Expected result: 
+	//IterationTarget.PATIEN
+	@Ignore
 	@Test
 	public void testCreateIterator_1A(){
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, this);
@@ -62,14 +63,6 @@ public class CreateIteratorTest implements TargetIteratorListener {
 		} catch(Exception e) {
 			logger.error(e, e);
 		}
-		/*
-		targetElement = iter.next();
-		SearchResult subSearchResult = targetElement.getSubSearchResult();
-		int numbPatients = subSearchResult.getPatients().size();
-		int numberStudies = subSearchResult.getPatients().get(0).getStudies().size();
-		assertEquals("Number of Patients is: " + numbPatients + " but expected value is 1.", numbPatients, 1);
-		assertEquals("Number of Studies is: " + numberStudies + " but expected value is 3.", numberStudies, 3);
-		*/
 		synchronized(targetElements){
 			while(targetElements.size() < 3){
 				try {
@@ -79,12 +72,15 @@ public class CreateIteratorTest implements TargetIteratorListener {
 				}
 			}
 		}
-		assertTrue("", assertIteratorTargetPatient(iter));
+		assertTrue("All parameters were valid but TargetIteratorRunner " +
+				"did not produce expected result for IterationTarget.PATIENT.", assertIteratorTargetPatient(iter));
 	}
 
-	//AVUtil - getWG23DataModel. Basic flow
+	//TargetIteratorRunner - basic flow.
 	//Parameters: valid
 	//IterationTarget.STUDY
+	@Ignore
+	@Test
 	public void testCreateIterator_1B(){
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, this);
 		try {
@@ -94,17 +90,23 @@ public class CreateIteratorTest implements TargetIteratorListener {
 		} catch(Exception e) {
 			logger.error(e, e);
 		}
-		
-		while(iter.hasNext()){
-			targetElement = iter.next();
+		synchronized(targetElements){
+			while(targetElements.size() < 6){
+				try {
+					targetElements.wait();
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
 		}
-		
-		
+		assertTrue("All parameters were valid but TargetIteratorRunner " +
+				"did not produce expected result for IterationTarget.STUDY.", assertIteratorTargetStudy(iter));
 	}
 	
-	//AVUtil - getWG23DataModel. Basic flow
+	//TargetIteratorRunner - basic flow.
 	//Parameters: valid
 	//IterationTarget.SERIES
+	@Test
 	public void testCreateIterator_1C(){
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, this);
 		try {
@@ -114,9 +116,17 @@ public class CreateIteratorTest implements TargetIteratorListener {
 		} catch(Exception e) {
 			logger.error(e, e);
 		}
-		targetElement = iter.next();
-	
-		
+		synchronized(targetElements){
+			while(targetElements.size() < 6){
+				try {
+					targetElements.wait();
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
+		}
+		assertTrue("All parameters were valid but TargetIteratorRunner " +
+				"did not produce expected result for IterationTarget.SERIES.", assertIteratorTargetSeries(iter));
 	}
 
 	Iterator<TargetElement> iter;
@@ -388,6 +398,481 @@ public class CreateIteratorTest implements TargetIteratorListener {
 		assertTrue("Expected number of elements is 3, but actual number is " + numberOfElements, blnNumberOfElements);
 		assertTrue ("", blnPatient1Atts == true && blnPatient2Atts == true && blnPatient3Atts == true); 
 		if (blnNumberOfElements && (blnPatient1Atts == true && blnPatient2Atts == true && blnPatient3Atts == true)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	private boolean assertIteratorTargetStudy(Iterator<TargetElement> iter){
+		boolean blnStudy1Atts = false;
+		boolean blnStudy3Atts = false;
+		boolean blnStudy6Atts = false;
+		int numberOfElements = 0;
+		while(iter.hasNext()){
+			TargetElement element = iter.next();
+			numberOfElements ++;
+			String id = element.getId();
+			boolean blnId1 = false;
+			boolean blnId3 = false;
+			boolean blnId6 = false;
+			if(id.equalsIgnoreCase("101.101")){
+				//Assert original criteria
+				//Assert IterationTarget
+				//Assert subSearchResult
+				blnId1 = true;				
+				Map<Integer, Object> dicomCriteria1 = element.getSubSearchResult().getOriginalCriteria().getDICOMCriteria();				
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				if(blnDicomCriteriaSize1 == false){
+					logger.warn("Incorrect number of DICOM criteria for Study1, subelement 1. Expected 4, actual " + dicomCriteria1.size());
+				}
+				Object value1 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
+				if(blnValue1 == false){
+					logger.warn("Incorrect criteria values");
+					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+				}
+				
+				Map<String, Object> aimCriteria1 = element.getSubSearchResult().getOriginalCriteria().getAIMCriteria();
+				boolean blnAimCriteriaSize1 = (aimCriteria1.size() == 0);
+				if(blnAimCriteriaSize1 == false){
+					logger.warn("Invalid size of AIM criteria for Study1, subelement 1. Expected size 0, actual " + aimCriteria1.size());
+				}
+				
+				IterationTarget target = element.getTarget();
+				boolean blnTarget = target.toString().equalsIgnoreCase("STUDY");
+				if(blnTarget == false){
+					logger.warn("Invalid IterationTarget. Expected STUDY, actual " + target.toString());
+				}
+				
+				//assert subSearchResult
+				SearchResult subSearchResult = element.getSubSearchResult();
+				List<Patient> patients = subSearchResult.getPatients();
+				boolean numbPatients = (patients.size() == 1);
+				boolean patientAssert = false;
+				boolean numbStudies = false;
+				boolean studiesAssert = false;
+				for(Patient patient : patients){
+					if(patient.getPatientID().equalsIgnoreCase("111")){
+						patientAssert = true;
+					}
+					boolean series1Assert = false;
+					List<Study> studies = patient.getStudies();
+					numbStudies = (studies.size() == 1);
+					if(numbStudies){
+						for(Study study : studies){
+							List<Series> series = study.getSeries();
+							if(study.getStudyInstanceUID().equalsIgnoreCase("101.101")){
+								for(Series oneSeries : series){
+									String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
+									if(seriesInstanceUID.equalsIgnoreCase("101.101.1")){
+										series1Assert = true;
+									}
+								}
+							}
+						}							 
+					}
+					if(numbStudies == true && series1Assert == true){
+							studiesAssert = true;
+					}
+				}
+				
+				blnStudy1Atts = (blnId1 == true && blnDicomCriteriaSize1 == true &&
+						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true &&
+						numbPatients == true && patientAssert == true && studiesAssert == true);
+				
+				if(blnStudy1Atts == false){
+					logger.warn("Invalid attributes in Study1.");
+				}
+			} else if(id.equalsIgnoreCase("303.303") ){
+				//Assert original criteria
+				//Assert IterationTarget
+				//Assert subSearchResult
+				blnId3 = true;				
+				Map<Integer, Object> dicomCriteria1 = element.getSubSearchResult().getOriginalCriteria().getDICOMCriteria();				
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				if(blnDicomCriteriaSize1 == false){
+					logger.warn("Incorrect number of DICOM criteria for Study3, subelement 1. Expected 4, actual " + dicomCriteria1.size());
+				}
+				Object value1 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
+				if(blnValue1 == false){
+					logger.warn("Incorrect criteria values");
+					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+				}
+				
+				Map<String, Object> aimCriteria1 = element.getSubSearchResult().getOriginalCriteria().getAIMCriteria();
+				boolean blnAimCriteriaSize1 = (aimCriteria1.size() == 0);
+				if(blnAimCriteriaSize1 == false){
+					logger.warn("Invalid size of AIM criteria for Study3, subelement 1. Expected size 0, actual " + aimCriteria1.size());
+				}
+				
+				IterationTarget target = element.getTarget();
+				boolean blnTarget = target.toString().equalsIgnoreCase("STUDY");
+				if(blnTarget == false){
+					logger.warn("Invalid IterationTarget. Expected STUDY, actual " + target.toString());
+				}
+				
+				//assert subSearchResult
+				SearchResult subSearchResult = element.getSubSearchResult();
+				List<Patient> patients = subSearchResult.getPatients();
+				boolean numbPatients = (patients.size() == 1);
+				boolean patientAssert = false;
+				boolean numbStudies = false;
+				boolean studiesAssert = false;
+				for(Patient patient : patients){
+					if(patient.getPatientID().equalsIgnoreCase("222")){
+						patientAssert = true;
+					}
+					boolean series3Assert = false;
+					boolean series4Assert = false;
+					boolean series5Assert = false;
+					List<Study> studies = patient.getStudies();
+					numbStudies = (studies.size() == 1);
+					if(numbStudies){
+						for(Study study : studies){
+							List<Series> series = study.getSeries();
+							if(study.getStudyInstanceUID().equalsIgnoreCase("303.303")){
+								for(Series oneSeries : series){
+									String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
+									if(seriesInstanceUID.equalsIgnoreCase("303.303.1")){
+										series3Assert = true;
+									} else if(seriesInstanceUID.equalsIgnoreCase("404.404.1")){
+										series4Assert = true;
+									} else if(seriesInstanceUID.equalsIgnoreCase("505.505.1")){
+										series5Assert = true;
+									}
+								}
+							}
+						}							 
+					}
+					if(numbStudies == true && series3Assert == true && series4Assert == true && series5Assert == true){
+							studiesAssert = true;
+					}
+				}
+				
+				blnStudy3Atts = (blnId3 == true && blnDicomCriteriaSize1 == true &&
+						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true &&
+						numbPatients == true && patientAssert == true && studiesAssert == true);
+				
+				if(blnStudy3Atts == false){
+					logger.warn("Invalid attributes in Study3.");
+				}
+			} else if(id.equalsIgnoreCase("606.606") ){				
+				//Assert original criteria
+				//Assert IterationTarget
+				//Assert subSearchResult
+				blnId6 = true;
+				Map<Integer, Object> dicomCriteria1 = element.getSubSearchResult().getOriginalCriteria().getDICOMCriteria();
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				if(blnDicomCriteriaSize1 == false){
+					logger.warn("Incorrect number of DICOM criteria for Study6, subelement 1. Expected 4, actual " + dicomCriteria1.size());
+				}
+				Object value2 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				boolean blnValue2 = value2.toString().equalsIgnoreCase("*");
+				if(blnValue2 == false){
+					logger.warn("Incorrect criteria values");
+					logger.warn("PatientName: expected '*', actual " + "'" + value2 + "'");
+				}
+				
+				Map<String, Object> aimCriteria1 = element.getSubSearchResult().getOriginalCriteria().getAIMCriteria();
+				boolean blnAimCriteriaSize1 = (aimCriteria1.size() == 0);
+				if(blnAimCriteriaSize1 == false){
+					logger.warn("Invalid size of AIM criteria for Study6, subelement 1. Expected size 0, actual " + aimCriteria1.size());
+				}
+				
+				IterationTarget target = element.getTarget();
+				boolean blnTarget = target.toString().equalsIgnoreCase("STUDY");
+				if(blnTarget == false){
+					logger.warn("Invalid IterationTarget. Expected STUDY, actual " + target.toString());
+				}
+				
+				//assert subSearchResult
+				SearchResult subSearchResult = element.getSubSearchResult();
+				List<Patient> patients = subSearchResult.getPatients();
+				boolean numbPatients = (patients.size() == 1);
+				boolean patientAssert = false;
+				boolean numbStudies = false;
+				boolean studiesAssert = false;
+				for(Patient patient : patients){
+					if(patient.getPatientID().equalsIgnoreCase("333")){
+						patientAssert = true;
+					}
+					boolean series12Assert = false;
+					boolean series13Assert = false;
+					boolean series14Assert = false;
+					List<Study> studies = patient.getStudies();
+					numbStudies = (studies.size() == 1);
+					if(numbStudies){
+						for(Study study : studies){
+							List<Series> series = study.getSeries();
+							if(study.getStudyInstanceUID().equalsIgnoreCase("606.606")){
+								for(Series oneSeries : series){
+									String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
+									if(seriesInstanceUID.equalsIgnoreCase("12.12.1")){
+										series12Assert = true;
+									} else if(seriesInstanceUID.equalsIgnoreCase("13.13.1")){
+										series13Assert = true;
+									} else if(seriesInstanceUID.equalsIgnoreCase("14.14.1")){
+										series14Assert = true;
+									}
+								}
+							}
+						}							 
+					}
+					if(numbStudies == true && series12Assert == true && series13Assert == true && series14Assert == true){
+							studiesAssert = true;
+					}
+				}
+				
+				blnStudy6Atts = (blnId6 == true && blnDicomCriteriaSize1 == true &&
+						blnValue2 == true && blnAimCriteriaSize1 == true && blnTarget == true &&
+						numbPatients == true && patientAssert == true && studiesAssert == true);
+				
+				
+				if(blnStudy6Atts == false){
+					logger.warn("Invalid attributes in Study6.");
+				}
+			}
+		}
+		//Assert iterator
+		//Number of iterator's elements = 6
+		boolean blnNumberOfElements = (numberOfElements == 6);
+		assertTrue("Expected number of elements is 6, but actual number is " + numberOfElements, blnNumberOfElements);
+		assertTrue ("", blnStudy1Atts == true && blnStudy3Atts == true && blnStudy6Atts == true);
+		if (blnNumberOfElements && (blnStudy1Atts == true && blnStudy3Atts == true && blnStudy6Atts == true)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	private boolean assertIteratorTargetSeries(Iterator<TargetElement> iter){
+		boolean blnSeries1Atts = false;
+		boolean blnSeries4Atts = false;
+		boolean blnSeries13Atts = false;
+		int numberOfElements = 0;
+		while(iter.hasNext()){
+			TargetElement element = iter.next();
+			numberOfElements ++;
+			String id = element.getId();
+			boolean blnId1 = false;
+			boolean blnId4 = false;
+			boolean blnId13 = false;
+			if(id.equalsIgnoreCase("101.101.1")){
+				//Assert original criteria
+				//Assert IterationTarget
+				//Assert subSearchResult
+				blnId1 = true;
+				Map<Integer, Object> dicomCriteria1 = element.getSubSearchResult().getOriginalCriteria().getDICOMCriteria();
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				if(blnDicomCriteriaSize1 == false){
+					logger.warn("Incorrect number of DICOM criteria for Series1, subelement 1. Expected 4, actual " + dicomCriteria1.size());
+				}
+				Object value1 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
+				if(blnValue1 == false){
+					logger.warn("Incorrect criteria values");
+					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+				}
+
+				Map<String, Object> aimCriteria1 = element.getSubSearchResult().getOriginalCriteria().getAIMCriteria();
+				boolean blnAimCriteriaSize1 = (aimCriteria1.size() == 0);
+				if(blnAimCriteriaSize1 == false){
+					logger.warn("Invalid size of AIM criteria for Series1, subelement 1. Expected size 0, actual " + aimCriteria1.size());
+				}
+				
+				IterationTarget target = element.getTarget();
+				boolean blnTarget = target.toString().equalsIgnoreCase("SERIES");
+				if(blnTarget == false){
+					logger.warn("Invalid IterationTarget. Expected SERIES, actual " + target.toString());
+				}
+				
+				//assert subSearchResult
+				SearchResult subSearchResult = element.getSubSearchResult();
+				List<Patient> patients = subSearchResult.getPatients();
+				boolean numbPatients = (patients.size() == 1);
+				boolean patientAssert = false;
+				boolean numbStudies = false;
+				boolean studiesAssert = false;
+				for(Patient patient : patients){
+					if(patient.getPatientID().equalsIgnoreCase("111")){
+						patientAssert = true;
+					}
+					boolean series1Assert = false;
+					List<Study> studies = patient.getStudies();
+					numbStudies = (studies.size() == 1);
+					if(numbStudies){
+						for(Study study : studies){
+							List<Series> series = study.getSeries();
+							if(study.getStudyInstanceUID().equalsIgnoreCase("101.101")){
+								for(Series oneSeries : series){
+									String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
+									if(seriesInstanceUID.equalsIgnoreCase("101.101.1")){
+										series1Assert = true;
+									}
+								}
+							}
+						}							 
+					}
+					if(numbStudies == true && series1Assert == true){
+							studiesAssert = true;
+					}
+				}
+				
+				blnSeries1Atts = (blnId1 == true && blnDicomCriteriaSize1 == true &&
+						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true &&
+						numbPatients == true && patientAssert == true && studiesAssert == true);
+				
+				if(blnSeries1Atts == false){
+					logger.warn("Invalid attributes in Series1.");
+				} 
+			} if(id.equalsIgnoreCase("404.404.1")){
+				//Assert original criteria
+				//Assert IterationTarget
+				//Assert subSearchResult
+				blnId4 = true;
+				Map<Integer, Object> dicomCriteria1 = element.getSubSearchResult().getOriginalCriteria().getDICOMCriteria();
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				if(blnDicomCriteriaSize1 == false){
+					logger.warn("Incorrect number of DICOM criteria for Series4, subelement 1. Expected 4, actual " + dicomCriteria1.size());
+				}
+				Object value1 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
+				if(blnValue1 == false){
+					logger.warn("Incorrect criteria values");
+					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+				}
+				
+				Map<String, Object> aimCriteria1 = element.getSubSearchResult().getOriginalCriteria().getAIMCriteria();
+				boolean blnAimCriteriaSize1 = (aimCriteria1.size() == 0);
+				if(blnAimCriteriaSize1 == false){
+					logger.warn("Invalid size of AIM criteria for Series4, subelement 1. Expected size 0, actual " + aimCriteria1.size());
+				}
+				
+				IterationTarget target = element.getTarget();
+				boolean blnTarget = target.toString().equalsIgnoreCase("SERIES");
+				if(blnTarget == false){
+					logger.warn("Invalid IterationTarget. Expected SERIES, actual " + target.toString());
+				}
+				
+				//assert subSearchResult
+				SearchResult subSearchResult = element.getSubSearchResult();
+				List<Patient> patients = subSearchResult.getPatients();
+				boolean numbPatients = (patients.size() == 1);
+				boolean patientAssert = false;
+				boolean numbStudies = false;
+				boolean studiesAssert = false;
+				for(Patient patient : patients){
+					if(patient.getPatientID().equalsIgnoreCase("222")){
+						patientAssert = true;
+					}
+					boolean series4Assert = false;
+					List<Study> studies = patient.getStudies();
+					numbStudies = (studies.size() == 1);
+					if(numbStudies){
+						for(Study study : studies){
+							List<Series> series = study.getSeries();
+							if(study.getStudyInstanceUID().equalsIgnoreCase("303.303")){
+								for(Series oneSeries : series){
+									String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
+									if(seriesInstanceUID.equalsIgnoreCase("404.404.1")){
+										series4Assert = true;
+									}
+								}
+							}
+						}							 
+					}
+					if(numbStudies == true && series4Assert == true){
+							studiesAssert = true;
+					}
+				}
+				
+				blnSeries4Atts = (blnId4 == true && blnDicomCriteriaSize1 == true &&
+						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true &&
+						numbPatients == true && patientAssert == true && studiesAssert == true);
+				
+				if(blnSeries1Atts == false){
+					logger.warn("Invalid attributes in Series4.");
+				} 
+			} if(id.equalsIgnoreCase("13.13.1")){
+				//Assert original criteria
+				//Assert IterationTarget
+				//Assert subSearchResult
+				blnId13 = true;
+				Map<Integer, Object> dicomCriteria1 = element.getSubSearchResult().getOriginalCriteria().getDICOMCriteria();
+				boolean blnDicomCriteriaSize1 = (dicomCriteria1.size() == 1);
+				if(blnDicomCriteriaSize1 == false){
+					logger.warn("Incorrect number of DICOM criteria for Series13, subelement 1. Expected 4, actual " + dicomCriteria1.size());
+				}
+				Object value1 = dicomCriteria1.get(new Integer(1048592));	//patientName
+				boolean blnValue1 = value1.toString().equalsIgnoreCase("*");
+				if(blnValue1 == false){
+					logger.warn("Incorrect criteria values");
+					logger.warn("PatientName: expected '*', actual " + "'" + value1 + "'");
+				}
+				
+				Map<String, Object> aimCriteria1 = element.getSubSearchResult().getOriginalCriteria().getAIMCriteria();
+				boolean blnAimCriteriaSize1 = (aimCriteria1.size() == 0);
+				if(blnAimCriteriaSize1 == false){
+					logger.warn("Invalid size of AIM criteria for Series13, subelement 1. Expected size 0, actual " + aimCriteria1.size());
+				}
+				
+				IterationTarget target = element.getTarget();
+				boolean blnTarget = target.toString().equalsIgnoreCase("SERIES");
+				if(blnTarget == false){
+					logger.warn("Invalid IterationTarget. Expected SERIES, actual " + target.toString());
+				}
+				
+				//assert subSearchResult
+				SearchResult subSearchResult = element.getSubSearchResult();
+				List<Patient> patients = subSearchResult.getPatients();
+				boolean numbPatients = (patients.size() == 1);
+				boolean patientAssert = false;
+				boolean numbStudies = false;
+				boolean studiesAssert = false;
+				for(Patient patient : patients){
+					if(patient.getPatientID().equalsIgnoreCase("333")){
+						patientAssert = true;
+					}
+					boolean series13Assert = false;
+					List<Study> studies = patient.getStudies();
+					numbStudies = (studies.size() == 1);
+					if(numbStudies){
+						for(Study study : studies){
+							List<Series> series = study.getSeries();
+							if(study.getStudyInstanceUID().equalsIgnoreCase("606.606")){
+								for(Series oneSeries : series){
+									String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
+									if(seriesInstanceUID.equalsIgnoreCase("13.13.1")){
+										series13Assert = true;
+									}
+								}
+							}
+						}							 
+					}
+					if(numbStudies == true && series13Assert == true){
+							studiesAssert = true;
+					}
+				}
+				
+				blnSeries13Atts = (blnId13 == true && blnDicomCriteriaSize1 == true &&
+						blnValue1 == true && blnAimCriteriaSize1 == true && blnTarget == true &&
+						numbPatients == true && patientAssert == true && studiesAssert == true);
+				
+				if(blnSeries13Atts == false){
+					logger.warn("Invalid attributes in Series13.");
+				} 
+			}
+		}
+		//Assert iterator
+		//Number of iterator's elements = 6
+		boolean blnNumberOfElements = (numberOfElements == 14);
+		assertTrue("Expected number of elements is 6, but actual number is " + numberOfElements, blnNumberOfElements);
+		assertTrue ("", blnSeries1Atts == true && blnSeries4Atts == true && blnSeries13Atts == true);
+		if (blnNumberOfElements && (blnSeries1Atts == true && blnSeries4Atts == true && blnSeries13Atts == true)) {
 			return true;
 		} else {
 			return false;

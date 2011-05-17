@@ -2,10 +2,7 @@ package edu.wustl.xipHost.application;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-
 import org.jdom.JDOMException;
-
 import junit.framework.TestCase;
 
 public class LoadApplicationsTest extends TestCase {
