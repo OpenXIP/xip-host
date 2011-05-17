@@ -153,13 +153,7 @@
   </logger>	
   <logger name="edu.wustl.xipHost.dicom.DicomManagerImpl">
 	<appender-ref ref="Dicom_Appender"/>
-  </logger>	
-  <logger name="edu.wustl.xipHost.localFileSystem.FileManagerImpl">
-	<appender-ref ref="FileDataSource_Appender"/>
-  </logger>	
-  <logger name="edu.wustl.xipHost.gui.InputDialog">
-	<appender-ref ref="FileDataSource_Appender"/>
-  </logger>	
+  </logger>		
   <logger name="edu.wustl.xipHost.dicom.DicomRetrieve">
 	<appender-ref ref="FileDataSource_Appender"/>
   </logger>	
