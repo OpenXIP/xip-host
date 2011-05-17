@@ -21,7 +21,7 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 
 public class AVTQueryStubNoPatientID implements Query {
-	final static Logger logger = Logger.getLogger(AVTQueryStub.class);
+	final static Logger logger = Logger.getLogger(AVTQueryStubNoPatientID.class);
 	SearchResultSetupNoPatientID resultSetup = new SearchResultSetupNoPatientID();
 	SearchResult fullSearchResult;
 	Map<Integer, Object> dicomCriteria;

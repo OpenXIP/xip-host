@@ -9,7 +9,7 @@ import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
 public class AVTQueryStubConnectException implements Query {
-	final static Logger logger = Logger.getLogger(AVTQueryStub.class);
+	final static Logger logger = Logger.getLogger(AVTQueryStubConnectException.class);
 	SearchResultSetup resultSetup = new SearchResultSetup();
 	SearchResult fullSearchResult;
 	Map<Integer, Object> adDicomCriteria;
