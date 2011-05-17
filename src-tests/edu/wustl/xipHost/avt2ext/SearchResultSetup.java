@@ -16,6 +16,8 @@ public class SearchResultSetup {
 	Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
 	Map<String, Object> aimCriteria = new HashMap<String, Object>();
 	
+	/* Full SearchResult: Patient x 3, Study x 6, Series x 14 
+	 * SearchResultSetup is used to assert values */
 	public SearchResultSetup(){
 			dicomCriteria.put(Tag.PatientName, "*");
 			//System.out.println("Patient id int: " + Tag.PatientID);

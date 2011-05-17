@@ -19,6 +19,9 @@ public class SearchResultSetupAvailableData {
 	Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
 	Map<String, Object> aimCriteria = new HashMap<String, Object>();
 	
+	/* SearchResultSetupAvailableData
+	 * Patient x 1, Study x 6, Series x 14
+	 */
 	public SearchResultSetupAvailableData(){
 			dicomCriteria.put(Tag.PatientName, "*");
 			//System.out.println("Patient id int: " + Tag.PatientID);
