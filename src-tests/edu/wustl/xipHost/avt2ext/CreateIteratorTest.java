@@ -10,9 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.After;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.iterator.IteratorElementEvent;
@@ -34,6 +34,7 @@ public class CreateIteratorTest implements TargetIteratorListener {
 	final static Logger logger = Logger.getLogger(CreateIteratorTest.class);
 	static Query avtQuery;
 	static SearchResult selectedDataSearchResult;
+	static SearchResult selectedDataSearchResultForSubqueries;
 	TargetElement targetElement;
 	File tmpDir;
 	
@@ -42,6 +43,9 @@ public class CreateIteratorTest implements TargetIteratorListener {
 		avtQuery = new AVTQueryStub(null, null, null, null, null);
 		SearchResultSetup result = new SearchResultSetup();
 		selectedDataSearchResult = result.getSearchResult();
+		SearchResultSetupSubqueries resultForSubqueries = new SearchResultSetupSubqueries();
+		selectedDataSearchResultForSubqueries = resultForSubqueries.getSearchResult();
+		DOMConfigurator.configure("log4j.xml");
 	}
 
 	@After
@@ -52,7 +56,7 @@ public class CreateIteratorTest implements TargetIteratorListener {
 	//TargetIteratorRunner - basic flow.
 	//Parameters: valid
 	//IterationTarget.PATIEN
-	@Ignore
+	//@Ignore
 	@Test
 	public void testCreateIterator_1A(){
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.PATIENT, avtQuery, this);
@@ -79,7 +83,6 @@ public class CreateIteratorTest implements TargetIteratorListener {
 	//TargetIteratorRunner - basic flow.
 	//Parameters: valid
 	//IterationTarget.STUDY
-	@Ignore
 	@Test
 	public void testCreateIterator_1B(){
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.STUDY, avtQuery, this);
@@ -109,6 +112,92 @@ public class CreateIteratorTest implements TargetIteratorListener {
 	@Test
 	public void testCreateIterator_1C(){
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, IterationTarget.SERIES, avtQuery, this);
+		try {
+			Thread t = new Thread(targetIter);
+			t.start();
+			t.join();
+		} catch(Exception e) {
+			logger.error(e, e);
+		}
+		synchronized(targetElements){
+			while(targetElements.size() < 6){
+				try {
+					targetElements.wait();
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
+		}
+		assertTrue("All parameters were valid but TargetIteratorRunner " +
+				"did not produce expected result for IterationTarget.SERIES.", assertIteratorTargetSeries(iter));
+	}
+	
+	
+	//TargetIteratorRunner - alternative flow.
+	//Parameters: valid
+	//Subqueries needed. Connection ON.
+	//IterationTarget: PATIENT
+	@Test
+	public void testCreateIterator_2A(){
+		Query avtQuery = new AVTQueryStub(null, null, null, null, null);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.PATIENT, avtQuery, this);
+		try {
+			Thread t = new Thread(targetIter);
+			t.start();
+			t.join();
+		} catch(Exception e) {
+			logger.error(e, e);
+		}
+		synchronized(targetElements){
+			while(targetElements.size() < 3){
+				try {
+					targetElements.wait();
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
+		}
+		assertTrue("All parameters were valid but TargetIteratorRunner " +
+				"did not produce expected result for IterationTarget.PATIENT.", assertIteratorTargetPatient(iter));
+	}
+	
+	//TargetIteratorRunner - alternative flow.
+	//Parameters: selectedDataSearchResult, IterationTarget are valid.
+	//Subqueries needed. Connection ON.
+	//IterationTarget: STUDY
+	@Test
+	public void testCreateIterator_2B(){
+		Query avtQuery = new AVTQueryStub(null, null, null, null, null);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.STUDY, avtQuery, this);
+		try {
+			Thread t = new Thread(targetIter);
+			t.start();
+			t.join();
+		} catch(Exception e) {
+			logger.error(e, e);
+		}
+		synchronized(targetElements){
+			while(targetElements.size() < 6){
+				try {
+					targetElements.wait();
+				} catch (InterruptedException e) {
+					logger.error(e, e);
+				}
+			}
+		}
+		assertTrue("All parameters were valid but TargetIteratorRunner " +
+				"did not produce expected result for IterationTarget.STUDY.", assertIteratorTargetStudy(iter));
+	}
+	
+	
+	//TargetIteratorRunner - alternative flow.
+	//Parameters: selectedDataSearchResult, IterationTarget are valid.
+	//Subqueries needed. Connection ON.
+	//IterationTarget: SERIES
+	@Test
+	public void testCreateIterator_2C(){
+		Query avtQuery = new AVTQueryStub(null, null, null, null, null);
+		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResultForSubqueries, IterationTarget.SERIES, avtQuery, this);
 		try {
 			Thread t = new Thread(targetIter);
 			t.start();
