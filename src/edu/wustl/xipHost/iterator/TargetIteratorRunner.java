@@ -381,7 +381,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 		} else {
 			throw new NoSuchElementException();
 		}
-			return targetElement;
+		return targetElement;
 	}
 
 	public void remove() {
@@ -390,7 +390,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 
 	@Override
 	public void notifyException(String message) {
-		
+		logger.error(message);
 	}
 
 	@Override
