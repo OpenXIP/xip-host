@@ -10,6 +10,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
 
+import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -660,8 +661,13 @@ public class NodeSelectionListener implements ActionListener {
 			}
 			return;		
 		} else if (selected == true){
-			if(!selectedSeries.contains(item.getItemID())){
-				Item newItem = new ImageItem(item.getItemID());			
+			if(!selectedSeries.contains(item.getItemID())){			
+				Item newItem = null;
+				if(item instanceof AIMItem){
+					newItem = new AIMItem("", "", "",item.getItemID());
+				} else {
+					newItem = new ImageItem(item.getItemID());
+				}				
 				newItem.setObjectDescriptor(item.getObjectDescriptor());
 				newItem.setObjectLocator(item.getObjectLocator());
 				selectedSeries.addItem(newItem);

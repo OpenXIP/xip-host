@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
@@ -132,8 +134,8 @@ public class AVTRetrieve implements Retrieve {
 			//If oneSeries contains subset of items, narrow dicomCriteria to individual SOPInstanceUIDs
 			//Then retrieve data item by item			
 			List<DicomObject> retrievedDICOM = adService.retrieveDicomObjs(dicomCriteria, aimCriteria);											
-			if(retrievedDICOM.size() == objectDescriptors.size()){
-				int i = 0;
+			//if(retrievedDICOM.size() == objectDescriptors.size()){
+				int i;
 				for(i = 0; i < retrievedDICOM.size(); i++){
 					DicomObject dicom = retrievedDICOM.get(i);							
 					String filePrefix = dicom.getString(Tag.SOPInstanceUID);
@@ -151,7 +153,7 @@ public class AVTRetrieve implements Retrieve {
 						Uuid itemUUID = objectDescriptors.get(i).getUuid();
 						objLoc.setUuid(itemUUID);				
 						objLoc.setUri(file.getAbsolutePath()); 
-						objectLocators.put(itemUUID.getUuid(), objLoc);
+						objectLocators.put(itemUUID.getUuid(), objLoc);						
 					} catch (IOException e) {
 						logger.error(e, e);
 						return null;
@@ -181,11 +183,17 @@ public class AVTRetrieve implements Retrieve {
 			    	outStream.close();
 			    	//retrievedFiles.add(outFile);
 			    	ObjectLocator objLoc = new ObjectLocator();				
-			    	Uuid itemUUID = objectDescriptors.get(i).getUuid();
+			    	//Case when dcm selected but AIM found, new object descriptor must be created for the AIM found
+			    	Uuid itemUUID = new Uuid();
+			    	itemUUID.setUuid(UUID.randomUUID().toString());
+			    	ObjectDescriptor objDesc = new ObjectDescriptor();
+			    	objDesc.setUuid(itemUUID);
+			    	objDesc.setMimeType("text/xml");
+			    	objectDescriptors.add(objDesc);
 					objLoc.setUuid(itemUUID);				
 					objLoc.setUri(outFile.getAbsolutePath()); 
 					objectLocators.put(itemUUID.getUuid(), objLoc);
-					i++;
+					//i++;
 			    	//Retrieve DICOM SEG
 			    	//temporarily voided. AVTQuery needs to be modified to query for DICOM SEG objects
 			    	//
@@ -210,19 +218,25 @@ public class AVTRetrieve implements Retrieve {
 	    						dout.writeDicomFile(dicomSeg);
 	    						dout.close();
 	    						//retrievedFiles.add(outDicomSegFile);
-	    						ObjectLocator dicomSegObjLoc = new ObjectLocator();					    						
-	    						Uuid dicomSegItemUUID = objectDescriptors.get(i).getUuid();	    						
+	    						ObjectLocator dicomSegObjLoc = new ObjectLocator();
+	    						Uuid dicomSegItemUUID = new Uuid();
+	    						dicomSegItemUUID.setUuid(UUID.randomUUID().toString());
+	    				    	ObjectDescriptor objDescDicomSeg = new ObjectDescriptor();
+	    				    	objDescDicomSeg.setUuid(dicomSegItemUUID);
+	    				    	//TODO set MIME type, sopClass UID etc.
+	    				    	objectDescriptors.add(objDescDicomSeg); 						
 								dicomSegObjLoc.setUuid(dicomSegItemUUID);				
 								dicomSegObjLoc.setUri(outDicomSegFile.getAbsolutePath()); 
 								objectLocators.put(dicomSegItemUUID.getUuid(), dicomSegObjLoc);
-								i++;
+								//i++;
 			    			}
 			    		}
 			    	}	  
 				}
-			} else {
+				i++;
+			/*} else {
 				logger.warn("Number of retrieved objects does not equals to number of ObjectDescriptors!");
-			}
+			}*/
 		}
 		return objectLocators;
 	}		

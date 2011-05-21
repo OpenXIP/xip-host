@@ -401,7 +401,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 						logger.error(e, e);
 					}
 				}
-				
 				TargetElement element = targetElements.get(numberOfSentNotifications);
 				AvailableData availableData = IteratorUtil.getAvailableData(element);
 				NotificationRunner runner = new NotificationRunner(this);
