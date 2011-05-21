@@ -37,61 +37,92 @@ public class AVTQueryStub implements Query {
 	SearchResult result;
 	public void run(){
 		switch (target) {
-    	case PATIENT:
-    		//List of patients would be given at least        		
-    		break;
-    	case STUDY:
-    		List<Study> studies = null;
-    		try{
-    			//ignore adAimCriteria
-    			//parse and get adDicomCriteria
-    			//Find studies based on patientID
-    			String value = adDicomCriteria.get(new Integer(1048608)).toString();	//patientId
-    			List<Patient> patients = fullSearchResult.getPatients();
-				for(Patient patient : patients){
-					String patientId = patient.getPatientID();
-					if (patientId.equalsIgnoreCase(value)){
-						studies = patient.getStudies();
+	    	case PATIENT:
+	    		//List of patients would be given at least        		
+	    		break;
+	    	case STUDY:
+	    		List<Study> studies = null;
+	    		try{
+	    			//ignore adAimCriteria
+	    			//parse and get adDicomCriteria
+	    			//Find studies based on patientID
+	    			String value = adDicomCriteria.get(new Integer(1048608)).toString();	//patientId
+	    			List<Patient> patients = fullSearchResult.getPatients();
+					for(Patient patient : patients){
+						String patientId = patient.getPatientID();
+						if (patientId.equalsIgnoreCase(value)){
+							studies = patient.getStudies();
+						}
 					}
-				}
-    			result = convertToSearchResult(studies, previousSearchResult, queriedObject);
-    		} catch (Exception e){
-    			studies = new ArrayList<Study>();
-    			logger.error(e, e);
-    			notifyException(e.getMessage());
-    			return;
-    		}
-    		break;
-		case SERIES: 
-			List<Series> series = null;
-			try{
-				String value1 = adDicomCriteria.get(new Integer(1048608)).toString();	//patientId
-				String value2 = adDicomCriteria.get(new Integer(2097165)).toString();	//studyInstanceUID
-    			List<Patient> patients = fullSearchResult.getPatients();
-				for(Patient patient : patients){
-					String patientId = patient.getPatientID();
-					if (patientId.equalsIgnoreCase(value1)){
-						studies = patient.getStudies();
-						for(Study study : studies){
-							String studyInstanceUID = study.getStudyInstanceUID();
-							if (studyInstanceUID.equalsIgnoreCase(value2)){
-								series = study.getSeries();
+	    			result = convertToSearchResult(studies, previousSearchResult, queriedObject);
+	    		} catch (Exception e){
+	    			studies = new ArrayList<Study>();
+	    			logger.error(e, e);
+	    			notifyException(e.getMessage());
+	    			return;
+	    		}
+	    		break;
+			case SERIES: 
+				List<Series> series = null;
+				try{
+					String value1 = adDicomCriteria.get(new Integer(1048608)).toString();	//patientId
+					String value2 = adDicomCriteria.get(new Integer(2097165)).toString();	//studyInstanceUID
+	    			List<Patient> patients = fullSearchResult.getPatients();
+					for(Patient patient : patients){
+						String patientId = patient.getPatientID();
+						if (patientId.equalsIgnoreCase(value1)){
+							studies = patient.getStudies();
+							for(Study study : studies){
+								String studyInstanceUID = study.getStudyInstanceUID();
+								if (studyInstanceUID.equalsIgnoreCase(value2)){
+									series = study.getSeries();
+								}
 							}
 						}
 					}
+					result = convertToSearchResult(series, previousSearchResult, queriedObject);
+				} catch (Exception e){
+					series = new ArrayList<Series>();
+	    			logger.error(e, e);
+	    			notifyException(e.getMessage());
+	    			return;
 				}
-				result = convertToSearchResult(series, previousSearchResult, queriedObject);
-			} catch (Exception e){
-				series = new ArrayList<Series>();
-    			logger.error(e, e);
-    			notifyException(e.getMessage());
-    			return;
-			}
+				break;
+			case ITEM: 
+				List<Item> items = null;
+				try{
+					String value1 = adDicomCriteria.get(new Integer(1048608)).toString();	//patientId
+					String value2 = adDicomCriteria.get(new Integer(2097165)).toString();	//studyInstanceUID
+					String value3 = adDicomCriteria.get(new Integer(2097166)).toString();	//seriesINstanceUID
+	    			List<Patient> patients = fullSearchResult.getPatients();
+					for(Patient patient : patients){
+						String patientId = patient.getPatientID();
+						if (patientId.equalsIgnoreCase(value1)){
+							studies = patient.getStudies();
+							for(Study study : studies){
+								String studyInstanceUID = study.getStudyInstanceUID();
+								if (studyInstanceUID.equalsIgnoreCase(value2)){
+									series = study.getSeries();
+									for(Series oneSeries : series){
+										String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
+										if(seriesInstanceUID.equalsIgnoreCase(value3)){
+											items = oneSeries.getItems();
+										}
+									}
+								}
+							}
+						}
+					}
+					result = AVTUtil.convertToSearchResult(items, previousSearchResult, queriedObject);
+				} catch (Exception e){
+					items = new ArrayList<Item>();
+					logger.error(e, e);
+	    			notifyException(e.getMessage());
+	    			return;
+				}				
+				break;
+			default: logger.warn("Unidentified ADQueryTarget");
 			break;
-		case ITEM: 
-					
-			break;
-			default: logger.warn("Unidentified ADQueryTarget");break;
 		}		
 	
 		//Set original criteria on SearchResult.
