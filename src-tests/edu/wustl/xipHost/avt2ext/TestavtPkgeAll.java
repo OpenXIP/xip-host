@@ -3,18 +3,20 @@
  */
 package edu.wustl.xipHost.avt2ext;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * @author Jaroslaw Krych
  *
  */
+@RunWith(Suite.class)
+@SuiteClasses({QueryADTest.class, CreateIteratorTest.class, 
+	RetrieveAIMTest.class, RetrieveDicomSegTest.class})
 public class TestavtPkgeAll {
-	public static Test suite(){
-		TestSuite suite = new TestSuite("Running all tests from avt package.");
-		suite.addTestSuite(QueryADTest.class);		
-		return suite;
-		
+	
+	public class JUnit4Suite {
+	
 	}
 }
