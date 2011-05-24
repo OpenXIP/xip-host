@@ -3,35 +3,19 @@
  */
 package edu.wustl.xipHost.iterator;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
 import org.nema.dicom.wg23.ArrayOfPatient;
 import org.nema.dicom.wg23.ArrayOfSeries;
 import org.nema.dicom.wg23.ArrayOfStudy;
 import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.Modality;
 import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uid;
-import org.nema.dicom.wg23.Uuid;
-
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.localFileSystem.WG23DataModelFileSystemImpl;
-import edu.wustl.xipHost.wg23.WG23DataModel;
 
 /**
  * @author Jaroslaw Krych
