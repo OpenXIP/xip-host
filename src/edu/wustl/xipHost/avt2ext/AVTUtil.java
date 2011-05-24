@@ -31,6 +31,7 @@ import edu.wustl.xipHost.dataModel.Study;
  */
 public class AVTUtil {
 	final static Logger logger = Logger.getLogger(AVTUtil.class);
+	
 	//Object could be list of patients, studies or series
 	public static SearchResult convertToSearchResult(Object object, SearchResult initialSearchResult, Object selectedObject){
 		SearchResult resultAD = null;
@@ -150,6 +151,7 @@ public class AVTUtil {
 					Modality mod = new Modality();
 					mod.setModality("");
 					objDesc.setModality(mod);
+					itemFromAD.setObjectDescriptor(objDesc);
 				}
 				seriesFromAD.addItem(itemFromAD);
 				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
