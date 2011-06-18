@@ -13,9 +13,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class ItemNode extends DefaultMutableTreeNode {
 	JCheckBox checkBox;
 	boolean isSelected;
+	Object userObject;
 	
 	public ItemNode(Object userObject){
 		super(userObject);
+		this.userObject = userObject;
 		checkBox = new JCheckBox();
 	}
 	
@@ -30,5 +32,17 @@ public class ItemNode extends DefaultMutableTreeNode {
 	public JCheckBox getCheckBox(){
 		return checkBox;
 	}
-
+	
+	public String toString(){															
+		String itemDesc = userObject.toString();
+		if(itemDesc == null){
+			itemDesc = "";
+		}else{
+			
+		}	
+		return itemDesc;						
+	}
+	public Object getUserObject(){
+		return userObject;
+	}
 }
