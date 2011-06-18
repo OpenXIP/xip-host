@@ -6,6 +6,7 @@ package edu.wustl.xipHost.avt2ext;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -22,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -54,6 +56,7 @@ import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -89,8 +92,11 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	Border border = BorderFactory.createLoweredBevelBorder();		
 	JCheckBox cbxDicom = new JCheckBox("DICOM", false);
 	JCheckBox cbxAimSeg = new JCheckBox("AIM plus SEG", false);
+	JPanel optionsPanel = new JPanel();
 	JPanel cbxPanel = new JPanel();
-	JPanel btnPanel = new JPanel();
+	JPanel btnSelectionPanel = new JPanel();
+	JButton btnSelectAll = new JButton("Select All");
+	JButton btnDeselectAll = new JButton("Deselect All");
 	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
 	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
@@ -118,10 +124,22 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		cbxAimSeg.addItemListener(this);
 		cbxAimSeg.setSelected(false);
 		cbxPanel.setLayout(new GridLayout(1, 2));		
+		btnSelectAll.setBackground(xipColor);
+		btnSelectAll.addActionListener(this);
+		btnDeselectAll.setBackground(xipColor);
+		btnDeselectAll.addActionListener(this);
+		btnSelectionPanel.setBackground(xipColor);
+		btnSelectionPanel.setLayout(new FlowLayout());
+		btnSelectionPanel.add(btnSelectAll);
+		btnSelectionPanel.add(btnDeselectAll);
 		cbxPanel.add(cbxDicom);
 		cbxPanel.add(cbxAimSeg);
 		cbxPanel.setBackground(xipColor);
-		rightPanel.add(cbxPanel);	
+		optionsPanel.add(btnSelectionPanel);
+		optionsPanel.add(cbxPanel);
+		optionsPanel.setBackground(xipColor);
+		buildOptionPanelLayout();
+		rightPanel.add(optionsPanel);	
 		leftPanel.setBackground(xipColor);
 		rightPanel.setBackground(xipColor);
 		add(leftPanel);
@@ -177,8 +195,15 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}																	
-		}
-		
+		} else if (e.getSource() == btnSelectAll){
+			nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSearchResult(result);
+			nodeSelectionListener.selectAll(true);
+		} else if (e.getSource() == btnDeselectAll){
+			nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSearchResult(result);
+			nodeSelectionListener.selectAll(false);
+		}	
 	}
 	
 	void buildLayout(){				
@@ -244,7 +269,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(treeView, constraints);               
         
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 1;        
         constraints.insets.top = 5;
@@ -252,7 +277,32 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
         constraints.insets.right = 20;
         constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.CENTER;
-        layout.setConstraints(cbxPanel, constraints);
+        layout.setConstraints(optionsPanel, constraints);
+	}
+	
+	void buildOptionPanelLayout(){
+		GridBagLayout layout = new GridBagLayout();
+        GridBagConstraints constraints = new GridBagConstraints();
+        optionsPanel.setLayout(layout); 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0;        
+        constraints.insets.top = 0;
+        constraints.insets.left = 0;
+        constraints.insets.right = 50;
+        constraints.insets.bottom = 10;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(btnSelectionPanel, constraints); 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 0;        
+        constraints.insets.top = 0;
+        constraints.insets.left = 20;
+        constraints.insets.bottom = 10;        
+        constraints.anchor = GridBagConstraints.EAST;
+        layout.setConstraints(cbxPanel, constraints); 
 	}
 	
 	public static void main(String[] args){
@@ -538,6 +588,14 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			//If yes, create new application instance
 			State state = app.getState();
 			Query query = (Query) avtQuery;
+			RetrieveTarget retrieveTarget = null;
+			if(cbxDicom.isSelected() == true && cbxAimSeg.isSelected() == false){
+				retrieveTarget = RetrieveTarget.DICOM;
+			} else if (cbxDicom.isSelected() == true && cbxAimSeg.isSelected() == true) {
+				retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
+			} else if (cbxDicom.isSelected() == false && cbxAimSeg.isSelected() == true) {
+				retrieveTarget = RetrieveTarget.AIM_SEG;
+			}
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
 			//Retrieve retrieve = new AVTRetrieve2(tmpDir); 
 			if(state != null && !state.equals(State.EXIT)){
@@ -545,7 +603,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
-				//instanceApp.setRetrieveDataSource(retrieve);
+				instanceApp.setRetrieveTarget(retrieveTarget);
 				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.avt2ext.AVTRetrieve");
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
@@ -554,7 +612,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
-				//app.setRetrieveDataSource(retrieve);
+				app.setRetrieveTarget(retrieveTarget);
 				app.setDataSourceDomainName("edu.wustl.xipHost.avt2ext.AVTRetrieve");
 				app.setApplicationTmpDir(tmpDir);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
@@ -580,7 +638,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				while(subqueryCompleted == false){
 					result.wait();
 				}
-				//PatientNode is not included, because Patient node are found always in first query and not not sub-queries
+				//PatientNode is not included, because Patient node are found always in first query and not sub-queries
 				if (node instanceof PatientNode){
 					Patient patient = (Patient)node.getUserObject();
 					if(selectedDataSearchResult != null){
