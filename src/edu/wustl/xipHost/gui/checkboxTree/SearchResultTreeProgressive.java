@@ -7,6 +7,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -60,7 +61,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 			for(int i = 0; i < result.getPatients().size(); i++){
 				final Patient patient = result.getPatients().get(i);
 				for(int a = 0; a < numOfPatientNodes; a++){
-					PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(a);
+					PatientNode existingPatientNode = (PatientNode) locationNode.getChildAt(a);					
 					Patient existingPatient = (Patient) existingPatientNode.getUserObject();
 					if(patient.equals(existingPatient)){
 						patientNode = existingPatientNode;
@@ -133,20 +134,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 													if(numOfItemNodes == 0){
 														for(int m = 0; m < series.getItems().size(); m++){
 															final Item item = series.getItems().get(m);
-															ItemNode itemNode = new ItemNode(item){
-																public String toString(){															
-																	String itemDesc = item.toString();
-																	if(itemDesc == null){
-																		itemDesc = "";
-																	}else{
-																		
-																	}	
-																	return itemDesc;						
-																}
-																public Object getUserObject(){
-																	return item;
-																}
-															};
+															ItemNode itemNode = new ItemNode(item);
 															if(seriesNode.isSelected()){
 																itemNode.setSelected(true);
 							      		     					itemNode.getCheckBox().setSelected(true);
@@ -186,5 +174,5 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 	         p = p.pathByAddingChild(node);
 	    }
 	    tree.scrollPathToVisible(p);
-	}
+	}	
 }

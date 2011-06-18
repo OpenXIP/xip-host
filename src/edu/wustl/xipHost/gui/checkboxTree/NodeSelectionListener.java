@@ -9,7 +9,7 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
-
+import edu.wustl.xipHost.avt2ext.AVTQuery;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -75,7 +75,7 @@ public class NodeSelectionListener implements ActionListener {
 				if (!node.isRoot()) {
 					Object selectedNode = node.getUserObject();
 					if (selectedNode instanceof Patient) {
-						PatientNode patientNode = (PatientNode) node;						
+						PatientNode patientNode = (PatientNode) node;
 						boolean selected = !patientNode.isSelected();
 						Patient patient = null;
 						if (patientNode.getUserObject() instanceof Patient) {
@@ -197,10 +197,18 @@ public class NodeSelectionListener implements ActionListener {
 						SeriesNode seriesNode = (SeriesNode)itemNode.getParent();
 						updateSelection(itemNode, seriesNode, selected);
 						Item item = (Item) node.getUserObject();
+						//Evaluate if item is an instance of AIM. If yes
+						//selected automatically related DICOM SEG objects
+						if(item instanceof AIMItem){							
+							String aimUUID = item.getItemID();
+							updateDicomSEGSelection(aimUUID);
+							
+						}
 						Series series = (Series)seriesNode.getUserObject();
 						StudyNode studyNode = (StudyNode)seriesNode.getParent();
 						Study study = (Study)studyNode.getUserObject();
-						PatientNode patientNode = (PatientNode)studyNode.getParent();
+						PatientNode patientNode = (PatientNode)studyNode.getParent();	
+						
 						Patient patient = (Patient)patientNode.getUserObject();
 						updateSelectedDataSearchResult(item, series, study, patient, selected);
 						int seriesChildCount = seriesNode.getChildCount();
@@ -220,6 +228,22 @@ public class NodeSelectionListener implements ActionListener {
 					}
 				}
 			}
+			//After selected nodes updated, update referenced DICOM SEG objects for selected AIM objects
+			/*
+			if(referencedDICOMSEGobjects != null){
+				if(referencedDICOMSEGobjects.size() > 0){
+					for(int i = 0; i < referencedDICOMSEGobjects.size(); i++){
+						ItemNode itemNode = findNode(referencedDICOMSEGobjects.get(i));
+						System.out.println(itemNode.getUserObject());
+						if(itemNode != null){
+							//updateSelection(itemNode, seriesNode, true);
+							//TODO follow with logic like 214-234
+							
+						}
+					}
+					
+				}
+			}*/
 			resultTree.repaint();
 			if (logger.isDebugEnabled()) {
 				List<Patient> patients = selectedDataSearchResult.getPatients();
@@ -244,6 +268,74 @@ public class NodeSelectionListener implements ActionListener {
 		}
 	}
 	
+	public void selectAll(boolean selectAll){
+		//Select all patients and automatically all patients children
+		DefaultMutableTreeNode rootNode = resultTree.getRootNode();
+		if(rootNode.getChildCount() == 0){
+			return;
+		}
+		DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+		int numOfPatientNodes = locationNode.getChildCount();
+		for(int a = 0; a < numOfPatientNodes; a++){
+			PatientNode patientNode = (PatientNode) locationNode.getChildAt(a);
+			Patient patient = null;
+			if (patientNode.getUserObject() instanceof Patient) {
+				patient = (Patient) patientNode.getUserObject();
+			}
+			updateSelection(patientNode, selectAll);
+			updateSelectedDataSearchResult(patient, selectAll);
+			//Reset Series flag containsSubsetOfData 
+			int patientChildCount = patientNode.getChildCount();
+			if(patientChildCount > 0){
+				for(int i = 0; i < patientChildCount; i++){
+					DefaultMutableTreeNode patientChildNode = (DefaultMutableTreeNode)patientNode.getChildAt(i);
+					StudyNode studyNode = (StudyNode)patientChildNode;
+					Study study =(Study)studyNode.getUserObject();
+					int studyChildCount = studyNode.getChildCount();
+					if(studyChildCount > 0){
+						for(int j = 0; j < studyChildCount; j++){
+							DefaultMutableTreeNode studyChildNode = (DefaultMutableTreeNode)studyNode.getChildAt(j);										
+							SeriesNode seriesNode = (SeriesNode)studyChildNode;
+							Series series = (Series)seriesNode.getUserObject();
+							int seriesChildCount = seriesNode.getChildCount();
+							boolean allSeriesChildrenSelected = true;
+							for(int m = 0; m < seriesChildCount; m++){
+								DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) seriesNode.getChildAt(m);
+								if (childSeriesNode.getUserObject() instanceof Item) {
+									ItemNode otherItemNode = (ItemNode) childSeriesNode;
+									if(otherItemNode.isSelected() == false){
+										allSeriesChildrenSelected = false;
+										break;
+									}
+								}
+							}						
+							boolean subsetOfItems = !allSeriesChildrenSelected;
+							setSeriesDatasetFlag(series, study, patient, subsetOfItems);
+						}									
+					}								
+				}
+			}		
+		}
+		if (logger.isDebugEnabled()) {
+			List<Patient> patients = selectedDataSearchResult.getPatients();
+			logger.debug("Value of selectedDataSearchresult: ");
+			for (Patient logPatient : patients) {
+				logger.debug(logPatient.toString());
+				List<Study> studies = logPatient.getStudies();
+				for (Study logStudy : studies) {
+					logger.debug("   " + logStudy.toString());
+					List<Series> series = logStudy.getSeries();
+					for (Series logSeries : series) {
+						logger.debug("      " + logSeries.toString() + " Subset of items: " + logSeries.containsSubsetOfItems());
+						List<Item> items = logSeries.getItems();
+						for(Item logItem : items){
+							logger.debug("         " + logItem.toString());
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	void updateSelection(PatientNode patientNode, boolean selected){
 		int patientChildCount = patientNode.getChildCount();
@@ -700,6 +792,41 @@ public class NodeSelectionListener implements ActionListener {
 	void notifyDataSelectionChanged(SearchResult selectedDataSearchResult) {
 		DataSelectionEvent event = new DataSelectionEvent(selectedDataSearchResult);
 		listener.dataSelectionChanged(event);
+	}
+	
+	List<String> referencedDICOMSEGobjects;
+	void updateDicomSEGSelection(String aimUUID){
+		referencedDICOMSEGobjects = AVTQuery.getDicomSEG(aimUUID);
+		for(String dicomSEGSOPInstanceUID : referencedDICOMSEGobjects){
+			logger.debug("AIM: " + aimUUID + " references DICOM SEG: " + dicomSEGSOPInstanceUID);
+		}		
+	}
+	
+	ItemNode findNode(String dicomSegSOPInstanceUID){
+		DefaultMutableTreeNode rootNode = resultTree.getRootNode();
+		DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+		int numOfPatientNodes = locationNode.getChildCount();
+		for(int i = 0; i < numOfPatientNodes; i++){
+			PatientNode patientNode = (PatientNode) locationNode.getChildAt(i);
+			int numOfStudyNodes = patientNode.getChildCount();
+			for(int j = 0; j < numOfStudyNodes; j++){
+				StudyNode studyNode = (StudyNode)patientNode.getChildAt(j);
+				int numOfSeriesNodes = studyNode.getChildCount();
+				for(int k = 0; k < numOfSeriesNodes; k++){
+					SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(k);
+					int numOfItemNodes = seriesNode.getChildCount();
+					for(int m = 0; m < numOfItemNodes; m++){
+						ItemNode itemNode = (ItemNode)seriesNode.getChildAt(m);
+						Item item = (Item)itemNode.getUserObject();
+						String itemID = item.getItemID();
+						if(itemID.equalsIgnoreCase(dicomSegSOPInstanceUID)){
+							return itemNode;
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 }
  
