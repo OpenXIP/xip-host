@@ -665,6 +665,10 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		this.dataSource = dataSource;
 	}
 	
+	RetrieveTarget retrieveTarget;
+	public void setRetrieveTarget(RetrieveTarget retrieveTarget){
+		this.retrieveTarget = retrieveTarget;
+	}
 	
 	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
 		//First check if data was already retrieved
@@ -688,7 +692,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			}
 		}
 		//Start data retrieval related to the element	
-		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
+		//RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
 		TargetElement element = null;
 		synchronized(targetElements){
 			element = targetElements.get(numberOfSentNotifications - 1);
