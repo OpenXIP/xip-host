@@ -10,11 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Logger;
+
+import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.dicom.GeneralImage;
 import com.siemens.scr.avt.ad.dicom.GeneralSeries;
 import com.siemens.scr.avt.ad.dicom.GeneralStudy;
 import com.siemens.scr.avt.ad.dicom.Patient;
+
+import edu.wustl.xipApplication.aim.AimParser;
 import edu.wustl.xipHost.iterator.Criteria;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -209,7 +213,6 @@ public class AVTQuery implements Query{
 		fireResultsAvailable();
 	}	
 	
-	
 	void fireResultsAvailable(){
 		QueryEvent event = new QueryEvent(this);         		
         listener.queryResultsAvailable(event);
@@ -230,4 +233,21 @@ public class AVTQuery implements Query{
 	public SearchResult getSearchResult() {
 		return result;
 	}
+	
+	public static List<String> getDicomSEG(String aimUUID){
+		ADFacade service = AVTFactory.getADServiceInstance();
+		if(service == null){
+			logger.warn("AD database cannot be reached. adService=null.");
+		}
+		ImageAnnotation annot = service.getAnnotation(aimUUID);
+		String strAimXML = annot.getAIM();
+		//get DICOM SEG collection and referenced SOPInstanceUIDs
+		AimParser aimParser = new AimParser(strAimXML);	
+		aimParser.run();
+		List<String> referencedDicomSEG = aimParser.getReferenedDicomSeg();
+		Set<String> uniqueReferencedDicomSEG = new HashSet<String>(referencedDicomSEG);
+		//Remove newly created but not used ItemSelectionListner and event etc.
+		return new ArrayList<String>(uniqueReferencedDicomSEG);
+	}
+	
 }
