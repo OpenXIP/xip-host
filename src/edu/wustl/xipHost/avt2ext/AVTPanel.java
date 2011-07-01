@@ -105,6 +105,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	public AVTPanel(){
 		l = this;
 		nodeSelectionListener.addDataSelectionListener(this);
+		nodeSelectionListener.setAVTPanel(this);
 		setBackground(xipColor);				
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search AD");
@@ -327,6 +328,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			}
 			synchronized(result){
 				resultTree.updateNodes2(result);
+				nodeSelectionListener.updateSearchResultTree(resultTree);
+				nodeSelectionListener.updateSearchResult(result);
 				if(activeSubqueryMonitor){
 					result.notify();
 				}
@@ -523,6 +526,52 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	        }
      	}
 	};
+	
+	public void subquerySeries(StudyNode studyNode){
+		Study study = (Study)studyNode.getUserObject();
+		List<Series> seriesInStudy = study.getSeries();
+		for(Series series : seriesInStudy){
+			logger.info("Starting node query: " + series.toString());
+			//Retrieve annotations for selected series		     				
+			progressBar.setString("Processing search request ...");
+			progressBar.setIndeterminate(true);
+			progressBar.updateUI();
+			String[] characterSets = { "ISO_IR 100" };
+			SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			AttributeList initialCriteria = criteriaPanel.getFilterList();
+			String seriesInstanceUID = initialCriteria.get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();
+			try {			     								     					 			     									     						
+				{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
+					a.addValue(series.getSeriesInstanceUID());									 
+					initialCriteria.put(t,a); }
+			} catch (DicomException e1) {
+				logger.error(e1, e1);
+				notifyException(e1.getMessage());
+			} 
+			Map<String, Object> adAimCriteria = criteriaPanel.panelAVT.getSearchCriteria();
+			Boolean bln = criteriaPanel.verifyCriteria(initialCriteria, adAimCriteria);
+			if(bln){											     							     					
+				Map<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(criteriaPanel.getFilterList());
+				//After seriesInstanceUID is added to the initial criteria and criteria are verified, adCriteria Map is created.
+				//In the next step initialCriteria is cleared of inserted seriesInstanceUID and rolled back to the original value.
+				try {	
+					{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     								     							
+					a.addValue(seriesInstanceUID);										
+					initialCriteria.put(t,a);}
+				} catch (DicomException e1) {
+					logger.error(e1, e1);
+					notifyException(e1.getMessage());
+				}		     															     					
+				avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.ITEM, result, series);
+				avtQuery.addDataAccessListener(l);
+				Thread t = new Thread(avtQuery); 					
+				t.start();							
+			}else{
+				progressBar.setString("");
+				progressBar.setIndeterminate(false);
+			}			     				
+		}
+	}
 	
 	
 	@Override
