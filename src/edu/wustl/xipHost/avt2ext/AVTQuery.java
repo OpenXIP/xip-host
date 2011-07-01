@@ -25,6 +25,7 @@ import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dicom.DicomUtil;
 
 public class AVTQuery implements Query{
 	final static Logger logger = Logger.getLogger(AVTQuery.class);
@@ -46,6 +47,7 @@ public class AVTQuery implements Query{
 		this.target = target; 
 		this.previousSearchResult = previousSearchResult;
 		this.queriedObject = queriedObject; 
+		logAVTQueryParameters();
 	}
 	
 	public AVTQuery(Map<Integer, Object> adDicomCriteria, Map<String, Object> adAimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject){
@@ -58,60 +60,11 @@ public class AVTQuery implements Query{
 		if(adService == null){
 			logger.warn("AD database cannot be reached. adService=null.");
 		}
-		if(logger.isDebugEnabled()){
-			if(adDicomCriteria == null){
-				logger.debug("AD DICOM criteria: " + adDicomCriteria);
-			}else{
-				logger.debug("AD DICOM criteria:");				
-				Set<Integer> keySet = adDicomCriteria.keySet();
-				Iterator<Integer> iter = keySet.iterator();
-				while(iter.hasNext()){
-					Integer key = iter.next();					
-					logger.debug("Hex Key: " + Integer.toHexString(key) + " Value: " + (String)adDicomCriteria.get(key));					
-					logger.debug("Integer Key: " + key + " Value: " + (String)adDicomCriteria.get(key));
-				}					
-			}
-			if(adAimCriteria == null){
-				logger.debug("AD AIM criteria: " + adAimCriteria);
-			}else{
-				logger.debug("AD AIM criteria:");
-				Set<String> keys = adAimCriteria.keySet();
-				Iterator<String> iter = keys.iterator();
-				while(iter.hasNext()){
-					String key = iter.next();
-					String value = (String) adAimCriteria.get(key);
-					if(!value.isEmpty()){
-						logger.debug("Key: " + key + " Value: " + value);
-					}					
-				}				
-			}
-			if(target == null){
-				logger.debug("ADQueryTarget: " + target);
-			}else{
-				logger.debug("ADQueryTarget: " + target.toString());
-			}
-			if(previousSearchResult == null){
-				logger.debug("Previous search result: " + previousSearchResult);
-			}else{
-				logger.debug("Previous search result: " + previousSearchResult.toString());
-			}
-			if(queriedObject == null){
-				logger.debug("Queried object: " + queriedObject);
-			}else if(queriedObject instanceof edu.wustl.xipHost.dataModel.Patient){
-				edu.wustl.xipHost.dataModel.Patient patient = edu.wustl.xipHost.dataModel.Patient.class.cast(queriedObject);
-				logger.debug("Queried object: " + patient.toString());
-			}else if(queriedObject instanceof edu.wustl.xipHost.dataModel.Study){
-				edu.wustl.xipHost.dataModel.Study study = edu.wustl.xipHost.dataModel.Study.class.cast(queriedObject);
-				logger.debug("Queried object: " + study.toString());
-			}else if(queriedObject instanceof edu.wustl.xipHost.dataModel.Series){
-				edu.wustl.xipHost.dataModel.Series series = edu.wustl.xipHost.dataModel.Series.class.cast(queriedObject);
-				logger.debug("Queried object: " + series.toString());
-			}
-		}
+		logAVTQueryParameters();
 	}
 	
 	SearchResult result;
-	public void run() {											
+	public synchronized  void run() {											
 		long time1 = System.currentTimeMillis();
 		logger.info("Executing AVT query.");		
 		switch (target) {
@@ -248,6 +201,59 @@ public class AVTQuery implements Query{
 		Set<String> uniqueReferencedDicomSEG = new HashSet<String>(referencedDicomSEG);
 		//Remove newly created but not used ItemSelectionListner and event etc.
 		return new ArrayList<String>(uniqueReferencedDicomSEG);
+	}
+	
+	void logAVTQueryParameters(){
+		if(logger.isDebugEnabled()){
+			if(adDicomCriteria == null){
+				logger.debug("AD DICOM criteria: " + adDicomCriteria);
+			}else{
+				logger.debug("AD DICOM criteria:");				
+				Set<Integer> keySet = adDicomCriteria.keySet();
+				Iterator<Integer> iter = keySet.iterator();
+				while(iter.hasNext()){
+					Integer key = iter.next();					
+					logger.debug("Hex Key: " + DicomUtil.toDicomHex(key) + " Value: " + (String)adDicomCriteria.get(key));					
+					logger.debug("Integer Key: " + key + " Value: " + (String)adDicomCriteria.get(key));
+				}					
+			}
+			if(adAimCriteria == null){
+				logger.debug("AD AIM criteria: " + adAimCriteria);
+			}else{
+				logger.debug("AD AIM criteria:");
+				Set<String> keys = adAimCriteria.keySet();
+				Iterator<String> iter = keys.iterator();
+				while(iter.hasNext()){
+					String key = iter.next();
+					String value = (String) adAimCriteria.get(key);
+					if(!value.isEmpty()){
+						logger.debug("Key: " + key + " Value: " + value);
+					}					
+				}				
+			}
+			if(target == null){
+				logger.debug("ADQueryTarget: " + target);
+			}else{
+				logger.debug("ADQueryTarget: " + target.toString());
+			}
+			if(previousSearchResult == null){
+				logger.debug("Previous search result: " + previousSearchResult);
+			}else{
+				logger.debug("Previous search result: " + previousSearchResult.toString());
+			}
+			if(queriedObject == null){
+				logger.debug("Queried object: " + queriedObject);
+			}else if(queriedObject instanceof edu.wustl.xipHost.dataModel.Patient){
+				edu.wustl.xipHost.dataModel.Patient patient = edu.wustl.xipHost.dataModel.Patient.class.cast(queriedObject);
+				logger.debug("Queried object: " + patient.toString());
+			}else if(queriedObject instanceof edu.wustl.xipHost.dataModel.Study){
+				edu.wustl.xipHost.dataModel.Study study = edu.wustl.xipHost.dataModel.Study.class.cast(queriedObject);
+				logger.debug("Queried object: " + study.toString());
+			}else if(queriedObject instanceof edu.wustl.xipHost.dataModel.Series){
+				edu.wustl.xipHost.dataModel.Series series = edu.wustl.xipHost.dataModel.Series.class.cast(queriedObject);
+				logger.debug("Queried object: " + series.toString());
+			}
+		}
 	}
 	
 }
