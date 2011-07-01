@@ -5,11 +5,11 @@ package edu.wustl.xipHost.gui.checkboxTree;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
@@ -208,40 +208,55 @@ public class NodeSelectionListener implements ActionListener {
 							String aimUUID = item.getItemID();
 							getRefDicomSEG(aimUUID);
 						}
-						//Subquery other Series
+						//Subquery other Series if AIM was selected
 						Series series = (Series)seriesNode.getUserObject();
 						final StudyNode studyNode = (StudyNode)seriesNode.getParent();
-						Thread t = new Thread(){
-							public void run(){
-								avtPanel.subquerySeries(studyNode);
-							}
-						};
-						t.start();
-						//wait for resultTree to be fully updated
-						synchronized(result){
-							Study study = (Study)studyNode.getUserObject();
-							List<Series> seriesList = study.getSeries();
-							boolean waitForSubqueries = true;
-							while(waitForSubqueries == true){
-								//Set waitForSubqueries to optimistic true.
-								//When one of the Series is not subqueried its value is going to be changed to false;
-								waitForSubqueries = false;
-								for(Series oneSeries : seriesList){
-									if(oneSeries.getLastUpdated() == null){
-										waitForSubqueries = true;
-									}
+						if(itemNode.isSelected() && newRefDICOMSEG.size() > 0){
+							Thread t = new Thread(){
+								public void run(){
+									avtPanel.subquerySeries(studyNode);
 								}
-								if(waitForSubqueries == false){
-									break;
-								} else if(waitForSubqueries == true){
-									try {
-										result.wait();
-										System.out.println("Search result notification");
-									} catch (InterruptedException e) {
-										logger.error(e, e);
+							};
+							t.start();
+							//wait for resultTree to be fully updated
+							synchronized(result){
+								Study study = (Study)studyNode.getUserObject();
+								List<Series> seriesList = study.getSeries();
+								boolean waitForSubqueries = true;
+								while(waitForSubqueries == true){
+									//Set waitForSubqueries to optimistic true.
+									//When one of the Series is not subqueried its value is going to be changed to false;
+									waitForSubqueries = false;
+									for(Series oneSeries : seriesList){
+										if(oneSeries.getLastUpdated() == null){
+											waitForSubqueries = true;
+										}
 									}
-								}							
+									if(waitForSubqueries == false){
+										break;
+									} else if(waitForSubqueries == true){
+										try {
+											result.wait();
+										} catch (InterruptedException e) {
+											logger.error(e, e);
+										}
+									}							
+								}
 							}
+						} else if (!itemNode.isSelected()){
+							//Unselect AIM and related DICOM SEG objects
+							//Remove referenced DICOM SEG objects from uniqueRefDICOMSEGobjects (if no other AIM is referencing it)
+							String aimUUID = item.getItemID();
+							List<String> dicomSegsToPreserve = new ArrayList<String>();
+							for(AimAndRefDicomSegPair aimRefDicomSegPair : referencedDICOMSEGobjects){
+								if(!aimRefDicomSegPair.getAimId().equalsIgnoreCase(aimUUID)){
+									dicomSegsToPreserve.add(aimRefDicomSegPair.getDicomSegId());
+								}
+							}
+							for(String refDicomSegToRemove : dicomSegsToPreserve){
+								uniqueRefDICOMSEGobjects.remove(refDicomSegToRemove);
+							}
+							//TODO
 						}
 						Study study = (Study)studyNode.getUserObject();
 						PatientNode patientNode = (PatientNode)studyNode.getParent();	
@@ -851,13 +866,45 @@ public class NodeSelectionListener implements ActionListener {
 		listener.dataSelectionChanged(event);
 	}
 	
-	List<String> referencedDICOMSEGobjects;
+	class AimAndRefDicomSegPair{
+		String aimId;
+		String dicomSegId;
+		public AimAndRefDicomSegPair(String aimId, String dicomSegId){
+			this.aimId = aimId;
+			this.dicomSegId = dicomSegId;
+		}
+		public String getAimId() {
+			return aimId;
+		}
+		public String getDicomSegId() {
+			return dicomSegId;
+		}
+	}
+	
+	List<AimAndRefDicomSegPair> referencedDICOMSEGobjects = new ArrayList<AimAndRefDicomSegPair>();
 	Set<String> uniqueRefDICOMSEGobjects = new HashSet<String>();
+	List<String> newRefDICOMSEG;
 	void getRefDicomSEG(String aimUUID){
-		referencedDICOMSEGobjects = AVTQuery.getDicomSEG(aimUUID);
-		uniqueRefDICOMSEGobjects.addAll(referencedDICOMSEGobjects);
-		for(String dicomSEGSOPInstanceUID : referencedDICOMSEGobjects){
-			logger.debug("AIM: " + aimUUID + " references DICOM SEG: " + dicomSEGSOPInstanceUID);
+		//Determine if AIM were already parsed. If not send request to AVTQuery
+		boolean parsed = false;
+		for(AimAndRefDicomSegPair aimDicomSegPair : referencedDICOMSEGobjects){
+			if(aimDicomSegPair.getAimId().equalsIgnoreCase(aimUUID)){
+				String refDICOMSEG = aimDicomSegPair.getDicomSegId();
+				uniqueRefDICOMSEGobjects.add(refDICOMSEG);
+				parsed = true;
+			}
+		}
+		if(parsed){
+			return;
+		} else {
+			//Selected AIM was not parsed and request is sent to AVTQuery
+			newRefDICOMSEG = AVTQuery.getDicomSEG(aimUUID);
+			for(String dicomSEGSOPInstanceUID : newRefDICOMSEG){
+				AimAndRefDicomSegPair aimAndRefDicomSegPair = new AimAndRefDicomSegPair(aimUUID, dicomSEGSOPInstanceUID);
+				referencedDICOMSEGobjects.add(aimAndRefDicomSegPair);
+				logger.debug("AIM: " + aimUUID + " references DICOM SEG: " + dicomSEGSOPInstanceUID);
+			}
+			uniqueRefDICOMSEGobjects.addAll(newRefDICOMSEG);	
 		}		
 	}
 	
