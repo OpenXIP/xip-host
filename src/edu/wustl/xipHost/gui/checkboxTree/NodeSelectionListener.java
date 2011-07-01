@@ -5,10 +5,15 @@ package edu.wustl.xipHost.gui.checkboxTree;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
+import edu.wustl.xipHost.avt2ext.AVTPanel;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
@@ -201,14 +206,45 @@ public class NodeSelectionListener implements ActionListener {
 						//selected automatically related DICOM SEG objects
 						if(item instanceof AIMItem){							
 							String aimUUID = item.getItemID();
-							updateDicomSEGSelection(aimUUID);
-							
+							getRefDicomSEG(aimUUID);
 						}
+						//Subquery other Series
 						Series series = (Series)seriesNode.getUserObject();
-						StudyNode studyNode = (StudyNode)seriesNode.getParent();
+						final StudyNode studyNode = (StudyNode)seriesNode.getParent();
+						Thread t = new Thread(){
+							public void run(){
+								avtPanel.subquerySeries(studyNode);
+							}
+						};
+						t.start();
+						//wait for resultTree to be fully updated
+						synchronized(result){
+							Study study = (Study)studyNode.getUserObject();
+							List<Series> seriesList = study.getSeries();
+							boolean waitForSubqueries = true;
+							while(waitForSubqueries == true){
+								//Set waitForSubqueries to optimistic true.
+								//When one of the Series is not subqueried its value is going to be changed to false;
+								waitForSubqueries = false;
+								for(Series oneSeries : seriesList){
+									if(oneSeries.getLastUpdated() == null){
+										waitForSubqueries = true;
+									}
+								}
+								if(waitForSubqueries == false){
+									break;
+								} else if(waitForSubqueries == true){
+									try {
+										result.wait();
+										System.out.println("Search result notification");
+									} catch (InterruptedException e) {
+										logger.error(e, e);
+									}
+								}							
+							}
+						}
 						Study study = (Study)studyNode.getUserObject();
 						PatientNode patientNode = (PatientNode)studyNode.getParent();	
-						
 						Patient patient = (Patient)patientNode.getUserObject();
 						updateSelectedDataSearchResult(item, series, study, patient, selected);
 						int seriesChildCount = seriesNode.getChildCount();
@@ -224,26 +260,47 @@ public class NodeSelectionListener implements ActionListener {
 							}
 						}						
 						boolean subsetOfItems = !allSeriesChildrenSelected;
-						setSeriesDatasetFlag(series, study, patient, subsetOfItems);						
+						setSeriesDatasetFlag(series, study, patient, subsetOfItems);
+						//After selected nodes updated, update referenced DICOM SEG objects for selected AIM objects
+						// 1. Check with Series in a Study where AIM is found were subqueried
+						//If not, ubquery those Series
+						if(uniqueRefDICOMSEGobjects != null){
+							if(uniqueRefDICOMSEGobjects.size() > 0){
+								Iterator<String> iter = uniqueRefDICOMSEGobjects.iterator();
+								while(iter.hasNext()){
+									String refDicomSegId = iter.next();
+									ItemNode refItemNode = findNode(refDicomSegId);
+									if(refItemNode == null){
+										
+									}
+									//System.out.println(refItemNode.getUserObject());
+									if(refItemNode != null){
+										SeriesNode refSeriesNode = (SeriesNode)refItemNode.getParent();
+										Series refSeries = (Series)refSeriesNode.getUserObject();
+										Item refItem = (Item)refItemNode.getUserObject();
+										updateSelection(refItemNode, refSeriesNode, selected);
+										updateSelectedDataSearchResult(refItem, refSeries, study, patient, selected);
+										int refSeriesChildCount = refSeriesNode.getChildCount();
+										boolean allRefSeriesChildrenSelected = true;
+										for(int i = 0; i < refSeriesChildCount; i++){
+											DefaultMutableTreeNode childSeriesNode = (DefaultMutableTreeNode) refSeriesNode.getChildAt(i);
+											if (childSeriesNode.getUserObject() instanceof Item) {
+												ItemNode otherItemNode = (ItemNode) childSeriesNode;
+												if(otherItemNode.isSelected() == false){
+													allRefSeriesChildrenSelected = false;
+													break;
+												}
+											}
+										}						
+										boolean subsetOfItems2 = !allRefSeriesChildrenSelected;
+										setSeriesDatasetFlag(refSeries, study, patient, subsetOfItems2);
+									}
+								}
+							}
+						}						
 					}
 				}
 			}
-			//After selected nodes updated, update referenced DICOM SEG objects for selected AIM objects
-			/*
-			if(referencedDICOMSEGobjects != null){
-				if(referencedDICOMSEGobjects.size() > 0){
-					for(int i = 0; i < referencedDICOMSEGobjects.size(); i++){
-						ItemNode itemNode = findNode(referencedDICOMSEGobjects.get(i));
-						System.out.println(itemNode.getUserObject());
-						if(itemNode != null){
-							//updateSelection(itemNode, seriesNode, true);
-							//TODO follow with logic like 214-234
-							
-						}
-					}
-					
-				}
-			}*/
 			resultTree.repaint();
 			if (logger.isDebugEnabled()) {
 				List<Patient> patients = selectedDataSearchResult.getPatients();
@@ -795,38 +852,77 @@ public class NodeSelectionListener implements ActionListener {
 	}
 	
 	List<String> referencedDICOMSEGobjects;
-	void updateDicomSEGSelection(String aimUUID){
+	Set<String> uniqueRefDICOMSEGobjects = new HashSet<String>();
+	void getRefDicomSEG(String aimUUID){
 		referencedDICOMSEGobjects = AVTQuery.getDicomSEG(aimUUID);
+		uniqueRefDICOMSEGobjects.addAll(referencedDICOMSEGobjects);
 		for(String dicomSEGSOPInstanceUID : referencedDICOMSEGobjects){
 			logger.debug("AIM: " + aimUUID + " references DICOM SEG: " + dicomSEGSOPInstanceUID);
 		}		
 	}
 	
 	ItemNode findNode(String dicomSegSOPInstanceUID){
-		DefaultMutableTreeNode rootNode = resultTree.getRootNode();
-		DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
-		int numOfPatientNodes = locationNode.getChildCount();
-		for(int i = 0; i < numOfPatientNodes; i++){
-			PatientNode patientNode = (PatientNode) locationNode.getChildAt(i);
-			int numOfStudyNodes = patientNode.getChildCount();
-			for(int j = 0; j < numOfStudyNodes; j++){
-				StudyNode studyNode = (StudyNode)patientNode.getChildAt(j);
-				int numOfSeriesNodes = studyNode.getChildCount();
-				for(int k = 0; k < numOfSeriesNodes; k++){
-					SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(k);
-					int numOfItemNodes = seriesNode.getChildCount();
-					for(int m = 0; m < numOfItemNodes; m++){
-						ItemNode itemNode = (ItemNode)seriesNode.getChildAt(m);
-						Item item = (Item)itemNode.getUserObject();
-						String itemID = item.getItemID();
-						if(itemID.equalsIgnoreCase(dicomSegSOPInstanceUID)){
-							return itemNode;
+		synchronized(resultTree){
+			DefaultMutableTreeNode rootNode = resultTree.getRootNode();
+			DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+			int numOfPatientNodes = locationNode.getChildCount();
+			for(int i = 0; i < numOfPatientNodes; i++){
+				PatientNode patientNode = (PatientNode) locationNode.getChildAt(i);
+				int numOfStudyNodes = patientNode.getChildCount();
+				for(int j = 0; j < numOfStudyNodes; j++){
+					StudyNode studyNode = (StudyNode)patientNode.getChildAt(j);
+					int numOfSeriesNodes = studyNode.getChildCount();
+					for(int k = 0; k < numOfSeriesNodes; k++){
+						final SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(k);
+						//Check if Series was sub-queries. If not, perform sub-query.
+						Series series = (Series)seriesNode.getUserObject();
+						if(series.getLastUpdated() != null){
+							int numOfItemNodes = seriesNode.getChildCount();
+							for(int m = 0; m < numOfItemNodes; m++){
+								ItemNode itemNode = (ItemNode)seriesNode.getChildAt(m);
+								Item item = (Item)itemNode.getUserObject();
+								String itemID = item.getItemID();
+								if(itemID.equalsIgnoreCase(dicomSegSOPInstanceUID)){
+									return itemNode;
+								}
+							}
 						}
 					}
 				}
 			}
 		}
 		return null;
+	}
+	
+	boolean resultUpdated = false;
+	public void updateSearchResult(SearchResult searchResult){
+		if(result == null){
+			return;
+		} else {
+			synchronized(result){
+				this.result = searchResult;
+				resultUpdated = true;
+				result.notify();
+			}
+		}
+	}
+	
+	boolean resultTreeUpdated = false;
+	public void updateSearchResultTree(SearchResultTree searchResultTree){
+		if(resultTree == null){
+			return;
+		} else {
+			synchronized(resultTree){
+				this.resultTree = searchResultTree;
+				resultTreeUpdated = true;
+				resultTree.notify();
+			}
+		}
+	}
+	
+	AVTPanel avtPanel;
+	public void setAVTPanel(AVTPanel avtPanel){
+		this.avtPanel = avtPanel;
 	}
 }
  
