@@ -154,10 +154,9 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		}
 		rootNode.add(locationNode);				
 		treeModel.nodeChanged(rootNode);
-		//treeModel.reload(rootNode);
+		treeModel.reload(rootNode);
 		expandAll();		
 	}
-	
 	
 	public void expandToLast(JTree tree) {
 	    TreeModel data = tree.getModel();

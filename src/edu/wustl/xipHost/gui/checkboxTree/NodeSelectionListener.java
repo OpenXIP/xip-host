@@ -256,7 +256,6 @@ public class NodeSelectionListener implements ActionListener {
 							for(String refDicomSegToRemove : dicomSegsToPreserve){
 								uniqueRefDICOMSEGobjects.remove(refDicomSegToRemove);
 							}
-							//TODO
 						}
 						Study study = (Study)studyNode.getUserObject();
 						PatientNode patientNode = (PatientNode)studyNode.getParent();	
