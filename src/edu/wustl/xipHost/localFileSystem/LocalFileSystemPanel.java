@@ -5,6 +5,7 @@ package edu.wustl.xipHost.localFileSystem;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -23,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.Timer;
@@ -78,6 +80,9 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	File [] selectedFiles;
 	int numThreads = 3;
 	ExecutorService exeService = Executors.newFixedThreadPool(numThreads);	
+	JPanel btnSelectionPanel = new JPanel();
+	JButton btnSelectAll = new JButton("Select All");
+	JButton btnDeselectAll = new JButton("Deselect All");
 	
 	public LocalFileSystemPanel() {
 		searchResult = new SearchResult("Local File System");
@@ -85,18 +90,28 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 		nodeSelectionListener.addDataSelectionListener(this);
 		setBackground(xipColor);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
-	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() + 10));
+	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() - 30));
           
         //JFileChooser fileChooser = new JFileChooser();
         fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
         fileChooser.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
         fileChooser.addActionListener(this);
 		//leftPanel.setBackground(xipColor);
-		leftPanel.add(fileChooser);
+        btnSelectAll.setBackground(xipColor);
+		btnSelectAll.addActionListener(this);
+		btnDeselectAll.setBackground(xipColor);
+		btnDeselectAll.addActionListener(this);
+		btnSelectionPanel.setBackground(xipColor);
+		btnSelectionPanel.setLayout(new FlowLayout());
+		btnSelectionPanel.add(btnSelectAll);
+		btnSelectionPanel.add(btnDeselectAll);
+        leftPanel.add(fileChooser);
         add(leftPanel);
 		add(rightPanel);
 		rightPanel.add(treeView); 
+		rightPanel.add(btnSelectionPanel);
 		rightPanel.setBackground(xipColor);
+		buildRightPanelLayout();
 		buildLayout();
 	}
 
@@ -126,12 +141,30 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
         layout.setConstraints(rightPanel, constraints);
 	}
 	
-	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	void buildRightPanelLayout(){
+		GridBagLayout layout = new GridBagLayout();
+        GridBagConstraints constraints = new GridBagConstraints();
+        rightPanel.setLayout(layout);                 
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0;        
+        constraints.insets.left = 20;
+        constraints.insets.right = 20;
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(treeView, constraints);
+        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.gridx = 0;
+        constraints.gridy = 1;         
+        constraints.insets.left = 20;
+        constraints.insets.right = 20;  
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(btnSelectionPanel, constraints);
 	}
-
+	
+	
 	Application targetApp = null;
 	@Override
 	public void launchApplication(ApplicationEvent event) {
@@ -246,7 +279,15 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 			resultTree.updateNodes(searchResult);
 	    } else if (e.getActionCommand().equals("CancelSelection")) {
 		        
-	    }
+	    } else if (e.getSource() == btnSelectAll){
+			nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSearchResult(searchResult);
+			nodeSelectionListener.selectAll(true);
+		} else if (e.getSource() == btnDeselectAll){
+			nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSearchResult(searchResult);
+			nodeSelectionListener.selectAll(false);
+		}	
 	}
 
 	@Override

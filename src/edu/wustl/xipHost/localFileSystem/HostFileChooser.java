@@ -4,11 +4,8 @@
 package edu.wustl.xipHost.localFileSystem;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 
 /**
  * Used to choose files from the local file system
