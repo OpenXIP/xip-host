@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -21,6 +22,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -89,6 +91,9 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	Border border = BorderFactory.createLoweredBevelBorder();
 	DicomManager dicomMgr;
 	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
+	JPanel btnSelectionPanel = new JPanel();
+	JButton btnSelectAll = new JButton("Select All");
+	JButton btnDeselectAll = new JButton("Deselect All");
 	
 	public DicomPanel(){
 		setBackground(xipColor);
@@ -166,11 +171,21 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		leftPanel.add(criteriaPanel);							    
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 	    //resultTree.addTreeSelectionListener(this);
-	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
+	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() - 30));
 		treeView.setBorder(border);			
         rightPanel.add(treeView);       
         buildLayoutCallingLocationSelectionPanel();
         rightPanel.add(callingLocationSelectionPanel);        
+        btnSelectAll.setBackground(xipColor);
+		btnSelectAll.addActionListener(this);
+		btnDeselectAll.setBackground(xipColor);
+		btnDeselectAll.addActionListener(this);
+		btnSelectionPanel.setBackground(xipColor);
+		btnSelectionPanel.setLayout(new FlowLayout());
+		btnSelectionPanel.add(btnSelectAll);
+		btnSelectionPanel.add(btnDeselectAll);
+		rightPanel.add(btnSelectionPanel);
+        
         leftPanel.setBackground(xipColor);
         rightPanel.setBackground(xipColor);
         buildLeftPanelLayout();
@@ -263,7 +278,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 0;        
-        constraints.insets.top = 30;
+        //constraints.insets.top = 30;
         constraints.insets.left = 0;
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;        
@@ -273,10 +288,19 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 1;        
-        constraints.insets.top = 5;
         constraints.insets.left = 0;
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(btnSelectionPanel, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 2;        
+        constraints.insets.top = 5;
+        constraints.insets.left = 0;
+        constraints.insets.right = 20;
+        //constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(callingLocationSelectionPanel, constraints);   
 	}
@@ -382,7 +406,15 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}
-		} 
+		} else if (e.getSource() == btnSelectAll){
+			nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSearchResult(result);
+			nodeSelectionListener.selectAll(true);
+		} else if (e.getSource() == btnDeselectAll){
+			nodeSelectionListener.setSearchResultTree(resultTree);
+	     	nodeSelectionListener.setSearchResult(result);
+			nodeSelectionListener.selectAll(false);
+		}	
 	}
 
 	AttributeList criteria;	
