@@ -21,6 +21,7 @@ import org.cagrid.transfer.context.client.helper.TransferClientHelper;
 import org.cagrid.transfer.context.stubs.types.TransferServiceContextReference;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
+import edu.osu.bmi.utils.io.zip.ZipEntryInputStream;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
@@ -30,7 +31,7 @@ import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
-import gov.nih.nci.ivi.utils.ZipEntryInputStream;
+
 
 /**
  * @author Jaroslaw Krych
