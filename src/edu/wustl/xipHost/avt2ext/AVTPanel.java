@@ -229,7 +229,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
         constraints.insets.left = 15;
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;        
-        constraints.anchor = GridBagConstraints.WEST;
+        constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(rightPanel, constraints);
         
         constraints.fill = GridBagConstraints.HORIZONTAL;        
@@ -265,18 +265,17 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
         constraints.gridy = 0;        
         constraints.insets.top = 0;
         constraints.insets.left = 0;
-        constraints.insets.right = 20;
-        constraints.insets.bottom = 10;        
+        constraints.insets.right = 20;   
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(treeView, constraints);               
         
-        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 1;        
-        constraints.insets.top = 5;
+        //constraints.insets.top = 10;
         constraints.insets.left = 5;
         constraints.insets.right = 20;
-        constraints.insets.bottom = 0;        
+        //constraints.insets.bottom = 10;        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(optionsPanel, constraints);
 	}
@@ -289,19 +288,18 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 0;        
-        constraints.insets.top = 0;
+        constraints.insets.top = 10;
         constraints.insets.left = 0;
-        constraints.insets.right = 50;
-        constraints.insets.bottom = 10;        
+        //constraints.insets.bottom = 10;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(btnSelectionPanel, constraints); 
         
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 1;
         constraints.gridy = 0;        
-        constraints.insets.top = 0;
+        constraints.insets.top = 10;
         constraints.insets.left = 20;
-        constraints.insets.bottom = 10;        
+        //constraints.insets.bottom = 10;        
         constraints.anchor = GridBagConstraints.EAST;
         layout.setConstraints(cbxPanel, constraints); 
 	}
