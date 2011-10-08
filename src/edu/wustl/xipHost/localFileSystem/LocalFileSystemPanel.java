@@ -90,7 +90,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 		nodeSelectionListener.addDataSelectionListener(this);
 		setBackground(xipColor);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
-	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() - 30));
+	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() + 10));
           
         //JFileChooser fileChooser = new JFileChooser();
         fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
@@ -127,10 +127,10 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
         constraints.insets.left = 20;
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;        
-        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.anchor = GridBagConstraints.NORTH;
         layout.setConstraints(leftPanel, constraints);
         
-        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 1;
         constraints.gridy = 0;         
         constraints.insets.top = 10;
@@ -155,12 +155,13 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(treeView, constraints);
         
-        constraints.fill = GridBagConstraints.HORIZONTAL;        
+        constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 1;         
         constraints.insets.left = 20;
-        constraints.insets.right = 20;  
-        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets.right = 20; 
+        constraints.insets.bottom = 5;      
+        constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(btnSelectionPanel, constraints);
 	}
 	

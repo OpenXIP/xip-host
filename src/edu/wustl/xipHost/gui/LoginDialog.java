@@ -178,9 +178,4 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener,
 	boolean isUserOK(){
 		return isUserOK;
 	}
-	
-	public static void main(String[] args){
-		LoginDialog loginDialog = new LoginDialog();
-		loginDialog.setVisible(true);
-	}
 }
