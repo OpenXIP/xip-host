@@ -37,12 +37,12 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener,
         panel.add(lblHost);                
         panel.add(loginPanel);
         panel.add(lblWashU);
-        panel.setPreferredSize(new Dimension(400, 450));
+        panel.setPreferredSize(new Dimension(400, 480));
         panel.setBorder(new BevelBorder(BevelBorder.RAISED));
         panel.setBackground(new Color(51, 51, 102));
         loginPanel.btnOK.addActionListener(this);	
         loginPanel.txtUser.addKeyListener(this);
-		loginPanel.txtPass.addKeyListener(this);
+		loginPanel.txtPass.addKeyListener(this);	
 		this.addNewUserListener(this);
         add(panel);
         buildLayout();
@@ -177,5 +177,10 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener,
 	
 	boolean isUserOK(){
 		return isUserOK;
+	}
+	
+	public static void main(String[] args){
+		LoginDialog loginDialog = new LoginDialog();
+		loginDialog.setVisible(true);
 	}
 }

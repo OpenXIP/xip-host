@@ -39,7 +39,6 @@ public class LoginPanel extends JPanel {
 	JPasswordField txtPass = new JPasswordField("123", 20);
 	JButton btnOK = new JButton("OK");
 	JLabel lblImage = new JLabel();
-	//ImageIcon icon =  new ImageIcon("./gif/xip-logo_164_x_48.gif");
 	ImageIcon icon = new ImageIcon("./gif/XIP-Host-Spash-Screen-Logo.PNG");
 	JPanel loginPanel = new JPanel();
 	Font font1 = new Font("Tahoma", 1, 13); 
@@ -96,12 +95,12 @@ public class LoginPanel extends JPanel {
         GridBagConstraints constraints = new GridBagConstraints();
         loginPanel.setLayout(layout);        
 
-        constraints.fill = GridBagConstraints.BOTH;        
+        constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.insets.top = 5;
-        constraints.insets.left = 5;
-        constraints.insets.right = 5;
+        //constraints.insets.left = 5;
+        //constraints.insets.right = 5;
         constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(lblWelcome, constraints);              
@@ -110,8 +109,8 @@ public class LoginPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy = 1;        
         constraints.insets.top = 20;
-        constraints.insets.left = 20;
-        constraints.insets.right = 20;
+        constraints.insets.left = 40;
+        constraints.insets.right = 40;
         constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblTitle, constraints);              
