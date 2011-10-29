@@ -289,18 +289,21 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					logger.error(e, e);	
 				}			
 			} else if (getExePath().toURI().toURL().toExternalForm().endsWith(".sh")){
-				try {		
-					//Runtime.getRuntime().exec("/bin/sh " + getExePath().getCanonicalPath() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());					
-					System.out.println(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
-					Runtime.getRuntime().exec("open " + getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
+				//Mac OS X compatible
+				//To be able to run Runtime.exec() on the Mac OS X parameters must be passed via String[] instead of one String
+				// sh files must have a executable mode and reside in XIPApp/bin directory
+				try {												
+					String[] cmdarray = {getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
+							"--applicationURL", appServiceURL.toURI().toURL().toExternalForm()};
+					Runtime.getRuntime().exec(cmdarray) ;
 				} catch (IOException e) {			
 					logger.error(e, e);	
 				} catch (URISyntaxException e) {
 					logger.error(e, e);	
-				}			
+				}		
 			} else {
 				try {
-					Runtime.getRuntime().exec(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
+					Runtime.getRuntime().exec(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());					
 				} catch (IOException e) {
 					logger.error(e, e);	
 				} catch (URISyntaxException e) {
