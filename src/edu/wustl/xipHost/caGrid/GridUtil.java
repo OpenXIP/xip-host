@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -162,7 +163,7 @@ public class GridUtil {
 					gov.nih.nci.ncia.domain.Patient patientGrid = gov.nih.nci.ncia.domain.Patient.class.cast(obj);			
 					String patientName = patientGrid.getPatientName(); if(patientName == null){patientName = "";}
 					String patientID = patientGrid.getPatientId(); if(patientID == null){patientID = "";}
-					Date patientBirthDate = patientGrid.getPatientBirthDate();				
+					Calendar patientBirthDate = patientGrid.getPatientBirthDate();				
 					String strPatientBirthDate = null;
 					if(patientBirthDate != null){
 						strPatientBirthDate = sdf.format(patientBirthDate.getTime());
@@ -180,7 +181,7 @@ public class GridUtil {
 			} else if(selectedObject instanceof Patient){
 				patientFromGrid = Patient.class.cast(selectedObject);
 				gov.nih.nci.ncia.domain.Study studyGrid = gov.nih.nci.ncia.domain.Study.class.cast(obj);				
-				Date calendar = studyGrid.getStudyDate(); 			
+				Calendar calendar = studyGrid.getStudyDate(); 			
 				String studyDate = null;
 				if(calendar != null){
 		        	studyDate = sdf.format(calendar.getTime());if(studyDate == null){studyDate = "";}
@@ -201,7 +202,7 @@ public class GridUtil {
 				String seriesNumber = seriesGrid.getSeriesNumber().toString();if(seriesNumber == null){seriesNumber = "";}
 				String modality = seriesGrid.getModality();if(modality == null){modality = "";}
 				String seriesDesc = seriesGrid.getSeriesDescription();if(seriesDesc == null){seriesDesc = "";}						
-				String seriesInstanceUID = seriesGrid.getInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}				
+				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}				
 				if(studyFromGrid.contains(seriesInstanceUID) == false){
 					seriesFromGrid = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);	
 					studyFromGrid.addSeries(seriesFromGrid);
