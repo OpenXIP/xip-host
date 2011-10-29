@@ -73,12 +73,12 @@ public class VerticalTextIcon implements Icon, SwingConstants{
             case JTabbedPane.LEFT: 
             case JTabbedPane.RIGHT:                 
             	if(HostConfigurator.OS.contains("Mac OS X")){
-            		tabPane.addTab("Host", null, comp);
+            		tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.BOTTOM), comp);  
             		return;
             	} else {
             		tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.RIGHT), comp);                	
                 	return;
-            	} 
+            	}
             default: 
                 tabPane.addTab(text, null, comp); 
         } 
