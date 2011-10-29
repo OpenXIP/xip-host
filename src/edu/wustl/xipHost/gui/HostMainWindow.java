@@ -183,7 +183,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		int appYPosition;
 		int appWidth;
 		int appHeight;					
-		if(HostConfigurator.OS.contains("Windows")){
+		if(HostConfigurator.OS.contains("Windows") || HostConfigurator.OS.contains("Mac OS X")){
 			appXPosition = (int) hostPanel.getLocationOnScreen().getX();
 			appYPosition = (int) hostPanel.getLocationOnScreen().getY();
 			appWidth = (int) hostPanel.getBounds().getWidth();
@@ -221,7 +221,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
     
     
     class SideTabMouseAdapter extends MouseAdapter{
-		public void mousePressed(MouseEvent e) {
+		public void mouseClicked(MouseEvent e) {
 			if(e.getButton() == 1){
 				if(e.getSource() == sideTabbedPane){					
 					int i = (((JTabbedPane)e.getSource()).getSelectedIndex());					
@@ -230,15 +230,17 @@ public class HostMainWindow extends JFrame implements ActionListener {
 					//System.out.println("Title: " + (selectedTabTitle));					
 					if (sideTabbedPane.getSelectedIndex() == 0){
 						toolBar.switchButtons(0);
-						setAlwaysOnTop(true);
-						setAlwaysOnTop(false);
+						//setAlwaysOnTop(true);
+						//setAlwaysOnTop(false);
+						bringToFront();
 					} else if (sideTabbedPane.getSelectedIndex() != 0){						
 						//Application app = ApplicationManager.getApplication(selectedTabTitle);												
 						Application app = ApplicationManagerFactory.getInstance().getApplication(uuid);																													
-						if(HostConfigurator.OS.contains("Windows") == false){
+						/*if(HostConfigurator.OS.contains("Windows") == false){
 							iconify();
-						}						
-						app.bringToFront();						
+						}	*/					
+						bringToBack();
+						app.bringToFront();					
 						toolBar.switchButtons(1);						
 					}else {
 						setAlwaysOnTop(true);
@@ -248,7 +250,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 			}
 		}
 		
-		public void mouseReleased(MouseEvent e){     					
+		/*public void mouseReleased(MouseEvent e){     					
      		//3 = right mouse click
      		if(e.getButton() == 3){
      			if(e.getSource() == sideTabbedPane){					
@@ -271,17 +273,36 @@ public class HostMainWindow extends JFrame implements ActionListener {
 					}
 				}			        			    
      		}
-		}		
+		}	*/	
 	}
+    
+    private void bringToFront() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if(this != null) {
+                    toFront();
+                    repaint();
+                }
+            }
+        });
+    }
+    
+    private void bringToBack() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if(this != null) {
+                    toBack();
+                    repaint();
+                }
+            }
+        });
+    }
     
     public void setUserName(String userName){
     	this.userName = userName;
     }
-    
-    public static void main(String [] args){
-    	HostMainWindow mainWindow = new HostMainWindow();
-    	mainWindow.display();    	
-    }	
 	
 	/*public void deiconify() {
         int state = getExtendedState();
