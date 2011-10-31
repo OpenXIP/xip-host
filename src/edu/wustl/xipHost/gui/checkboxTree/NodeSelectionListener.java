@@ -211,7 +211,7 @@ public class NodeSelectionListener implements ActionListener {
 						//Subquery other Series if AIM was selected
 						Series series = (Series)seriesNode.getUserObject();
 						final StudyNode studyNode = (StudyNode)seriesNode.getParent();
-						if(itemNode.isSelected() && newRefDICOMSEG.size() > 0){
+						if(item instanceof AIMItem && itemNode.isSelected() && newRefDICOMSEG.size() > 0){
 							Thread t = new Thread(){
 								public void run(){
 									avtPanel.subquerySeries(studyNode);
@@ -243,7 +243,7 @@ public class NodeSelectionListener implements ActionListener {
 									}							
 								}
 							}
-						} else if (!itemNode.isSelected()){
+						} else if (item instanceof AIMItem && !itemNode.isSelected()){
 							//Unselect AIM and related DICOM SEG objects
 							//Remove referenced DICOM SEG objects from uniqueRefDICOMSEGobjects (if no other AIM is referencing it)
 							String aimUUID = item.getItemID();
