@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.BindException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URL;
@@ -236,13 +235,15 @@ public class ApplicationManagerImpl implements ApplicationManager{
     
 	public URL generateNewApplicationServiceURL(){
 		//"http://localhost:8060/ApplicationInterface?wsdl"
-		int portNum = 8060;
-		String str1 = "http://localhost:";
-		//String str2 = "/ApplicationInterface?wsdl";		
-		String str2 = "/ApplicationInterface";
-		while(checkPort(portNum) == false){
-			portNum++;			 			
+		int portNum;
+		try {
+			ServerSocket socket = new ServerSocket(0);
+			portNum = socket.getLocalPort();
+		} catch (IOException e1) {
+			return null;
 		}
+		String str1 = "http://localhost:";
+		String str2 = "/ApplicationInterface";
 		URL url = null;
 		try {
 			url = new URL(str1 + portNum + str2);
@@ -253,13 +254,15 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	}	
 	
 	public URL generateNewHostServiceURL(){
-		int portNum = 8090;
-		String str1 = "http://localhost:";
-		//String str2 = "/HostInterface?wsdl";		
-		String str2 = "/HostInterface";
-		while(checkPort(portNum) == false){
-			portNum++;			 			
+		int portNum;
+		try {
+			ServerSocket socket = new ServerSocket(0);
+			portNum = socket.getLocalPort();
+		} catch (IOException e1) {
+			return null;
 		}
+		String str1 = "http://localhost:";	
+		String str2 = "/HostInterface";
 		URL url = null;
 		try {
 			url = new URL(str1 + portNum + str2);
@@ -268,20 +271,6 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		}
 		return url;
 	}	
-	
-	//TODO: modify to work with Windows Vista
-	public boolean checkPort(int port) {
-		try {
-			ServerSocket sock = new ServerSocket(port);
-			sock.close();			
-			return true;
-		}catch(BindException b) {			
-			return false;
-		}
-		catch (IOException e) {
-			return false;
-		}		
-	} 
 	
 	File tmpDir;
 	public void setTmpDir(File tmpDir){
