@@ -295,6 +295,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				try {												
 					String[] cmdarray = {getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
 							"--applicationURL", appServiceURL.toURI().toURL().toExternalForm()};
+					logger.debug("Launching hosted application. Application name: " + getName() + " --hostURL " + hostServiceURL.toURI().toURL().toExternalForm() + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
 					Runtime.getRuntime().exec(cmdarray) ;
 				} catch (IOException e) {			
 					logger.error(e, e);	
