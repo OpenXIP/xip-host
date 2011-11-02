@@ -1,11 +1,14 @@
 /**
- * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2011 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.application;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.URL;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import junit.framework.TestCase;
 
@@ -15,33 +18,30 @@ import junit.framework.TestCase;
  */
 public class GenerateNewApplicationServiceURLTest extends TestCase {	
 	ApplicationManager mgr;
+	
+	@BeforeClass
 	protected void setUp() throws Exception {
 		super.setUp();
 		mgr = ApplicationManagerFactory.getInstance();
 	}
-	//ApplicationManager 1A - basic flow. Port is available. 
-	//Result: valid URL
-	public void testGenerateNewApplicationServiceURL1A() throws IOException{				
-		int port = 8060;		
-		while(mgr.checkPort(port) == false){
-			port++;			 			
-		}
-		assertTrue(mgr.checkPort(port));
-		URL url = mgr.generateNewApplicationServiceURL();		
-		assertEquals("", "http://localhost:" + port + "/ApplicationInterface?wsdl", url.toExternalForm());
+	
+	@AfterClass
+	protected void tearDown() throws Exception {
+		super.tearDown();	
+		//TODO Close socket
+		//get ServerSocket then close()
 	}
 	
-	//ApplicationManager 1B - alternative flow. Port is unavailable.
+	//ApplicationManager 1A - basic flow. Port is automatically chosen, first open/available. 
 	//Result: valid URL
-	public void testGenerateNewApplicationServiceURL1B() throws IOException{				
-		int port = 8060;
-		while(mgr.checkPort(port) == false){
-			port++;			 			
-		}
-		ServerSocket sock = new ServerSocket(port);
+	@Test
+	public void testGenerateNewApplicationServiceURL1A() throws IOException{				
 		URL url = mgr.generateNewApplicationServiceURL();
-		System.out.println(url.toExternalForm());
-		assertNotNull(url);
-		sock.close();
+		String protocol = url.getProtocol();
+		String host = url.getHost();
+		String path = url.getPath();
+		assertEquals("Expected protocol is http. Actual protocol is " + protocol, "http", protocol);
+		assertEquals("Expected host is localhost. Actual host is " + host, "localhost", host);
+		assertEquals("Expected path is /ApplicationInterface. Actual path is " + path, "/ApplicationInterface", path);
 	}
 }
