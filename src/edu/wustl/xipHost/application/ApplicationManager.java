@@ -26,7 +26,6 @@ public interface ApplicationManager {
 	public int getNumberOfApplications();
 	public URL generateNewApplicationServiceURL();	
 	public URL generateNewHostServiceURL();	
-	public boolean checkPort(int port);
 	public void setTmpDir(File tmpDir);
 	public File getTmpDir();
 	public void setOutputDir(File outDir);
