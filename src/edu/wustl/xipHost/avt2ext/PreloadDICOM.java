@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JFrame;
 import org.dcm4che2.data.DicomObject;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.io.DicomBatchLoader;
@@ -20,10 +21,11 @@ import edu.wustl.xipHost.localFileSystem.HostFileChooser;
 public class PreloadDICOM extends DicomBatchLoader {
 	
 	public PreloadDICOM() throws IOException{
-		
+		//Map<String, String> env = System.getenv();  
+		//String adStore = env.get("AD_DICOM_STORE");
 		HostFileChooser fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
-		fileChooser.setVisible(true);
-		File[] files = fileChooser.getSelectedItems();
+		fileChooser.showOpenDialog(new JFrame());	
+		File[] files = fileChooser.getSelectedFiles();
 		if(files == null){
 			return;
 		}		
@@ -32,7 +34,10 @@ public class PreloadDICOM extends DicomBatchLoader {
 		long time1 = System.currentTimeMillis();
 		for(int i = 0; i < files.length; i++){
 			try {												 
-				DicomObject dicomObj = DicomParser.read(files[i]);				
+				File file = files[i];
+				System.out.println("File path: " + file.getPath());
+				DicomObject dicomObj = DicomParser.read(file);
+				System.out.println(dicomObj.getString(0x00080018));
 				dicomObjects.add(dicomObj);				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -43,21 +48,13 @@ public class PreloadDICOM extends DicomBatchLoader {
 		long time2 = System.currentTimeMillis();
 		System.out.println("*********** DICOM preload SUCCESSFUL *****************");
 		System.out.println("Total load time: " + (time2 - time1)/1000+ " s");
-		
-		/*ADFacade adService = AVTFactory.getADServiceInstance();							 
-		DicomObject dicomObj = DicomParser.read(new File("1.3.6.1.4.1.9328.50.1.10698.dcm"));									
-		adService.saveDicom(dicomObj);*/
 	}
-	
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		
 		try {
 			new PreloadDICOM();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}				
 		System.exit(0);
