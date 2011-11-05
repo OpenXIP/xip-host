@@ -10,14 +10,11 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.util.UUID;
-
 import javax.swing.Icon;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 public class VerticalTextIcon implements Icon, SwingConstants{ 
     //private Font font = UIManager.getFont("Label.font"); 
@@ -32,28 +29,27 @@ public class VerticalTextIcon implements Icon, SwingConstants{
     public VerticalTextIcon(String text, UUID uuid, boolean clockwize){ 
         this.text = text; 
         this.uuid = uuid;
-        width = SwingUtilities.computeStringWidth(fm, text); 
+        width = SwingUtilities.computeStringWidth(fm, text);
+       
         height = fm.getHeight(); 
-        this.clockwize = clockwize; 
+        this.clockwize = clockwize;
     } 
  
-    public void paintIcon(Component c, Graphics g, int x, int y){ 
-        Graphics2D g2 = (Graphics2D)g; 
+    public void paintIcon(Component c, Graphics g, int x, int y){ 	
+    	Graphics2D g2 = (Graphics2D)g; 
         Font oldFont = g.getFont(); 
         Color oldColor = g.getColor(); 
         AffineTransform oldTransform = g2.getTransform(); 
- 
         g.setFont(font); 
         g.setColor(Color.BLACK); 
-        if(clockwize){ 
-            g2.translate(x + getIconWidth(), y); 
+        if(clockwize){     	
+    		g2.translate(x + getIconWidth(), y); 
             g2.rotate(Math.PI/2); 
         }else{ 
             g2.translate(x, y + getIconHeight()); 
             g2.rotate(-Math.PI/2); 
         } 
         g.drawString(text, 0, fm.getLeading() + fm.getAscent()); 
- 
         g.setFont(oldFont); 
         g.setColor(oldColor); 
         g2.setTransform(oldTransform); 
@@ -72,13 +68,8 @@ public class VerticalTextIcon implements Icon, SwingConstants{
         switch(tabPlacement){ 
             case JTabbedPane.LEFT: 
             case JTabbedPane.RIGHT:                 
-            	if(HostConfigurator.OS.contains("Mac OS X")){
-            		tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.BOTTOM), comp);  
-            		return;
-            	} else {
-            		tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.RIGHT), comp);                	
-                	return;
-            	}
+        		tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.RIGHT), comp);                	
+            	return;
             default: 
                 tabPane.addTab(text, null, comp); 
         } 
