@@ -159,12 +159,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 			}
 		}else if(e.getSource() == toolBar.btnExitApp){
 			Application app = getSelectedApplication();
-			boolean isShutDownAllowed = app.shutDown();						
-			if(isShutDownAllowed == false){				
-				new ExceptionDialog(app.getName() + " cannot be terminated by host.", 
-						"Application current state: " + app.getState().toString() + ".",
-						"Host Dialog");
-			}
+			app.shutDown();
 		}
 	}
     
