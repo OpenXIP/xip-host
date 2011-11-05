@@ -567,12 +567,7 @@ public class HostConfigurator {
 		for(Application app : applications){			
 			State state = app.getState();			
 			if(state != null && state.equals(State.EXIT) == false ){
-				if(app.shutDown() == false){
-					new ExceptionDialog(app.getName() + " cannot be terminated by host.", 
-							"Application current state: " + app.getState().toString() + ".",
-							"Host Shutdown Dialog");
-					return;
-				}
+				app.shutDown();
 			}
 		}		
 		logger.info("Shutting down XIP Host.");
@@ -678,7 +673,8 @@ public class HostConfigurator {
 	}
 		
 	public static int adjustForResolution(){
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); 
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		//logger.debug("Sceen size: Width " + screenSize.getWidth() + ", Height " + screenSize.getHeight());
 		int height = (int)screenSize.getHeight();
 		int preferredHeight = 600;
 		if (height < 768 && height >= 600 ){
@@ -686,7 +682,7 @@ public class HostConfigurator {
 		}else if(height < 1024 && height >= 768 ){
 			preferredHeight = 470;
 		}else if (height >= 1024 && height < 1200){
-			preferredHeight = 600;
+			preferredHeight = 600 - 100;
 		}else if(height > 1200 && height <= 1440){
 			preferredHeight = 800;
 		}
