@@ -30,7 +30,7 @@ public class InsertToTestWorkstation {
 	public InsertToTestWorkstation() {
 		HostFileChooser fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
 		fileChooser.setVisible(true);
-		File[] files = fileChooser.getSelectedItems();
+		File[] files = fileChooser.getSelectedFiles();
 		if(files == null){
 			return;
 		}		
