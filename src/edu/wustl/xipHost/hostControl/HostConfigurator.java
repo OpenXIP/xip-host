@@ -562,6 +562,7 @@ public class HostConfigurator {
 	
 	public void runHostShutdownSequence(){		
 		//TODO
+		//Modify runHostShutdownSequence. Hosted application tabs are not removed, host terminates first, or could terminate first before hosted applications have a chance to terminate first
 		//Host can terminate only if no applications are running (verify applications are not running)
 		List<Application> applications = appMgr.getApplications();
 		for(Application app : applications){			
@@ -603,7 +604,6 @@ public class HostConfigurator {
         }
         // Visit each thread group  
         System.exit(0);	
-        visit(root, 0);
 	}
 	
 	void loadTestApplications(){
@@ -688,29 +688,5 @@ public class HostConfigurator {
 		}
 		return preferredHeight;		
 	}
-	
-	public static void visit(ThreadGroup group, int level) {
-        // Get threads in `group'
-        int numThreads = group.activeCount();
-        Thread[] threads = new Thread[numThreads * 2];
-        numThreads = group.enumerate(threads, false);
- 
-        // Enumerate each thread in `group'
-        for (int i = 0; i < numThreads; i++) {
-            // Get thread
-            Thread thread = threads[i];
-            System.out.println(thread.getName());
-        }
- 
-        // Get thread subgroups of `group'
-        int numGroups = group.activeGroupCount();
-        ThreadGroup[] groups = new ThreadGroup[numGroups * 2];
-        numGroups = group.enumerate(groups, false);
- 
-        // Recursively visit each subgroup
-        for (int i = 0; i < numGroups; i++) {
-            visit(groups[i], level + 1);
-        }
-    }
 	
 }
