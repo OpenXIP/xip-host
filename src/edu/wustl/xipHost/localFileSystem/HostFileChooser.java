@@ -20,25 +20,5 @@ public class HostFileChooser extends JFileChooser {
 		setBackground(xipColor);		
 		setMultiSelectionEnabled(multiSelection);		
 		setCurrentDirectory(currentDir);		
-		/*
-		int result = showOpenDialog(new JFrame());	      	    
-	    switch (result) {
-	    case JFileChooser.APPROVE_OPTION:	    	
-    		selectedFiles = this.getSelectedFiles();	    		
-    		break;
-	    case JFileChooser.CANCEL_OPTION:
-	    	break;
-	    case JFileChooser.ERROR_OPTION:
-	    	break;	    
-		}*/
-	}
-	
-	public File[] getSelectedItems(){
-		return selectedFiles;
-	}
-		
-	public static void main (String args[]){
-		new HostFileChooser(true, new File("C:/WUSTL/Tmp/RECIST"));
-					
 	}
 }
