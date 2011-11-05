@@ -34,12 +34,12 @@ public class HostIconBar extends JPanel {
 	JPanel hostTopPanel = new JPanel();
 	JPanel hostPanel = new JPanel();	
 	JButton btnOptions = new JButton("Options", new ImageIcon("./gif/Options24.gif"));
-	JButton btnExit = new JButton("Exit", new ImageIcon("./gif/cup.gif"));
+	JButton btnExit = new JButton("Exit", new ImageIcon("./gif/hostExit_24x24.png"));
 	JPanel hostBtnPanel = new JPanel();			
 	
 	JButton btnSuspend = new JButton("Suspend", new ImageIcon("./gif/suspend-24x24.GIF"));
 	JButton btnCancel = new JButton("Cancel", new ImageIcon("./gif/Delete-24x24.GIF"));	
-	JButton btnExitApp = new JButton("Exit", new ImageIcon("./gif/cup.gif"));
+	JButton btnExitApp = new JButton("Exit", new ImageIcon("./gif/hostExit_24x24.png"));
 	JPanel appBtnPanel = new JPanel();	
 	
 	ApplicationBar appBar = new ApplicationBar();
