@@ -372,6 +372,13 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				stateExecutor.setState(State.INPROGRESS);
 				exeService.execute(stateExecutor);
 			} else {
+				//Check if prior State was CANSELED, If yes proceed with change state to EXIT. If not to INPROGRESS.
+				if(priorState.equals(State.CANCELED)){
+					StateExecutor stateExecutor = new StateExecutor(this);
+					stateExecutor.setState(State.EXIT);
+					exeService.execute(stateExecutor);
+					return;
+				}
 				synchronized(this){
 					if(iter != null){
 						boolean doInprogress = true;
@@ -414,6 +421,10 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				threadNotification.start();
 				numberOfSentNotifications++;
 			}
+		} else if (state.equals(State.CANCELED)){
+			StateExecutor stateExecutor = new StateExecutor(this);
+			stateExecutor.setState(State.IDLE);
+			exeService.execute(stateExecutor);
 		} else if (state.equals(State.EXIT)){
 			//Application runShutDownSequence goes through ApplicationTerminator and Application Scheduler
 			//ApplicationScheduler time is set to zero but other value could be used when shutdown delay is needed.
@@ -492,15 +503,17 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				return true;
 			}		
 		}else{
-			if(cancelProcessing()){
+			cancelProcessing();
+			/*if(cancelProcessing()){
 				return shutDown();
-			}			
+			}	*/		
 		}
 		return false;
 	}
 	
 	public void runShutDownSequence(){
-		HostMainWindow.removeTab(getID());		
+		HostMainWindow.removeTab(getID());
+		
 		if(getHostEndpoint() != null){
 			getHostEndpoint().stop();
 		}	
