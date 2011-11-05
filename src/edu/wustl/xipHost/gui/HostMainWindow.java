@@ -207,6 +207,15 @@ public class HostMainWindow extends JFrame implements ActionListener {
     		if(appUUID.equals(selectedTabUUID)){    			
     			sideTabbedPane.remove(i);					
     			sideTabbedPane.setSelectedIndex(0);
+    			
+    			java.awt.EventQueue.invokeLater(new Runnable() {
+    	            @Override
+    	            public void run() {
+    	                if(this != null) {
+    	                	sideTabbedPane.repaint();
+    	                }
+    	            }
+    	        });
     			toolBar.switchButtons(0);
     			return;
     		}
