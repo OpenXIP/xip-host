@@ -516,7 +516,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		
 		if(getHostEndpoint() != null){
 			getHostEndpoint().stop();
-		}	
+		}
+		fireTerminateApplication();
 		/* voided to make compatibile with the iterator
 		//Delete documents from Xindice created for this application
 		XindiceManagerFactory.getInstance().deleteAllDocuments(getID().toString());
@@ -864,4 +865,15 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			retrievedData.notify();
 		}
 	}
+	
+	ApplicationTerminationListener applicationTerminationListener;
+	public void addApplicationTerminationListener(ApplicationTerminationListener applicationTerminationListener){
+		this.applicationTerminationListener = applicationTerminationListener;
+	}
+	
+	void fireTerminateApplication(){
+		ApplicationTerminationEvent event = new ApplicationTerminationEvent(this);
+		applicationTerminationListener.applicationTerminated(event);
+	}
+	
 }
