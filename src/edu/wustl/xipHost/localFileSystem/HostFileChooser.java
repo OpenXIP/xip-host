@@ -36,10 +36,11 @@ public class HostFileChooser extends JFileChooser {
 			if(filename.endsWith(".dcm")) {
 				return true;
 			} else if (filename.endsWith("")) {
-				boolean isDicom = DicomUtil.isDICOM(file);
+				/*boolean isDicom = DicomUtil.isDICOM(file);
 				if(isDicom){
 					return true;
-				}
+				}*/
+				return false;
 			}
 			return false;
 		}
