@@ -62,7 +62,8 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		        	iterationTarget = IterationTarget.valueOf(strTarget);
 		        	try{		        				        				        		
 		        		Application app = new Application(name, new File(exePath), vendor, version, new File(iconFile),
-		        				type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);		        			    				
+		        				type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+		        		app.addApplicationTerminationListener(applicationTerminationListener);
 			    		addApplication(app);		        	
 			        	i++;
 		        	}catch (IllegalArgumentException e){
@@ -286,5 +287,11 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	}
 	public File getOutputDir(){
 		return outDir;
+	}
+
+	ApplicationTerminationListener applicationTerminationListener;
+	@Override
+	public void addApplicationTerminationListener(ApplicationTerminationListener listener) {
+		applicationTerminationListener = listener;
 	}	
 }

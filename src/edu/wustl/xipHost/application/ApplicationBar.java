@@ -100,7 +100,7 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		for (ApplicationListener listener : listenerList){
 			// Only launch applications for the currently active (selected, visible) search tab
 			if (component == listener){
-				listener.launchApplication(event);
+				listener.launchApplication(event, HostConfigurator.getHostConfigurator().getApplicationTerminationListener());
 			}
 		}
 	}

@@ -30,4 +30,5 @@ public interface ApplicationManager {
 	public File getTmpDir();
 	public void setOutputDir(File outDir);
 	public File getOutputDir();
+	public void addApplicationTerminationListener(ApplicationTerminationListener listener);
 }
