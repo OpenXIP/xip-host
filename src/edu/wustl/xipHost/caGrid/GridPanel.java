@@ -57,6 +57,7 @@ import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
 import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
 import edu.wustl.xipHost.caGrid.GridUtil;
@@ -751,7 +752,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	}
 	
 	@Override
-	public void launchApplication(ApplicationEvent event) {
+	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
 		// If nothing is selected, there is nothing to launch with
 		//check if selectedDataSearchresult is not null and at least one PatientNode is selected
@@ -798,13 +799,15 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				instanceApp.setQueryDataSource(query);
 				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
-				appMgr.addApplication(instanceApp);		
+				appMgr.addApplication(instanceApp);	
+				instanceApp.addApplicationTerminationListener(listener);
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
 				app.setRetrieveDataSource(retrieve);
 				app.setApplicationTmpDir(tmpDir);
+				app.addApplicationTerminationListener(listener);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			}	
 	

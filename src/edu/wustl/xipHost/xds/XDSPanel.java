@@ -44,6 +44,7 @@ import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
@@ -412,7 +413,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 
 	Application targetApp = null;
 	@Override
-	public void launchApplication(ApplicationEvent event) {
+	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
 		// If nothing is selected, there is nothing to launch with
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
@@ -568,7 +569,8 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
-				appMgr.addApplication(instanceApp);		
+				appMgr.addApplication(instanceApp);	
+				instanceApp.addApplicationTerminationListener(listener);
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = instanceApp;
 			}else{
@@ -576,6 +578,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 				app.setQueryDataSource(query);
 				app.setRetrieveDataSource(retrieve);
 				app.setApplicationTmpDir(tmpDir);
+				app.addApplicationTerminationListener(listener);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = app;
 			}	

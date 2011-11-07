@@ -10,5 +10,5 @@ import java.util.EventListener;
  *
  */
 public interface ApplicationListener extends EventListener {
-	public void launchApplication(ApplicationEvent event);
+	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener);
 }

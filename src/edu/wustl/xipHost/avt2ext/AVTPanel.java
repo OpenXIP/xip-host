@@ -50,6 +50,7 @@ import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -119,11 +120,11 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		cbxDicom.setBackground(xipColor);
 		cbxDicom.setForeground(Color.WHITE);
 		cbxDicom.addItemListener(this);
-		cbxDicom.setSelected(false);
+		cbxDicom.setSelected(true);
 		cbxAimSeg.setBackground(xipColor);
 		cbxAimSeg.setForeground(Color.WHITE);
 		cbxAimSeg.addItemListener(this);
-		cbxAimSeg.setSelected(false);
+		cbxAimSeg.setSelected(true);
 		cbxPanel.setLayout(new GridLayout(1, 2));		
 		btnSelectAll.setBackground(xipColor);
 		btnSelectAll.addActionListener(this);
@@ -591,7 +592,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	}
 
 	@Override
-	public void launchApplication(ApplicationEvent event ) {
+	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
 		//check if DICOM or AIM and SEG check boxes are selected.
 		if(cbxDicom.isSelected() == false && cbxAimSeg.isSelected() == false){
@@ -654,7 +655,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.avt2ext.AVTRetrieve");
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
-				appMgr.addApplication(instanceApp);		
+				appMgr.addApplication(instanceApp);	
+				instanceApp.addApplicationTerminationListener(listener);
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
@@ -662,6 +664,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				app.setRetrieveTarget(retrieveTarget);
 				app.setDataSourceDomainName("edu.wustl.xipHost.avt2ext.AVTRetrieve");
 				app.setApplicationTmpDir(tmpDir);
+				app.addApplicationTerminationListener(listener);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());			
 			}	
 		}				

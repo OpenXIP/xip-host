@@ -45,6 +45,7 @@ import edu.wustl.xipHost.application.ApplicationEvent;
 import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
@@ -168,7 +169,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	
 	Application targetApp = null;
 	@Override
-	public void launchApplication(ApplicationEvent event) {
+	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
 		boolean isDataSelected = DataSelectionValidator.isDataSelected(rootNode);
@@ -213,7 +214,8 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
-				appMgr.addApplication(instanceApp);		
+				appMgr.addApplication(instanceApp);	
+				instanceApp.addApplicationTerminationListener(listener);
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = instanceApp;
 			}else{
@@ -222,6 +224,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 				//app.setRetrieveDataSource(retrieve);
 				app.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 				app.setApplicationTmpDir(tmpDir);
+				app.addApplicationTerminationListener(listener);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 				targetApp = app;
 			}
