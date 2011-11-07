@@ -33,6 +33,8 @@ import org.xmldb.api.base.XMLDBException;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
+import edu.wustl.xipHost.application.ApplicationTerminationEvent;
+import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
@@ -47,7 +49,7 @@ import edu.wustl.xipHost.worklist.WorklistFactory;
 import edu.wustl.xipHost.xds.XDSManager;
 import edu.wustl.xipHost.xds.XDSManagerFactory;
 
-public class HostConfigurator {
+public class HostConfigurator implements ApplicationTerminationListener {
 	final static Logger logger = Logger.getLogger(HostConfigurator.class);
 	Login login = new Login();		 
 	File hostTmpDir;
@@ -61,8 +63,12 @@ public class HostConfigurator {
 	XDSManager xdsMgr;
 	File xipApplicationsConfig;	
 	public static final String OS = System.getProperty("os.name");
-	String userName = "xip";	 	
+	String userName = "xip";
+	ApplicationTerminationListener applicationTerminationListener;
 
+	public HostConfigurator(){
+		applicationTerminationListener = this;
+	}
 	public boolean runHostStartupSequence(){		
 		logger.info("Launching XIP Host. Platform " + OS);
 		hostConfig = new File("./config/xipConfig.xml");
@@ -148,7 +154,8 @@ public class HostConfigurator {
 		File xmlWorklistFile = new File(path);					
 		worklist.loadWorklist(xmlWorklistFile);		
 				
-    	appMgr = ApplicationManagerFactory.getInstance();    	
+    	appMgr = ApplicationManagerFactory.getInstance();
+    	appMgr.addApplicationTerminationListener(applicationTerminationListener);
     	xipApplicationsConfig = new File("./config/applications.xml");	
     	try {
 			appMgr.loadApplications(xipApplicationsConfig);
@@ -560,15 +567,27 @@ public class HostConfigurator {
 		return mainWindow;
 	}
 	
+	
+	List<Application> activeApplications = new ArrayList<Application>();
 	public void runHostShutdownSequence(){		
 		//TODO
 		//Modify runHostShutdownSequence. Hosted application tabs are not removed, host terminates first, or could terminate first before hosted applications have a chance to terminate first
 		//Host can terminate only if no applications are running (verify applications are not running)
 		List<Application> applications = appMgr.getApplications();
-		for(Application app : applications){			
-			State state = app.getState();			
-			if(state != null && state.equals(State.EXIT) == false ){
-				app.shutDown();
+		synchronized(activeApplications){
+			for(Application app : applications){			
+				State state = app.getState();			
+				if(state != null && state.equals(State.EXIT) == false ){
+					activeApplications.add(app);
+					app.shutDown();
+				}
+			}
+			while(activeApplications.size() != 0){
+				try {
+					activeApplications.wait();
+				} catch (InterruptedException e) {
+					logger.error(e,  e);
+				}
 			}
 		}		
 		logger.info("Shutting down XIP Host.");
@@ -605,6 +624,20 @@ public class HostConfigurator {
         // Visit each thread group  
         System.exit(0);	
 	}
+	
+	@Override
+	public void applicationTerminated(ApplicationTerminationEvent event) {
+		Application application = (Application)event.getSource();
+		synchronized(activeApplications){
+			activeApplications.remove(application);
+			activeApplications.notify();
+		}
+	}
+	
+	public ApplicationTerminationListener getApplicationTerminationListener(){
+		return applicationTerminationListener;
+	}
+	
 	
 	void loadTestApplications(){
 		if(OS.contains("Windows")){								
@@ -688,5 +721,4 @@ public class HostConfigurator {
 		}
 		return preferredHeight;		
 	}
-	
 }
