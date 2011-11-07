@@ -50,24 +50,28 @@ public class DicomUtil {
 		byte[] data;
 		String magicNum = new String();
 		Boolean isDCM = file.getAbsolutePath().endsWith(".dcm");
-		try {
-			String filePath = file.getAbsolutePath();
-			InputStream in = new FileInputStream(filePath);
-			int size = in.available();
-			if(size > 128 + 4){
-				data = new byte[size];
-				in.read(data);
-				magicNum = new String(data, 128, 4);
-			}			
-			if(magicNum.equalsIgnoreCase("DICM") || isDCM == true){
-				mimeType = "application/dicom";
-			}else{				
-				//mimeType = new MimetypesFileTypeMap().getContentType(file);
-				mimeType = MimeUtil.getMimeType(file);
-			}
-		} catch (IOException e) {
-			throw new IOException();	
-		}				
+		if(isDCM){
+			return mimeType = "application/dicom";
+		} else {
+			try {
+				String filePath = file.getAbsolutePath();
+				InputStream in = new FileInputStream(filePath);
+				int size = in.available();
+				if(size > 128 + 4){
+					data = new byte[size];
+					in.read(data);
+					magicNum = new String(data, 128, 4);
+				}			
+				if(magicNum.equalsIgnoreCase("DICM")){
+					mimeType = "application/dicom";
+				}else{				
+					//mimeType = new MimetypesFileTypeMap().getContentType(file);
+					mimeType = MimeUtil.getMimeType(file);
+				}
+			} catch (IOException e) {
+				throw new IOException();	
+			}	
+		}			
 		return mimeType;
 	}
 	
