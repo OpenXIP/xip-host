@@ -514,6 +514,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		     					progressBar.setIndeterminate(false);
 		     				}			     				
 		     				repaint();
+		     			} else if(selectedNode instanceof Item) {
+		     				return;
 		     			}
 	     			}
 		     		updateSelectedDataSearchResult(queryNode);
