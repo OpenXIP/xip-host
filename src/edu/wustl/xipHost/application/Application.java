@@ -513,7 +513,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	public void runShutDownSequence(){
 		HostMainWindow.removeTab(getID());
-		
 		if(getHostEndpoint() != null){
 			getHostEndpoint().stop();
 		}

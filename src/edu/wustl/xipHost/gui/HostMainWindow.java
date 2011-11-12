@@ -204,14 +204,15 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	int tabCount = sideTabbedPane.getTabCount();    	
     	for(int i = 0; i < tabCount; i++){    		    		
     		UUID selectedTabUUID = ((VerticalTextIcon)sideTabbedPane.getIconAt(i)).getUUIDfromTab();
-    		if(appUUID.equals(selectedTabUUID)){    			
-    			sideTabbedPane.remove(i);					
-    			sideTabbedPane.setSelectedIndex(0);
-    			
+    		if(appUUID.equals(selectedTabUUID)){  
+    			final int index;
+    			index = i;
     			java.awt.EventQueue.invokeLater(new Runnable() {
     	            @Override
     	            public void run() {
     	                if(this != null) {
+    	                	sideTabbedPane.remove(index);					
+    	        			sideTabbedPane.setSelectedIndex(0);
     	                	sideTabbedPane.repaint();
     	                }
     	            }
