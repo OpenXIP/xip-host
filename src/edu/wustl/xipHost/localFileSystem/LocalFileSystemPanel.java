@@ -249,6 +249,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 				URI uri = selectedFile.toURI();
 				FileRunner runner = new FileRunner(new File(uri));
 				runner.addDicomParseListener(this);
+				nodeSelectionListener.resetSelectedDataSearchResult();
 				exeService.execute(runner);
 				numOfParsingRequestsSent++;
 			}
