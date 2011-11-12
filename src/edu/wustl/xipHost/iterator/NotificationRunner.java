@@ -3,6 +3,8 @@
  */
 package edu.wustl.xipHost.iterator;
 
+import javax.xml.ws.WebServiceException;
+import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.AvailableData;
 import edu.wustl.xipHost.application.Application;
 
@@ -11,6 +13,7 @@ import edu.wustl.xipHost.application.Application;
  *
  */
 public class NotificationRunner implements Runnable {
+	final static Logger logger = Logger.getLogger(NotificationRunner.class);
 	Application application;
 	/**
 	 * 
@@ -26,6 +29,11 @@ public class NotificationRunner implements Runnable {
 	
 	@Override
 	public void run() {
-		application.getClientToApplication().notifyDataAvailable(availableData, true);
+		try{
+			application.getClientToApplication().notifyDataAvailable(availableData, true);
+		} catch (WebServiceException e) {
+			logger.error(e,  e);
+		}
+		
 	}
 }
