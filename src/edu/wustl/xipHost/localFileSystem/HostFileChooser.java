@@ -8,8 +8,6 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import edu.wustl.xipHost.dicom.DicomUtil;
-
 /**
  * Used to choose files from the local file system
  */
@@ -24,7 +22,7 @@ public class HostFileChooser extends JFileChooser {
 		setBackground(xipColor);		
 		setMultiSelectionEnabled(multiSelection);		
 		setCurrentDirectory(currentDir);
-		setFileSelectionMode(JFileChooser.FILES_ONLY);
+		setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		addChoosableFileFilter(new DcmFileFilter());
 	}
 	
