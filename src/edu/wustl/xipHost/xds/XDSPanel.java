@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -29,7 +28,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
-import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -58,7 +56,6 @@ import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.ItemNode;
-import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
@@ -95,11 +92,9 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	Font font_2 = new Font("Tahoma", 0, 12);		
 	Border border = BorderFactory.createLoweredBevelBorder();		
 	JLabel infoLabel = new JLabel("UNDER   DEVELOPMENT");
-	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
 	
 	public XDSPanel(){
 		setBackground(xipColor);		
-		nodeSelectionListener.addDataSelectionListener(this);
 		pdqComboModel = new DefaultComboBoxModel();
 		pdqList = new JComboBox(pdqComboModel);
 		xdsManager = XDSManagerFactory.getInstance();
@@ -141,7 +136,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		criteriaPanel.getPatientList().addListSelectionListener(this);
 		leftPanel.add(pdqLocationSelectionPanel);
 		leftPanel.add(criteriaPanel);				
-		resultTree.addMouseListener(ml);
+		resultTree.addDataSelectionListener(this);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);	
@@ -317,25 +312,6 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblGlobus, constraints);                
 	}
-	
-	boolean wasDoubleClick = false;
-	MouseListener ml = new MouseAdapter(){  
-		public void mouseClicked(final MouseEvent e) {
-			int x = e.getX();
-	     	int y = e.getY();
-	     	nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSelectionCoordinates(x, y);
-	     	nodeSelectionListener.setSearchResult(result);
-	    	if (e.getClickCount() == 2){
-	    		wasDoubleClick = true;
-	    		nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
-	        } else {
-	        	Timer timer = new Timer(300, nodeSelectionListener);
-	        	timer.setRepeats(false);
-	        	timer.start();
-	        }
-	    }
-	};
 
 	class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 		DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();

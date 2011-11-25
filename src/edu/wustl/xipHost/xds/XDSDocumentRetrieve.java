@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
@@ -19,7 +18,6 @@ import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
-import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
@@ -46,13 +44,6 @@ public class XDSDocumentRetrieve implements Retrieve {
 		this.docEntryDetails = docEntryDetails;
 		this.patientId = patientId;
 		this.homeCommunityId = homeCommunityId;
-		xdsMgr = XDSManagerFactory.getInstance();		
-	}
-	
-	@Override
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		this.targetElement = targetElement;
-		this.retrieveTarget = retrieveTarget; 
 		xdsMgr = XDSManagerFactory.getInstance();		
 	}	
 	
@@ -89,16 +80,7 @@ public class XDSDocumentRetrieve implements Retrieve {
 	}
 
     DataAccessListener listener;
-    @Override
-	public void addDataAccessListener(DataAccessListener l) {
-    	 listener = l;          		
-	}
-
-	@Override
-	public Map<String, ObjectLocator> getObjectLocators() {
-		return objectLocators;
-	}
-
+    
 	@Override
 	public void addRetrieveListener(RetrieveListener l) {
 		// TODO Auto-generated method stub
