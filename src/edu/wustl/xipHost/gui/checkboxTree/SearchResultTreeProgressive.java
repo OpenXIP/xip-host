@@ -5,8 +5,6 @@ package edu.wustl.xipHost.gui.checkboxTree;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -25,13 +23,13 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		super();
 	}
 	
-	public void updateNodes2(SearchResult result) {					    			
+	public void updateNodes(SearchResult result) {					    			
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
 			rootNode.removeAllChildren();
 			treeModel.reload(rootNode);
 			return;
-		} 
+		}
 		DefaultMutableTreeNode locationNode;
 		if(rootNode.getChildCount() == 0){
 			locationNode = new DefaultMutableTreeNode(result.getDataSourceDescription());
@@ -47,10 +45,11 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 						}	
 						return patientDesc;						
 					}
-					public Object getUserObject(){
+					public Patient getUserObject(){
 						return patient;
 					}					
 				};
+				patientNode.addNodeSelectionListener(this);
 				locationNode.add(patientNode);
 			}
 		} else {
@@ -78,7 +77,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 										}	
 										return studyDesc;						
 									}
-									public Object getUserObject(){
+									public Study getUserObject(){
 										return study;
 									}					
 								};
@@ -86,6 +85,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 									studyNode.setSelected(true);
       		     					studyNode.getCheckBox().setSelected(true);
 								}
+								studyNode.addNodeSelectionListener(this);
 								patientNode.add(studyNode);								
 							}
 						} else {
@@ -111,7 +111,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 														}	
 														return seriesDesc;
 													}
-													public Object getUserObject(){
+													public Series getUserObject(){
 														return series;
 													}
 												};
@@ -119,6 +119,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 													seriesNode.setSelected(true);
 				      		     					seriesNode.getCheckBox().setSelected(true);
 												}
+												seriesNode.addNodeSelectionListener(this);
 												studyNode.add(seriesNode);
 											}
 										} else {
@@ -138,6 +139,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 																itemNode.setSelected(true);
 							      		     					itemNode.getCheckBox().setSelected(true);
 															}
+															itemNode.addNodeSelectionListener(this);
 															seriesNode.add(itemNode);
 														}	
 													} 
@@ -157,20 +159,4 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		treeModel.reload(rootNode);
 		expandAll();		
 	}
-	
-	public void expandToLast(JTree tree) {
-	    TreeModel data = tree.getModel();
-	    Object node = data.getRoot();
-
-	    if (node == null) return;
-
-	    TreePath p = new TreePath(node);
-	    while (true) {
-	         int count = data.getChildCount(node);
-	         if (count == 0) break;
-	         node = data.getChild(node, count - 1);
-	         p = p.pathByAddingChild(node);
-	    }
-	    tree.scrollPathToVisible(p);
-	}	
 }
