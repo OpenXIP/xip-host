@@ -94,7 +94,7 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 		String seriesInstanceUID = "1.3.6.1.4.1.9328.50.1.20036";
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);				
 		GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, importDir);
-		gridRetrieve.addDataAccessListener(this);
+		//gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -131,7 +131,7 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 		String seriesInstanceUID = null;
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);				
 		GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, importDir);
-		gridRetrieve.addDataAccessListener(this);
+		//gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -191,7 +191,7 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 			e1.printStackTrace();
 		}					
 		GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, gridLoc, importDir);
-		gridRetrieve.addDataAccessListener(this);
+		//gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -208,7 +208,7 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 	public void testRetrieveDicomData1Cb() throws IOException {
 		gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "Ohio State University caGrid_1.2");			
 		GridRetrieve gridRetrieve = new GridRetrieve(null, gridLoc, importDir);
-		gridRetrieve.addDataAccessListener(this);
+		//gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -227,7 +227,7 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 		String seriesInstanceUID = "1.3.6.1.4.1.9328.50.1.20036";
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);		
 		GridRetrieve gridRetrieve = new GridRetrieve(cql, null, importDir);
-		gridRetrieve.addDataAccessListener(this);
+		//gridRetrieve.addDataAccessListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
 		try {
@@ -251,7 +251,7 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);
 		try{			
 			GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, importDir);
-			gridRetrieve.addDataAccessListener(this);
+			//gridRetrieve.addDataAccessListener(this);
 			Thread t = new Thread(gridRetrieve);
 			t.start();
 			try {
@@ -274,7 +274,7 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 		CQLQuery cql = createCQLQuery(studyInstanceUID, seriesInstanceUID);
 		try{			
 			GridRetrieve gridRetrieve = new GridRetrieve(cql, gridLoc, null);
-			gridRetrieve.addDataAccessListener(this);
+			//gridRetrieve.addDataAccessListener(this);
 			Thread t = new Thread(gridRetrieve);
 			t.start();
 			try {
