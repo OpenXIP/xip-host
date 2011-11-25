@@ -43,13 +43,7 @@ public class GridRetrieve implements Retrieve {
 		}else{
 			importDir = importLocation;
 		}		
-	}	
-	
-	@Override
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		// TODO Auto-generated method stub
-		
-	}	
+	}		
 	
 	List<File> files;
 	public void run(){		
@@ -114,17 +108,7 @@ public class GridRetrieve implements Retrieve {
 		return dicomFiles;
 	}
 
-	DataAccessListener listener;
-	@Override
-	public void addDataAccessListener(DataAccessListener l) {
-		listener = l;
-	}	
-
-	@Override
-	public Map<String, ObjectLocator> getObjectLocators() {
-		return objectLocators;
-	}
-
+	DataAccessListener listener;	
 	
 	@Override
 	public void addRetrieveListener(RetrieveListener l) {

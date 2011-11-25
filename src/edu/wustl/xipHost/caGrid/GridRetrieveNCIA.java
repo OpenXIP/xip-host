@@ -74,12 +74,6 @@ public class GridRetrieveNCIA implements Retrieve {
 		} 
 	}
 	
-	@Override
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		// TODO Auto-generated method stub
-		
-	}
-		
 	public void run() {
 		InputStream istream = null;
 		TransferServiceContextClient tclient = null;
@@ -157,17 +151,7 @@ public class GridRetrieveNCIA implements Retrieve {
 		listener.retrieveResultsAvailable(event);
 	}
 
-	DataAccessListener listener;
-	@Override
-	public void addDataAccessListener(DataAccessListener l) {
-		listener = l;
-	}	
-
-	@Override
-	public Map<String, ObjectLocator> getObjectLocators() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	DataAccessListener listener;	
 
 	@Override
 	public void addRetrieveListener(RetrieveListener l) {

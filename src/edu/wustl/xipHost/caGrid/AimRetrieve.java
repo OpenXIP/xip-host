@@ -9,10 +9,8 @@ import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
-import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,12 +50,6 @@ public class AimRetrieve implements Retrieve{
 		}else{
 			importDir = importLocation;
 		}	
-	}
-	
-	@Override
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	List<File> retrievedAIMs;
@@ -137,16 +129,7 @@ public class AimRetrieve implements Retrieve{
 		listener.retrieveResultsAvailable(event);
 	}
 
-	DataAccessListener listener;
-	@Override
-	public void addDataAccessListener(DataAccessListener l) {
-		listener = l;
-	}	
-
-	@Override
-	public Map<String, ObjectLocator> getObjectLocators() {
-		return objectLocators;
-	}
+	DataAccessListener listener;	
 
 	@Override
 	public void addRetrieveListener(RetrieveListener l) {
