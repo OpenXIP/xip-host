@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -69,9 +68,7 @@ import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
-import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
-import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
@@ -80,7 +77,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
 public class AVTPanel extends JPanel implements ActionListener, ItemListener, DataAccessListener, ApplicationListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(AVTPanel.class);
 	SearchCriteriaPanelAVT criteriaPanel = new SearchCriteriaPanelAVT();	
-	SearchResultTree resultTree = new SearchResultTreeProgressive();
+	SearchResultTreeProgressive resultTree = new SearchResultTreeProgressive();
 	JScrollPane treeView = new JScrollPane(resultTree);
 	JPanel leftPanel = new JPanel();
 	JPanel rightPanel = new JPanel();
@@ -100,19 +97,16 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	JButton btnDeselectAll = new JButton("Deselect All");
 	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
 	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
 	DataAccessListener l;
 	
 	public AVTPanel(){
 		l = this;
-		nodeSelectionListener.addDataSelectionListener(this);
-		nodeSelectionListener.setAVTPanel(this);
 		setBackground(xipColor);				
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search AD");
 		leftPanel.add(criteriaPanel);			    
-	    //resultTree.addTreeSelectionListener(this);
 		resultTree.addMouseListener(ml);
+		resultTree.addDataSelectionListener(this);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 		treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);			
@@ -190,7 +184,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				//pass adCriteria to AVTQuery
 				avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
 				avtQuery.addDataAccessListener(this);
-				nodeSelectionListener.resetSelectedDataSearchResult();
 				Thread t = new Thread(avtQuery);
 				t.start();
 			}else{
@@ -198,13 +191,9 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				progressBar.setIndeterminate(false);
 			}																	
 		} else if (e.getSource() == btnSelectAll){
-			nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSearchResult(result);
-			nodeSelectionListener.selectAll(true);
+			resultTree.selectAll(true);
 		} else if (e.getSource() == btnDeselectAll){
-			nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSearchResult(result);
-			nodeSelectionListener.selectAll(false);
+			resultTree.selectAll(false);
 		}	
 	}
 	
@@ -326,9 +315,11 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				subqueryCompleted = true;
 			}
 			synchronized(result){
-				resultTree.updateNodes2(result);
-				nodeSelectionListener.updateSearchResultTree(resultTree);
-				nodeSelectionListener.updateSearchResult(result);
+				selectedDataSearchResult = new SearchResult();
+				selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
+				selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
+				resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
+				resultTree.updateNodes(result);
 				if(activeSubqueryMonitor){
 					result.notify();
 				}
@@ -352,7 +343,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		progressBar.setString("Exception: " + message);
 		result = null;							
 		//resultTree.updateNodes(result);
-		resultTree.updateNodes2(result);
+		resultTree.updateNodes(result);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -375,15 +366,11 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		public void mouseClicked(final MouseEvent e) {
 			int x = e.getX();
 	     	int y = e.getY();
-	     	nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSelectionCoordinates(x, y);
-	     	nodeSelectionListener.setSearchResult(result);
 		    int row = resultTree.getRowForLocation(x, y);
 		    final TreePath  path = resultTree.getPathForRow(row);
 	    	if (e.getClickCount() == 2){
 	    		wasDoubleClick = true;
 	    		subqueryCompleted = false;
-	    		nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
 		     	if (path != null) {    		
 		     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();			    
 		     		if (queryNode == null) return;		 
@@ -520,11 +507,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	     			}
 		     		updateSelectedDataSearchResult(queryNode);
 		     	}
-	        } else {
-	        	Timer timer = new Timer(300, nodeSelectionListener);
-	        	timer.setRepeats(false);
-	        	timer.start();
-	        }
+	        } 
      	}
 	};
 	
@@ -647,7 +630,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				retrieveTarget = RetrieveTarget.AIM_SEG;
 			}
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
-			//Retrieve retrieve = new AVTRetrieve2(tmpDir); 
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
@@ -676,6 +658,27 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+		if(logger.isDebugEnabled()){
+			logger.debug("Value of selectedDataSearchresult: ");
+			if(selectedDataSearchResult != null) {
+				List<Patient> patients = selectedDataSearchResult.getPatients();
+				for(Patient logPatient : patients){
+					logger.debug(logPatient.toString());
+					List<Study> studies = logPatient.getStudies();
+					for(Study logStudy : studies){
+						logger.debug("   " + logStudy.toString());
+						List<Series> series = logStudy.getSeries();
+						for(Series logSeries : series){
+							logger.debug("      " + logSeries.toString());
+							List<Item> items = logSeries.getItems();
+							for(Item logItem : items){
+								logger.debug("         " + logItem.toString());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -758,6 +761,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			} catch (InterruptedException e) {
 				logger.error(e, e);
 			}
+			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Value of selectedDataSearchresult: ");
 				if(selectedDataSearchResult != null){
