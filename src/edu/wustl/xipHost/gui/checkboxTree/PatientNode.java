@@ -1,21 +1,28 @@
 /**
- * Copyright (c) 2010 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2010-2011 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.gui.checkboxTree;
 
 import javax.swing.JCheckBox;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.log4j.Logger;
+
+import edu.wustl.xipHost.dataModel.Patient;
+
 /**
  * @author Jaroslaw Krych
  *
  */
 public class PatientNode extends DefaultMutableTreeNode {
+	final static Logger logger = Logger.getLogger(PatientNode.class);
 	JCheckBox checkBox;
 	boolean isSelected;
+	Patient userObject;
 	
-	public PatientNode(Object userObject){
+	public PatientNode(Patient userObject){
 		super(userObject);
+		this.userObject = userObject;
 		checkBox = new JCheckBox();
 	}
 	
@@ -29,5 +36,32 @@ public class PatientNode extends DefaultMutableTreeNode {
 	
 	public JCheckBox getCheckBox(){
 		return checkBox;
+	}
+	
+	public String toString(){															
+		String itemDesc = userObject.toString();
+		if(itemDesc == null){
+			itemDesc = "";
+		}else{
+			
+		}	
+		return itemDesc;						
+	}
+	public Patient getUserObject(){
+		return userObject;
+	}
+	
+	NodeSelectionListener2 l;
+	public void addNodeSelectionListener(NodeSelectionListener2 listener){
+		l = listener;
+	}
+	
+	public void updateNode(){
+		NodeSelectionEvent2 event = new NodeSelectionEvent2(this);
+		if(l != null){
+			l.nodeSelected(event);
+		} else {
+			logger.warn("NULL NodeSelectionListener for PatientNode: " + this.toString());
+		}
 	}
 }
