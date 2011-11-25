@@ -255,11 +255,11 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 		}
 		if(gridLocDICOM.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
 			nbiaRetrievePrev = new GridRetrieveNCIA(getSeriesInstanceUIDPrev(), gridLocDICOM, importLocation);
-			nbiaRetrievePrev.addDataAccessListener(this);
+			//nbiaRetrievePrev.addDataAccessListener(this);
 			Thread t1 = new Thread(nbiaRetrievePrev);
 			t1.start();
 			nbiaRetrieveCurr = new GridRetrieveNCIA(getSeriesInstanceUIDCurr(), gridLocDICOM, importLocation);
-			nbiaRetrieveCurr.addDataAccessListener(this);
+			//nbiaRetrieveCurr.addDataAccessListener(this);
 			Thread t2 = new Thread(nbiaRetrieveCurr);
 			t2.start();			
 		}else if(gridLocDICOM.getProtocolVersion().equalsIgnoreCase("DICOM")){
@@ -272,7 +272,7 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				gridRetrievePrev.addDataAccessListener(this);		
+				//gridRetrievePrev.addDataAccessListener(this);		
 				Thread t = new Thread(gridRetrievePrev);
 				t.start();
 				
@@ -286,7 +286,7 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				gridRetrieveCurr.addDataAccessListener(this);		
+				//gridRetrieveCurr.addDataAccessListener(this);		
 				Thread t2 = new Thread(gridRetrieveCurr);
 				t2.start();
 			}
@@ -309,7 +309,7 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			aimRetrievePrev.addDataAccessListener(this);
+			//aimRetrievePrev.addDataAccessListener(this);
 			Thread t1AIM = new Thread(aimRetrievePrev);
 			t1AIM.start();
 			
@@ -321,7 +321,7 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			aimRetrieveCurr.addDataAccessListener(this);
+			//aimRetrieveCurr.addDataAccessListener(this);
 			Thread t2AIM = new Thread(aimRetrieveCurr);
 			t2AIM.start();
 		}else{
