@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
@@ -72,18 +71,6 @@ public class LocalFileSystemRetrieve implements Retrieve {
 	@Override
 	public void setRetrieveTarget(RetrieveTarget retrieveTarget) {
 		
-	}
-	
-	@Override
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		this.targetElement = targetElement;
-		this.retrieveTarget = retrieveTarget;
-		//TODO to be removed
-	}
-
-	@Override
-	public void addDataAccessListener(DataAccessListener l) {
-		//TODO to be removed
 	}
 
 	@Override
