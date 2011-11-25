@@ -10,9 +10,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.net.URI;
 import java.sql.Timestamp;
@@ -27,10 +24,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 import org.nema.dicom.wg23.Modality;
@@ -57,7 +52,6 @@ import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
-import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.iterator.Criteria;
@@ -74,7 +68,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	JPanel rightPanel = new JPanel();
 	SearchResultTree resultTree = new SearchResultTree();
 	JScrollPane treeView = new JScrollPane(resultTree);
-	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
+	//NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
 	Color xipColor = new Color(51, 51, 102);
 	Border border = BorderFactory.createLoweredBevelBorder();
 	HostFileChooser fileChooser;
@@ -87,8 +81,9 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	
 	public LocalFileSystemPanel() {
 		searchResult = new SearchResult("Local File System");
-		resultTree.addMouseListener(ml);
-		nodeSelectionListener.addDataSelectionListener(this);
+		//resultTree.addMouseListener(ml);
+		resultTree.addDataSelectionListener(this);
+		//nodeSelectionListener.addDataSelectionListener(this);
 		setBackground(xipColor);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() + 10));
@@ -249,10 +244,10 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 				URI uri = selectedFile.toURI();
 				FileRunner runner = new FileRunner(new File(uri));
 				runner.addDicomParseListener(this);
-				nodeSelectionListener.resetSelectedDataSearchResult();
 				exeService.execute(runner);
 				numOfParsingRequestsSent++;
 			}
+			//nodeSelectionListener.resetSelectedDataSearchResult();
 			synchronized(this){
 				while(numOfParsingRequestsSent != numOfParsingRequestsRecieved){
 					try {
@@ -262,37 +257,24 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 					}
 				}
 			}		
-			if(logger.isDebugEnabled()){
-				List<Patient> patients = searchResult.getPatients();
-				logger.debug("Value of selectedDataSearchresult: ");
-				for(Patient logPatient : patients){
-					logger.debug(logPatient.toString());
-					List<Study> studies = logPatient.getStudies();
-					for(Study logStudy : studies){
-						logger.debug("   " + logStudy.toString());
-						List<Series> series = logStudy.getSeries();
-						for(Series logSeries : series){
-							logger.debug("      " + logSeries.toString());
-							List<Item> items = logSeries.getItems();
-							for(Item logItem : items){
-								logger.debug("         " + logItem.toString());
-							}
-						}
-					}
-				}
-			}
+			selectedDataSearchResult = new SearchResult();
+			selectedDataSearchResult.setOriginalCriteria(searchResult.getOriginalCriteria());
+			selectedDataSearchResult.setDataSourceDescription("Selected data for " + searchResult.getDataSourceDescription());
+			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 			resultTree.updateNodes(searchResult);
 	    } else if (e.getActionCommand().equals("CancelSelection")) {
 		        
 	    } else if (e.getSource() == btnSelectAll){
-			nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSearchResult(searchResult);
-			nodeSelectionListener.selectAll(true);
+	    	//nodeSelectionListener.setSearchResultTree(resultTree);
+	     	//nodeSelectionListener.setSearchResult(searchResult);
+			//nodeSelectionListener.selectAll(true);
+			resultTree.selectAll(true);
 		} else if (e.getSource() == btnDeselectAll){
-			nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSearchResult(searchResult);
-			nodeSelectionListener.selectAll(false);
-		}	
+			//nodeSelectionListener.setSearchResultTree(resultTree);
+	     	//nodeSelectionListener.setSearchResult(searchResult);
+			//nodeSelectionListener.selectAll(false);
+			resultTree.selectAll(false);
+		}
 	}
 
 	@Override
@@ -380,7 +362,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 					
 	}
 	
-	boolean wasDoubleClick = false;
+	/*boolean wasDoubleClick = false;
 	MouseListener ml = new MouseAdapter(){  
 		public void mouseClicked(final MouseEvent e) {
 			int x = e.getX();
@@ -397,11 +379,32 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	        	timer.start();
 	        }
 	    }
-	};
+	};*/
 
 	SearchResult selectedDataSearchResult;
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+		if(logger.isDebugEnabled()){
+			logger.debug("Value of selectedDataSearchresult: ");
+			if(selectedDataSearchResult != null) {
+				List<Patient> patients = selectedDataSearchResult.getPatients();
+				for(Patient logPatient : patients){
+					logger.debug(logPatient.toString());
+					List<Study> studies = logPatient.getStudies();
+					for(Study logStudy : studies){
+						logger.debug("   " + logStudy.toString());
+						List<Series> series = logStudy.getSeries();
+						for(Series logSeries : series){
+							logger.debug("      " + logSeries.toString());
+							List<Item> items = logSeries.getItems();
+							for(Item logItem : items){
+								logger.debug("         " + logItem.toString());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
