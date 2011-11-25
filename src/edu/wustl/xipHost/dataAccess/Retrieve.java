@@ -24,9 +24,4 @@ public interface Retrieve extends Runnable {
 	public void setRetrieveTarget(RetrieveTarget retrieveTarget);
 	public void setDataSource(DataSource dataSource);
 	public void addRetrieveListener(RetrieveListener l);
-
-	
-	public void addDataAccessListener(DataAccessListener l);
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget);
-	public Map<String, ObjectLocator> getObjectLocators();
 }
