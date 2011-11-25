@@ -293,8 +293,10 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				//To be able to run Runtime.exec() on the Mac OS X parameters must be passed via String[] instead of one String
 				// sh files must have a executable mode and reside in XIPApp/bin directory
 				try {												
-					String[] cmdarray = {getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
-							"--applicationURL", appServiceURL.toURI().toURL().toExternalForm()};
+					/*String[] cmdarray = {getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
+							"--applicationURL", appServiceURL.toURI().toURL().toExternalForm()};*/
+					String[] cmdarray = {"/usr/X11/bin/xterm", "-e", getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
+							"--applicationURL", appServiceURL.toURI().toURL().toExternalForm(), " ; le_exec"};
 					logger.debug("Launching hosted application. Application name: " + getName() + " --hostURL " + hostServiceURL.toURI().toURL().toExternalForm() + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
 					Runtime.getRuntime().exec(cmdarray) ;
 				} catch (IOException e) {			
