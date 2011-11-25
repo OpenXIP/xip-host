@@ -15,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -31,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
-import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -50,14 +48,17 @@ import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataModel.Item;
+import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
+import edu.wustl.xipHost.dataModel.Series;
+import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.SearchCriteriaPanel;
 import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
-import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
@@ -91,15 +92,13 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	Color xipLightBlue = new Color(156, 162, 189);
 	Border border = BorderFactory.createLoweredBevelBorder();
 	DicomManager dicomMgr;
-	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
 	JPanel btnSelectionPanel = new JPanel();
 	JButton btnSelectAll = new JButton("Select All");
 	JButton btnDeselectAll = new JButton("Deselect All");
 	
 	public DicomPanel(){
 		setBackground(xipColor);
-		resultTree.addMouseListener(ml);
-		nodeSelectionListener.addDataSelectionListener(this);
+		resultTree.addDataSelectionListener(this);
 		comboModel = new DefaultComboBoxModel();
 		listCalledLocations = new JComboBox(comboModel);
 		dicomMgr = DicomManagerFactory.getInstance();
@@ -408,13 +407,9 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 				progressBar.setIndeterminate(false);
 			}
 		} else if (e.getSource() == btnSelectAll){
-			nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSearchResult(result);
-			nodeSelectionListener.selectAll(true);
+			resultTree.selectAll(true);
 		} else if (e.getSource() == btnDeselectAll){
-			nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSearchResult(result);
-			nodeSelectionListener.selectAll(false);
+			resultTree.selectAll(false);
 		}	
 	}
 
@@ -428,11 +423,16 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	public void queryResultsAvailable(QueryEvent e) {		
 		DicomQuery dicomQuery = (DicomQuery)e.getSource();
 		result = dicomQuery.getSearchResult();		        
-		if(result == null){			
+		/*if(result == null){			
 			resultTree.updateNodes(result);
 		}else{
 			resultTree.updateNodes(result);			
-		}							
+		}*/
+		selectedDataSearchResult = new SearchResult();
+		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
+		selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
+		resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
+		resultTree.updateNodes(result);
 		progressBar.setString("DicomSearch finished");
 		progressBar.setIndeterminate(false);		
 	}
@@ -534,30 +534,32 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			}	
 		}
 	}
-	
-	boolean wasDoubleClick = false;
-	MouseListener ml = new MouseAdapter(){  
-		public void mouseClicked(final MouseEvent e) {
-			int x = e.getX();
-	     	int y = e.getY();
-	     	nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSelectionCoordinates(x, y);
-	     	nodeSelectionListener.setSearchResult(result);
-	    	if (e.getClickCount() == 2){
-	    		wasDoubleClick = true;
-	    		nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
-	        } else {
-	        	Timer timer = new Timer(300, nodeSelectionListener);
-	        	timer.setRepeats(false);
-	        	timer.start();
-	        }
-	    }
-	};
 
 	SearchResult selectedDataSearchResult;
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+		if(logger.isDebugEnabled()){
+			logger.debug("Value of selectedDataSearchresult: ");
+			if(selectedDataSearchResult != null) {
+				List<Patient> patients = selectedDataSearchResult.getPatients();
+				for(Patient logPatient : patients){
+					logger.debug(logPatient.toString());
+					List<Study> studies = logPatient.getStudies();
+					for(Study logStudy : studies){
+						logger.debug("   " + logStudy.toString());
+						List<Series> series = logStudy.getSeries();
+						for(Series logSeries : series){
+							logger.debug("      " + logSeries.toString());
+							List<Item> items = logSeries.getItems();
+							for(Item logItem : items){
+								logger.debug("         " + logItem.toString());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 
