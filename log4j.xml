@@ -148,6 +148,18 @@
   <logger name="edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
+  <logger name="edu.wustl.xipHost.gui.checkboxTree.ItemNode">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>	
+  <logger name="edu.wustl.xipHost.gui.checkboxTree.SeriesNode">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>	
+  <logger name="edu.wustl.xipHost.gui.checkboxTree.StudyNode">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.gui.checkboxTree.PatientNode">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>
   <logger name="edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
