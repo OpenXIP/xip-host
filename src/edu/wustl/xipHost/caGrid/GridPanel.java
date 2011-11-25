@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -59,12 +58,10 @@ import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
-import edu.wustl.xipHost.avt2ext.AVTRetrieve2;
 import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
-import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -77,13 +74,10 @@ import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
-import edu.wustl.xipHost.gui.checkboxTree.NodeSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.iterator.IterationTarget;
-//import edu.wustl.xipHost.localFileSystem.FileManager;
-//import edu.wustl.xipHost.localFileSystem.FileManagerFactory;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
@@ -111,12 +105,10 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	Color xipBtn = new Color(56, 73, 150);
 	Color xipLightBlue = new Color(156, 162, 189);
 	GridManager gridMgr;
-	NodeSelectionListener nodeSelectionListener = new NodeSelectionListener();
 	DataAccessListener l;
 	
 	public GridPanel(){
 		l = this;
-		nodeSelectionListener.addDataSelectionListener(this);
 		setBackground(xipColor);							
 		comboModel = new DefaultComboBoxModel();
 		list = new JComboBox(comboModel);
@@ -146,7 +138,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		selectedGridTypeAimService = (GridLocation)itemAIM;			
 		rightPanel.list.addActionListener(this);
 		resultTree = rightPanel.getGridJTreePanel(); 
-		//resultTree.addTreeSelectionListener(this);		
+		//resultTree.addTreeSelectionListener(this);	
+		resultTree.addDataSelectionListener(this);
 		resultTree.addMouseListener(ml);
 		rightPanel.lblGlobus.addMouseListener(
 			new MouseAdapter(){
@@ -394,7 +387,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				subqueryCompleted = true;
 			}
 			synchronized(result){
-				rightPanel.getGridJTreePanel().updateNodes2(result);
+				rightPanel.getGridJTreePanel().updateNodes(result);
 				if(activeSubqueryMonitor){
 					result.notify();
 				}
@@ -413,7 +406,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		progressBar.validate();
 		progressBar.setString("Exception: " + message);
 		result = null;							
-		rightPanel.getGridJTreePanel().updateNodes2(result);								
+		rightPanel.getGridJTreePanel().updateNodes(result);								
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -476,15 +469,11 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	     public void mouseClicked(final MouseEvent e) {	        
 	    	 	int x = e.getX();
 		     	int y = e.getY();
-		     	nodeSelectionListener.setSearchResultTree(resultTree);
-		     	nodeSelectionListener.setSelectionCoordinates(x, y);
-		     	nodeSelectionListener.setSearchResult(result);
 			    int row = resultTree.getRowForLocation(x, y);
 			    final TreePath  path = resultTree.getPathForRow(row);
 	    	 	if (e.getClickCount() == 2) {
 		        	wasDoubleClick = true;
 		        	subqueryCompleted = false;
-		        	nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
 			     	if (path != null) {    		
 			     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		    
 			     		if (queryNode == null) return;		 
@@ -615,11 +604,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     			}
 			     		}
 			     	}
-		        } else {
-		        	Timer timer = new Timer(300, nodeSelectionListener);
-		        	timer.setRepeats(false);
-		        	timer.start();
-		        }
+		        } 
 		    }
 	};	
 	
@@ -791,13 +776,11 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			// TODO replace AVTQuery and AVTRetrieve2 with GridQuery and GridRetrieve
 			Query query = new AVTQuery();
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
-			Retrieve retrieve = new AVTRetrieve2(tmpDir); 
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
-				instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDoSave(false);
 				appMgr.addApplication(instanceApp);	
 				instanceApp.addApplicationTerminationListener(listener);
@@ -805,7 +788,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
-				app.setRetrieveDataSource(retrieve);
 				app.setApplicationTmpDir(tmpDir);
 				app.addApplicationTerminationListener(listener);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
@@ -834,7 +816,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 						try {
 							//Retrieve Dicom						
 							GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-							gridRetrieve.addDataAccessListener(this);						
+							//gridRetrieve.addDataAccessListener(this);						
 							Thread t = new Thread(gridRetrieve);
 							t.start();						
 							numRetrieveThreadsStarted++;							
@@ -854,7 +836,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 						Series series = iter.next();
 						String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
 						GridRetrieveNCIA nciaRetrieve = new GridRetrieveNCIA(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-						nciaRetrieve.addDataAccessListener(l);
+						//nciaRetrieve.addDataAccessListener(l);
 						Thread t = new Thread(nciaRetrieve);
 						t.start();
 						numRetrieveThreadsStarted++;
@@ -867,7 +849,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 					CQLQuery aimCQL = criteriasAim.get(i);						
 					try {
 						AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
-						aimRetrieve.addDataAccessListener(l);
+						//aimRetrieve.addDataAccessListener(l);
 						Thread t = new Thread(aimRetrieve);
 						t.start();
 						numRetrieveThreadsStarted++;
