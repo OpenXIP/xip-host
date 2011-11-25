@@ -31,14 +31,12 @@ import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dicom.DicomUtil;
-import edu.wustl.xipHost.iterator.TargetElement;
 
 /**
  * @author Jaroslaw Krych
@@ -107,11 +105,6 @@ public class AVTRetrieve implements Retrieve {
 	@Override
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
-	}
-	
-	@Override
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		//TODO to be removed
 	}
 	
 	@Override
@@ -263,17 +256,6 @@ public class AVTRetrieve implements Retrieve {
 		return objectLocators;
 	}
 	
-	@Override
-	public void addDataAccessListener(DataAccessListener l) {
-		//TODO to be removed
-		
-	}
-
-	@Override
-	public Map<String, ObjectLocator> getObjectLocators() {
-		//TODO to be removed
-		return null;
-	}
 	
 	void fireResultsAvailable(Map<String, ObjectLocator> objectLocators){
 		RetrieveEvent event = new RetrieveEvent(objectLocators);         		        
