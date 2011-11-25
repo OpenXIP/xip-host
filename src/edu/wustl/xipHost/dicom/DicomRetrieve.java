@@ -30,7 +30,6 @@ import com.pixelmed.query.QueryResponseGeneratorFactory;
 import com.pixelmed.query.RetrieveResponseGenerator;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
 import com.pixelmed.query.StudyRootQueryInformationModel;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
@@ -124,14 +123,6 @@ public class DicomRetrieve implements Retrieve {
 	public void setDatabaseFileName(String dbFileName){
 		databaseFileName = dbFileName;
 	}
-	
-	@Override
-	public void setRetrieve(TargetElement targetElement, RetrieveTarget retrieveTarget) {
-		//this.targetElement = targetElement;
-		this.retrieveTarget = retrieveTarget;
-		//TODO to be removed
-	}
-
 	
 	public void run() {
 		logger.info("Executing DICOM retrieve.");				
@@ -405,18 +396,6 @@ public class DicomRetrieve implements Retrieve {
 	void fireResultsAvailable(Map<String, ObjectLocator> objectLocators){
 		RetrieveEvent event = new RetrieveEvent(objectLocators);         		        
 		listener.retrieveResultsAvailable(event);
-	}
-
-	
-	@Override
-	public void addDataAccessListener(DataAccessListener l) {
-		
-	}
-
-	@Override
-	public Map<String, ObjectLocator> getObjectLocators() {
-		return objectLocators;
-		//TODO to be removed
 	}
 
 	RetrieveListener listener;
