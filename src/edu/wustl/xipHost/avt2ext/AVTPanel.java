@@ -160,6 +160,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		if(e.getSource() == criteriaPanel.getQueryButton()){												
 			logger.info("Starting AVT query.");
 			resultTree.rootNode.removeAllChildren();
+			selectedDataSearchResult = new SearchResult();
+			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 			progressBar.setBackground(new Color(156, 162, 189));
 		    progressBar.setForeground(xipColor);
 			progressBar.setString("Processing search request ...");
@@ -315,10 +317,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				subqueryCompleted = true;
 			}
 			synchronized(result){
-				selectedDataSearchResult = new SearchResult();
-				selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
-				selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
-				resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 				resultTree.updateNodes(result);
 				if(activeSubqueryMonitor){
 					result.notify();
@@ -342,7 +340,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		progressBar.setBackground(Color.GREEN);
 		progressBar.setString("Exception: " + message);
 		result = null;							
-		//resultTree.updateNodes(result);
 		resultTree.updateNodes(result);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -658,6 +655,8 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
+		selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
 		if(logger.isDebugEnabled()){
 			logger.debug("Value of selectedDataSearchresult: ");
 			if(selectedDataSearchResult != null) {
