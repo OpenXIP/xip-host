@@ -258,8 +258,6 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 				}
 			}		
 			selectedDataSearchResult = new SearchResult();
-			selectedDataSearchResult.setOriginalCriteria(searchResult.getOriginalCriteria());
-			selectedDataSearchResult.setDataSourceDescription("Selected data for " + searchResult.getDataSourceDescription());
 			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 			resultTree.updateNodes(searchResult);
 	    } else if (e.getActionCommand().equals("CancelSelection")) {
@@ -385,6 +383,8 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+		selectedDataSearchResult.setOriginalCriteria(searchResult.getOriginalCriteria());
+		selectedDataSearchResult.setDataSourceDescription("Selected data for " + searchResult.getDataSourceDescription());
 		if(logger.isDebugEnabled()){
 			logger.debug("Value of selectedDataSearchresult: ");
 			if(selectedDataSearchResult != null) {
