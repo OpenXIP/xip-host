@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JTree;
 import javax.swing.Timer;
@@ -230,7 +231,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 	
 	
 	 synchronized void updateSelection(DefaultMutableTreeNode node, boolean selected){
-		if(node instanceof PatientNode){
+		 if(node instanceof PatientNode){
 			PatientNode patientNode = (PatientNode)node;
 			patientNode.getCheckBox().setSelected(selected);
 			patientNode.setSelected(selected);
@@ -325,6 +326,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 				updateParent(parentNode, allSiblingsSelected);
 			}
 		}
+		//updateSelectedDataSearchResult(locationNode);
 		updateSelectedDataSearchResult(node, selected);
 		repaint();
 	}
@@ -450,18 +452,86 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 	  };
 	};
 	
+	//JUnit test
 	void updateSelectedDataSearchResult(DefaultMutableTreeNode node, boolean selected){
 		Object[] userObjectPath = node.getUserObjectPath();
 		if(node.getUserObject() instanceof Patient){
 			Patient patient = (Patient)node.getUserObject();
 			if(selected){
 				if(!selectedDataSearchResult.contains(patient.getPatientID())){
-					selectedDataSearchResult.addPatient(patient);
+					Patient patientToAdd = new Patient(patient.getPatientName(), patient.getPatientID(), patient.getPatientBirthDate());
+					patientToAdd.setLastUpdated(patient.getLastUpdated());
+					//Add all the Study, Series and Items
+					List<Study> studies = patient.getStudies();
+					for(int i = 0; i < studies.size(); i++){
+						Study study = studies.get(i);
+						Study studyToAdd = new Study(study.getStudyDate(),study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+						studyToAdd.setLastUpdated(study.getLastUpdated());
+						List<Series> series = study.getSeries();
+						for(int j = 0; j < series.size(); j++){
+							Series oneSeries = series.get(j);
+							Series seriesToAdd = new Series(oneSeries.getSeriesNumber(), oneSeries.getModality(), oneSeries.getSeriesDesc(), oneSeries.getSeriesInstanceUID());
+							seriesToAdd.setLastUpdated(oneSeries.getLastUpdated());
+							List<Item> items = oneSeries.getItems();
+							for(int m = 0; m < items.size(); m++){
+								Item item = items.get(m);
+								seriesToAdd.addItem(item);
+							}
+							studyToAdd.addSeries(seriesToAdd);
+						}
+						patientToAdd.addStudy(studyToAdd);
+					}
+					selectedDataSearchResult.addPatient(patientToAdd);
 				} else {
-					
+					Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
+					//Check if any Studies, Series or Items need to be added
+					List<Study> allStudies = patient.getStudies();
+					for(int i = 0; i < allStudies.size(); i++){
+						Study study = allStudies.get(i);
+						List<Series> allSeries = study.getSeries();
+						if(!selectedPatient.contains(study.getStudyInstanceUID())){
+							Study studyToAdd = new Study(study.getStudyDate(),study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+							studyToAdd.setLastUpdated(study.getLastUpdated());
+							for(int j = 0; j < allSeries.size(); j++){
+								Series series = allSeries.get(j);
+								Series seriesToAdd = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+								seriesToAdd.setLastUpdated(series.getLastUpdated());								
+								List<Item> allItems = series.getItems();
+								for(int k = 0; k < allItems.size(); k++){
+									Item item = allItems.get(k);
+									if(!seriesToAdd.contains(item.getItemID())){
+										seriesToAdd.addItem(item);
+									}
+								}
+								studyToAdd.addSeries(seriesToAdd);
+							}
+							selectedPatient.addStudy(studyToAdd);
+						} else {
+							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+							for(int j = 0; j < allSeries.size(); j++){
+								Series series = allSeries.get(j);
+								Series seriesToAdd;
+								if(!selectedStudy.contains(series.getSeriesInstanceUID())) {
+									seriesToAdd = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+									seriesToAdd.setLastUpdated(series.getLastUpdated());
+									selectedStudy.addSeries(seriesToAdd);
+								} else {
+									seriesToAdd = selectedStudy.getSeries(series.getSeriesInstanceUID());
+								}
+								List<Item> allItems = series.getItems();
+								for(int k = 0; k < allItems.size(); k++){
+									Item item = allItems.get(k);
+									if(!seriesToAdd.contains(item.getItemID())){
+										seriesToAdd.addItem(item);
+									}
+								}
+							}
+						}
+					}
 				}
 			} else {
-				selectedDataSearchResult.removePatient(patient);
+				Patient patientToRemove = selectedDataSearchResult.getPatient(patient.getPatientID());
+				selectedDataSearchResult.removePatient(patientToRemove);
 			}
 		} else if (node.getUserObject() instanceof Study){
 			Study study = (Study)node.getUserObject();
@@ -470,23 +540,84 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 				if(selectedDataSearchResult.contains(patientID)){
 					Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
 					if(!selectedPatient.contains(study.getStudyInstanceUID())){
-						selectedPatient.addStudy(study);
-					} 
+						Study studyToAdd = new Study(study.getStudyDate(),study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+						studyToAdd.setLastUpdated(study.getLastUpdated());
+						List<Series> series = study.getSeries();
+						for(int i = 0; i < series.size(); i++){
+							Series oneSeries = series.get(i);
+							Series seriesToAdd = new Series(oneSeries.getSeriesNumber(), oneSeries.getModality(), oneSeries.getSeriesDesc(), oneSeries.getSeriesInstanceUID());
+							seriesToAdd.setLastUpdated(oneSeries.getLastUpdated());
+							List<Item> items = oneSeries.getItems();
+							for(int j = 0; j < items.size(); j++){
+								Item item = items.get(j);
+								seriesToAdd.addItem(item);
+							}
+							studyToAdd.addSeries(seriesToAdd);
+						}
+						selectedPatient.addStudy(studyToAdd);
+					} else {
+						Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
+						List<Series> selectedSeries = selectedStudy.getSeries();
+						List<Series> allSeries = study.getSeries();
+						if(selectedSeries.size() != allSeries.size()){
+							for(int i = 0; i < allSeries.size(); i++){
+								Series series = allSeries.get(i);
+								if(!selectedStudy.contains(series.getSeriesInstanceUID())){
+									Series seriesToAdd = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+									seriesToAdd.setLastUpdated(series.getLastUpdated());
+									selectedStudy.addSeries(seriesToAdd);
+									//Add all items to seriesToAdd
+									List<Item> items = series.getItems();
+									for(int j = 0; j < items.size(); j++){
+										Item item = items.get(j);
+										seriesToAdd.addItem(item);
+									}
+								}
+							}
+						} else {
+							for(int i = 0; i < selectedSeries.size(); i++){
+								Series series = selectedSeries.get(i);
+								Series seriesWithAllItems = study.getSeries(series.getSeriesInstanceUID());
+								if(series.getItems().size() != seriesWithAllItems.getItems().size()){
+									for(int j = 0; j < seriesWithAllItems.getItems().size(); j++){
+										Item item = seriesWithAllItems.getItems().get(j);
+										if(!series.contains(item.getItemID())){
+											series.addItem(item);
+										}
+									}
+								}
+							}
+						}
+					}
 				} else {
 					Patient patientWithAllChildren = ((Patient)userObjectPath[2]);
-					Patient patient = new Patient(patientWithAllChildren.getPatientName(), patientWithAllChildren.getPatientID(), patientWithAllChildren.getPatientBirthDate());
-					patient.setLastUpdated(patientWithAllChildren.getLastUpdated());
-					patient.addStudy(study);
-					selectedDataSearchResult.addPatient(patient);
+					Patient patientToAdd = new Patient(patientWithAllChildren.getPatientName(), patientWithAllChildren.getPatientID(), patientWithAllChildren.getPatientBirthDate());
+					patientToAdd.setLastUpdated(patientWithAllChildren.getLastUpdated());
+					Study studyToAdd = new Study(study.getStudyDate(),study.getStudyID(), study.getStudyDesc(), study.getStudyInstanceUID());
+					studyToAdd.setLastUpdated(study.getLastUpdated());
+					List<Series> seriesWithAllChildren = study.getSeries(); 
+					for(int i = 0; i < seriesWithAllChildren.size(); i++){
+						Series series = seriesWithAllChildren.get(i);
+						Series seriesToAdd = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+						seriesToAdd.setLastUpdated(series.getLastUpdated());
+						List<Item> items = series.getItems();
+						for(int j = 0; j < items.size(); j++){
+							Item item = items.get(j);
+							seriesToAdd.addItem(item);
+						}
+						studyToAdd.addSeries(seriesToAdd);
+					}
+					patientToAdd.addStudy(studyToAdd);
+					selectedDataSearchResult.addPatient(patientToAdd);
 				}
 			} else {
 				Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
-				selectedPatient.removeStudy(study);
+				Study studyToRemove = selectedPatient.getStudy(study.getStudyInstanceUID());
+				selectedPatient.removeStudy(studyToRemove);
 				if(selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0){
 					selectedDataSearchResult.removePatient(selectedPatient);
 				}
 			}
-			
 		} else if (node.getUserObject() instanceof Series){
 			Series series = (Series)node.getUserObject();
 			String studyInstanceUID = ((Study)userObjectPath[3]).getStudyInstanceUID();
@@ -496,29 +627,65 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 					Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
 					if(!selectedPatient.contains(studyInstanceUID)){
 						Study studyWithAllChildren = (Study)userObjectPath[3];
-						Study study = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
-						study.setLastUpdated(studyWithAllChildren.getLastUpdated());
-						study.addSeries(series);
-						selectedPatient.addStudy(study);
+						Study studyToAdd = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
+						studyToAdd.setLastUpdated(studyWithAllChildren.getLastUpdated());
+						Series seriesToAdd = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+						seriesToAdd.setLastUpdated(series.getLastUpdated());
+						List<Item> items = series.getItems();
+						for(int i = 0; i < items.size(); i++){
+							Item item = items.get(i);
+							seriesToAdd.addItem(item);
+						}
+						studyToAdd.addSeries(seriesToAdd);
+						selectedPatient.addStudy(studyToAdd);
 					} else {
 						Study selectedStudy = selectedPatient.getStudy(studyInstanceUID);
-						selectedStudy.addSeries(series);
+						if(!selectedStudy.contains(series.getSeriesInstanceUID())){
+							Series seriesToAdd = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+							seriesToAdd.setLastUpdated(series.getLastUpdated());
+							selectedStudy.addSeries(seriesToAdd);
+							//Add all items to seriesToAdd
+							List<Item> items = series.getItems();
+							for(int i = 0; i < items.size(); i++){
+								Item item = items.get(i);
+								seriesToAdd.addItem(item);
+							}
+						} else {
+							Series selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
+							if(selectedSeries.getItems().size() != series.getItems().size()){
+								List<Item> items = series.getItems();
+								for(int i = 0; i < items.size(); i++){
+									Item item = items.get(i);
+									if(!selectedSeries.contains(item.getItemID())){
+										selectedSeries.addItem(item);
+									}
+								}
+							}
+						}
 					}
 				} else {
 					Patient patientWithAllChildren = ((Patient)userObjectPath[2]);
-					Patient patient = new Patient(patientWithAllChildren.getPatientName(), patientWithAllChildren.getPatientID(), patientWithAllChildren.getPatientBirthDate());
-					patient.setLastUpdated(patientWithAllChildren.getLastUpdated());
+					Patient patientToAdd = new Patient(patientWithAllChildren.getPatientName(), patientWithAllChildren.getPatientID(), patientWithAllChildren.getPatientBirthDate());
+					patientToAdd.setLastUpdated(patientWithAllChildren.getLastUpdated());
 					Study studyWithAllChildren = (Study)userObjectPath[3];
-					Study study = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
-					study.setLastUpdated(studyWithAllChildren.getLastUpdated());
-					study.addSeries(series);
-					patient.addStudy(study);
-					selectedDataSearchResult.addPatient(patient);
+					Study studyToAdd = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
+					studyToAdd.setLastUpdated(studyWithAllChildren.getLastUpdated());
+					Series seriesToAdd = new Series(series.getSeriesNumber(), series.getModality(), series.getSeriesDesc(), series.getSeriesInstanceUID());
+					seriesToAdd.setLastUpdated(series.getLastUpdated());
+					List<Item> items = series.getItems();
+					for(int i = 0; i < items.size(); i++){
+						Item item = items.get(i);
+						seriesToAdd.addItem(item);
+					}
+					studyToAdd.addSeries(seriesToAdd);
+					patientToAdd.addStudy(studyToAdd);
+					selectedDataSearchResult.addPatient(patientToAdd);
 				}
 			} else {
 				Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
 				Study selectedStudy = selectedPatient.getStudy(studyInstanceUID);
-				selectedStudy.removeSeries(series);
+				Series seriesToRemove = selectedStudy.getSeries(series.getSeriesInstanceUID());
+				selectedStudy.removeSeries(seriesToRemove);
 				if(selectedStudy.getSeries().size() == 0 && selectedStudy.getItems().size() == 0){
 					selectedPatient.removeStudy(selectedStudy);
 					if(selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0){
@@ -536,32 +703,32 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 					Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
 					if(!selectedPatient.contains(studyInstanceUID)){
 						Study studyWithAllChildren = (Study)userObjectPath[3];
-						Study study = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
-						study.setLastUpdated(studyWithAllChildren.getLastUpdated());
+						Study studyToAdd = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
+						studyToAdd.setLastUpdated(studyWithAllChildren.getLastUpdated());
 						Series seriesWithAllChildren = (Series)userObjectPath[4];
-						Series series = new Series(seriesWithAllChildren.getSeriesNumber(), seriesWithAllChildren.getModality(), seriesWithAllChildren.getSeriesDesc(), seriesWithAllChildren.getSeriesInstanceUID());
-						series.setLastUpdated(seriesWithAllChildren.getLastUpdated());
-						series.addItem(item);
+						Series seriesToAdd = new Series(seriesWithAllChildren.getSeriesNumber(), seriesWithAllChildren.getModality(), seriesWithAllChildren.getSeriesDesc(), seriesWithAllChildren.getSeriesInstanceUID());
+						seriesToAdd.setLastUpdated(seriesWithAllChildren.getLastUpdated());
+						seriesToAdd.addItem(item);
 						boolean containsSubsetOfItems = false;
-						if(seriesWithAllChildren.getItems().size() != series.getItems().size()) {
+						if(seriesWithAllChildren.getItems().size() != seriesToAdd.getItems().size()) {
 							containsSubsetOfItems = true;
 						}
-						series.setContainsSubsetOfItems(containsSubsetOfItems);
-						study.addSeries(series);
-						selectedPatient.addStudy(study);
+						seriesToAdd.setContainsSubsetOfItems(containsSubsetOfItems);
+						studyToAdd.addSeries(seriesToAdd);
+						selectedPatient.addStudy(studyToAdd);
 					} else {
 						Study selectedStudy = selectedPatient.getStudy(studyInstanceUID);
 						if(!selectedStudy.contains(seriesInstanceUID)){
 							Series seriesWithAllChildren = (Series)userObjectPath[4];
-							Series series = new Series(seriesWithAllChildren.getSeriesNumber(), seriesWithAllChildren.getModality(), seriesWithAllChildren.getSeriesDesc(), seriesWithAllChildren.getSeriesInstanceUID());
-							series.setLastUpdated(seriesWithAllChildren.getLastUpdated());
-							series.addItem(item);
+							Series seriesToAdd = new Series(seriesWithAllChildren.getSeriesNumber(), seriesWithAllChildren.getModality(), seriesWithAllChildren.getSeriesDesc(), seriesWithAllChildren.getSeriesInstanceUID());
+							seriesToAdd.setLastUpdated(seriesWithAllChildren.getLastUpdated());
+							seriesToAdd.addItem(item);
 							boolean containsSubsetOfItems = false;
-							if(seriesWithAllChildren.getItems().size() != series.getItems().size()) {
+							if(seriesWithAllChildren.getItems().size() != seriesToAdd.getItems().size()) {
 								containsSubsetOfItems = true;
 							}
-							series.setContainsSubsetOfItems(containsSubsetOfItems);
-							selectedStudy.addSeries(series);
+							seriesToAdd.setContainsSubsetOfItems(containsSubsetOfItems);
+							selectedStudy.addSeries(seriesToAdd);
 						} else {
 							Series selectedSeries = selectedStudy.getSeries(seriesInstanceUID);
 							selectedSeries.addItem(item);
@@ -569,23 +736,23 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 					}
 				} else {
 					Patient patientWithAllChildren = ((Patient)userObjectPath[2]);
-					Patient patient = new Patient(patientWithAllChildren.getPatientName(), patientWithAllChildren.getPatientID(), patientWithAllChildren.getPatientBirthDate());
-					patient.setLastUpdated(patientWithAllChildren.getLastUpdated());
+					Patient patientToAdd = new Patient(patientWithAllChildren.getPatientName(), patientWithAllChildren.getPatientID(), patientWithAllChildren.getPatientBirthDate());
+					patientToAdd.setLastUpdated(patientWithAllChildren.getLastUpdated());
 					Study studyWithAllChildren = (Study)userObjectPath[3];
-					Study study = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
-					study.setLastUpdated(studyWithAllChildren.getLastUpdated());
+					Study studyToAdd = new Study(studyWithAllChildren.getStudyDate(), studyWithAllChildren.getStudyID(), studyWithAllChildren.getStudyDesc(), studyWithAllChildren.getStudyInstanceUID());
+					studyToAdd.setLastUpdated(studyWithAllChildren.getLastUpdated());
 					Series seriesWithAllChildren = (Series)userObjectPath[4];
-					Series series = new Series(seriesWithAllChildren.getSeriesNumber(), seriesWithAllChildren.getModality(), seriesWithAllChildren.getSeriesDesc(), seriesWithAllChildren.getSeriesInstanceUID());
-					series.setLastUpdated(seriesWithAllChildren.getLastUpdated());
-					series.addItem(item);
+					Series seriesToAdd = new Series(seriesWithAllChildren.getSeriesNumber(), seriesWithAllChildren.getModality(), seriesWithAllChildren.getSeriesDesc(), seriesWithAllChildren.getSeriesInstanceUID());
+					seriesToAdd.setLastUpdated(seriesWithAllChildren.getLastUpdated());
+					seriesToAdd.addItem(item);
 					boolean containsSubsetOfItems = false;
-					if(seriesWithAllChildren.getItems().size() != series.getItems().size()) {
+					if(seriesWithAllChildren.getItems().size() != seriesToAdd.getItems().size()) {
 						containsSubsetOfItems = true;
 					}
-					series.setContainsSubsetOfItems(containsSubsetOfItems);
-					study.addSeries(series);
-					patient.addStudy(study);
-					selectedDataSearchResult.addPatient(patient);
+					seriesToAdd.setContainsSubsetOfItems(containsSubsetOfItems);
+					studyToAdd.addSeries(seriesToAdd);
+					patientToAdd.addStudy(studyToAdd);
+					selectedDataSearchResult.addPatient(patientToAdd);
 				}
 			} else {
 				Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
@@ -625,6 +792,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 	public void setSelectedDataSearchResult(SearchResult selectedDataSearchResult){
 		this.selectedDataSearchResult = selectedDataSearchResult;
 	}
+	
 }
 
 
