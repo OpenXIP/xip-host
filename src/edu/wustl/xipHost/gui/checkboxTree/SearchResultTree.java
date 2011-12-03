@@ -11,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JTree;
 import javax.swing.Timer;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -199,11 +198,6 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 		    expandSubTree(childrenPath[childIndex]);
 		}
 	}
-	
-	
-	public Map<Series, Study> getSelectedSeries(){
-		return null;
-	}
 	 
 	 public DefaultMutableTreeNode getRootNode(){
 		 return rootNode;
@@ -230,7 +224,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 	}
 	
 	
-	 synchronized void updateSelection(DefaultMutableTreeNode node, boolean selected){
+	synchronized void updateSelection(DefaultMutableTreeNode node, boolean selected){
 		 if(node instanceof PatientNode){
 			PatientNode patientNode = (PatientNode)node;
 			patientNode.getCheckBox().setSelected(selected);
@@ -326,7 +320,6 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 				updateParent(parentNode, allSiblingsSelected);
 			}
 		}
-		//updateSelectedDataSearchResult(locationNode);
 		updateSelectedDataSearchResult(node, selected);
 		repaint();
 	}
@@ -452,7 +445,6 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 	  };
 	};
 	
-	//JUnit test
 	void updateSelectedDataSearchResult(DefaultMutableTreeNode node, boolean selected){
 		Object[] userObjectPath = node.getUserObjectPath();
 		if(node.getUserObject() instanceof Patient){

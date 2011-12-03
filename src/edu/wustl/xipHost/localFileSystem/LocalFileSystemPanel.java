@@ -360,25 +360,6 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 					
 	}
 	
-	/*boolean wasDoubleClick = false;
-	MouseListener ml = new MouseAdapter(){  
-		public void mouseClicked(final MouseEvent e) {
-			int x = e.getX();
-	     	int y = e.getY();
-	     	nodeSelectionListener.setSearchResultTree(resultTree);
-	     	nodeSelectionListener.setSelectionCoordinates(x, y);
-	     	nodeSelectionListener.setSearchResult(searchResult);
-	    	if (e.getClickCount() == 2){
-	    		wasDoubleClick = true;
-	    		nodeSelectionListener.setWasDoubleClick(wasDoubleClick);
-	        } else {
-	        	Timer timer = new Timer(300, nodeSelectionListener);
-	        	timer.setRepeats(false);
-	        	timer.start();
-	        }
-	    }
-	};*/
-
 	SearchResult selectedDataSearchResult;
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
