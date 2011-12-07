@@ -206,7 +206,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 		 return treeModel;
 	 }
 
-
+	
 	@Override
 	public void nodeSelected(NodeSelectionEvent2 event) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)event.getSource();
@@ -219,6 +219,9 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 			selected = !((SeriesNode)node).isSelected();
 		} else if (node instanceof ItemNode){
 			selected = !((ItemNode)node).isSelected();
+		}
+		if(doubleClicked){
+			selected = !selected;
 		}
 		updateSelection(node, selected);
 	}
@@ -395,17 +398,24 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 		}
 	}
 	
-
+	boolean doubleClicked;
+	public void setDoubleClicked(boolean doubleClicked){
+		this.doubleClicked = doubleClicked;
+	}
+	
 	MouseListener ml = new MouseAdapter(){  
 		public void mouseClicked(final MouseEvent e) {
 			x = e.getX();
 	     	y = e.getY();
+	     	setDoubleClicked(false);
 			if(e.getButton() == 1){
-		    	if (e.getClickCount() == 1) {
-		    		Timer timer = new Timer(300, taskPerformer);
+				if (e.getClickCount() == 2){
+		        	setDoubleClicked(true);
+		        } else if (e.getClickCount() == 1) {
+		        	Timer timer = new Timer(300, taskPerformer);
 		        	timer.setRepeats(false);
 		        	timer.start();
-		        } 
+		        }
 			} else if (e.getButton() == 3) {
 				int row = getRowForLocation(x, y);
 	  			TreePath path = getPathForRow(row);
@@ -414,36 +424,43 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 	    }
 	};
 	
+	
 	int x;
 	int y;
 	ActionListener taskPerformer = new ActionListener() {
-	      public void actionPerformed(ActionEvent evt) {
-	  			int row = getRowForLocation(x, y);
-	  			TreePath path = getPathForRow(row);
-	  			if (path != null) {
-	  				DefaultMutableTreeNode node = (DefaultMutableTreeNode)getLastSelectedPathComponent();
-	  				if (node == null)
-	  					return;
-	  				if (!node.isRoot()) {
-	  					Object selectedNode = node.getUserObject();
-	  					if (selectedNode instanceof Patient) {
-	  						PatientNode patientNode = (PatientNode) node;
-	  						patientNode.updateNode();			
-	  					} else if (selectedNode instanceof Study) {
-	  						StudyNode studyNode = (StudyNode) node;
-	  						studyNode.updateNode();		
-	  					} else if (selectedNode instanceof Series) {
-	  						SeriesNode seriesNode = (SeriesNode) node;
-	  						seriesNode.updateNode();
-	  					} else if (selectedNode instanceof Item) {
-	  						ItemNode itemNode = (ItemNode) node;
-	  						itemNode.updateNode();
-	  					}
-	  				}
-	  			}
-	  			repaint();
-	  };
+		public void actionPerformed(ActionEvent evt) {
+			if(doubleClicked == false){
+				int row = getRowForLocation(x, y);
+				TreePath path = getPathForRow(row);
+				if (path != null) {
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode)getLastSelectedPathComponent();
+					updateNodeProgressive(node);
+				}
+			}
+		};
 	};
+	
+	public void updateNodeProgressive(DefaultMutableTreeNode node){
+			if (node == null)
+				return;
+			if (!node.isRoot()) {
+				Object selectedNode = node.getUserObject();
+				if (selectedNode instanceof Patient) {
+					PatientNode patientNode = (PatientNode) node;
+					patientNode.updateNode();			
+				} else if (selectedNode instanceof Study) {
+					StudyNode studyNode = (StudyNode) node;
+					studyNode.updateNode();		
+				} else if (selectedNode instanceof Series) {
+					SeriesNode seriesNode = (SeriesNode) node;
+					seriesNode.updateNode();
+				} else if (selectedNode instanceof Item) {
+					ItemNode itemNode = (ItemNode) node;
+					itemNode.updateNode();
+				}
+			}
+			repaint();
+	}
 	
 	void updateSelectedDataSearchResult(DefaultMutableTreeNode node, boolean selected){
 		Object[] userObjectPath = node.getUserObjectPath();
