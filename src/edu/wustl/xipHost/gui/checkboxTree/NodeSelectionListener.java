@@ -9,6 +9,6 @@ import java.util.EventListener;
  * @author Jaroslaw Krych
  *
  */
-public interface NodeSelectionListener2 extends EventListener {
-	public void nodeSelected(NodeSelectionEvent2 event);
+public interface NodeSelectionListener extends EventListener {
+	public void nodeSelected(NodeSelectionEvent event);
 }

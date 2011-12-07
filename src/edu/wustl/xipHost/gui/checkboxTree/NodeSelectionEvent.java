@@ -10,9 +10,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @author Jaroslaw Krych
  *
  */
-public class NodeSelectionEvent2 extends EventObject {
+public class NodeSelectionEvent extends EventObject {
 
-	public NodeSelectionEvent2(DefaultMutableTreeNode node) {
+	public NodeSelectionEvent(DefaultMutableTreeNode node) {
 		super(node);
 	}
 

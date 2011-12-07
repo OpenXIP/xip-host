@@ -25,7 +25,7 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.gui.checkboxTree.ItemNode;
 
-public class SearchResultTree extends JTree implements NodeSelectionListener2 {	
+public class SearchResultTree extends JTree implements NodeSelectionListener {	
 	final static Logger logger = Logger.getLogger(SearchResultTree.class);
 	public DefaultMutableTreeNode rootNode;
 	protected DefaultTreeModel treeModel;			
@@ -208,7 +208,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener2 {
 
 	
 	@Override
-	public void nodeSelected(NodeSelectionEvent2 event) {
+	public void nodeSelected(NodeSelectionEvent event) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)event.getSource();
 		boolean selected = false;
 		if(node instanceof PatientNode){

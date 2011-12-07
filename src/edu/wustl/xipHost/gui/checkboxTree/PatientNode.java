@@ -51,13 +51,13 @@ public class PatientNode extends DefaultMutableTreeNode {
 		return userObject;
 	}
 	
-	NodeSelectionListener2 l;
-	public void addNodeSelectionListener(NodeSelectionListener2 listener){
+	NodeSelectionListener l;
+	public void addNodeSelectionListener(NodeSelectionListener listener){
 		l = listener;
 	}
 	
 	public void updateNode(){
-		NodeSelectionEvent2 event = new NodeSelectionEvent2(this);
+		NodeSelectionEvent event = new NodeSelectionEvent(this);
 		if(l != null){
 			l.nodeSelected(event);
 		} else {
