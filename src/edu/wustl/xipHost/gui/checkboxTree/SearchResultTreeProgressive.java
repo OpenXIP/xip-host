@@ -23,7 +23,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		super();
 	}
 	
-	public void updateNodes(SearchResult result) {					    			
+	public void updateNodes(SearchResult result) {
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
 			rootNode.removeAllChildren();
@@ -157,6 +157,6 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		rootNode.add(locationNode);				
 		treeModel.nodeChanged(rootNode);
 		treeModel.reload(rootNode);
-		expandAll();		
+		expandAll();
 	}
 }

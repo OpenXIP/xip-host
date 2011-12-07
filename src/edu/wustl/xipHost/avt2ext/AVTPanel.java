@@ -68,9 +68,7 @@ import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
-import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
-import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
@@ -310,19 +308,15 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	boolean subqueryCompleted;
 	@Override
 	public void queryResultsAvailable(QueryEvent e) {				
-		synchronized(this){
-			Query query = (Query) e.getSource();
-			result = query.getSearchResult();
-			if(activeSubqueryMonitor == true){
-				subqueryCompleted = true;
-			}
-			synchronized(result){
-				resultTree.updateNodes(result);
-				if(activeSubqueryMonitor){
-					result.notify();
-				}
-				activeSubqueryMonitor = true;
-			}
+		Query query = (Query) e.getSource();
+		result = query.getSearchResult();
+		if(activeSubqueryMonitor == true){
+			subqueryCompleted = true;
+		}
+		synchronized(result){
+			resultTree.updateNodes(result);
+			resultTree.updateNodeProgressive(queryNode);
+			activeSubqueryMonitor = true;
 		}
 		progressBar.setString("AVT AD Search finished");
 		progressBar.setIndeterminate(false);				
@@ -358,7 +352,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	Object selectedNode;
 	int queryNodeIndex = 0;
 	boolean wasDoubleClick = false;
-	
+	DefaultMutableTreeNode queryNode;
 	MouseListener ml = new MouseAdapter(){  
 		public void mouseClicked(final MouseEvent e) {
 			int x = e.getX();
@@ -369,7 +363,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	    		wasDoubleClick = true;
 	    		subqueryCompleted = false;
 		     	if (path != null) {    		
-		     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();			    
+		     		queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();			    
 		     		if (queryNode == null) return;		 
 		     		if (!queryNode.isRoot()) {
 		     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
@@ -409,7 +403,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	 							initialCriteria.put(t,a);}		     						     							     					
 		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.STUDY, result, selectedNode);
 		     					avtQuery.addDataAccessListener(l);
-		     					Thread t = new Thread(avtQuery); 					
+		     					Thread t = new Thread(avtQuery); 
 		     					t.start();
 		     				} else {
 		     					progressBar.setString("");
@@ -502,7 +496,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		     				return;
 		     			}
 	     			}
-		     		updateSelectedDataSearchResult(queryNode);
 		     	}
 	        } 
      	}
@@ -674,119 +667,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 								logger.debug("         " + logItem.toString());
 							}
 						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Method is used to update selectedDataSearchResult after sub-queries
-	 * If PatientNode selected before sub-query, all of the studies belonging to this patient should not 
-	 * only be selected but also added to the selectedDataSearchResult object.
-	 * @throws InterruptedException 
-	 */
-	void updateSelectedDataSearchResult(DefaultMutableTreeNode node) {
-		synchronized(result){
-			try {
-				while(subqueryCompleted == false){
-					result.wait();
-				}
-				//PatientNode is not included, because Patient node are found always in first query and not sub-queries
-				if (node instanceof PatientNode){
-					Patient patient = (Patient)node.getUserObject();
-					if(selectedDataSearchResult != null){
-						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-						if(selectedPatient != null){
-							if(((PatientNode) node).isSelected()){
-								Patient updatedPatient = result.getPatient(patient.getPatientID());
-								List<Study> studies = updatedPatient.getStudies();
-								for(Study study : studies){
-									if(!selectedPatient.contains(study.getStudyInstanceUID())){
-										selectedPatient.addStudy(study);
-									}							
-								}
-							}
-						}
-					}
-				} else if (node instanceof StudyNode){
-					Study study = (Study)node.getUserObject();
-					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) node.getParent();
-					Patient patient = (Patient)patientNode.getUserObject();
-					if(selectedDataSearchResult != null){
-						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-						if(selectedPatient != null){
-							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-							if(selectedStudy != null){
-								if(((StudyNode) node).isSelected()){
-									Study updatedStudy = result.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID());
-									List<Series> series = updatedStudy.getSeries();
-									for(Series oneSeries : series){
-										if(!selectedStudy.contains(oneSeries.getSeriesInstanceUID())){
-											selectedStudy.addSeries(oneSeries);
-										}
-									}
-								} 
-							}						
-						}		
-					}						 
-				} else if (node instanceof SeriesNode){
-					Series series = (Series)node.getUserObject();
-					StudyNode studyNode = (StudyNode)node.getParent();
-					Study study = (Study)studyNode.getUserObject();
-					PatientNode patientNode = (PatientNode) studyNode.getParent();
-					Patient patient = (Patient)patientNode.getUserObject();
-					if(selectedDataSearchResult != null){
-						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-						if(selectedPatient != null){
-							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-							if(selectedStudy != null){
-								Series selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
-								if(selectedSeries != null){
-									if(((SeriesNode) node).isSelected()){
-										Series updatedSeries = result.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID()).getSeries(series.getSeriesInstanceUID());
-										List<Item> items = updatedSeries.getItems();
-										for(Item item : items){
-											if(!selectedSeries.contains(item.getItemID())){
-												//selectedSeries.addItem(item);
-											}
-										}
-									}
-								} 
-							}						
-						}		
-					}	
-				}
-			} catch (InterruptedException e) {
-				logger.error(e, e);
-			}
-			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Value of selectedDataSearchresult: ");
-				if(selectedDataSearchResult != null){
-					List<Patient> patients = selectedDataSearchResult.getPatients();					
-					for (Patient logPatient : patients) {
-						if(logPatient != null){
-							logger.debug(logPatient.toString());
-							List<Study> studies = logPatient.getStudies();
-							for (Study logStudy : studies) {
-								if(logStudy != null){
-									logger.debug("   " + logStudy.toString());
-									List<Series> series = logStudy.getSeries();
-									for (Series logSeries : series) {
-										if(logSeries != null){
-											logger.debug("      " + logSeries.toString());
-											List<Item> items = logSeries.getItems();
-											for(Item logItem : items){
-												if(logItem != null){
-													logger.debug("         " + logItem.toString());
-												}											
-											}
-										}									
-									}
-								}	
-							}
-						}					
 					}
 				}
 			}
