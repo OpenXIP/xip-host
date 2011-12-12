@@ -614,13 +614,15 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		//Clear Xindice directory. Ensures all documents and collections are cleared even when application
 		//does not terminate properly
 		Util.delete(new File("./db"));
+		//Run DICOM shutdown sequence
+		dicomMgr.runDicomShutDownSequence();
 		logger.info("XIPHost exits. Thank you for using XIP Host.");
 		
 		
-		ThreadGroup root = Thread.currentThread().getThreadGroup().getParent(); 
+		/*ThreadGroup root = Thread.currentThread().getThreadGroup().getParent(); 
     	while (root.getParent() != null) {
     		root = root.getParent();
-        }
+        }*/
         // Visit each thread group  
         System.exit(0);	
 	}
