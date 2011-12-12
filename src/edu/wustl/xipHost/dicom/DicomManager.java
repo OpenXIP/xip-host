@@ -27,6 +27,7 @@ public interface DicomManager {
 	public abstract boolean submit(File[] dicomFiles, PacsLocation location);
 	public abstract List<PacsLocation> getPacsLocations();	
 	public abstract boolean runDicomStartupSequence();
+	public abstract boolean runDicomShutDownSequence();
 	public String getDBFileName();
 	public PacsLocation getDefaultCallingPacsLocation();
 	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation);
