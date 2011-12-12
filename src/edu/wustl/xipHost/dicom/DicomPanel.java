@@ -159,8 +159,6 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		lblGlobus2.addMouseListener(
 			new MouseAdapter(){
 				public void mouseClicked(MouseEvent e){																
-					/*System.out.println("Display calling locations");
-					dicomMgr.submit(null, null);*/
 					new UnderDevelopmentDialog(lblGlobus2.getLocationOnScreen());
 				}
 			}
@@ -392,6 +390,8 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			callingPacsLocation = (PacsLocation)item;
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){
 			resultTree.rootNode.removeAllChildren();
+			selectedDataSearchResult = new SearchResult();
+			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();	
@@ -423,15 +423,6 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	public void queryResultsAvailable(QueryEvent e) {		
 		DicomQuery dicomQuery = (DicomQuery)e.getSource();
 		result = dicomQuery.getSearchResult();		        
-		/*if(result == null){			
-			resultTree.updateNodes(result);
-		}else{
-			resultTree.updateNodes(result);			
-		}*/
-		selectedDataSearchResult = new SearchResult();
-		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
-		selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
-		resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 		resultTree.updateNodes(result);
 		progressBar.setString("DicomSearch finished");
 		progressBar.setIndeterminate(false);		
