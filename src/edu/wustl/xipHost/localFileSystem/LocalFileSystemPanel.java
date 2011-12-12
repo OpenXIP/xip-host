@@ -81,14 +81,10 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	
 	public LocalFileSystemPanel() {
 		searchResult = new SearchResult("Local File System");
-		//resultTree.addMouseListener(ml);
 		resultTree.addDataSelectionListener(this);
-		//nodeSelectionListener.addDataSelectionListener(this);
 		setBackground(xipColor);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() + 10));
-          
-        //JFileChooser fileChooser = new JFileChooser();
         fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
         fileChooser.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
         fileChooser.addActionListener(this);

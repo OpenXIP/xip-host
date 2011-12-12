@@ -8,6 +8,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-
 import org.apache.log4j.Logger;
 import org.hsqldb.Server;
 import org.jdom.Document;
@@ -236,7 +239,7 @@ public class DicomManagerImpl implements DicomManager{
 						 if(studyLastUpdated != null){
 							 strStudyLastUpdated = studyLastUpdated.toString();
 						 }
-						 logger.debug(study.toString() + " Last updated: " + strStudyLastUpdated);
+						 logger.debug("   " + study.toString() + " Last updated: " + strStudyLastUpdated);
 						 Iterator<Series> series = study.getSeries().iterator();
 						 while(series.hasNext()){
 							 Series oneSeries = series.next();
@@ -245,7 +248,11 @@ public class DicomManagerImpl implements DicomManager{
 							 if(seriesLastUpdated != null){
 								 strSeriesLastUpdated = seriesLastUpdated.toString();
 							 }
-							 logger.debug(oneSeries.toString() + " Last updated: " + strSeriesLastUpdated);
+							 logger.debug("      " + oneSeries.toString() + " Last updated: " + strSeriesLastUpdated);
+							 Iterator<Item> images = oneSeries.getItems().iterator();
+							 while(images.hasNext()){
+								 logger.debug("         " + images.next().toString());
+							 }
 						 }
 					 }
 				 }
@@ -280,7 +287,7 @@ public class DicomManagerImpl implements DicomManager{
 				String patientBirthDate = attValues.get("(0x0010,0x0030)");
 				if(patientBirthDate == null){patientBirthDate = "";}
 				patient = new Patient(patientName, patientID, patientBirthDate); 
-				patient.setLastUpdated(lastUpdated);
+				//patient.setLastUpdated(lastUpdated);
 				if(!result.contains(patientID)){
 					result.addPatient(patient);
 				} else {
@@ -295,12 +302,13 @@ public class DicomManagerImpl implements DicomManager{
 				String studyInstanceUID = attValues.get("(0x0020,0x000D)");				
 				if(studyInstanceUID == null){studyInstanceUID = "";}				
 				study = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
-				study.setLastUpdated(lastUpdated);
+				
 				if(!patient.contains(studyInstanceUID)){
 					patient.addStudy(study);
 				} else {
 					study = patient.getStudy(studyInstanceUID);
 				}
+				patient.setLastUpdated(lastUpdated);
 				resolveToSearchResult(child);
 			}else if(level.equalsIgnoreCase("Series")){
 				String seriesNumber = attValues.get("(0x0020,0x0011)");
@@ -312,12 +320,12 @@ public class DicomManagerImpl implements DicomManager{
 				String seriesInstanceUID = attValues.get("(0x0020,0x000E)");
 				if(seriesInstanceUID == null){seriesInstanceUID = "";}
 				series = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);
-				series.setLastUpdated(lastUpdated);
 				if(!study.contains(seriesInstanceUID)){
 					study.addSeries(series);
 				} else {
 					series = study.getSeries(seriesInstanceUID);
 				}
+				study.setLastUpdated(lastUpdated);
 				resolveToSearchResult(child);
 			}else if(level.equalsIgnoreCase("Image")){
 				String imageNumber = attValues.get("(0x0008,0x0018)");	//SOPIntanceUID
@@ -340,7 +348,8 @@ public class DicomManagerImpl implements DicomManager{
 					modality.setModality(modCode);
 					objDesc.setModality(modality);
 					image.setObjectDescriptor(objDesc);
-				} 
+				}
+				series.setLastUpdated(lastUpdated);
 			}else{
 				return null;
 			}
@@ -391,12 +400,9 @@ public class DicomManagerImpl implements DicomManager{
 		for(int i = 0; i < dicomFiles.length; i++){
 			AttributeList attList = parser.parse(dicomFiles[i]);					
 			try {
-				dbModel.insertObject(attList, dicomFiles[i].getCanonicalPath());
+				dbModel.insertObject(attList, dicomFiles[i].getAbsolutePath(), "R");
 			} catch (DicomException e) {
-				e.printStackTrace();
-				return false;
-			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e, e);
 				return false;
 			}
 		}		
@@ -428,9 +434,31 @@ public class DicomManagerImpl implements DicomManager{
 		return true;
 	}
 	
-	public boolean runShutDownSequence(){
-		//closeDicomServer();		
+	public boolean runDicomShutDownSequence(){
+		logger.debug("Running DICOM shutdown sequence.");
+		closeDicomServer();		
 		return true;
+	}
+	
+	Connection conn;
+	public void closeDicomServer(){						
+		try {
+			Class.forName("org.hsqldb.jdbcDriver");
+		} catch (ClassNotFoundException e1) {
+			logger.error(e1,  e1);
+		}
+		//dbModel.close();
+		try {
+			conn = DriverManager.getConnection("jdbc:hsqldb:./pixelmed-server-hsqldb/hsqldb/data/ws1db", "sa", "");
+			Statement st = conn.createStatement();
+			boolean bln = st.execute("SHUTDOWN");
+	        if(bln){
+	        	conn.close();
+	        }
+		} catch (SQLException e) {
+			logger.error("ERROR detected when shuting down DICOM Pixelmed and HSQLDB servers");
+			logger.error(e, e);
+		}
 	}
 	
 	
@@ -448,7 +476,7 @@ public class DicomManagerImpl implements DicomManager{
 		try {
 			prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation1.properties"));
 			//prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation2.properties"));
-			server = new DicomAndWebStorageServer(prop);			
+			server = new DicomAndWebStorageServer(prop);
 		} catch (FileNotFoundException e) {			
 			return false;
 		} catch (IOException e) {
@@ -479,19 +507,10 @@ public class DicomManagerImpl implements DicomManager{
 		return dbFileName;
 	}
 	
-	/*public void closeDicomServer(){						
-		dbModel.close();		
-	}*/
 	public void closeHSQLDB(){
 		hsqldbServer.shutdown();
 	}
-	
-	public static void main(String[] args){
-		DicomManagerImpl dicomMgr = new DicomManagerImpl();
-		dicomMgr.runDicomStartupSequence();
-		dicomMgr.runShutDownSequence();
-		dicomMgr.startPixelmedServer();
-	}
+
 
 	@Override
 	public PacsLocation getDefaultCallingPacsLocation() {
@@ -501,5 +520,10 @@ public class DicomManagerImpl implements DicomManager{
 	PacsLocation callingPacsLocation;
 	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation){
 		this.callingPacsLocation = callingPacsLocation;
+	}
+	
+	public static void main(String [] args){
+		DicomManager dicomMgr = new DicomManagerImpl();
+		dicomMgr.runDicomShutDownSequence();
 	}
 }
