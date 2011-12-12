@@ -57,7 +57,7 @@ import java.util.*;
  *
  * @author	dclunie
  */
-public abstract class DatabaseInformationModel {
+public abstract class DatabaseInformationModel_void {
 
 	/***/
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/database/DatabaseInformationModel.java,v 1.62 2010/12/01 13:27:52 dclunie Exp $";
@@ -165,7 +165,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	dictionary				used to decide which attributes to include for each entity when creating the tables
 	 * @exception	DicomException		thrown if a connection to the database cannot be established
 	 */
-	public DatabaseInformationModel(String databaseFileName,InformationEntity rootInformationEntity,DicomDictionary dictionary) throws DicomException {
+	public DatabaseInformationModel_void(String databaseFileName,InformationEntity rootInformationEntity,DicomDictionary dictionary) throws DicomException {
 		doCommonConstructorStuff(databaseFileName,null,rootInformationEntity,dictionary,defaultDatabaseRootName);
 	}
 
@@ -181,7 +181,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	databaseRootName		the name used for the root node of the database in TreeModel
 	 * @exception	DicomException		thrown if a connection to the database cannot be established
 	 */
-	public DatabaseInformationModel(String databaseFileName,InformationEntity rootInformationEntity,DicomDictionary dictionary,String databaseRootName) throws DicomException {
+	public DatabaseInformationModel_void(String databaseFileName,InformationEntity rootInformationEntity,DicomDictionary dictionary,String databaseRootName) throws DicomException {
 		doCommonConstructorStuff(databaseFileName,null,rootInformationEntity,dictionary,databaseRootName);
 	}
 
@@ -197,7 +197,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	dictionary				used to decide which attributes to include for each entity when creating the tables
 	 * @exception	DicomException		thrown if a connection to the database cannot be established
 	 */
-	public DatabaseInformationModel(String databaseFileName,String databaseServerName,InformationEntity rootInformationEntity,DicomDictionary dictionary) throws DicomException {
+	public DatabaseInformationModel_void(String databaseFileName,String databaseServerName,InformationEntity rootInformationEntity,DicomDictionary dictionary) throws DicomException {
 		doCommonConstructorStuff(databaseFileName,databaseServerName,rootInformationEntity,dictionary,defaultDatabaseRootName);
 	}
 
@@ -214,7 +214,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	databaseRootName		the name used for the root node of the database in TreeModel
 	 * @exception	DicomException		thrown if a connection to the database cannot be established
 	 */
-	public DatabaseInformationModel(String databaseFileName,String databaseServerName,InformationEntity rootInformationEntity,DicomDictionary dictionary,String databaseRootName) throws DicomException {
+	public DatabaseInformationModel_void(String databaseFileName,String databaseServerName,InformationEntity rootInformationEntity,DicomDictionary dictionary,String databaseRootName) throws DicomException {
 		doCommonConstructorStuff(databaseFileName,databaseServerName,rootInformationEntity,dictionary,databaseRootName);
 	}
 
@@ -494,6 +494,7 @@ public abstract class DatabaseInformationModel {
 				b.append(localParentReferenceColumnName);
 				b.append(")");
 				Statement s = databaseConnection.createStatement();
+				System.out.println(b.toString());
 				s.execute(b.toString());
 				s.close();
 			} catch (Exception e) {
@@ -869,7 +870,7 @@ public abstract class DatabaseInformationModel {
 					extendInsertStatementStringWithPersonNameSearchValuesForSelectedInformationEntity(b,list,ie);
 					b.append(")");
 					ss = b.toString();
-//System.err.println("DatabaseInformationModel.insertObject(): Statement to execute = "+ss);
+					System.err.println("DatabaseInformationModel.insertObject(): Statement to execute = "+ss);
 					s.execute(ss);
 				}
 
