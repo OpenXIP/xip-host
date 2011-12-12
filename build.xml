@@ -15,6 +15,7 @@
    <property name="lib.OHT" location="lib/OHT" />
    <property name="lib.AVT" location="lib/AVT" />
    <property name="lib.NBIA" location="lib/NBIA" />
+   <property name="lib.pixelmed" location="lib/pixelmed" />
    <property name="ext.lib" location="ext/lib"/>   
    <property name="main-class" value="edu.wustl.xipHost.hostControl.HostConfigurator" />   
    <property name="endorsed" location="endorsed"/>	
@@ -32,7 +33,8 @@
          
    <path id="classpath">
    		<!-- order matters! -->         
-	    <fileset dir="${lib.xip}" includes="**/*.jar" />     
+	    <fileset dir="${lib.xip}" includes="**/*.jar" /> 
+   		<fileset dir="${lib.pixelmed}" includes="**/*.jar" /> 
 	    <fileset dir="${ext.lib}" includes="**/*.jar" />     
 	    <fileset dir="${lib.Xindice}" includes="**/*.jar" />     
 	    <fileset dir="${lib.OHT}" includes="**/*.jar" />     
