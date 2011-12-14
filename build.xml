@@ -18,6 +18,7 @@
    <property name="lib.pixelmed" location="lib/pixelmed" />
    <property name="ext.lib" location="ext/lib"/>   
    <property name="main-class" value="edu.wustl.xipHost.hostControl.HostConfigurator" />   
+   <property name="prelaodDICOM-class" value="edu.wustl.xipHost.dicom.PreloadDICOM" />   
    <property name="endorsed" location="endorsed"/>	
 	      
    <target name="init">
@@ -46,6 +47,15 @@
 	  	     <!--	<exclude name="caGrid-1.0-data-*.jar" /> -->
 	     <!--/fileset-->
    </path>
+	
+   <path id="classpathPreloadDICOM">
+   		<fileset dir="${lib.pixelmed}" includes="**/*.jar" /> 
+   		<fileset dir="${lib.NBIA}" includes="jdom-1.0.jar" />
+   		<fileset dir="${lib.xip}" includes="log4j-1.2.15.jar" /> 
+   		<fileset dir="${build.lib}">
+   		      <include name="*.jar" />
+   	    </fileset>
+   </path>	
 
    <path id="run.classpath">
       <path refid="classpath" />
@@ -57,7 +67,7 @@
 	
    <target name="compile" depends="init" description="compile the source ">
       <!-- Compile the java code from ${src} into ${build.classes} -->
-      <javac srcdir="${src}" destdir="${build.classes}" debug="on" classpathref="classpath">
+      <javac srcdir="${src}" destdir="${build.classes}" debug="on" classpathref="classpath" includeantruntime="false">
       </javac>
    </target>  	
 	
@@ -83,5 +93,9 @@
       <!-- Delete the ${build} directory tree -->
       <delete dir="${build}" />
    </target>
+	
+   <target name="preloadDICOM" depends="compile" description="Preloads DICOM to Pixelmed/HSQLDB datastore.">
+   		<java classname="${prelaodDICOM-class}" classpathref="classpathPreloadDICOM" fork="true" maxmemory="256m"/>
+	</target>
 
 </project>
