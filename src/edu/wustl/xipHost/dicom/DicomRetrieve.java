@@ -149,62 +149,60 @@ public class DicomRetrieve implements Retrieve {
 			    	logger.debug("DBFileName: " + databaseFileName);
 		    	}
 			}
-			objectLocators = new HashMap<String, ObjectLocator>();	
-			if(retrieveTarget == RetrieveTarget.DICOM_AND_AIM){
-				criteria = DicomUtil.convertToPixelmedDicomCriteria(dicomCriteria);			    	   
-				logger.debug("DICOM retrieve criteria:");
-				DicomDictionary dictionary = AttributeList.getDictionary();
-			    Iterator<?> iter = dictionary.getTagIterator();        
-			    String strAtt = null;
-			    String attValue = null;
-			    while(iter.hasNext()){
-			    	AttributeTag attTag  = (AttributeTag)iter.next();					    	
-			    	strAtt = attTag.toString();									
-					attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);			
-					if(!attValue.isEmpty()){
-						logger.debug(strAtt + " " + attValue);				
-					}
-			    }	    
-			    try {
-			    	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);
-					mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());										        	
-					StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(databaseFileName);			
-		    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
-		    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
-		    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
-		    		RetrieveResponseGenerator mRetrieveResponseGenerator = mRetrieveResponseGeneratorFactory.newInstance();
-					QueryResponseGenerator mQueryResponseGenerator = mQueryResponseGeneratorFactory.newInstance();						
-					mQueryResponseGenerator.performQuery("1.2.840.10008.5.1.4.1.2.2.1", criteria, true);	// Study Root						
-					AttributeList localResults = mQueryResponseGenerator.next();			
-					int i = 0;
-					while(localResults != null) {							 					
-						mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
-						SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
-						Iterator<?> it = dicomFiles.iterator();							
-						while (it.hasNext() ) {
-							SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
-							logger.debug("Dicom file: " + x.getFileName());			    														
-							String fileURI = (new File(x.getFileName()).toURI()).toURL().toExternalForm();
-							ObjectLocator objLoc = new ObjectLocator();														
-							Uuid itemUUID = objectDescriptors.get(i).getUuid();
-							objLoc.setUuid(itemUUID);				
-							objLoc.setUri(fileURI); 
-							objectLocators.put(itemUUID.getUuid(), objLoc);
-							i++;
-						}		
-						localResults = mQueryResponseGenerator.next();
+			objectLocators = new HashMap<String, ObjectLocator>();
+			criteria = DicomUtil.convertToPixelmedDicomCriteria(dicomCriteria);			    	   
+			logger.debug("DICOM retrieve criteria:");
+			DicomDictionary dictionary = AttributeList.getDictionary();
+		    Iterator<?> iter = dictionary.getTagIterator();        
+		    String strAtt = null;
+		    String attValue = null;
+		    while(iter.hasNext()){
+		    	AttributeTag attTag  = (AttributeTag)iter.next();					    	
+		    	strAtt = attTag.toString();									
+				attValue = Attribute.getSingleStringValueOrEmptyString(criteria, attTag);			
+				if(!attValue.isEmpty()){
+					logger.debug(strAtt + " " + attValue);				
+				}
+		    }	    
+		    try {
+		    	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);
+				mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());										        	
+				StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(databaseFileName);			
+	    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
+	    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
+	    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
+	    		RetrieveResponseGenerator mRetrieveResponseGenerator = mRetrieveResponseGeneratorFactory.newInstance();
+				QueryResponseGenerator mQueryResponseGenerator = mQueryResponseGeneratorFactory.newInstance();						
+				mQueryResponseGenerator.performQuery("1.2.840.10008.5.1.4.1.2.2.1", criteria, true);	// Study Root						
+				AttributeList localResults = mQueryResponseGenerator.next();			
+				int i = 0;
+				while(localResults != null) {							 					
+					mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
+					SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
+					Iterator<?> it = dicomFiles.iterator();							
+					while (it.hasNext() ) {
+						SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
+						logger.debug("Dicom file: " + x.getFileName());			    														
+						String fileURI = (new File(x.getFileName()).toURI()).toURL().toExternalForm();
+						ObjectLocator objLoc = new ObjectLocator();														
+						Uuid itemUUID = objectDescriptors.get(i).getUuid();
+						objLoc.setUuid(itemUUID);				
+						objLoc.setUri(fileURI); 
+						objectLocators.put(itemUUID.getUuid(), objLoc);
+						i++;
 					}		
-			    } catch (IOException e) {
-					logger.error(e, e);
-					return null;
-				} catch (DicomException e) {
-					logger.error(e, e);
-					return null;				
-				} catch (DicomNetworkException e) {
-					logger.error(e, e);
-					return null;
-				}	
-			}
+					localResults = mQueryResponseGenerator.next();
+				}		
+		    } catch (IOException e) {
+				logger.error(e, e);
+				return null;
+			} catch (DicomException e) {
+				logger.error(e, e);
+				return null;				
+			} catch (DicomNetworkException e) {
+				logger.error(e, e);
+				return null;
+			}	
 		}	
 		return objectLocators;
 	}
