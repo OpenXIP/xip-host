@@ -530,6 +530,8 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
+		selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
 		if(logger.isDebugEnabled()){
 			logger.debug("Value of selectedDataSearchresult: ");
 			if(selectedDataSearchResult != null) {
