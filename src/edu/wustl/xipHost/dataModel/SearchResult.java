@@ -31,7 +31,7 @@ public class SearchResult {
 	}
 	
 	public String getDataSourceDescription(){
-		return new String(this.datasoureDescription);
+		return datasoureDescription;
 	}
 	
 	public void setDataSourceDescription(String sourceDescription){

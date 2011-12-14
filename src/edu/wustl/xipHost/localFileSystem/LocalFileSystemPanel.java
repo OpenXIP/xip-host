@@ -201,7 +201,6 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
-				//instanceApp.setRetrieveDataSource(retrieve);
 				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
@@ -212,7 +211,6 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
-				//app.setRetrieveDataSource(retrieve);
 				app.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 				app.setApplicationTmpDir(tmpDir);
 				app.addApplicationTerminationListener(listener);
