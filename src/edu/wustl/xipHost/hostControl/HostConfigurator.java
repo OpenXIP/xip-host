@@ -101,7 +101,17 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			System.exit(0);
 		}
 		dicomMgr = DicomManagerFactory.getInstance();
-		dicomMgr.runDicomStartupSequence();		    	    	
+		Properties workstation1Prop = new Properties();
+		try {
+			workstation1Prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation1.properties"));
+		} catch (FileNotFoundException e1) {
+			logger.error(e1, e1);
+			System.exit(0);
+		} catch (IOException e1) {
+			logger.error(e1, e1);
+			System.exit(0);
+		}
+		dicomMgr.runDicomStartupSequence("./pixelmed-server-hsqldb/server", workstation1Prop);		    	    	
 				
 		// Set up default certificates for security.  Must be done after starting dicom, but before login.
 		//TODO Move code to the configuration file, read entries from the configuration file, and move files to an XIP location.
@@ -396,9 +406,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	public String getAETitle(){
 		return aeTitle;
 	}
-	public void setAETitle(String aeTitleIn){
-		aeTitle = aeTitleIn;
-	}
 	
 	public String getDicomStoragePort(){
 		return dicomStoragePort;
@@ -615,7 +622,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		//does not terminate properly
 		Util.delete(new File("./db"));
 		//Run DICOM shutdown sequence
-		dicomMgr.runDicomShutDownSequence();
+		dicomMgr.runDicomShutDownSequence("jdbc:hsqldb:./pixelmed-server-hsqldb/hsqldb/data/ws1db", "sa", "");
 		logger.info("XIPHost exits. Thank you for using XIP Host.");
 		
 		
