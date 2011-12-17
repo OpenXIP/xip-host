@@ -3,10 +3,20 @@
  */
 package edu.wustl.xipHost.dicom;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import org.apache.log4j.Logger;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.nema.dicom.wg23.ObjectLocator;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
@@ -21,23 +31,23 @@ import com.pixelmed.dicom.UniqueIdentifierAttribute;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveListener;
-import edu.wustl.xipHost.dataAccess.RetrieveTarget;
-import edu.wustl.xipHost.dicom.server.Workstation2;
-import edu.wustl.xipHost.dicom.server.Workstation3;
-import junit.framework.TestCase;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class RetrieveFromPacsLocationTest extends TestCase implements RetrieveListener {
+public class RetrieveFromPacsLocationTest implements RetrieveListener {
 	final static Logger logger = Logger.getLogger(RetrieveFromPacsLocationTest.class);	
-	PacsLocation calling;
-	PacsLocation called;
-	AttributeList retrieveCriteria;
+	static PacsLocation calling;
+	static PacsLocation called;
+	static AttributeList retrieveCriteria;
 	DicomRetrieve dicomRetrieve;
-	String databaseFileName;
-	protected void setUp(){
+	static String databaseFileName;
+	static DicomManagerImpl dicomMgr1;
+	static DicomManagerImpl dicomMgr2;
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
 		called = new PacsLocation("127.0.0.1", 3002, "WORKSTATION2", "WashU WS2");		
 		calling = new PacsLocation("127.0.0.1", 3003, "WORKSTATION3", "WashU WS3");
 		retrieveCriteria = DicomUtil.constructEmptyAttributeList();
@@ -53,29 +63,55 @@ public class RetrieveFromPacsLocationTest extends TestCase implements RetrieveLi
 		} catch (DicomException excep){
 			
 		}
-		Workstation2.startHSQLDB();
-		Workstation2.startPixelmedServer();
-		Workstation3.startHSQLDB();
-		Workstation3.startPixelmedServer();
-		databaseFileName = Workstation3.getServerConfig().getProperty("Application.DatabaseFileName");
+		
+		dicomMgr1 = new DicomManagerImpl();
+		dicomMgr1.startHSQLDB("./src-tests/edu/wustl/xipHost/dicom/server/serverTest");
+		Properties workstation2Prop = new Properties();
+		try {
+			workstation2Prop.load(new FileInputStream("./src-tests/edu/wustl/xipHost/dicom/server/workstation2.properties"));
+			workstation2Prop.setProperty("Application.SavedImagesFolderName", new File("./test-content/WORKSTATION2").getCanonicalPath());
+		} catch (FileNotFoundException e1) {
+			logger.error(e1, e1);	
+			System.exit(0);
+		} catch (IOException e1) {
+			logger.error(e1, e1);
+			System.exit(0);
+		}
+		dicomMgr1.startPixelmedServer(workstation2Prop);
+		
+		dicomMgr2 = new DicomManagerImpl();
+		dicomMgr2.startHSQLDB("./src-tests/edu/wustl/xipHost/dicom/server/serverTest3");
+		Properties workstation3Prop = new Properties();
+		try {
+			workstation3Prop.load(new FileInputStream("./src-tests/edu/wustl/xipHost/dicom/server/workstation3.properties"));
+			workstation3Prop.setProperty("Application.SavedImagesFolderName", new File("./test-content/WORKSTATION3").getCanonicalPath());
+		} catch (FileNotFoundException e1) {
+			logger.error(e1, e1);	
+			System.exit(0);
+		} catch (IOException e1) {
+			logger.error(e1, e1);
+			System.exit(0);
+		}
+		dicomMgr2.startPixelmedServer(workstation3Prop);
+		databaseFileName = workstation3Prop.getProperty("Application.DatabaseFileName");
 	}
 	
-	protected void tearDown(){
-		Workstation2.stopHSQLDB();
-		Workstation3.stopHSQLDB();
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+		dicomMgr1.closeDicomServer("jdbc:hsqldb:./src-tests/edu/wustl/xipHost/dicom/server/hsqldb/data/ws2db", "sa", "");
+		dicomMgr2.closeDicomServer("jdbc:hsqldb:./src-tests/edu/wustl/xipHost/dicom/server/hsqldb/data/ws3db", "sa", "");
 	}
 	
-	boolean retrieveResultAvailable = false;
 	
 	//DicomRetrieve 1A - basic flow. AttributeList, PacsLocation (calling and called) are valid and network is on.
+	//TODO Retrieve JUnit test should be performed in the context of TargetIteratorRunner or refactor code to run it independently 
+	@Test
 	public void testRetrieveFromPacsLocation1A() {	
-		logger.debug(retrieveCriteria.toString());
 		Map<Integer, Object> dicomCriteria = DicomUtil.convertToADDicomCriteria(retrieveCriteria);
 		Map<String, Object> aimCriteria = new HashMap<String, Object>();
 		File importDir = new File("./test-content/WORKSTATION2");
-		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
 		DataSource dataSource = called;
-		dicomRetrieve = new DicomRetrieve(dicomCriteria, aimCriteria, importDir, retrieveTarget, dataSource);
+		dicomRetrieve = new DicomRetrieve(dicomCriteria, aimCriteria, importDir, null, dataSource);
 		dicomRetrieve.setDefaultCallingPacsLocation(calling);
 		dicomRetrieve.setDatabaseFileName(databaseFileName);
 		dicomRetrieve.addRetrieveListener(this);
