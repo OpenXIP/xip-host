@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * <p>The {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel} class is an abstract class that contains the core
+ * <p>The {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel} class is an abstract class that contains the core
  * functionality for storing, accessing and maintaining a persistent representation of selected attributes of composite
  * objects.</p>
  *
@@ -621,7 +621,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when creating the tables for a new database.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.
 	 * Defaults to adding no extra columns if not overridden (i.e. it is not abstract).</p>
 	 *
 	 * <p> For example, there may be a DICOM attribute that is defined to be in a particular information
@@ -643,7 +643,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when creating the tables for a new database.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.
 	 * Defaults to adding no extra columns if not overridden (i.e. it is not abstract).</p>
 	 *
 	 * <p> For example, there may be dates and times derived from DICOM attributes.</p>
@@ -658,7 +658,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when creating the tables for a new database.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.
 	 * Defaults to adding four extra columns for each table if not overridden (i.e. it is not abstract).</p>
 	 *
 	 * @param	b		the statement being constructed
@@ -905,7 +905,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * @param	b		the statement being constructed
 	 * @param	list		the DICOM attributes of a composite object, containing the attributes describing this instance of the entity
@@ -920,7 +920,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * @param	b		the statement being constructed
 	 * @param	list		the DICOM attributes of a composite object, containing the attributes describing this instance of the entity
@@ -939,7 +939,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * @param	b		the statement being constructed
 	 * @param	list		the DICOM attributes of a composite object, containing the attributes describing this instance of the entity
@@ -953,7 +953,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * @param	b		the statement being constructed
 	 * @param	list		the DICOM attributes of a composite object, containing the attributes describing this instance of the entity
@@ -967,7 +967,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * <p>The file reference type is left empty since unknown.</p>
 	 *
@@ -986,7 +986,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * @param	b		the statement being constructed
 	 * @param	list		the DICOM attributes of a composite object, containing the attributes describing this instance of the entity
@@ -1002,7 +1002,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * @param	b		the statement being constructed
 	 * @param	list		the DICOM attributes of a composite object, containing the attributes describing this instance of the entity
@@ -1016,7 +1016,7 @@ public abstract class DatabaseInformationModel_void {
 	 *
 	 * <p>Called when inserting a new record for an instance of the entity.</p>
 	 *
-	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel DatabaseInformationModel}.</p>
+	 * <p>Specific to each concrete information model extending {@link com.pixelmed.database.DatabaseInformationModel_void DatabaseInformationModel}.</p>
 	 *
 	 * @param	b		the statement being constructed
 	 * @param	list		the DICOM attributes of a composite object, containing the attributes describing this instance of the entity
