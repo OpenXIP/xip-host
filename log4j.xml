@@ -193,7 +193,9 @@
   <logger name="edu.wustl.xipHost.dicom.RetrieveFromPacsLocationTest">
 	<appender-ref ref="Dicom_Appender"/>
   </logger>		
-  	
+  <logger name="edu.wustl.xipHost.dicom.TestServerSetup">
+	<appender-ref ref="Dicom_Appender"/>
+  </logger>		
   <root>
     <!-- level value="debug"/-->
     <appender-ref ref="stdout"/>   
