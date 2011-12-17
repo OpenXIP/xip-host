@@ -4,7 +4,6 @@
 package edu.wustl.xipHost.dicom;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,7 +32,6 @@ import org.nema.dicom.wg23.Modality;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.Uid;
 import org.nema.dicom.wg23.Uuid;
-
 import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.PatientStudySeriesConcatenationInstanceModel;
 import com.pixelmed.dicom.Attribute;
@@ -201,7 +199,7 @@ public class DicomManagerImpl implements DicomManager{
 			callingAETitle = HostConfigurator.getHostConfigurator().getAETitle();
 		}
 		if (callingAETitle == "") {
-			callingAETitle = "XIPDefault";
+			callingAETitle = "WS_XIP";
 		}
 		mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);		
 		try {
@@ -211,7 +209,6 @@ public class DicomManagerImpl implements DicomManager{
 		}
 		SearchResult returnResult = null;
 		try {			
-			//TODO
 			//mTree hangs when supplied callingAETitle is an empty string
 			mTree = mModel.performHierarchicalQuery(criteria);			
 			result = new SearchResult(location.hostShortName);
@@ -411,45 +408,39 @@ public class DicomManagerImpl implements DicomManager{
 
 	File xmlPacsLocFile = new File("./config/pacs_locations.xml");
 	String dbFileName;
-	public boolean runDicomStartupSequence() {
-		startHSQLDB();		
-		startPixelmedServer();
+	public boolean runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp) {
+		if(xmlPacsLocFile == null ){return false;}
+		startHSQLDB(hsqldbServerConfigFilePath);		
+		startPixelmedServer(pixelmedProp);
 		dbFileName = prop.getProperty("Application.DatabaseFileName");		
 		setDBModel(dbFileName);
-		
-		if(xmlPacsLocFile == null ){return false;}
 		try {
 			loadPacsLocations(xmlPacsLocFile);				
-		} catch (IOException e) {
-			// TODO Auto-generated catch block				
-			System.out.println("DICOM module startup sequence error. " + 
-			"System could not find: pacs_locations.xml");
+		} catch (IOException e) {		
+			logger.error("DICOM module startup sequence error. System could not find: pacs_locations.xml", e);
 			return false;
 		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			System.out.println("GlobalSearch startup sequence error. " + 
-			"Error when processing pacs_locations.xml");
+			logger.error(e, e);
 			return false;
 		}
 		return true;
 	}
 	
-	public boolean runDicomShutDownSequence(){
+	public boolean runDicomShutDownSequence(String connectionPath, String user, String password){
 		logger.debug("Running DICOM shutdown sequence.");
-		closeDicomServer();		
+		closeDicomServer(connectionPath, user, password);		
 		return true;
 	}
 	
 	Connection conn;
-	public void closeDicomServer(){						
+	public void closeDicomServer(String connectionPath, String user, String password){						
 		try {
 			Class.forName("org.hsqldb.jdbcDriver");
 		} catch (ClassNotFoundException e1) {
 			logger.error(e1,  e1);
 		}
-		//dbModel.close();
 		try {
-			conn = DriverManager.getConnection("jdbc:hsqldb:./pixelmed-server-hsqldb/hsqldb/data/ws1db", "sa", "");
+			conn = DriverManager.getConnection(connectionPath, user, password);
 			Statement st = conn.createStatement();
 			boolean bln = st.execute("SHUTDOWN");
 	        if(bln){
@@ -463,27 +454,29 @@ public class DicomManagerImpl implements DicomManager{
 	
 	
 	Server hsqldbServer;
-	public void startHSQLDB() {
+	public void startHSQLDB(String hsqldbServerConfigFilePath ) {
 		hsqldbServer = new Server();
-		hsqldbServer.putPropertiesFromFile("./pixelmed-server-hsqldb/server");		
-		//hsqldbServer.putPropertiesFromFile("./pixelmed-server-hsqldb/testServer");
+		hsqldbServer.putPropertiesFromFile(hsqldbServerConfigFilePath);		
 		hsqldbServer.start();
 	}
 	
 	DicomAndWebStorageServer server;
 	Properties prop = new Properties();
-	public boolean startPixelmedServer(){		
+	public boolean startPixelmedServer(Properties prop){		
 		try {
-			prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation1.properties"));
-			//prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation2.properties"));
-			server = new DicomAndWebStorageServer(prop);
+			this.prop = prop;
+			server = new DicomAndWebStorageServer(this.prop);
 		} catch (FileNotFoundException e) {			
+			logger.error(e,  e);
 			return false;
 		} catch (IOException e) {
+			logger.error(e,  e);
 			return false;
 		} catch (DicomException e) {
+			logger.error(e,  e);
 			return false;
 		} catch (DicomNetworkException e) {
+			logger.error(e,  e);
 			return false;
 		}
 		return true;
@@ -498,8 +491,7 @@ public class DicomManagerImpl implements DicomManager{
 		try {			
 			this.dbModel = new PatientStudySeriesConcatenationInstanceModel(dbModel);			
 		} catch (DicomException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e, e);
 		}
 	}
 	
@@ -520,10 +512,5 @@ public class DicomManagerImpl implements DicomManager{
 	PacsLocation callingPacsLocation;
 	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation){
 		this.callingPacsLocation = callingPacsLocation;
-	}
-	
-	public static void main(String [] args){
-		DicomManager dicomMgr = new DicomManagerImpl();
-		dicomMgr.runDicomShutDownSequence();
 	}
 }
