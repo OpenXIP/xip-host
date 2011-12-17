@@ -22,7 +22,7 @@ public class TestDicomPkgeAll {
 		suite.addTestSuite(PacsLocationTest.class);
 		suite.addTestSuite(RemovePacsLocationTest.class);
 		suite.addTestSuite(StorePacsLocationTest.class);
-		suite.addTest(QueryPacsLocationTest.suite());
+		//suite.addTest(QueryPacsLocationTest.suite());
 		return suite;		
 	}
 }
