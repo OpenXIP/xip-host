@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
+
 import org.jdom.JDOMException;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -26,8 +28,8 @@ public interface DicomManager {
 	//public abstract List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling);
 	public abstract boolean submit(File[] dicomFiles, PacsLocation location);
 	public abstract List<PacsLocation> getPacsLocations();	
-	public abstract boolean runDicomStartupSequence();
-	public abstract boolean runDicomShutDownSequence();
+	public abstract boolean runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp);
+	public abstract boolean runDicomShutDownSequence(String connectionPath, String user, String password);
 	public String getDBFileName();
 	public PacsLocation getDefaultCallingPacsLocation();
 	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation);
