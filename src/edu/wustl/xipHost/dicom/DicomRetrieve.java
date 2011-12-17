@@ -143,10 +143,10 @@ public class DicomRetrieve implements Retrieve {
 		    	logger.debug("Port: " + port);		    
 		    	logger.debug("CalledAETitle: " + calledAETitle);	    	
 		    	logger.debug("CallingAETitle: " + callingAETitle);
-		    	if(databaseFileName == null){
-		    		logger.error("DBFileName value is null!");
+		    	if(databaseFileName != null){
+		    		logger.debug("DBFileName: " + databaseFileName);
 		    	} else {
-			    	logger.debug("DBFileName: " + databaseFileName);
+		    		logger.warn("DBFileName value is null!");
 		    	}
 			}
 			objectLocators = new HashMap<String, ObjectLocator>();
@@ -167,7 +167,12 @@ public class DicomRetrieve implements Retrieve {
 		    try {
 		    	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);
 				mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());										        	
-				StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(databaseFileName);			
+				StudySeriesInstanceModel mDatabase = null;
+				if(databaseFileName != null){
+					mDatabase = new StudySeriesInstanceModel(databaseFileName);
+				} else {
+					throw new DicomException("databaseFileName is NULL.");
+				}			
 	    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
 	    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
 	    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
