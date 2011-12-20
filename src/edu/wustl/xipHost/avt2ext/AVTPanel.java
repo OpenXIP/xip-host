@@ -112,11 +112,9 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		cbxDicom.setBackground(xipColor);
 		cbxDicom.setForeground(Color.WHITE);
 		cbxDicom.addItemListener(this);
-		cbxDicom.setSelected(true);
 		cbxAimSeg.setBackground(xipColor);
 		cbxAimSeg.setForeground(Color.WHITE);
 		cbxAimSeg.addItemListener(this);
-		cbxAimSeg.setSelected(true);
 		cbxPanel.setLayout(new GridLayout(1, 2));		
 		btnSelectAll.setBackground(xipColor);
 		btnSelectAll.addActionListener(this);
@@ -160,6 +158,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			resultTree.rootNode.removeAllChildren();
 			selectedDataSearchResult = new SearchResult();
 			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
+			skipResultTreeUpdate = true;
 			progressBar.setBackground(new Color(156, 162, 189));
 		    progressBar.setForeground(xipColor);
 			progressBar.setString("Processing search request ...");
@@ -547,7 +546,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		}
 	}
 	
-	
+	boolean skipResultTreeUpdate = false;
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		JCheckBox source = (JCheckBox)e.getItemSelectable();
@@ -557,15 +556,35 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			} else if (e.getStateChange() == ItemEvent.DESELECTED){
 				cbxDicom.setSelected(false);
 			}
+			if (cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
+				synchronized(result){
+					resultTree.update(RetrieveTarget.DICOM_AIM_SEG);
+				}
+			} else if(!cbxAimSeg.isSelected()) {
+				resultTree.update(RetrieveTarget.AIM_SEG);
+			} else if (cbxAimSeg.isSelected()) {
+				resultTree.update(RetrieveTarget.DICOM);
+			}
 		} else if (source == cbxAimSeg){
 			if (e.getStateChange() == ItemEvent.SELECTED){
 				cbxAimSeg.setSelected(true);
 			} else if (e.getStateChange() == ItemEvent.DESELECTED){
 				cbxAimSeg.setSelected(false);
 			}
+			if (cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
+				synchronized(result){
+					resultTree.update(RetrieveTarget.DICOM_AIM_SEG);
+				}
+			} else if(!cbxDicom.isSelected()) {
+				resultTree.update(RetrieveTarget.DICOM);
+			} else if(cbxDicom.isSelected()) {
+				resultTree.update(RetrieveTarget.AIM_SEG);
+			} 
 		}
 	}
 
+	
+	
 	@Override
 	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
@@ -615,7 +634,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			if(cbxDicom.isSelected() == true && cbxAimSeg.isSelected() == false){
 				retrieveTarget = RetrieveTarget.DICOM;
 			} else if (cbxDicom.isSelected() == true && cbxAimSeg.isSelected() == true) {
-				retrieveTarget = RetrieveTarget.DICOM_AND_AIM;
+				retrieveTarget = RetrieveTarget.DICOM_AIM_SEG;
 			} else if (cbxDicom.isSelected() == false && cbxAimSeg.isSelected() == true) {
 				retrieveTarget = RetrieveTarget.AIM_SEG;
 			}
