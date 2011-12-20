@@ -5,6 +5,10 @@ package edu.wustl.xipHost.gui.checkboxTree;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
+import edu.wustl.xipHost.dataModel.AIMItem;
+import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -158,5 +162,38 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		treeModel.nodeChanged(rootNode);
 		treeModel.reload(rootNode);
 		expandAll();
+	}
+	
+	public void update(RetrieveTarget retrieveTarget){
+		DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+		int numbOfPatientNodes = locationNode.getChildCount();
+		for(int i = 0; i < numbOfPatientNodes; i++){
+			PatientNode patientNode = (PatientNode) locationNode.getChildAt(i);
+			int numbOfStudyNodes = patientNode.getChildCount();
+			for(int j = 0; j < numbOfStudyNodes; j++) {
+				StudyNode studyNode = (StudyNode)patientNode.getChildAt(j);
+				int numbOfSeriesNodes = studyNode.getChildCount();
+				for(int k = 0; k < numbOfSeriesNodes; k++) {
+					SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(k);
+					int numbOfItemNodes = seriesNode.getChildCount();
+					for(int m = 0; m < numbOfItemNodes; m++) {
+						ItemNode itemNode = (ItemNode)seriesNode.getChildAt(m);
+						if(retrieveTarget.equals(RetrieveTarget.AIM_SEG)) {
+							if(itemNode.getUserObject() instanceof AIMItem) {
+								itemNode.updateNode();
+							}
+						} else if (retrieveTarget.equals(RetrieveTarget.DICOM)) {
+							if(itemNode.getUserObject() instanceof ImageItem) {
+								itemNode.updateNode();
+							}
+						} else if (retrieveTarget.equals(RetrieveTarget.DICOM_AIM_SEG)) {
+							if(!itemNode.isSelected()){
+								itemNode.updateNode();
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
