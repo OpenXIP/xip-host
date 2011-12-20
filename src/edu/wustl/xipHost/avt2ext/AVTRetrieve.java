@@ -124,7 +124,7 @@ public class AVTRetrieve implements Retrieve {
 	XMLOutputter outToXMLFile = new XMLOutputter();
 	Map<String, ObjectLocator> retrieve(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, File importDir, RetrieveTarget retrieveTarget) throws IOException {		
 		Map<String, ObjectLocator> objectLocators = new HashMap<String, ObjectLocator>();				
-		if(retrieveTarget == RetrieveTarget.DICOM_AND_AIM){
+		if(retrieveTarget == RetrieveTarget.DICOM_AIM_SEG){
 			objectLocators = retrieveDICOM();
 			Map<String, ObjectLocator> objectLocatorsAIMandSEG = retrieveAIMandDICOMSeg();
 			Iterator<String> keySet = objectLocatorsAIMandSEG.keySet().iterator();
@@ -142,9 +142,7 @@ public class AVTRetrieve implements Retrieve {
 	}	
 	
 	Map<String, ObjectLocator> retrieveDICOM(){
-		//Retrieve DICOM						
-		//If oneSeries contains subset of items, narrow dicomCriteria to individual SOPInstanceUIDs
-		//Then retrieve data item by item	
+		//Retrieve DICOM
 		logger.debug("DICOM retrieve criteria: ");
 		Iterator<Integer> keySet = dicomCriteria.keySet().iterator();
 		while(keySet.hasNext()){
@@ -209,9 +207,7 @@ public class AVTRetrieve implements Retrieve {
 			outToXMLFile.output(document, outStream);
 	    	outStream.flush();
 	    	outStream.close();
-	    	//retrievedFiles.add(outFile);
 	    	ObjectLocator objLoc = new ObjectLocator();	
-	    	//ObjectDescriptor objDesc = objectDescriptors.get(i);
 	    	ObjectDescriptor objDesc = iterObjDescsAIM.next();			    	
     		Uuid itemUUID = objDesc.getUuid();			    	
 			objLoc.setUuid(itemUUID);				
