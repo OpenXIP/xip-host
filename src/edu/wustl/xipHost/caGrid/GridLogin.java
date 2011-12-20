@@ -3,14 +3,11 @@ package edu.wustl.xipHost.caGrid;
 import gov.nih.nci.cagrid.authentication.bean.BasicAuthenticationCredential;
 import gov.nih.nci.cagrid.authentication.bean.Credential;
 import gov.nih.nci.cagrid.authentication.client.AuthenticationClient;
-import gov.nih.nci.cagrid.common.security.ProxyUtil;
 import gov.nih.nci.cagrid.dorian.client.IFSUserClient;
-//import gov.nih.nci.cagrid.dorian.ifs.bean.ProxyLifetime;
 import gov.nih.nci.cagrid.opensaml.SAMLAssertion;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
-import org.globus.gsi.GlobusCredential;
 
 /**
  * <font  face="Tahoma" size="2" color="Black">
@@ -74,6 +71,12 @@ public class GridLogin {
 		}
 		
 	}
+	
+	public void getAssertionCertificate(String userName, String password) {
+		//TODO get assertion certificate logic
+		
+	}
+	
 	/**
 	 * @param args
 	 * @throws Exception 
