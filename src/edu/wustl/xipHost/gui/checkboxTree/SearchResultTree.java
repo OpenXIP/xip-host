@@ -540,7 +540,9 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 				}
 			} else {
 				Patient patientToRemove = selectedDataSearchResult.getPatient(patient.getPatientID());
-				selectedDataSearchResult.removePatient(patientToRemove);
+				if(patientToRemove != null){
+					selectedDataSearchResult.removePatient(patientToRemove);
+				}
 			}
 		} else if (node.getUserObject() instanceof Study){
 			Study study = (Study)node.getUserObject();
@@ -621,10 +623,12 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 				}
 			} else {
 				Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
-				Study studyToRemove = selectedPatient.getStudy(study.getStudyInstanceUID());
-				selectedPatient.removeStudy(studyToRemove);
-				if(selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0){
-					selectedDataSearchResult.removePatient(selectedPatient);
+				if(selectedPatient != null){
+					Study studyToRemove = selectedPatient.getStudy(study.getStudyInstanceUID());
+					selectedPatient.removeStudy(studyToRemove);
+					if(selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0){
+						selectedDataSearchResult.removePatient(selectedPatient);
+					}
 				}
 			}
 		} else if (node.getUserObject() instanceof Series){
@@ -692,13 +696,17 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 				}
 			} else {
 				Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
-				Study selectedStudy = selectedPatient.getStudy(studyInstanceUID);
-				Series seriesToRemove = selectedStudy.getSeries(series.getSeriesInstanceUID());
-				selectedStudy.removeSeries(seriesToRemove);
-				if(selectedStudy.getSeries().size() == 0 && selectedStudy.getItems().size() == 0){
-					selectedPatient.removeStudy(selectedStudy);
-					if(selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0){
-						selectedDataSearchResult.removePatient(selectedPatient);
+				if(selectedPatient != null){
+					Study selectedStudy = selectedPatient.getStudy(studyInstanceUID);
+					Series seriesToRemove = selectedStudy.getSeries(series.getSeriesInstanceUID());
+					if(selectedStudy != null) {
+						selectedStudy.removeSeries(seriesToRemove);
+						if(selectedStudy.getSeries().size() == 0 && selectedStudy.getItems().size() == 0){
+							selectedPatient.removeStudy(selectedStudy);
+							if(selectedPatient.getStudies().size() == 0 && selectedPatient.getItems().size() == 0){
+								selectedDataSearchResult.removePatient(selectedPatient);
+							}
+						}
 					}
 				}
 			}
@@ -801,7 +809,6 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 	public void setSelectedDataSearchResult(SearchResult selectedDataSearchResult){
 		this.selectedDataSearchResult = selectedDataSearchResult;
 	}
-	
 }
 
 
