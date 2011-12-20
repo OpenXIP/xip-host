@@ -53,6 +53,8 @@ import edu.wustl.xipHost.iterator.TargetElement;
 import edu.wustl.xipHost.iterator.TargetIteratorRunner;
 import edu.wustl.xipHost.iterator.TargetIteratorListener;
 import edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve;
+import edu.wustl.xipHost.dataModel.AIMItem;
+import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -761,8 +763,15 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 						//Then retrieve data item by item
 						if(oneSeries.containsSubsetOfItems()){
 							for(Item item : items){
-								String itemSOPInstanceUID = item.getItemID();
-								dicomCriteria.put(Tag.SOPInstanceUID, itemSOPInstanceUID);
+								dicomCriteria.remove(Tag.SOPInstanceUID);
+								aimCriteria.remove("ImageAnnotation.uniqueIdentifier");
+								if(item instanceof ImageItem) {
+									String itemSOPInstanceUID = item.getItemID();
+									dicomCriteria.put(Tag.SOPInstanceUID, itemSOPInstanceUID);
+								} else if (item instanceof AIMItem) {
+									String aimUID = item.getItemID();
+									aimCriteria.put("ImageAnnotation.uniqueIdentifier", aimUID);
+								}
 								if(retrieve instanceof LocalFileSystemRetrieve){
 									retrieve.setCriteria(selectedDataSearchResult);
 								} else {
