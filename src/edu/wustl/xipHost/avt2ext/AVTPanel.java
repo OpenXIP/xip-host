@@ -68,7 +68,9 @@ import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
+import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
+import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
@@ -156,6 +158,10 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		if(e.getSource() == criteriaPanel.getQueryButton()){												
 			logger.info("Starting AVT query.");
 			resultTree.rootNode.removeAllChildren();
+			cbxDicom.setEnabled(false);
+			cbxAimSeg.setEnabled(false);
+			//cbxDicom.setSelected(false);
+			//cbxAimSeg.setSelected(false);
 			selectedDataSearchResult = new SearchResult();
 			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 			skipResultTreeUpdate = true;
@@ -191,8 +197,18 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			}																	
 		} else if (e.getSource() == btnSelectAll){
 			resultTree.selectAll(true);
+			//FIX
+			//Update happens three times, first when selectAll is called and second and third when cbxDicomand cbxAimSeg are set.
+			cbxDicom.setSelected(true);
+			cbxAimSeg.setSelected(true);
+			cbxDicom.setEnabled(true);
+			cbxAimSeg.setEnabled(true);
 		} else if (e.getSource() == btnDeselectAll){
 			resultTree.selectAll(false);
+			cbxDicom.setSelected(false);
+			cbxAimSeg.setSelected(false);
+			cbxDicom.setEnabled(false);
+			cbxAimSeg.setEnabled(false);
 		}	
 	}
 	
@@ -358,11 +374,11 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	     	int y = e.getY();
 		    int row = resultTree.getRowForLocation(x, y);
 		    final TreePath  path = resultTree.getPathForRow(row);
-	    	if (e.getClickCount() == 2){
+		    queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();
+	    	if (e.getClickCount() == 2) {
 	    		wasDoubleClick = true;
 	    		subqueryCompleted = false;
-		     	if (path != null) {    		
-		     		queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();			    
+		     	if (path != null) {		    
 		     		if (queryNode == null) return;		 
 		     		if (!queryNode.isRoot()) {
 		     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
@@ -496,7 +512,12 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		     			}
 	     			}
 		     	}
-	        } 
+	        } else if (e.getClickCount() == 1) {
+	        	if(queryNode instanceof PatientNode || queryNode instanceof StudyNode || queryNode instanceof SeriesNode) {
+			    	cbxDicom.setSelected(false);
+				    cbxAimSeg.setSelected(false);
+			    }
+	        }
      	}
 	};
 	
@@ -558,12 +579,14 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			}
 			if (cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
 				synchronized(result){
-					resultTree.update(RetrieveTarget.DICOM_AIM_SEG);
+					resultTree.update(queryNode, RetrieveTarget.DICOM_AIM_SEG);
 				}
-			} else if(!cbxAimSeg.isSelected()) {
-				resultTree.update(RetrieveTarget.AIM_SEG);
-			} else if (cbxAimSeg.isSelected()) {
-				resultTree.update(RetrieveTarget.DICOM);
+			} else if(cbxDicom.isSelected() && !cbxAimSeg.isSelected()) {
+				resultTree.update(queryNode, RetrieveTarget.DICOM);
+			} else if (!cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
+				resultTree.update(queryNode, RetrieveTarget.AIM_SEG);
+			}  else if (!cbxDicom.isSelected() && !cbxAimSeg.isSelected()) {
+				resultTree.update(queryNode, RetrieveTarget.NONE);
 			}
 		} else if (source == cbxAimSeg){
 			if (e.getStateChange() == ItemEvent.SELECTED){
@@ -571,15 +594,17 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			} else if (e.getStateChange() == ItemEvent.DESELECTED){
 				cbxAimSeg.setSelected(false);
 			}
-			if (cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
+			if (cbxAimSeg.isSelected() && cbxDicom.isSelected()) {
 				synchronized(result){
-					resultTree.update(RetrieveTarget.DICOM_AIM_SEG);
+					resultTree.update(queryNode, RetrieveTarget.DICOM_AIM_SEG);
 				}
-			} else if(!cbxDicom.isSelected()) {
-				resultTree.update(RetrieveTarget.DICOM);
-			} else if(cbxDicom.isSelected()) {
-				resultTree.update(RetrieveTarget.AIM_SEG);
-			} 
+			} else if(cbxAimSeg.isSelected() && !cbxDicom.isSelected()) {
+				resultTree.update(queryNode, RetrieveTarget.AIM_SEG);
+			} else if(!cbxAimSeg.isSelected() && cbxDicom.isSelected()) {
+				resultTree.update(queryNode, RetrieveTarget.DICOM);
+			} else if (!cbxAimSeg.isSelected() && !cbxDicom.isSelected()) {
+				resultTree.update(queryNode, RetrieveTarget.NONE);
+			}
 		}
 	}
 
@@ -669,7 +694,11 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		selectedDataSearchResult = (SearchResult)event.getSource();
 		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
 		selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
-		if(logger.isDebugEnabled()){
+		if(selectedDataSearchResult.getPatients().size() > 0) {
+			cbxDicom.setEnabled(true);
+			cbxAimSeg.setEnabled(true);
+		}
+		//if(logger.isDebugEnabled()){
 			logger.debug("Value of selectedDataSearchresult: ");
 			if(selectedDataSearchResult != null) {
 				List<Patient> patients = selectedDataSearchResult.getPatients();
@@ -682,13 +711,18 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 						for(Series logSeries : series){
 							logger.debug("      " + logSeries.toString());
 							List<Item> items = logSeries.getItems();
+							boolean enableCheckBoxes = false;
 							for(Item logItem : items){
 								logger.debug("         " + logItem.toString());
+								if(enableCheckBoxes == false) {
+									cbxDicom.setEnabled(true);
+									cbxAimSeg.setEnabled(true);
+								}
 							}
 						}
 					}
 				}
-			}
+			//}
 		}
 	}
 }
