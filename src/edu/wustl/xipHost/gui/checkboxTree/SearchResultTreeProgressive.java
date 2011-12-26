@@ -164,35 +164,76 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		expandAll();
 	}
 	
-	public void update(RetrieveTarget retrieveTarget){
-		DefaultMutableTreeNode locationNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
-		int numbOfPatientNodes = locationNode.getChildCount();
-		for(int i = 0; i < numbOfPatientNodes; i++){
-			PatientNode patientNode = (PatientNode) locationNode.getChildAt(i);
-			int numbOfStudyNodes = patientNode.getChildCount();
-			for(int j = 0; j < numbOfStudyNodes; j++) {
-				StudyNode studyNode = (StudyNode)patientNode.getChildAt(j);
-				int numbOfSeriesNodes = studyNode.getChildCount();
-				for(int k = 0; k < numbOfSeriesNodes; k++) {
-					SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(k);
-					int numbOfItemNodes = seriesNode.getChildCount();
-					for(int m = 0; m < numbOfItemNodes; m++) {
-						ItemNode itemNode = (ItemNode)seriesNode.getChildAt(m);
-						if(retrieveTarget.equals(RetrieveTarget.AIM_SEG)) {
-							if(itemNode.getUserObject() instanceof AIMItem) {
-								itemNode.updateNode();
-							}
-						} else if (retrieveTarget.equals(RetrieveTarget.DICOM)) {
-							if(itemNode.getUserObject() instanceof ImageItem) {
-								itemNode.updateNode();
-							}
-						} else if (retrieveTarget.equals(RetrieveTarget.DICOM_AIM_SEG)) {
-							if(!itemNode.isSelected()){
-								itemNode.updateNode();
-							}
-						}
-					}
+	public void update(DefaultMutableTreeNode queryNode, RetrieveTarget retrieveTarget) {
+		if (queryNode instanceof PatientNode) {
+			PatientNode patientNode = (PatientNode)queryNode;
+			updatePatientNode(patientNode, retrieveTarget);
+		} else if (queryNode instanceof StudyNode) {
+			StudyNode studyNode = (StudyNode)queryNode;
+			updateStudyNode(studyNode, retrieveTarget);	
+		} else if (queryNode instanceof SeriesNode) {
+			SeriesNode seriesNode = (SeriesNode)queryNode;
+			updateSeriesNode(seriesNode, retrieveTarget);
+		} else if (queryNode instanceof ItemNode) {
+			ItemNode itemNode = (ItemNode)queryNode;
+			updateItemNode(itemNode, retrieveTarget);
+		} else {
+			
+		}
+	}
+	
+	void updatePatientNode(PatientNode patientNode, RetrieveTarget retrieveTarget) {
+		int numbOfStudyNodes = patientNode.getChildCount();
+		for(int j = 0; j < numbOfStudyNodes; j++) {
+			StudyNode studyNode = (StudyNode)patientNode.getChildAt(j);
+			updateStudyNode(studyNode, retrieveTarget);
+		}
+	}
+	
+	void updateStudyNode(StudyNode studyNode, RetrieveTarget retrieveTarget) {
+		int numbOfSeriesNodes = studyNode.getChildCount();
+		for(int k = 0; k < numbOfSeriesNodes; k++) {
+			SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(k);
+			update(seriesNode, retrieveTarget);
+		}
+	}
+	
+	void updateSeriesNode(SeriesNode seriesNode, RetrieveTarget retrieveTarget) {
+		int numbOfItemNodes = seriesNode.getChildCount();
+		for(int m = 0; m < numbOfItemNodes; m++) {
+			ItemNode itemNode = (ItemNode)seriesNode.getChildAt(m);
+			updateItemNode(itemNode, retrieveTarget);
+		}
+	}
+	
+	void updateItemNode(ItemNode itemNode, RetrieveTarget retrieveTarget){
+		if(retrieveTarget.equals(RetrieveTarget.AIM_SEG)) {
+			if(itemNode.getUserObject() instanceof AIMItem) {
+				if(!itemNode.isSelected()) {
+					itemNode.updateNode();
 				}
+			} else if (itemNode.getUserObject() instanceof ImageItem) {
+				if(itemNode.isSelected()) {
+					itemNode.updateNode();
+				}
+			}
+		} else if (retrieveTarget.equals(RetrieveTarget.DICOM)) {
+			if(itemNode.getUserObject() instanceof ImageItem) {
+				if(!itemNode.isSelected()) {
+					itemNode.updateNode();
+				}
+			} else if (itemNode.getUserObject() instanceof AIMItem) {
+				if(itemNode.isSelected()) {
+					itemNode.updateNode();
+				}
+			}
+		} else if (retrieveTarget.equals(RetrieveTarget.DICOM_AIM_SEG)) {
+			if(!itemNode.isSelected()) {
+				itemNode.updateNode();
+			}
+		} else if (retrieveTarget.equals(RetrieveTarget.NONE)) {
+			if(itemNode.isSelected()) {
+				itemNode.updateNode();
 			}
 		}
 	}
