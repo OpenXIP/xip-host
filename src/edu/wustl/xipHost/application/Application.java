@@ -818,8 +818,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				dicomCriteria.remove(Tag.PatientID);
 			}				
 		}			
-		
-		
 		//Wait for actual data being retrieved before sending file pointers
 		synchronized(retrievedData){
 			while(retrievedData.isEmpty()){
