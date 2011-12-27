@@ -417,7 +417,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 					}
 				}
 				TargetElement element = targetElements.get(numberOfSentNotifications);
-				AvailableData availableData = IteratorUtil.getAvailableData(element);
+				AvailableData availableData = IteratorUtil.getAvailableData(element, retrieveTarget);
 				NotificationRunner runner = new NotificationRunner(this);
 				//runner.setAvailableData(wg23data.getAvailableData());
 				runner.setAvailableData(availableData);
