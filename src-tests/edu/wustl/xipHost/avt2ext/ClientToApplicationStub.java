@@ -16,9 +16,7 @@ public class ClientToApplicationStub extends ClientToApplication {
 	/**
 	 * 
 	 */
-	public ClientToApplicationStub() {
-		// TODO Auto-generated constructor stub
-	}
+	public ClientToApplicationStub() { }
 	
 	public ArrayOfObjectLocator getDataAsFile(ArrayOfUUID uuids, boolean includeBulkData) {		
 		return arrayObjLocs;

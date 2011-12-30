@@ -61,7 +61,7 @@ public class RetrieveAIMTest {
 	@Test
 	public void testRetrieveAIM_1A(){
 		Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
-		dicomCriteria.put(Tag.SeriesInstanceUID, "1.2.840.113704.1.111.4280.1226686843.113");
+		dicomCriteria.put(Tag.SeriesInstanceUID, "1.3.6.1.4.1.9328.50.1.10697");
 		List<ImageAnnotation> imageAnnots = adService.retrieveAnnotations(dicomCriteria, null);
 		ImageAnnotation annot = (ImageAnnotation)imageAnnots.get(0);
 		//Assert image annotation uniqueIdentifier
@@ -72,8 +72,8 @@ public class RetrieveAIMTest {
 			gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation imageAnnotation = ((gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation)obj.getValue());
 			String annotID = String.valueOf(imageAnnotation.getUniqueIdentifier());
 			//System.out.println(annot.getAIM());
-			assertEquals("Wrong annotation retrieved. Expected ID: " + "1.3.6.1.4.1.5962.99.1.1772356583.1829344988.1264492774375.3.0" +
-					" but actual: " + annotID, annotID, "1.3.6.1.4.1.5962.99.1.1772356583.1829344988.1264492774375.3.0");
+			assertEquals("Wrong annotation retrieved. Expected ID: " + "1.2.288.3.2205383238.1512.1207945935.1" +
+					" but actual: " + annotID, annotID, "1.2.288.3.2205383238.1512.1207945935.1");
 		} catch (JAXBException e) {
 			logger.error(e, e);
 		}							        

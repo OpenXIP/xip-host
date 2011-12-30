@@ -60,7 +60,7 @@ public class RetrieveDicomSegTest {
 				dicomSEG2 = true;
 			}			
 			//Assert retrieved file size
-			assertTrue("", fileLength > 0);
+			assertTrue("Retrieved DICOM SEG object file size is zero KB", fileLength > 0);
     	}
 		//Assert number of retrieved DICOM SEG objects
 		assertEquals("Number of retrieved DICOM SEG object is not as expected.", 2, numSegObjects);

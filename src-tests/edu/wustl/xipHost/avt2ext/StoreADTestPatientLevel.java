@@ -105,12 +105,12 @@ public class StoreADTestPatientLevel extends TestCase {
 		//Locator for testObject.txt file
 		ObjectLocator objLoc3 = new ObjectLocator();
 		objLoc3.setUuid(objDescUUID3);
-		File file3 = new File("./src-tests/edu/wustl/xipHost/avt/testObject.txt");
+		File file3 = new File("./src-tests/edu/wustl/xipHost/avt2ext/testObject.txt");
 		String uri3 = file3.toURI().toURL().toExternalForm();
 		objLoc3.setUri(uri3);
 		objLocs.add(objLoc3);
 		
-		ApplicationStub appStub = new ApplicationStub("TestApp", new File("./src-tests/edu/wustl/xipHost/avt/applicationStub.bat"), "VendorTest", "", null,
+		ApplicationStub appStub = new ApplicationStub("TestApp", new File("./src-tests/edu/wustl/xipHost/avt2ext/applicationStub.bat"), "VendorTest", "", null,
 				"analytical", true, "files", 1, IterationTarget.SERIES);
 		appStub.setObjectLocators(arrayObjLocs);
 		Application app = appStub;

@@ -37,7 +37,7 @@ public class CriteriaSetup {
 			String[] characterSets = { "ISO_IR 100" };
 			SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
 			{ AttributeTag t = TagFromName.PatientName; Attribute a = new PersonNameAttribute(t,specificCharacterSet); filter.put(t,a); }			
-			{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("YAMAMOTO-00046"); filter.put(t,a); }
+			{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("1.3.6.1.4.1.9328.50.1.0022"); filter.put(t,a); }
 
 			{ AttributeTag t = TagFromName.PatientBirthDate; Attribute a = new DateAttribute(t); filter.put(t,a); }
 			{ AttributeTag t = TagFromName.PatientSex; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }

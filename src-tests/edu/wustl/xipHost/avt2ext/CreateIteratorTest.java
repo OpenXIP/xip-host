@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import edu.wustl.xipHost.iterator.IterationTarget;
@@ -48,7 +48,7 @@ public class CreateIteratorTest implements TargetIteratorListener {
 		DOMConfigurator.configure("log4j.xml");
 	}
 
-	@After
+	@AfterClass
 	public void tearDown() throws Exception {
 		
 	}

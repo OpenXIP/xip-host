@@ -54,7 +54,7 @@ public class QueryADTest implements DataAccessListener{
 	}
 	
 	//AVTQuery - query AD database - basic flow (Patient level query test).
-	//Parameters: adCriteria, adAimCriteria, ADQueryTarget, previousSearchResult, queryObject are all correct.
+	//Parameters: adCriteria i valid, adAimCriteria is empty, ADQueryTarget, previousSearchResult, queryObject are all correct.
 	@Test
 	public void testQueryAD_1A(){				
 		Map<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(attList);
@@ -68,7 +68,7 @@ public class QueryADTest implements DataAccessListener{
 		} catch (InterruptedException e) {			
 			logger.error(e, e);
 		}
-		String patientID = "YAMAMOTO-00046";
+		String patientID = "1.3.6.1.4.1.9328.50.1.0022";
 		boolean isQueryOK = result.contains(patientID);
 		boolean isNumPatients = (result.getPatients().size() == 1);
 		assertTrue("Unable to find specified patientID.", isQueryOK);
@@ -76,7 +76,7 @@ public class QueryADTest implements DataAccessListener{
 	}
 
 	//AVTQuery - query AD database - basic flow (Study level query test). 
-	//Parameters: adCriteria, adAimCriteria, ADQueryTarget, previousSearchResult, queryObject are all correct.
+	//Parameters: adCriteria is valid, adAimCriteria is empty, ADQueryTarget, previousSearchResult, queryObject are all correct.
 	@Test
 	public void testQueryAD_1B(){					
 		Map<Integer, Object> adDicomCriteria = DicomUtil.convertToADDicomCriteria(attList);
@@ -91,13 +91,7 @@ public class QueryADTest implements DataAccessListener{
 			logger.error(e, e);
 		}
 		Patient selectedNode = result.getPatients().get(0);
-		
-		Map<String, Object> adAimCriteria2 = new HashMap<String, Object>();		
-		String key = "ImagingObservationCharacteristic.codeMeaning";
-		Object value = "irregularly shaped";
-		adAimCriteria2.put(key, value);
-		
-		Query avtQuery2 = new AVTQuery(adDicomCriteria, adAimCriteria2, QueryTarget.STUDY, result, selectedNode);
+		Query avtQuery2 = new AVTQuery(adDicomCriteria, adAimCriteria, QueryTarget.STUDY, result, selectedNode);
 		avtQuery2.addDataAccessListener(this);
 		Thread t2 = new Thread(avtQuery2);
 		t2.start();	
@@ -106,7 +100,7 @@ public class QueryADTest implements DataAccessListener{
 		} catch (InterruptedException e) {			
 			logger.error(e, e);
 		}
-		String patientID = "YAMAMOTO-00046";
+		String patientID = "1.3.6.1.4.1.9328.50.1.0022";
 		boolean isQueryOK = result.contains(patientID);
 		boolean isNumPatients = (result.getPatients().size() == 1);
 		int numStudies = result.getPatients().get(0).getStudies().size();
@@ -116,11 +110,12 @@ public class QueryADTest implements DataAccessListener{
 		assertTrue("Actual number of found studies is " + numStudies + ". Expected 1.", isNumStudies);
 	}
 	
-	//AVT AD query test directly with adServive 
+	//AVT AD query - test AD database directly with adServive
+	//DICOM query criteria are valid, AIM criteria are empty
 	@Test
 	public void testQueryAD_1C(){
 		Map<Integer, Object> adDicomCriteria = new HashMap<Integer, Object>();
-		adDicomCriteria.put(new Integer(1048608), "YAMAMOTO-00046");
+		adDicomCriteria.put(new Integer(1048608), "1.3.6.1.4.1.9328.50.1.0022");
 		Set<Integer> keySet = adDicomCriteria.keySet();
 		Iterator<Integer> iter = keySet.iterator();
 		logger.debug("AD DICOM criteria:");
@@ -130,16 +125,36 @@ public class QueryADTest implements DataAccessListener{
 			logger.debug(key + " " + value);
 		}	
 		Map<String, Object> adAimCriteria = new HashMap<String, Object>();		
-		String key = "ImagingObservationCharacteristic.codeMeaning";
-		Object value = "irregularly shaped";
-		adAimCriteria.put(key, value);
-		
 		List<com.siemens.scr.avt.ad.dicom.Patient> patients = adService.findPatientByCriteria(adDicomCriteria, adAimCriteria);
 		assertTrue("Expected number of patients: 1. " + "Actual: " + patients.size(), patients.size() == 1);
 		List<GeneralStudy> studies = adService.findStudiesByCriteria(adDicomCriteria, adAimCriteria);
 		assertTrue("Expected number of studies: 1. " + "Actual: " + studies.size(), studies.size() == 1);						
 	}
 	
+	//AVTQuery - query AD database with query AIM criteria and empty DICOM criteria - basic flow (Patient level query test). 
+	//Parameters: adCriteria is empty, adAimCriteria is valid, ADQueryTarget, previousSearchResult, queryObject are all correct.
+	@Test
+	public void testQueryAD_1D(){	
+		Map<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(attList);
+		Map<String, Object> adAimCriteria = new HashMap<String, Object>();
+		String key = "ImagingObservationCharacteristic.codeMeaning";
+		Object value = "Extremely Obvious";
+		adAimCriteria.put(key, value);
+		Query avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
+		avtQuery.addDataAccessListener(this);
+		Thread t = new Thread(avtQuery);
+		t.start();	
+		try {
+			t.join();
+		} catch (InterruptedException e) {			
+			logger.error(e, e);
+		}
+		String patientID = "1.3.6.1.4.1.9328.50.1.0022";
+		boolean isQueryOK = result.contains(patientID);
+		boolean isNumPatients = (result.getPatients().size() == 1);
+		assertTrue("Unable to find specified patientID.", isQueryOK);
+		assertTrue("Actual number of found patients is different than 1.", isNumPatients);
+	}
 	
 	@Override
 	public void retrieveResultsAvailable(RetrieveEvent e) {
