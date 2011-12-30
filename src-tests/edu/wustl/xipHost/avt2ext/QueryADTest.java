@@ -53,6 +53,7 @@ public class QueryADTest implements DataAccessListener{
 		result = null;
 	}
 	
+	//INFO: dataset must be preloaded prior to running this JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
 	//AVTQuery - query AD database - basic flow (Patient level query test).
 	//Parameters: adCriteria i valid, adAimCriteria is empty, ADQueryTarget, previousSearchResult, queryObject are all correct.
 	@Test

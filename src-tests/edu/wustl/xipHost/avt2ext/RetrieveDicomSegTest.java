@@ -34,6 +34,7 @@ public class RetrieveDicomSegTest {
 		
 	}
 	
+	//INFO: dataset must be preloaded prior to running this JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
 	@Test
 	public void testRetrieveDicomSegTest_1A() throws IOException{
 		String aimUID2 = "1.3.6.1.4.1.5962.99.1.1772356583.1829344988.1264492774375.3.0";

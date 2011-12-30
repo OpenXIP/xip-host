@@ -49,7 +49,7 @@ public class CreateIteratorTest implements TargetIteratorListener {
 	}
 
 	@AfterClass
-	public void tearDown() throws Exception {
+	public static void tearDown() throws Exception {
 		
 	}
 	

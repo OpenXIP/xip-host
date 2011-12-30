@@ -49,7 +49,7 @@ public class StoreADTestSeriesLevel extends TestCase {
 		super.tearDown();
 	}
 	
-	//CAUTION: all AVTStore test should be run on empty AD database.
+	//INFO: all AVTStore tests should be run on AD database that does't contain items under test.
 	//AVTStore 1C - basic flow. Perfect conditions. AIM objects to store are valid XML strings.
 	//DICOM SEG object are valid. There is one txt file (txt file are not stored). 
 	//AvailableData contains objects descriptors at the series level.
