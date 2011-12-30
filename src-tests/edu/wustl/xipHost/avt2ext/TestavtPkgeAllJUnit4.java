@@ -13,7 +13,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({QueryADTest.class, CreateIteratorTest.class, RetrieveAIMTest.class, RetrieveDicomSegTest.class})
-public class TestavtPkgeAll {
+public class TestavtPkgeAllJUnit4 {
 	
 	public class JUnit4Suite {
 	
