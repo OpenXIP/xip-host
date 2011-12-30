@@ -674,6 +674,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 									}
 								}
 							}
+							selectedSeries.setContainsSubsetOfItems(false);
 						}
 					}
 				} else {
@@ -690,6 +691,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 						Item item = items.get(i);
 						seriesToAdd.addItem(item);
 					}
+					seriesToAdd.setContainsSubsetOfItems(false);
 					studyToAdd.addSeries(seriesToAdd);
 					patientToAdd.addStudy(studyToAdd);
 					selectedDataSearchResult.addPatient(patientToAdd);

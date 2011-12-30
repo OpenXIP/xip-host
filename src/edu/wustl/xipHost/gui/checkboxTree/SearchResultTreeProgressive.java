@@ -194,7 +194,7 @@ public class SearchResultTreeProgressive extends SearchResultTree {
 		int numbOfSeriesNodes = studyNode.getChildCount();
 		for(int k = 0; k < numbOfSeriesNodes; k++) {
 			SeriesNode seriesNode = (SeriesNode)studyNode.getChildAt(k);
-			update(seriesNode, retrieveTarget);
+			updateSeriesNode(seriesNode, retrieveTarget);
 		}
 	}
 	
