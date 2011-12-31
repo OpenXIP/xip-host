@@ -649,6 +649,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 							Item item = items.get(i);
 							seriesToAdd.addItem(item);
 						}
+						seriesToAdd.setContainsSubsetOfItems(false);
 						studyToAdd.addSeries(seriesToAdd);
 						selectedPatient.addStudy(studyToAdd);
 					} else {
@@ -663,6 +664,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 								Item item = items.get(i);
 								seriesToAdd.addItem(item);
 							}
+							seriesToAdd.setContainsSubsetOfItems(false);
 						} else {
 							Series selectedSeries = selectedStudy.getSeries(series.getSeriesInstanceUID());
 							if(selectedSeries.getItems().size() != series.getItems().size()){
@@ -751,6 +753,12 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 						} else {
 							Series selectedSeries = selectedStudy.getSeries(seriesInstanceUID);
 							selectedSeries.addItem(item);
+							boolean containsSubsetOfItems = false;
+							Series seriesWithAllChildren = (Series)userObjectPath[4];
+							if(seriesWithAllChildren.getItems().size() != selectedSeries.getItems().size()) {
+								containsSubsetOfItems = true;
+							}
+							selectedSeries.setContainsSubsetOfItems(containsSubsetOfItems);
 						}
 					}
 				} else {
