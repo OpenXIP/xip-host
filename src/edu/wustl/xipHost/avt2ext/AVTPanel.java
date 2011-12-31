@@ -709,7 +709,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 						logger.debug("   " + logStudy.toString());
 						List<Series> series = logStudy.getSeries();
 						for(Series logSeries : series){
-							logger.debug("      " + logSeries.toString());
+							logger.debug("      " + logSeries.toString() + " / Contains subset of items: " + logSeries.containsSubsetOfItems());
 							List<Item> items = logSeries.getItems();
 							boolean enableCheckBoxes = false;
 							for(Item logItem : items){
