@@ -722,7 +722,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			Retrieve retrieve = RetrieveFactory.getInstance(dataSourceDomainName);				
 			File importDir = getApplicationTmpDir();
 			retrieve.setImportDir(importDir);
-			retrieve.setRetrieveTarget(retrieveTarget);
 			retrieve.setDataSource(dataSource);
 			retrieve.addRetrieveListener(this);
 			SearchResult subSearchResult = element.getSubSearchResult();
@@ -779,6 +778,11 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 								}
 								List<ObjectDescriptor> objectDesc = new ArrayList<ObjectDescriptor>();
 								objectDesc.add(item.getObjectDescriptor());
+								if(item instanceof ImageItem) {
+									retrieve.setRetrieveTarget(RetrieveTarget.DICOM);
+								} else if (item instanceof AIMItem) {
+									retrieve.setRetrieveTarget(RetrieveTarget.AIM_SEG);
+								}
 								retrieve.setObjectDescriptors(objectDesc);
 								Thread t = new Thread(retrieve);
 								t.start();
@@ -792,6 +796,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 								}
 							}
 						} else {
+							retrieve.setRetrieveTarget(retrieveTarget);
 							dicomCriteria.put(Tag.SOPInstanceUID, "*");
 							if(retrieve instanceof LocalFileSystemRetrieve){
 								retrieve.setCriteria(selectedDataSearchResult);
