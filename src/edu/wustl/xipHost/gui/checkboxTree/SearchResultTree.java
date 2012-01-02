@@ -702,8 +702,8 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 				Patient selectedPatient = selectedDataSearchResult.getPatient(patientID);
 				if(selectedPatient != null){
 					Study selectedStudy = selectedPatient.getStudy(studyInstanceUID);
-					Series seriesToRemove = selectedStudy.getSeries(series.getSeriesInstanceUID());
 					if(selectedStudy != null) {
+						Series seriesToRemove = selectedStudy.getSeries(series.getSeriesInstanceUID());
 						selectedStudy.removeSeries(seriesToRemove);
 						if(selectedStudy.getSeries().size() == 0 && selectedStudy.getItems().size() == 0){
 							selectedPatient.removeStudy(selectedStudy);
