@@ -164,6 +164,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			//cbxAimSeg.setSelected(false);
 			selectedDataSearchResult = new SearchResult();
 			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
+			queryNode = null;
 			skipResultTreeUpdate = true;
 			progressBar.setBackground(new Color(156, 162, 189));
 		    progressBar.setForeground(xipColor);
