@@ -160,12 +160,10 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			resultTree.rootNode.removeAllChildren();
 			cbxDicom.setEnabled(false);
 			cbxAimSeg.setEnabled(false);
-			//cbxDicom.setSelected(false);
-			//cbxAimSeg.setSelected(false);
 			selectedDataSearchResult = new SearchResult();
 			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 			queryNode = null;
-			skipResultTreeUpdate = true;
+			skipSearchResultTreeUpdate = true;
 			progressBar.setBackground(new Color(156, 162, 189));
 		    progressBar.setForeground(xipColor);
 			progressBar.setString("Processing search request ...");
@@ -199,14 +197,18 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 		} else if (e.getSource() == btnSelectAll){
 			resultTree.selectAll(true);
 			//FIX
-			//Update happens three times, first when selectAll is called and second and third when cbxDicomand cbxAimSeg are set.
+			//Update happens three times, first when selectAll is called and second and third when cbxDicom and cbxAimSeg are set.
+			skipSearchResultTreeUpdate = true;
 			cbxDicom.setSelected(true);
+			skipSearchResultTreeUpdate = true;
 			cbxAimSeg.setSelected(true);
 			cbxDicom.setEnabled(true);
 			cbxAimSeg.setEnabled(true);
 		} else if (e.getSource() == btnDeselectAll){
 			resultTree.selectAll(false);
+			skipSearchResultTreeUpdate = true;
 			cbxDicom.setSelected(false);
+			skipSearchResultTreeUpdate = true;
 			cbxAimSeg.setSelected(false);
 			cbxDicom.setEnabled(false);
 			cbxAimSeg.setEnabled(false);
@@ -522,72 +524,30 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
      	}
 	};
 	
-	public void subquerySeries(StudyNode studyNode){
-		Study study = (Study)studyNode.getUserObject();
-		List<Series> seriesInStudy = study.getSeries();
-		for(Series series : seriesInStudy){
-			logger.info("Starting node query: " + series.toString());
-			//Retrieve annotations for selected series		     				
-			progressBar.setString("Processing search request ...");
-			progressBar.setIndeterminate(true);
-			progressBar.updateUI();
-			String[] characterSets = { "ISO_IR 100" };
-			SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
-			AttributeList initialCriteria = criteriaPanel.getFilterList();
-			String seriesInstanceUID = initialCriteria.get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();
-			try {			     								     					 			     									     						
-				{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
-					a.addValue(series.getSeriesInstanceUID());									 
-					initialCriteria.put(t,a); }
-			} catch (DicomException e1) {
-				logger.error(e1, e1);
-				notifyException(e1.getMessage());
-			} 
-			Map<String, Object> adAimCriteria = criteriaPanel.panelAVT.getSearchCriteria();
-			Boolean bln = criteriaPanel.verifyCriteria(initialCriteria, adAimCriteria);
-			if(bln){											     							     					
-				Map<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(criteriaPanel.getFilterList());
-				//After seriesInstanceUID is added to the initial criteria and criteria are verified, adCriteria Map is created.
-				//In the next step initialCriteria is cleared of inserted seriesInstanceUID and rolled back to the original value.
-				try {	
-					{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     								     							
-					a.addValue(seriesInstanceUID);										
-					initialCriteria.put(t,a);}
-				} catch (DicomException e1) {
-					logger.error(e1, e1);
-					notifyException(e1.getMessage());
-				}		     															     					
-				avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.ITEM, result, series);
-				avtQuery.addDataAccessListener(l);
-				Thread t = new Thread(avtQuery); 					
-				t.start();							
-			}else{
-				progressBar.setString("");
-				progressBar.setIndeterminate(false);
-			}			     				
-		}
-	}
 	
-	boolean skipResultTreeUpdate = false;
+	boolean skipSearchResultTreeUpdate = false;
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		JCheckBox source = (JCheckBox)e.getItemSelectable();
+		resultTree.setDoubleClicked(false);
 		if (source == cbxDicom){
 			if (e.getStateChange() == ItemEvent.SELECTED){
 				cbxDicom.setSelected(true);
 			} else if (e.getStateChange() == ItemEvent.DESELECTED){
 				cbxDicom.setSelected(false);
 			}
-			if (cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
-				synchronized(result){
-					resultTree.update(queryNode, RetrieveTarget.DICOM_AIM_SEG);
+			if(skipSearchResultTreeUpdate == false) {
+				if (cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
+					synchronized(result){
+						resultTree.update(queryNode, RetrieveTarget.DICOM_AIM_SEG);
+					}
+				} else if(cbxDicom.isSelected() && !cbxAimSeg.isSelected()) {
+					resultTree.update(queryNode, RetrieveTarget.DICOM);
+				} else if (!cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
+					resultTree.update(queryNode, RetrieveTarget.AIM_SEG);
+				}  else if (!cbxDicom.isSelected() && !cbxAimSeg.isSelected()) {
+					resultTree.update(queryNode, RetrieveTarget.NONE);
 				}
-			} else if(cbxDicom.isSelected() && !cbxAimSeg.isSelected()) {
-				resultTree.update(queryNode, RetrieveTarget.DICOM);
-			} else if (!cbxDicom.isSelected() && cbxAimSeg.isSelected()) {
-				resultTree.update(queryNode, RetrieveTarget.AIM_SEG);
-			}  else if (!cbxDicom.isSelected() && !cbxAimSeg.isSelected()) {
-				resultTree.update(queryNode, RetrieveTarget.NONE);
 			}
 		} else if (source == cbxAimSeg){
 			if (e.getStateChange() == ItemEvent.SELECTED){
@@ -595,21 +555,23 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			} else if (e.getStateChange() == ItemEvent.DESELECTED){
 				cbxAimSeg.setSelected(false);
 			}
-			if (cbxAimSeg.isSelected() && cbxDicom.isSelected()) {
-				synchronized(result){
-					resultTree.update(queryNode, RetrieveTarget.DICOM_AIM_SEG);
+			if(skipSearchResultTreeUpdate == false) {
+				if (cbxAimSeg.isSelected() && cbxDicom.isSelected()) {
+					synchronized(result){
+						resultTree.update(queryNode, RetrieveTarget.DICOM_AIM_SEG);
+					}
+				} else if(cbxAimSeg.isSelected() && !cbxDicom.isSelected()) {
+					resultTree.update(queryNode, RetrieveTarget.AIM_SEG);
+				} else if(!cbxAimSeg.isSelected() && cbxDicom.isSelected()) {
+					resultTree.update(queryNode, RetrieveTarget.DICOM);
+				} else if (!cbxAimSeg.isSelected() && !cbxDicom.isSelected()) {
+					resultTree.update(queryNode, RetrieveTarget.NONE);
 				}
-			} else if(cbxAimSeg.isSelected() && !cbxDicom.isSelected()) {
-				resultTree.update(queryNode, RetrieveTarget.AIM_SEG);
-			} else if(!cbxAimSeg.isSelected() && cbxDicom.isSelected()) {
-				resultTree.update(queryNode, RetrieveTarget.DICOM);
-			} else if (!cbxAimSeg.isSelected() && !cbxDicom.isSelected()) {
-				resultTree.update(queryNode, RetrieveTarget.NONE);
 			}
 		}
+		skipSearchResultTreeUpdate = false;
 	}
 
-	
 	
 	@Override
 	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
