@@ -47,6 +47,7 @@ import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -489,7 +490,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
-				//instanceApp.setRetrieveDataSource(retrieve);
+				instanceApp.setRetrieveTarget(RetrieveTarget.DICOM);
 				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.dicom.DicomRetrieve");
 				instanceApp.setDataSource(callingPacsLocation);
 				instanceApp.setDoSave(false);
@@ -501,7 +502,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
-				//app.setRetrieveDataSource(retrieve);
+				app.setRetrieveTarget(RetrieveTarget.DICOM);
 				app.setDataSourceDomainName("edu.wustl.xipHost.dicom.DicomRetrieve");
 				app.setDataSource(callingPacsLocation);
 				app.setApplicationTmpDir(tmpDir);

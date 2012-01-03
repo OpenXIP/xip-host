@@ -42,6 +42,7 @@ import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.dataAccess.Query;
+import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -201,6 +202,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
+				instanceApp.setRetrieveTarget(RetrieveTarget.DICOM);
 				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
@@ -211,6 +213,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
+				app.setRetrieveTarget(RetrieveTarget.DICOM);
 				app.setDataSourceDomainName("edu.wustl.xipHost.localFileSystem.LocalFileSystemRetrieve");
 				app.setApplicationTmpDir(tmpDir);
 				app.addApplicationTerminationListener(listener);
@@ -241,7 +244,6 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 				exeService.execute(runner);
 				numOfParsingRequestsSent++;
 			}
-			//nodeSelectionListener.resetSelectedDataSearchResult();
 			synchronized(this){
 				while(numOfParsingRequestsSent != numOfParsingRequestsRecieved){
 					try {
@@ -257,14 +259,8 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	    } else if (e.getActionCommand().equals("CancelSelection")) {
 		        
 	    } else if (e.getSource() == btnSelectAll){
-	    	//nodeSelectionListener.setSearchResultTree(resultTree);
-	     	//nodeSelectionListener.setSearchResult(searchResult);
-			//nodeSelectionListener.selectAll(true);
 			resultTree.selectAll(true);
 		} else if (e.getSource() == btnDeselectAll){
-			//nodeSelectionListener.setSearchResultTree(resultTree);
-	     	//nodeSelectionListener.setSearchResult(searchResult);
-			//nodeSelectionListener.selectAll(false);
 			resultTree.selectAll(false);
 		}
 	}
