@@ -23,7 +23,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -168,8 +167,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		leftPanel.add(calledLocationSelectionPanel);
 		leftPanel.add(criteriaPanel);							    
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
-	    //resultTree.addTreeSelectionListener(this);
-	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() - 30));
+	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
 		treeView.setBorder(border);			
         rightPanel.add(treeView);       
         buildLayoutCallingLocationSelectionPanel();
@@ -198,9 +196,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	    progressBar.setBackground(new Color(156, 162, 189));
 	    progressBar.setForeground(xipColor);
 	    add(progressBar);
-	    
 	    buildLayout();
-		
 	}
 	
 	
@@ -246,24 +242,24 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
         GridBagConstraints constraints = new GridBagConstraints();
         leftPanel.setLayout(layout);         
                        
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 0;        
-        constraints.insets.top = 10;
+        //constraints.insets.top = 10;
         constraints.insets.left = 5;
         constraints.insets.right = 10;
         constraints.insets.bottom = 5;        
-        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(calledLocationSelectionPanel, constraints);
         
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 1;        
-        constraints.insets.top = 10;
+        constraints.insets.top = 5;
         constraints.insets.left = 5;
         constraints.insets.right = 10;
         constraints.insets.bottom = 5;        
-        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(criteriaPanel, constraints); 
 	}
 	
@@ -289,7 +285,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
         constraints.insets.left = 0;
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;        
-        constraints.anchor = GridBagConstraints.WEST;
+        constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(btnSelectionPanel, constraints);
         
         constraints.fill = GridBagConstraints.NONE;        
@@ -308,29 +304,29 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
         GridBagConstraints constraints = new GridBagConstraints();
         calledLocationSelectionPanel.setLayout(layout);         
                        
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 0;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        //constraints.insets.top = 10;
+        //constraints.insets.left = 20;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblTitle, constraints);
         
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 1;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        constraints.insets.top = 5;
+        //constraints.insets.left = 20;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(listCalledLocations, constraints);
         
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 1;
         constraints.gridy = 1;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        constraints.insets.top = 5;
+        constraints.insets.left = 10;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblGlobus, constraints);                
@@ -341,43 +337,33 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
         GridBagConstraints constraints = new GridBagConstraints();
         callingLocationSelectionPanel.setLayout(layout);         
                        
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 0;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        //constraints.insets.top = 10;
+        //constraints.insets.left = 20;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblTitle2, constraints);
         
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 1;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        constraints.insets.top = 5;
+        //constraints.insets.left = 20;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(listCallingLocations, constraints);
         
-        constraints.fill = GridBagConstraints.NONE;        
+        constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 1;
         constraints.gridy = 1;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        constraints.insets.top = 5;
+        constraints.insets.left = 10;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblGlobus2, constraints);                
 	}	
-	
-	
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		DicomPanel panel = new DicomPanel();
-		frame.getContentPane().add(panel);
-		frame.setVisible(true);
-		frame.pack();
-
-	}
 
 	PacsLocation calledPacsLocation;
 	PacsLocation callingPacsLocation;
