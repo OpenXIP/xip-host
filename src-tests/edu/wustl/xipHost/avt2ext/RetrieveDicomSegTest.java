@@ -11,7 +11,8 @@ import java.util.List;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.dcm4che2.io.DicomOutputStream;
-import org.junit.AfterClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import com.siemens.scr.avt.ad.api.ADFacade;
@@ -22,17 +23,35 @@ import edu.wustl.xipHost.avt2ext.AVTFactory;
  *
  */
 public class RetrieveDicomSegTest {
-	static ADFacade adService;	
+	static ADFacade adService;
+	static File avt2ext_seg_retrieve_dir;
 	
 	@BeforeClass
 	public static void setUp()throws Exception {
 		adService = AVTFactory.getADServiceInstance();
 	}
-
-	@AfterClass
-	public static void tearDown() throws Exception {
-		
+	
+	@Before
+	public void setUpBeforeTest() throws Exception {
+		avt2ext_seg_retrieve_dir = new File("./test-content/AVT2EXT_SEG_Retrieve");
+		File[] files = avt2ext_seg_retrieve_dir.listFiles();
+		if(files.length > 0) {
+			for(int i = 0 ; i < files.length; i++) {
+				File file = files[i];
+				file.delete();
+			}
+		}
 	}
+
+	@After
+	public void tearDownAfterTest() throws Exception {
+		File[] files = avt2ext_seg_retrieve_dir.listFiles();
+		for(int i = 0 ; i < files.length; i++) {
+			File file = files[i];
+			file.delete();
+		}
+	}
+	
 	
 	//INFO: dataset must be preloaded prior to running this JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
 	@Test
