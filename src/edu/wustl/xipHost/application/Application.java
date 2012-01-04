@@ -123,21 +123,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			this.iterationTarget = iterationTarget;
 		}		
 	}
-	
-	
-	//verify this pattern
-	/*public boolean verifyFileName(String fileName){		
-		String str = "/ \\ : * ? \" < > | ,  ";		
-        Pattern filePattern = Pattern.compile(str);             
-        boolean matches = filePattern.matcher(fileName).matches();
-        return matches;
-    }
-	
-	public static void main (String args[]){
-		Application app = new Application("ApplicationTest", new File("test.txt"), "", "");
-		System.out.println(app.getExePath().getName());
-		System.out.println(app.verifyFileName(app.getExePath().getName()));
-	}*/		
 		
 	public UUID getID(){
 		return id;
@@ -234,13 +219,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		this.iterationTarget = iterationTarget;
 	}
 	
-	//Each application has:
-	//1. Out directories assigned
-	//2. clientToApplication
-	//3. Host scheleton (reciever)
-	//4. Data assigned for processing
-	//5. Data produced
-	//when launching diploy service and set URLs
 	
 	ClientToApplication clientToApplication;
 	public void startClientToApplication(){
@@ -256,7 +234,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	Host host;
 			
 	//All loaded application by default will be saved again.
-	//New instances of an application will be saved only when the save checkbox is selected
+	//New instances of an application will be saved only when the save check box is selected
 	Boolean doSave = true;
 	public void setDoSave(boolean doSave){
 		this.doSave = doSave;
@@ -419,7 +397,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				TargetElement element = targetElements.get(numberOfSentNotifications);
 				AvailableData availableData = IteratorUtil.getAvailableData(element, retrieveTarget);
 				NotificationRunner runner = new NotificationRunner(this);
-				//runner.setAvailableData(wg23data.getAvailableData());
 				runner.setAvailableData(availableData);
 				threadNotification = new Thread(runner);
 				threadNotification.start();

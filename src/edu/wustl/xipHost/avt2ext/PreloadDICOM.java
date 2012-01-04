@@ -37,7 +37,7 @@ public class PreloadDICOM extends DicomBatchLoader {
 				File file = files[i];
 				System.out.println("File path: " + file.getPath());
 				DicomObject dicomObj = DicomParser.read(file);
-				System.out.println(dicomObj.getString(0x00080018));
+				//System.out.println(dicomObj.getString(0x00080018));
 				dicomObjects.add(dicomObj);				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

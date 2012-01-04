@@ -196,8 +196,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			}																	
 		} else if (e.getSource() == btnSelectAll){
 			resultTree.selectAll(true);
-			//FIX
-			//Update happens three times, first when selectAll is called and second and third when cbxDicom and cbxAimSeg are set.
 			skipSearchResultTreeUpdate = true;
 			cbxDicom.setSelected(true);
 			skipSearchResultTreeUpdate = true;

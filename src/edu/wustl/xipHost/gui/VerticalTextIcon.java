@@ -7,35 +7,34 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.util.UUID;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-public class VerticalTextIcon implements Icon, SwingConstants{ 
-    //private Font font = UIManager.getFont("Label.font"); 
+import edu.wustl.xipHost.hostControl.HostConfigurator;
+
+public class VerticalTextIcon extends JComponent implements Icon, SwingConstants{ 
     Font font = new Font("Tahoma", 0, 12);
-    private FontMetrics fm = Toolkit.getDefaultToolkit().getFontMetrics(font); 
- 
-    private String text;
-    private UUID uuid;
-    private int width, height; 
-    private boolean clockwize; 
+    FontMetrics fm = getFontMetrics(font);  
+    String text;
+    UUID uuid;
+    int width, height; 
+    boolean clockwize; 
  
     public VerticalTextIcon(String text, UUID uuid, boolean clockwize){ 
         this.text = text; 
         this.uuid = uuid;
         width = SwingUtilities.computeStringWidth(fm, text);
-       
         height = fm.getHeight(); 
         this.clockwize = clockwize;
     } 
  
-    public void paintIcon(Component c, Graphics g, int x, int y){ 	
+    public void paintIcon(Component c, Graphics g, int x, int y) { 	
     	Graphics2D g2 = (Graphics2D)g; 
         Font oldFont = g.getFont(); 
         Color oldColor = g.getColor(); 
@@ -43,9 +42,15 @@ public class VerticalTextIcon implements Icon, SwingConstants{
         g.setFont(font); 
         g.setColor(Color.BLACK); 
         if(clockwize){     	
-    		g2.translate(x + getIconWidth(), y); 
-            g2.rotate(Math.PI/2); 
-        }else{ 
+        	
+        	if(HostConfigurator.OS.contains("Mac OS X") == false) {	
+        		g2.translate(x + getIconWidth(), y); 
+        		g2.rotate(Math.PI/2); 
+            } else {
+            	g2.translate(x, y + getIconHeight()); 
+            	g2.rotate(-Math.PI/2); 
+            }
+        } else { 
             g2.translate(x, y + getIconHeight()); 
             g2.rotate(-Math.PI/2); 
         } 
