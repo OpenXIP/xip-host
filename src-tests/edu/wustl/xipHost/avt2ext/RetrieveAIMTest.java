@@ -58,7 +58,7 @@ public class RetrieveAIMTest {
 		
 	}
 	
-	//INFO: dataset must be preloaded prior to running this JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
+	//INFO: dataset must be preloaded prior to running these JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
 	@Test
 	public void testRetrieveAIM_1A(){
 		Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();

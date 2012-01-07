@@ -14,7 +14,7 @@ import org.junit.runners.Suite.SuiteClasses;
 //INFO: dataset must be preloaded prior to running this JUnit tests. Use PreloadDICOM first to prelaod all DICOM files 
 //and then PreloadAIM to preload all AIM XML files from AD_Preload_JUnit_Tests.
 @RunWith(Suite.class)
-@SuiteClasses({QueryADTest.class, CreateIteratorTest.class, RetrieveAIMTest.class, RetrieveDicomSegTest.class})
+@SuiteClasses({QueryADTest.class, CreateIteratorTest.class, RetrieveAIMTest.class, RetrieveDicomSegTest.class, RetrieveDICOMwithAVTRetrieve.class})
 public class TestavtPkgeAllJUnit4 {
 	
 	public class JUnit4Suite {

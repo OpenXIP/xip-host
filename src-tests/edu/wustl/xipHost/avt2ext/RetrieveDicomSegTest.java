@@ -34,11 +34,15 @@ public class RetrieveDicomSegTest {
 	@Before
 	public void setUpBeforeTest() throws Exception {
 		avt2ext_seg_retrieve_dir = new File("./test-content/AVT2EXT_SEG_Retrieve");
-		File[] files = avt2ext_seg_retrieve_dir.listFiles();
-		if(files.length > 0) {
-			for(int i = 0 ; i < files.length; i++) {
-				File file = files[i];
-				file.delete();
+		if(avt2ext_seg_retrieve_dir.exists() == false) {
+			avt2ext_seg_retrieve_dir.mkdir();
+		} else {
+			File[] files = avt2ext_seg_retrieve_dir.listFiles();
+			if(files.length > 0) {
+				for(int i = 0 ; i < files.length; i++) {
+					File file = files[i];
+					file.delete();
+				}
 			}
 		}
 	}
@@ -53,7 +57,7 @@ public class RetrieveDicomSegTest {
 	}
 	
 	
-	//INFO: dataset must be preloaded prior to running this JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
+	//INFO: dataset must be preloaded prior to running these JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
 	@Test
 	public void testRetrieveDicomSegTest_1A() throws IOException{
 		String aimUID2 = "1.3.6.1.4.1.5962.99.1.1772356583.1829344988.1264492774375.3.0";
