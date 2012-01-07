@@ -865,5 +865,20 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		ApplicationTerminationEvent event = new ApplicationTerminationEvent(this);
 		applicationTerminationListener.applicationTerminated(event);
 	}
-	
+
+	/**
+	 * Used in JUnit testing when setting the test fixture
+	 * @param numberOfSentNotifications
+	 */
+	public void setNumberOfSentNotifications(int numberOfSentNotifications) {
+		this.numberOfSentNotifications = numberOfSentNotifications;
+	}
+
+	/**
+	 * Used in JUnit testing when setting the test fixture
+	 * @param targetElements
+	 */
+	public void setTargetElements(List<TargetElement> targetElements) {
+		this.targetElements = targetElements;
+	}
 }
