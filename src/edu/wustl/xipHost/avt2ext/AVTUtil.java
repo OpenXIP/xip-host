@@ -83,11 +83,7 @@ public class AVTUtil {
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(studyDateTime); 			
 				String studyDate = null;
-				if(calendar != null){
-		        	studyDate = sdf.format(calendar.getTime());if(studyDate == null){studyDate = "";}
-		        }else{
-		        	studyDate = "";
-		        }
+		        studyDate = sdf.format(calendar.getTime());if(studyDate == null){studyDate = "";}
 				String studyID = studyAD.getStudyID();if(studyID == null){studyID = "";}	
 				String studyDesc = studyAD.getStudyDescription();if(studyDesc == null){studyDesc = "";}
 				String studyInstanceUID = studyAD.getStudyInstanceUID();if(studyInstanceUID == null){studyInstanceUID = "";}				
