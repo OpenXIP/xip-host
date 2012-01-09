@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.After;
@@ -168,15 +169,60 @@ public class RetrieveDICOMwithAVTRetrieve implements RetrieveListener, TargetIte
 	//Result: There should be four DICOM and one AIM objects retrieved from AD database.
 	@Test
 	public void testRetrieveDICOMandAIMSEG() {
-		
+		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AIM_SEG;
+		app.setRetrieveTarget(retrieveTarget);
+		listUUIDs = result.getDICOMandAIMandSEGObjectsUUIDs();
+		List<ObjectLocator> retrievedObjects = app.retrieveAndGetLocators(listUUIDs);
+		assertEquals("Number of retrieved items should be 4 but is: " + retrievedObjects.size(), retrievedObjects.size(), 4);
+		//Check retrieved file names
+		boolean isFileNameCorrect = false;
+		if(retrievedObjects.size() == 4){
+			for(ObjectLocator objLoc : retrievedObjects) {
+				String fileName = new File(objLoc.getUri()).getName();
+				if(fileName.equalsIgnoreCase("1.2.276.0.7230010.3.1.4.2554264370.29928.1264492790.3") || 
+						fileName.equalsIgnoreCase("1.2.276.0.7230010.3.1.4.2554264370.29928.1264492801.5") || 
+						fileName.equalsIgnoreCase("1.2.840.113704.1.111.4044.1226687286.21577") ||
+						fileName.equalsIgnoreCase("1.3.6.1.4.1.5962.99.1.1772356583.1829344988.1264492774375.3.0")){
+					isFileNameCorrect = true;
+					if(isFileNameCorrect == false) {
+						fail("Item: " + objLoc.getUuid().getUuid() + " " + objLoc.getUri() + " shouldn't be retrieved.");
+					}
+				}
+			}
+		}
+		assertTrue("Retrieved items are not as expected.", isFileNameCorrect);
 	}
 	
 	//INFO: dataset must be preloaded prior to running these JUnit tests from AD_Preload_JUnit_Tests. Use PreloadDICOM and PreloadAIM utility classes in avt2ext to preload database.
 	//Application.retrieveAndGetLocators() - alternative flow. Number of UUIDs sent from hosted application is greater than UUIDs on the Host (Host can't find UUID). 
-	//Result: There should be four DICOM and one AIM objects retrieved from AD database.
+	//Result: There should be four DICOM and one AIM objects retrieved from AD database. There shoul be a logging message for the UUID of the object that is not found in AD. 
 	@Test
 	public void testRetrieveUUIDNotFound() {
-		
+		RetrieveTarget retrieveTarget = RetrieveTarget.DICOM_AIM_SEG;
+		app.setRetrieveTarget(retrieveTarget);
+		listUUIDs = result.getDICOMandAIMandSEGObjectsUUIDs();
+		Uuid notFoundUUID = new Uuid();
+		notFoundUUID.setUuid(UUID.randomUUID().toString());
+		listUUIDs.add(notFoundUUID);
+		List<ObjectLocator> retrievedObjects = app.retrieveAndGetLocators(listUUIDs);
+		assertEquals("Number of retrieved items should be 4 but is: " + retrievedObjects.size(), retrievedObjects.size(), 4);
+		//Check retrieved file names
+		boolean isFileNameCorrect = false;
+		if(retrievedObjects.size() == 4){
+			for(ObjectLocator objLoc : retrievedObjects) {
+				String fileName = new File(objLoc.getUri()).getName();
+				if(fileName.equalsIgnoreCase("1.2.276.0.7230010.3.1.4.2554264370.29928.1264492790.3") || 
+						fileName.equalsIgnoreCase("1.2.276.0.7230010.3.1.4.2554264370.29928.1264492801.5") || 
+						fileName.equalsIgnoreCase("1.2.840.113704.1.111.4044.1226687286.21577") ||
+						fileName.equalsIgnoreCase("1.3.6.1.4.1.5962.99.1.1772356583.1829344988.1264492774375.3.0")){
+					isFileNameCorrect = true;
+					if(isFileNameCorrect == false) {
+						fail("Item: " + objLoc.getUuid().getUuid() + " " + objLoc.getUri() + " shouldn't be retrieved.");
+					}
+				}
+			}
+		}
+		assertTrue("Retrieved items are not as expected.", isFileNameCorrect);
 	}
 	
 

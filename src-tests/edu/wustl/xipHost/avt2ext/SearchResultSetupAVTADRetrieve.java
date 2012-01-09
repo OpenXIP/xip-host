@@ -70,6 +70,7 @@ public class SearchResultSetupAVTADRetrieve {
 			item1.setObjectDescriptor(objDescItem1);
 			listUUIDsDicom.add(objDescUUID);
 			listUUIDsAIMSEG.add(objDescUUID);
+			listUUIDsDICOMAIMSEG.add(objDescUUID);
 			series1.addItem(item1);
 			series1.setContainsSubsetOfItems(false);
 			Item item2 = new ImageItem("1.2.276.0.7230010.3.1.4.2554264370.29928.1264492801.5");
@@ -85,6 +86,7 @@ public class SearchResultSetupAVTADRetrieve {
 			item2.setObjectDescriptor(objDescItem2);
 			listUUIDsDicom.add(objDescUUID2);
 			listUUIDsAIMSEG.add(objDescUUID2);
+			listUUIDsDICOMAIMSEG.add(objDescUUID2);
 			series2.addItem(item2);
 			series2.setContainsSubsetOfItems(false);
 			Item item3 = new ImageItem("1.2.840.113704.1.111.4044.1226687286.215775");
@@ -99,6 +101,7 @@ public class SearchResultSetupAVTADRetrieve {
 			//End: ObjectDescriptor Item3
 			item3.setObjectDescriptor(objDescItem3);
 			listUUIDsDicom.add(objDescUUID3);
+			listUUIDsDICOMAIMSEG.add(objDescUUID3);
 			series3.addItem(item3);
 			Item item4 = new AIMItem("", "", "", "1.3.6.1.4.1.5962.99.1.1772356583.1829344988.1264492774375.3.0");
 			//Start: ObjectDescriptor Item4
@@ -113,6 +116,7 @@ public class SearchResultSetupAVTADRetrieve {
 			//End: ObjectDescriptor Item4
 			item4.setObjectDescriptor(objDescItem4);
 			listUUIDsAIMSEG.add(objDescUUID4);
+			listUUIDsDICOMAIMSEG.add(objDescUUID4);
 			series3.addItem(item4);
 			series3.setContainsSubsetOfItems(false);
 			
@@ -135,5 +139,10 @@ public class SearchResultSetupAVTADRetrieve {
 	List<Uuid> listUUIDsAIMSEG = new ArrayList<Uuid>();
 	public List<Uuid> getAIMandSEGObjectsUUIDs(){
 		return listUUIDsAIMSEG;
+	}
+	
+	List<Uuid> listUUIDsDICOMAIMSEG = new ArrayList<Uuid>();
+	public List<Uuid> getDICOMandAIMandSEGObjectsUUIDs(){
+		return listUUIDsDICOMAIMSEG;
 	}
 }

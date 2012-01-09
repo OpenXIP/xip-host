@@ -815,9 +815,13 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		} else {		
 			for(Uuid uuid : listUUIDs){
 				String strUuid = uuid.getUuid();
-				ObjectLocator objLoc = retrievedData.get(strUuid);				
-				logger.debug(strUuid + " " + objLoc.getUri());
-				listObjLocs.add(objLoc);			
+				ObjectLocator objLoc = retrievedData.get(strUuid);
+				if(objLoc != null){
+					logger.debug(strUuid + " " + objLoc.getUri());
+					listObjLocs.add(objLoc);		
+				} else {
+					logger.warn("Host can't find data for the UUID: " + strUuid);
+				}	
 			}
 			return listObjLocs;
 		}			
@@ -826,8 +830,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	@Override
 	public void notifyException(String message) {
-		// TODO Auto-generated method stub
-		
+		logger.warn(message);
 	}
 
 
