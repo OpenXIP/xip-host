@@ -622,7 +622,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		//does not terminate properly
 		Util.delete(new File("./db"));
 		//Run DICOM shutdown sequence
-		dicomMgr.runDicomShutDownSequence("jdbc:hsqldb:./pixelmed-server-hsqldb/hsqldb/data/ws1db", "sa", "");
+		//dicomMgr.runDicomShutDownSequence("jdbc:hsqldb:./pixelmed-server-hsqldb/hsqldb/data/ws1db", "sa", "");
 		logger.info("XIPHost exits. Thank you for using XIP Host.");
 		
 		
