@@ -441,11 +441,13 @@ public class DicomManagerImpl implements DicomManager{
 		}
 		try {
 			conn = DriverManager.getConnection(connectionPath, user, password);
-			Statement st = conn.createStatement();
-			boolean bln = st.execute("SHUTDOWN");
-	        if(bln){
-	        	conn.close();
-	        }
+			if(conn.isClosed() == false){
+				Statement st = conn.createStatement();
+				boolean bln = st.execute("SHUTDOWN");
+		        if(bln){
+		        	conn.close();
+		        }
+			}
 		} catch (SQLException e) {
 			logger.error("ERROR detected when shuting down DICOM Pixelmed and HSQLDB servers");
 			logger.error(e, e);
