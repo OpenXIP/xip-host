@@ -28,10 +28,10 @@ public class InsertToTestWorkstation {
 		}		
 		PacsLocation loc = new PacsLocation("127.0.0.1", 3002, "WORKSTATION2", "XIPHost test database");
 		DicomManager dicomMgr = DicomManagerFactory.getInstance();
-		Properties workstation1Prop = new Properties();
+		Properties workstation2Prop = new Properties();
 		try {
-			workstation1Prop.load(new FileInputStream("./src-tests/edu/wustl/xipHost/dicom/server/workstation2.properties"));
-			workstation1Prop.setProperty("Application.SavedImagesFolderName", new File("./test-content/WORKSTATION2").getCanonicalPath());	
+			workstation2Prop.load(new FileInputStream("./src-tests/edu/wustl/xipHost/dicom/server/workstation2.properties"));
+			workstation2Prop.setProperty("Application.SavedImagesFolderName", new File("./test-content/WORKSTATION2").getCanonicalPath());	
 		} catch (FileNotFoundException e1) {
 			System.err.println(e1.getMessage());
 			System.exit(0);
@@ -39,7 +39,7 @@ public class InsertToTestWorkstation {
 			System.err.println(e1.getMessage());
 			System.exit(0);
 		}
-		dicomMgr.runDicomStartupSequence("./src-tests/edu/wustl/xipHost/dicom/server/serverTest", workstation1Prop);
+		dicomMgr.runDicomStartupSequence("./src-tests/edu/wustl/xipHost/dicom/server/serverTest", workstation2Prop);
 		dicomMgr.submit(files, loc);
 		dicomMgr.runDicomShutDownSequence("jdbc:hsqldb:./src-tests/edu/wustl/xipHost/dicom/server/hsqldb/data/ws2db", "sa", "");
 	}
