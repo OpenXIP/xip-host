@@ -565,6 +565,11 @@ public class DicomUtil {
 			String sopInstanceUID = (String)dicomCriteria.get(Tag.SOPInstanceUID);
 			if(sopInstanceUID != null){
 				{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(sopInstanceUID); criteria.put(t,a); }
+				if(sopInstanceUID.equalsIgnoreCase("*")){
+					{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("SERIES"); criteria.put(t,a); }
+				} else {
+					{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("IMAGE"); criteria.put(t,a); }
+				}
 			}
 			String SOPClassUID = (String)dicomCriteria.get(Tag.SOPClassUID);
 			if(SOPClassUID != null){
@@ -595,7 +600,6 @@ public class DicomUtil {
 				{ AttributeTag t = TagFromName.ConvolutionKernel; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(convolutionKernel); criteria.put(t,a); }
 			}
 			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); criteria.put(t,a); a.addValue(characterSets[0]); }
-			{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue("IMAGE"); criteria.put(t,a); }
 		} catch (DicomException e) {
 			logger.error(e, e);
 		} 
