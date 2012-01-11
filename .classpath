@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XIP"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PIXELMED"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/EXT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XINDICE"/>
@@ -13,5 +12,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/AVT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OHT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/NBIA"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XIP"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
