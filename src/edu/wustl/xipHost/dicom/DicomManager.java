@@ -32,5 +32,5 @@ public interface DicomManager {
 	public abstract boolean runDicomShutDownSequence(String connectionPath, String user, String password);
 	public String getDBFileName();
 	public PacsLocation getDefaultCallingPacsLocation();
-	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation);
+	public void setDefaultCallingPacsLocation(PacsLocation callingPacsLocation);
 }

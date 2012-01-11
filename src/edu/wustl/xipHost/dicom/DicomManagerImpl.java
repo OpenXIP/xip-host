@@ -407,7 +407,6 @@ public class DicomManagerImpl implements DicomManager{
 	}
 
 	File xmlPacsLocFile = new File("./config/pacs_locations.xml");
-	String dbFileName;
 	public boolean runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp) {
 		if(xmlPacsLocFile == null ){return false;}
 		startHSQLDB(hsqldbServerConfigFilePath);		
@@ -497,6 +496,7 @@ public class DicomManagerImpl implements DicomManager{
 		}
 	}
 	
+	String dbFileName;
 	public String getDBFileName(){
 		return dbFileName;
 	}
@@ -512,7 +512,7 @@ public class DicomManagerImpl implements DicomManager{
 	}
 	
 	PacsLocation callingPacsLocation;
-	public void setDefaultCallingPacsLOcation(PacsLocation callingPacsLocation){
+	public void setDefaultCallingPacsLocation(PacsLocation callingPacsLocation){
 		this.callingPacsLocation = callingPacsLocation;
 	}
 }

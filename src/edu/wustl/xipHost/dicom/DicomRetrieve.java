@@ -49,8 +49,8 @@ import edu.wustl.xipHost.iterator.TargetElement;
 public class DicomRetrieve implements Retrieve {
 	final static Logger logger = Logger.getLogger(DicomRetrieve.class);	
 	DicomManager dicomMgr;
-	PacsLocation called;
-	PacsLocation calling;
+	PacsLocation called;	//request destination
+	PacsLocation calling;	//initiating request
 	//TargetElement targetElement;
 	Map<Integer, Object> dicomCriteria;
 	Map<String, Object> aimCriteria;
@@ -133,11 +133,11 @@ public class DicomRetrieve implements Retrieve {
 	// TODO Move crietria inside the retrieve() method after all retrieve() removed
 	AttributeList criteria;
 	Map<String, ObjectLocator> retrieve(Map<Integer, Object> dicomCriteria){
-		String hostName = called.getAddress();
-		int port = called.getPort();
-		String calledAETitle = called.getAETitle();
-		String callingAETitle = calling.getAETitle();
 		if(called != null && calling != null){	
+			String hostName = called.getAddress();
+			int port = called.getPort();
+			String calledAETitle = called.getAETitle();
+			String callingAETitle = calling.getAETitle();
 			if(logger.isDebugEnabled()){			
 		    	logger.debug("Host name: " + hostName);
 		    	logger.debug("Port: " + port);		    
