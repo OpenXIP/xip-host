@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, David A. Clunie DBA Pixelmed Publishing. All rights reserved. */
+/* Copyright (c) 2001-2010, David A. Clunie DBA Pixelmed Publishing. All rights reserved. */
 
 package com.pixelmed.database;
 
@@ -60,7 +60,7 @@ import java.util.*;
 public abstract class DatabaseInformationModel {
 
 	/***/
-	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/database/DatabaseInformationModel.java,v 1.65 2011/04/24 13:55:58 dclunie Exp $";
+	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/database/DatabaseInformationModel.java,v 1.62 2010/12/01 13:27:52 dclunie Exp $";
 
 	public static final String FILE_COPIED = "C";
 	public static final String FILE_REFERENCED = "R";
@@ -68,31 +68,31 @@ public abstract class DatabaseInformationModel {
 	/***/
 	protected static final String defaultDatabaseRootName = "Local database";		// e.g., as used in root node of TreeModel
 	/***/
-	protected static final String localPrimaryKeyColumnName = "LOCALPRIMARYKEY";	// needs to be upper case
+	protected static final String localPrimaryKeyColumnName = "LocalPrimaryKey";
 	/***/
-	protected static final String localParentReferenceColumnName = "LOCALPARENTREFERENCE";	// needs to be upper case
+	protected static final String localParentReferenceColumnName = "LocalParentReference";
 	/***/
-	protected static final String localRecordInsertionTimeColumnName = "RECORDINSERTIONTIME";	// needs to be upper case
+	protected static final String localRecordInsertionTimeColumnName = "RecordInsertionTime";
 	/***/
-	protected static final String localFileName = "LOCALFILENAME";	// needs to be upper case
+	protected static final String localFileName = "LocalFileName";
 	/***/
-	protected static final String localFileReferenceTypeColumnName = "LOCALFILEREFERENCETYPE";	// needs to be upper case
+	protected static final String localFileReferenceTypeColumnName = "LocalFileReferenceType";
 	/***/
-	protected static final String personNameCanonicalColumnNamePrefix = "PM_";	// needs to be upper case
+	protected static final String personNameCanonicalColumnNamePrefix = "PM_";
 	/***/
-	protected static final String personNameCanonicalColumnNameSuffix = "_CANONICAL";	// needs to be upper case
+	protected static final String personNameCanonicalColumnNameSuffix = "_CANONICAL";
 	/***/
-	protected static final String personNamePhoneticCanonicalColumnNamePrefix = "PM_";	// needs to be upper case
+	protected static final String personNamePhoneticCanonicalColumnNamePrefix = "PM_";
 	/***/
-	protected static final String personNamePhoneticCanonicalColumnNameSuffix = "_PHONETICCANONICAL";	// needs to be upper case
+	protected static final String personNamePhoneticCanonicalColumnNameSuffix = "_PHONETICCANONICAL";
 	/***/
-	protected static final String userColumnName1 = "PM_USER1";	// needs to be upper case
+	protected static final String userColumnName1 = "PM_USER1";
 	/***/
-	protected static final String userColumnName2 = "PM_USER2";	// needs to be upper case
+	protected static final String userColumnName2 = "PM_USER2";
 	/***/
-	protected static final String userColumnName3 = "PM_USER3";	// needs to be upper case
+	protected static final String userColumnName3 = "PM_USER3";
 	/***/
-	protected static final String userColumnName4 = "PM_USER4";	// needs to be upper case
+	protected static final String userColumnName4 = "PM_USER4";
 
 	/***/
 	protected InformationEntity rootInformationEntity;
@@ -135,13 +135,25 @@ public abstract class DatabaseInformationModel {
 	 */
 	/*protected*/ void makeLocalColumnExcludeList() {		// protected scope ... may be (but isn't currently) overridden by specialized classes
 		localColumnExcludeList = new HashSet();
-		localColumnExcludeList.add(localPrimaryKeyColumnName);
-		localColumnExcludeList.add(localParentReferenceColumnName);
-		localColumnExcludeList.add(localRecordInsertionTimeColumnName);
-		localColumnExcludeList.add(localFileName);
-		localColumnExcludeList.add(localFileReferenceTypeColumnName);
+		localColumnExcludeList.add(localPrimaryKeyColumnName.toUpperCase());
+		localColumnExcludeList.add(localParentReferenceColumnName.toUpperCase());
+		localColumnExcludeList.add(localRecordInsertionTimeColumnName.toUpperCase());
+		localColumnExcludeList.add(localFileName.toUpperCase());
+		localColumnExcludeList.add(localFileReferenceTypeColumnName.toUpperCase());
 	}
 	
+	protected void setDatabaseProperties() {
+		if (databaseConnection != null) {
+			try {
+				Statement s = databaseConnection.createStatement();
+				s.execute("SET PROPERTY \"hsqldb.cache_file_scale\" 8;");		// default is only 2GB; must be set BEFORE any cached tables are created
+				s.close();
+			} catch (SQLException e) {
+				e.printStackTrace(System.err);
+			}
+		}
+	}
+
 	/**
 	 * <p>Instantiate a persistent information model using the named database.</p>
 	 *
@@ -236,17 +248,12 @@ public abstract class DatabaseInformationModel {
 		makeLocalColumnExcludeList();
 		try {
 			Class.forName("org.hsqldb.jdbcDriver").newInstance();
-			java.util.Properties properties = new java.util.Properties();
-			properties.put("user","sa");
-			properties.put("password","");
-			properties.put("hsqldb.cache_file_scale","8");			// default is only 2GB; must be set BEFORE any cached tables are created
-			properties.put("sql.enforce_size","FALSE");				// default is true with 2.x
-			properties.put("sql.enforce_strict_size","FALSE");		// default is true with 2.x
-			databaseConnection=DriverManager.getConnection("jdbc:hsqldb:"+databaseFileName,properties);
+			databaseConnection=DriverManager.getConnection("jdbc:hsqldb:"+databaseFileName+";shutdown=true","sa","");
 //System.err.println("DatabaseInformationModel(): first call to primeListsOfAttributesByInformationEntityFromExistingMetaData() to see if tables exist");
 			primeListsOfAttributesByInformationEntityFromExistingMetaData();
 			if (listsOfAttributesByInformationEntity.size() == 0) {
 //System.err.println("DatabaseInformationModel(): our tables do not exist, create them");
+				setDatabaseProperties();
 				createTables();
 //System.err.println("DatabaseInformationModel(): second call to primeListsOfAttributesByInformationEntityFromExistingMetaData() now that we have added our tables");
 				primeListsOfAttributesByInformationEntityFromExistingMetaData();
@@ -289,13 +296,14 @@ public abstract class DatabaseInformationModel {
 		}
 		if (databaseConnection != null) {
 //System.err.println("DatabaseInformationModel.close(): shutdown compact start");
+			/*
 			try {
 				Statement s = databaseConnection.createStatement();
-				s.execute("SHUTDOWN COMPACT;");	// no ResultSet expected
+				//s.execute("SHUTDOWN COMPACT;");
 				s.close();
 			} catch (SQLException e) {
 				e.printStackTrace(System.err);
-			}
+			}*/
 //System.err.println("DatabaseInformationModel.close(): shutdown compact finished");
 			try {
 				databaseConnection.close();
@@ -355,7 +363,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * <p>May be used, for example, for column header labels in table browsers.</p>
 	 *
-	 * @return	a {@link java.util.HashMap HashMap} indexed by {@link java.lang.String String} upper case column names and containing {@link java.lang.String String} descriptive names
+	 * @return	a {@link java.util.HashMap HashMap} indexed by {@link java.lang.String String} column names and containing {@link java.lang.String String} descriptive names
 	 */
 	Map getDescriptiveNameMap() { return descriptiveNameMap; }
 
@@ -382,7 +390,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	tag		the tag of the DICOM element
 	 * @return			a {@link java.lang.String String} column name, or null if not known
 	 */
-	public String getDatabaseColumnNameFromDicomTag(AttributeTag tag) {
+	String getDatabaseColumnNameFromDicomTag(AttributeTag tag) {
 		String columnName = null;
 		if (dictionary != null) {
 			columnName = getDatabaseColumnNameFromDicomName(dictionary.getNameFromTag(tag));
@@ -394,9 +402,9 @@ public abstract class DatabaseInformationModel {
 	 * <p>Get the name of the table column corresponding to the DICOM element name.</p>
 	 *
 	 * @param	descriptiveName		the name of the DICOM element
-	 * @return				the upper case {@link java.lang.String String} column name, or null if not known
+	 * @return				a {@link java.lang.String String} column name, or null if not known
 	 */
-	public static String getDatabaseColumnNameFromDicomName(String descriptiveName) {
+	String getDatabaseColumnNameFromDicomName(String descriptiveName) {
 		String columnName = null;
 		if (descriptiveName != null) {
 			columnName = descriptiveName.toUpperCase();
@@ -410,7 +418,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	columnName		the name of the database column
 	 * @return				a {@link java.lang.String String} descriptive name of the DICOM element, or null if not known
 	 */
-	public String getDicomNameFromDatabaseColumnName(String columnName) {
+	String getDicomNameFromDatabaseColumnName(String columnName) {
 		String descriptiveName = null;
 		if (columnName != null) {
 			descriptiveName = (String)(descriptiveNameMap.get(columnName));
@@ -424,7 +432,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	columnName		the name of the database column
 	 * @return				the tag, or null if not known
 	 */
-	public AttributeTag getAttributeTagFromDatabaseColumnName(String columnName) {
+	AttributeTag getAttributeTagFromDatabaseColumnName(String columnName) {
 		AttributeTag tag = null;
 		String descriptiveName = getDicomNameFromDatabaseColumnName(columnName);
 		if (descriptiveName != null) {
@@ -468,7 +476,7 @@ public abstract class DatabaseInformationModel {
 			extendCreateStatementStringWithUserColumns(b,ie);
 			b.append(")");
 			Statement s = databaseConnection.createStatement();
-			s.execute(b.toString());	// no ResultSet expected
+			s.execute(b.toString());
 			s.close();
 		} catch (Exception e) {
 			throw new DicomException("Cannot create table "+tableName+" in database: "+e);
@@ -486,7 +494,7 @@ public abstract class DatabaseInformationModel {
 				b.append(localParentReferenceColumnName);
 				b.append(")");
 				Statement s = databaseConnection.createStatement();
-				s.execute(b.toString());	// no ResultSet expected
+				s.execute(b.toString());
 				s.close();
 			} catch (Exception e) {
 				throw new DicomException("Cannot create index of parents for "+tableName+" in database: "+e);
@@ -518,7 +526,7 @@ public abstract class DatabaseInformationModel {
 					b.append(columnName);
 					b.append(")");
 					Statement s = databaseConnection.createStatement();
-					s.execute(b.toString());	// no ResultSet expected
+					s.execute(b.toString());
 					s.close();
 				} catch (Exception e) {
 					throw new DicomException("Cannot create index of "+columnName+" for "+tableName+" in database: "+e);
@@ -534,12 +542,12 @@ public abstract class DatabaseInformationModel {
 	 */
 	private void extendCreateStatementStringWithMandatoryColumns(StringBuffer b,boolean withParentReference,InformationEntity ie) {
 		b.append(localPrimaryKeyColumnName);
-		b.append(" VARCHAR");
+		b.append(" CHAR(64)");
 		b.append(" PRIMARY KEY");
 		if (withParentReference) {
 			b.append(", ");
 			b.append(localParentReferenceColumnName);
-			b.append(" VARCHAR");
+			b.append(" CHAR(64)");
 		}
 		b.append(",");
 		b.append(localRecordInsertionTimeColumnName);
@@ -547,7 +555,7 @@ public abstract class DatabaseInformationModel {
 		if (ie == InformationEntity.INSTANCE) {
 			b.append(",");
 			b.append(localFileName);
-			b.append(" VARCHAR");
+			b.append(" VARCHAR(255)");
 			b.append(",");
 			b.append(localFileReferenceTypeColumnName);
 			b.append(" CHAR(1)");
@@ -592,7 +600,7 @@ public abstract class DatabaseInformationModel {
 			b.append(", ");
 			b.append(newColumnName);
 			b.append(" ");
-			b.append("VARCHAR");
+			b.append("VARCHAR(255)");
 
 			additionalIndexMapOfColumnsToTables.put(newColumnName,tableName);
 		}
@@ -601,7 +609,7 @@ public abstract class DatabaseInformationModel {
 			b.append(", ");
 			b.append(newColumnName);
 			b.append(" ");
-			b.append("VARCHAR");
+			b.append("VARCHAR(255)");
 
 			additionalIndexMapOfColumnsToTables.put(newColumnName,tableName);
 		}
@@ -656,10 +664,10 @@ public abstract class DatabaseInformationModel {
 	 * @param	ie		the {@link com.pixelmed.dicom.InformationEntity InformationEntity} for which a create table statement is being constructed
 	 */
 	protected void extendCreateStatementStringWithUserColumns(StringBuffer b,InformationEntity ie) {
-		b.append(", "); b.append(userColumnName1); b.append(" "); b.append("VARCHAR");
-		b.append(", "); b.append(userColumnName2); b.append(" "); b.append("VARCHAR");
-		b.append(", "); b.append(userColumnName3); b.append(" "); b.append("VARCHAR");
-		b.append(", "); b.append(userColumnName4); b.append(" "); b.append("VARCHAR");
+		b.append(", "); b.append(userColumnName1); b.append(" "); b.append("VARCHAR(255)");
+		b.append(", "); b.append(userColumnName2); b.append(" "); b.append("VARCHAR(255)");
+		b.append(", "); b.append(userColumnName3); b.append(" "); b.append("VARCHAR(255)");
+		b.append(", "); b.append(userColumnName4); b.append(" "); b.append("VARCHAR(255)");
 	}
 
 	/**
@@ -684,7 +692,7 @@ public abstract class DatabaseInformationModel {
 						s.execute("ALTER TABLE " + tableName
 							+ " ADD COLUMN " + columnName
 							+ " " + columnType
-							);	// no ResultSet expected
+							);
 						s.close();
 					} catch (Exception e) {
 						throw new DicomException("Cannot add column "+columnName+" to table "+tableName+" in database: "+e);
@@ -695,16 +703,7 @@ public abstract class DatabaseInformationModel {
 	}
 
 	/**
-	 * @deprecated use  {@link #deleteRecord(InformationEntity,String) deleteRecord(InformationEntity,String)} instead
-	 */
-	public void deleteSelectedRecord(InformationEntity ie,String localPrimaryKeyValue) throws DicomException {
-		deleteRecord(ie,localPrimaryKeyValue);
-	}
-
-	/**
-	 * <p>Delete a database record (a particular instance of an information entity).</p>
-	 *
-	 * <p>For example, for the study entity, this would delete a particular study.</p>
+	 * <p>Delete a database record.</p>
 	 *
 	 * <p>Does NOT delete its children, if any.</p>
 	 *
@@ -732,7 +731,7 @@ public abstract class DatabaseInformationModel {
 				Statement s = databaseConnection.createStatement();
 				String ss = b.toString();
 //System.err.println("DatabaseInformationModel.deleteRecord(): Statement to execute = "+ss);
-				s.execute(ss);	// no ResultSet expected
+				s.execute(ss);
 				s.close();
 			}
 			catch (Exception e) {
@@ -832,7 +831,7 @@ public abstract class DatabaseInformationModel {
 				String entityPrimaryKey = null;
 				int count = 0;
 				while (r.next()) {
-					entityPrimaryKey=r.getString(localPrimaryKeyColumnName).trim();		// since CHAR not VARCHAR, returns trailing spaces :(
+					entityPrimaryKey=r.getString(localPrimaryKeyColumnName);
 					++count; 
 				}
 //System.err.println("DatabaseInformationModel.insertObject(): ie="+ie+" count="+count+" entityPrimaryKey="+entityPrimaryKey);
@@ -858,8 +857,6 @@ public abstract class DatabaseInformationModel {
 					b.append("\'");
 					if (ie != rootInformationEntity) {
 						b.append(",\'");
-//System.err.println("DatabaseInformationModel.insertObject(): localParentReference = <"+localParentReference+">");
-//System.err.println("DatabaseInformationModel.insertObject(): localParentReference.length() = "+localParentReference.length());
 						b.append(localParentReference);
 						b.append("\'");
 					}
@@ -873,7 +870,7 @@ public abstract class DatabaseInformationModel {
 					b.append(")");
 					ss = b.toString();
 //System.err.println("DatabaseInformationModel.insertObject(): Statement to execute = "+ss);
-					s.execute(ss);	// no ResultSet expected
+					s.execute(ss);
 				}
 
 				s.close();
@@ -1070,7 +1067,7 @@ public abstract class DatabaseInformationModel {
 	 * @return			true if the attribute is used in the table
 	 */
 	boolean isAttributeUsedInTable(InformationEntity ie,String columnName) {
-		return ie == null ? false : isAttributeUsedInTable(getTableNameForInformationEntity(ie),columnName);
+		return ie == null ? false : isAttributeUsedInTable(ie.toString().toUpperCase(),columnName);
 	}
 
 	/**
@@ -1082,7 +1079,7 @@ public abstract class DatabaseInformationModel {
 	 */
 	boolean isAttributeUsedInTable(String tableName,String columnName) {
 		if (listsOfAttributesByInformationEntity != null) {
-			LinkedList listOfAttributes = (LinkedList)listsOfAttributesByInformationEntity.get(tableName.toUpperCase());
+			LinkedList listOfAttributes = (LinkedList)listsOfAttributesByInformationEntity.get(tableName);
 			if (listOfAttributes != null) {
 				if (listOfAttributes.contains(columnName.toUpperCase())) {
 //System.err.println("DatabaseInformationModel.isAttributeUsedInTable(String,String): "+tableName+" contains "+columnName);
@@ -1108,7 +1105,7 @@ public abstract class DatabaseInformationModel {
 	 * @exception	DicomException		thrown if the update fails
 	 */
 	public void updateSelectedRecord(InformationEntity ie,String localPrimaryKeyValue,String key,String value) throws DicomException {
-//System.err.println("DatabaseInformationModel.updateSelectedRecord(): "+ie+" "+localPrimaryKeyValue+" "+key+" "+value);
+//System.err.println("updateSelectedRecord: "+ie+" "+localPrimaryKeyValue+" "+key+" "+value);
 		try {
 			if (ie != null) {
 				String tableName = getTableNameForInformationEntity(ie);
@@ -1132,12 +1129,49 @@ public abstract class DatabaseInformationModel {
 				}
 				b.append(";");
 				Statement s = databaseConnection.createStatement();
-				s.execute(b.toString());	// no ResultSet expected
+				ResultSet r = s.executeQuery(b.toString());
 				s.close();
 			}
 		} catch (Exception e) {
                         e.printStackTrace(System.err);
 			throw new DicomException("Cannot perform update: "+e);
+		}
+	}
+
+	/**
+	 * <p>For a particular instance of an information entity, delete the record from the database table.</p>
+	 *
+	 * <p>For example, for the study entity, this would delete a particular study.</p>
+	 *
+	 * <p>Note that this method does not delete any referenced files, for example in the case of an instance record.</p>
+	 *
+	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity} of the record to be returned
+	 * @param	localPrimaryKeyValue	the string value of the unique key which identifies the instance of the entity (not including wildcards)
+	 * @exception	DicomException		thrown if the deletion fails
+	 */
+	public void deleteSelectedRecord(InformationEntity ie,String localPrimaryKeyValue) throws DicomException {
+		try {
+			if (ie != null) {
+				String tableName = getTableNameForInformationEntity(ie);
+				StringBuffer b = new StringBuffer();
+				b.append("DELETE FROM ");
+				b.append(tableName);
+				if (localPrimaryKeyValue != null) {
+					b.append(" WHERE ");
+					b.append(localPrimaryKeyColumnName);
+					//b.append(" LIKE \'");
+					b.append(" = \'");
+					b.append(localPrimaryKeyValue);
+					b.append("\'");
+				}
+				b.append(";");
+				Statement s = databaseConnection.createStatement();
+				ResultSet r = s.executeQuery(b.toString());
+				s.close();
+			}
+		} catch (Exception e) {
+                        e.printStackTrace(System.err);
+			throw new DicomException("Cannot perform deletion: "+e);
 		}
 	}
 
@@ -1148,7 +1182,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity} of the record to be returned
 	 * @param	localPrimaryKeyValue	the string value of the unique key which identifies the instance of the entity (not including wildcards)
-	 * @return				a {@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} upper case column names
+	 * @return				a {@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} column names
 	 * @exception	DicomException		thrown if the query fails
 	 */
 	public Map findAllAttributeValuesForSelectedRecord(InformationEntity ie,String localPrimaryKeyValue) throws DicomException {
@@ -1174,7 +1208,7 @@ public abstract class DatabaseInformationModel {
 				int numberOfColumns = md.getColumnCount();
 				if (r.next()) {							// there should be exactly one
 					for (int i=1; i<=numberOfColumns; ++i) {
-						String key = md.getColumnName(i);	// will be upper case
+						String key = md.getColumnName(i);
 						String value = r.getString(i);
 //System.err.println("findAllAttributeValuesForSelectedRecord: ["+i+"] key = "+key+" value = "+value);
 						map.put(key,value);
@@ -1196,7 +1230,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity} of the records to be returned
 	 * @return				an {@link java.util.ArrayList ArrayList} of records, each value of which is a
-	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} upper case column names
+	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} column names
 	 * @exception	DicomException		thrown if the query fails
 	 */
 	public ArrayList findAllAttributeValuesForAllRecordsForThisInformationEntity(InformationEntity ie) throws DicomException {
@@ -1216,7 +1250,7 @@ public abstract class DatabaseInformationModel {
 				while (r.next()) {
 					TreeMap map = new TreeMap();
 					for (int i=1; i<=numberOfColumns; ++i) {
-						String key = md.getColumnName(i);	// will be upper case
+						String key = md.getColumnName(i);
 						String value = r.getString(i);
 //System.err.println("findAllAttributeValuesForAllRecordsForThisInformationEntity: ["+i+"] key = "+key+" value = "+value);
 						map.put(key,value);
@@ -1245,11 +1279,11 @@ public abstract class DatabaseInformationModel {
 	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity} of the records to be returned
 	 * @param	uid			the {@link java.lang.String String} UID of the records to be returned
 	 * @return				an {@link java.util.ArrayList ArrayList} of records, each value of which is a
-	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} upper case column names
+	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} column names
 	 * @exception	DicomException		thrown if the query fails
 	 */
 	public ArrayList findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedUID(InformationEntity ie,String uid) throws DicomException {
-		return findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedKeyValue(ie,getUIDColumnNameForInformationEntity(ie),uid);
+		return findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedKeyValue(ie,getUIDColumnNameForInformationEntity(ie).toUpperCase(),uid);
 	}
 	
 	/**
@@ -1261,7 +1295,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	keyName		the {@link java.lang.String String} name of the key to be matched
 	 * @param	keyValue	the {@link java.lang.String String} value of the key to be matched
 	 * @return				an {@link java.util.ArrayList ArrayList} of records, each value of which is a
-	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} upper case column names
+	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} column names
 	 * @exception	DicomException		thrown if the query fails
 	 */
 	public ArrayList findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedKeyValue(InformationEntity ie,String keyName,String keyValue) throws DicomException {
@@ -1287,7 +1321,7 @@ public abstract class DatabaseInformationModel {
 				while (r.next()) {
 					TreeMap map = new TreeMap();
 					for (int i=1; i<=numberOfColumns; ++i) {
-						String key = md.getColumnName(i);	// will be upper case
+						String key = md.getColumnName(i);
 						String value = r.getString(i);
 //System.err.println("findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedKeyValue: ["+i+"] key = "+key+" value = "+value);
 						map.put(key,value);
@@ -1317,7 +1351,7 @@ public abstract class DatabaseInformationModel {
 			int numberOfColumns = md.getColumnCount();
 			ArrayList list = new ArrayList();
 			for (int i=1; i<=numberOfColumns; ++i) {
-				String columName = md.getColumnName(i);	// will be upper case
+				String columName = md.getColumnName(i);
 				list.add(columName);
 			}
 			columnNames=new String[numberOfColumns];
@@ -1335,7 +1369,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity} of the records to be returned
 	 * @param	localParentReference	the string value of the unique key which identifies the instance of the parent entity (not including wildcards)
 	 * @return				an {@link java.util.ArrayList ArrayList} of records, each value of which is a
-	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} upper case column names
+	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} column names
 	 * @exception	DicomException		thrown if the query fails
 	 */
 	public ArrayList findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(InformationEntity ie,String localParentReference) throws DicomException {
@@ -1403,7 +1437,7 @@ public abstract class DatabaseInformationModel {
 	 * @param	parentMatchingAttribute	the string name of the attribute of the parent whose value is to be matched
 	 * @param	parentMatchingValue	the string value of the attribute of the parent to be matched (not including wildcards)
 	 * @return				an {@link java.util.ArrayList ArrayList} of records, each value of which is a
-	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} upper case column names
+	 *					{@link java.util.TreeMap TreeMap} of {@link java.lang.String String} values indexed by {@link java.lang.String String} column names
 	 * @exception	DicomException		thrown if the query fails
 	 */
 	public ArrayList findAllAttributeValuesForAllRecordsForThisInformationEntityWithMatchingParent(
@@ -1422,15 +1456,15 @@ public abstract class DatabaseInformationModel {
 				b.append(" WHERE ");
 				b.append(wantedTableName);
 				b.append(".");
-				b.append(localParentReferenceColumnName);
+				b.append(localParentReferenceColumnName.toUpperCase());
 				b.append(" = ");
 				b.append(parentTableName);
 				b.append(".");
-				b.append(localPrimaryKeyColumnName);
+				b.append(localPrimaryKeyColumnName.toUpperCase());
 				b.append(" AND ");
 				b.append(parentTableName);
 				b.append(".");
-				b.append(parentMatchingAttribute);
+				b.append(parentMatchingAttribute.toUpperCase());
 				//b.append(" LIKE \'");
 				b.append(" = \'");
 				b.append(parentMatchingValue);
@@ -1445,7 +1479,7 @@ public abstract class DatabaseInformationModel {
 				while (r.next()) {
 					TreeMap map = new TreeMap();
 					for (int i=1; i<=numberOfColumns; ++i) {
-						String key = md.getColumnName(i);	// will be upper case
+						String key = md.getColumnName(i);
 						String value = r.getString(i);
 //System.err.println("findSelectedAttributeValueForAllRecordsForThisInformationEntityWithMatchingParent: ["+i+"] key = "+key+" value = "+value);
 						map.put(key,value);
@@ -1466,7 +1500,7 @@ public abstract class DatabaseInformationModel {
 	 * <p>Get the table name for an information entity.</p>
 	 *
 	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity} that is the parent, such as a patient,  study, etc.
-	 * @return				the upper case name of the table as used in the database
+	 * @return				the name of the table as used in the database
 	 */
 	static String getTableNameForInformationEntity(InformationEntity ie) {
 		return ie.toString().toUpperCase();
@@ -1520,7 +1554,7 @@ public abstract class DatabaseInformationModel {
 	 * <p>For a particular instance of an information entity, find a descriptive name for the entity suitable for rendering.</p>
 	 *
 	 * <p>For a patient, this might be the name <code>Patient</code>.
-	 * For an instance, this will depend on the SOPClassUID, and might be an <code>Image</code>, a <code>Waveform</code>, etc.</p>
+	 * For an instance, this will depend on the SOPClassUID, and might be an <code>Image</code>, a <code>waveform</code>, etc.</p>
 	 *
 	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *					patient,  study, etc.
@@ -1537,7 +1571,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			patient, study, etc.
-	 * @return		the upper case string name of the column, or <code>null</code> if there is no such column
+	 * @return		the string name of the column, or <code>null</code> if there is no such column
 	 */
 	public abstract String getDescriptiveColumnName(InformationEntity ie);
 	
@@ -1549,7 +1583,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			patient, study, etc.
-	 * @return		the upper case string name of the column, or <code>null</code> if there is no such column
+	 * @return		the string name of the column, or <code>null</code> if there is no such column
 	 */
 	public abstract String getOtherDescriptiveColumnName(InformationEntity ie);
 
@@ -1561,7 +1595,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			patient, study, etc.
-	 * @return		the upper case string name of the column, or <code>null</code> if there is no such column
+	 * @return		the string name of the column, or <code>null</code> if there is no such column
 	 */
 	public abstract String getOtherOtherDescriptiveColumnName(InformationEntity ie);
 	
@@ -1572,7 +1606,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			study, series, instance, etc.
-	 * @return		the upper case string name of the column, or <code>null</code> if there is no such column
+	 * @return		the string name of the column, or <code>null</code> if there is no such column
 	 */
 	public abstract String getUIDColumnNameForInformationEntity(InformationEntity ie);
 	
@@ -1581,7 +1615,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			patient, study, etc.
-	 * @return		the upper case string name of the column	
+	 * @return		the string name of the column	
 	 */
 	public String getLocalPrimaryKeyColumnName(InformationEntity ie) { return localPrimaryKeyColumnName; }
 	
@@ -1590,7 +1624,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			instance (e.g. an image)
-	 * @return		the upper case string name of the column	
+	 * @return		the string name of the column	
 	 */
 	public String getLocalFileNameColumnName(InformationEntity ie) { return localFileName; }
 	
@@ -1601,7 +1635,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			instance (e.g. an image)
-	 * @return		the upper case string name of the column	
+	 * @return		the string name of the column	
 	 */
 	public String localFileNameColumnName(InformationEntity ie) { return getLocalFileNameColumnName(ie); }
 	
@@ -1611,7 +1645,7 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			instance (e.g. an image)
-	 * @return		the upper case string name of the column	
+	 * @return		the string name of the column	
 	 */
 	public String getLocalFileReferenceTypeColumnName(InformationEntity ie) { return localFileReferenceTypeColumnName; }
 
@@ -1620,18 +1654,9 @@ public abstract class DatabaseInformationModel {
 	 *
 	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
 	 *			patient,  study, etc.
-	 * @return		the upper case string name of the column	
+	 * @return		the string name of the column	
 	 */
 	public String getLocalParentReferenceColumnName(InformationEntity ie) { return localParentReferenceColumnName; }
-
-	/**
-	 * <p>For a particular information entity, find the name of the column in the entity's database table containing the record insertion time recorded as the value returned by {@link java.lang.System#currentTimeMillis() System.currentTimeMillis()}.</p>
-	 *
-	 * @param	ie	the {@link com.pixelmed.dicom.InformationEntity InformationEntity}, such as a
-	 *			patient,  study, etc.
-	 * @return		the upper case string name of the column	
-	 */
-	public String getLocalRecordInsertionTimeColumnName(InformationEntity ie) { return localRecordInsertionTimeColumnName; }
 
 	/**
 	 * <p>Given a DICOM Value Representation, determine the appropriate corresponding SQL type to use.</p>
@@ -1644,26 +1669,25 @@ public abstract class DatabaseInformationModel {
 	public static String getSQLTypeFromDicomValueRepresentation(byte[] vr) {
 		String s;
 		if (ValueRepresentation.isApplicationEntityVR(vr)) {
-			s="VARCHAR";
+			s="CHAR(16)";
 		}
 		else if (ValueRepresentation.isAgeStringVR(vr)) {
-			s="VARCHAR";
+			s="CHAR(4)";
 		}
 		else if (ValueRepresentation.isCodeStringVR(vr)) {
-			//s="VARCHAR";
-			s="VARCHAR";	// 16 byte length is frequently violated :(
+			s="CHAR(16)";
 		}
 		else if (ValueRepresentation.isDateVR(vr)) {
 			//s="DATE";
-			s="VARCHAR";		// should be 8, but in case old form with colons
+			s="CHAR(10)";
 		}
 		else if (ValueRepresentation.isDateTimeVR(vr)) {
 			//s="DATETIME";
-			s="VARCHAR";	// not just yyyymmddhhmmss; may have fractional, timezone
+			s="CHAR(14)";
 		}
 		else if (ValueRepresentation.isDecimalStringVR(vr)) {
 			//s="REAL";	// this fails if VM > 1, e.g. ImagePositionPatient
-			s="VARCHAR";
+			s="VARCHAR(255)";
 		}
 		else if (ValueRepresentation.isFloatDoubleVR(vr)) {
 			s="REAL";	// this will fail if VM > 1, so need to check to be sure only first value inserted
@@ -1675,10 +1699,10 @@ public abstract class DatabaseInformationModel {
 			s="INTEGER";	// this will fail if VM > 1, so need to check to be sure only first value inserted
 		}
 		else if (ValueRepresentation.isLongStringVR(vr)) {
-			s="VARCHAR";	// 64 each value
+			s="VARCHAR(255)";
 		}
 		else if (ValueRepresentation.isLongTextVR(vr)) {
-			s="VARCHAR";
+			s="VARCHAR(255)";
 		}
 		else if (ValueRepresentation.isOtherByteVR(vr)) {
 			s=null;
@@ -1690,13 +1714,13 @@ public abstract class DatabaseInformationModel {
 			s=null;
 		}
 		else if (ValueRepresentation.isPersonNameVR(vr)) {
-			s="VARCHAR";
+			s="VARCHAR(255)";
 		}
 		else if (ValueRepresentation.isSequenceVR(vr)) {
 			s=null;
 		}
 		else if (ValueRepresentation.isShortStringVR(vr)) {
-			s="VARCHAR";
+			s="VARCHAR(255)";
 		}
 		else if (ValueRepresentation.isSignedLongVR(vr)) {
 			s="INTEGER";	// this will fail if VM > 1, so need to check to be sure only first value inserted
@@ -1705,14 +1729,14 @@ public abstract class DatabaseInformationModel {
 			s="INTEGER";	// this will fail if VM > 1, so need to check to be sure only first value inserted
 		}
 		else if (ValueRepresentation.isShortTextVR(vr)) {
-			s="VARCHAR";
+			s="VARCHAR(255)";
 		}
 		else if (ValueRepresentation.isTimeVR(vr)) {
 			//s="TIME";
-			s="VARCHAR";	// i.e., may have fraction
+			s="CHAR(8)";
 		}
 		else if (ValueRepresentation.isUniqueIdentifierVR(vr)) {
-			s="VARCHAR";
+			s="CHAR(64)";
 		}
 		else if (ValueRepresentation.isUnsignedLongVR(vr)) {
 			s="INTEGER";	// this will fail if VM > 1, so need to check to be sure only first value inserted
@@ -1724,7 +1748,7 @@ public abstract class DatabaseInformationModel {
 			s="INTEGER";	// this will fail if VM > 1, so need to check to be sure only first value inserted
 		}
 		else if (ValueRepresentation.isUnlimitedTextVR(vr)) {
-			s="VARCHAR";
+			s="VARCHAR(255)";
 		}
 		else {
 			s=null;		// unrecognized  ...
