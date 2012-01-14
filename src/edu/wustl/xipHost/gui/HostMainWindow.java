@@ -29,12 +29,11 @@ public class HostMainWindow extends JFrame implements ActionListener {
     static JTabbedPane sideTabbedPane;
     SideTabMouseAdapter mouseAdapter = new SideTabMouseAdapter();
     //CenterTabMouseAdapter mouseAdapterCenterTabs = new CenterTabMouseAdapter();
-    static JPanel hostPanel = new JPanel();   
+    static PanelUUID hostPanel = new PanelUUID();   
     JTabbedPane tabPaneCenter = new JTabbedPane();            
     static Rectangle appScreenSize = new Rectangle();    
     OptionsDialog optionsDialog = new OptionsDialog(new JFrame());        
-      
-    Color xipColor = new Color(51, 51, 102);
+    static Color xipColor = new Color(51, 51, 102);
     Color xipLightBlue = new Color(156, 162, 189);
 	Font font = new Font("Tahoma", 0, 12);
     
@@ -78,7 +77,8 @@ public class HostMainWindow extends JFrame implements ActionListener {
         hostPanel.add(tabPaneCenter);
         hostPanel.setBackground(xipColor);
         buildHostPanelLayout();        
-        VerticalTextIcon.addTab(sideTabbedPane, "Host", UUID.randomUUID(), hostPanel);   
+        hostPanel.setUUID(UUID.randomUUID());
+        VerticalTextIcon.addTab(sideTabbedPane, "Host", hostPanel);   
                 
         //Add tabs        
         ImageIcon icon = null;
@@ -165,9 +165,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
     
     Application getSelectedApplication(){
     	int index = sideTabbedPane.getSelectedIndex();
-		//String appName = ((VerticalTextIcon)sideTabbedPane.getIconAt(index)).getTabTitle();
-		UUID uuid = ((VerticalTextIcon)sideTabbedPane.getIconAt(index)).getUUIDfromTab();
-		//Application app = ApplicationManagerFactory.getInstance().getApplication(appName);
+		UUID uuid = ((PanelUUID)sideTabbedPane.getComponentAt(index)).getUUID();
 		Application app = ApplicationManagerFactory.getInstance().getApplication(uuid);
 		return app;
     }
@@ -183,7 +181,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 			appYPosition = (int) hostPanel.getLocationOnScreen().getY();
 			appWidth = (int) hostPanel.getBounds().getWidth();
 			appHeight = (int) hostPanel.getBounds().getHeight();
-		}else{
+		} else {
 			appXPosition = 0;
 			appYPosition = 0;
 			appWidth = (int)screenSize.getWidth();
@@ -194,7 +192,9 @@ public class HostMainWindow extends JFrame implements ActionListener {
     }
        
     public static void addTab(String appName, UUID appUUID){
-    	VerticalTextIcon.addTab(sideTabbedPane, appName, appUUID, null); 
+    	PanelUUID panel =  new PanelUUID(appUUID);
+    	panel.setBackground(xipColor);
+    	VerticalTextIcon.addTab(sideTabbedPane, appName, panel);
     	int tabCount = sideTabbedPane.getTabCount();
     	sideTabbedPane.setSelectedIndex(tabCount - 1); 
     	toolBar.switchButtons(1);    	
@@ -202,8 +202,8 @@ public class HostMainWindow extends JFrame implements ActionListener {
     
     public static void removeTab(UUID appUUID){
     	int tabCount = sideTabbedPane.getTabCount();    	
-    	for(int i = 0; i < tabCount; i++){    		    		
-    		UUID selectedTabUUID = ((VerticalTextIcon)sideTabbedPane.getIconAt(i)).getUUIDfromTab();
+    	for(int i = 0; i < tabCount; i++){
+    		UUID selectedTabUUID = ((PanelUUID)sideTabbedPane.getComponentAt(i)).getUUID();
     		if(appUUID.equals(selectedTabUUID)){  
     			final int index;
     			index = i;
@@ -229,21 +229,13 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		public void mouseClicked(MouseEvent e) {
 			if(e.getButton() == 1){
 				if(e.getSource() == sideTabbedPane){					
-					int i = (((JTabbedPane)e.getSource()).getSelectedIndex());					
-					//String selectedTabTitle = ((VerticalTextIcon)sideTabbedPane.getIconAt(i)).getTabTitle();
-					UUID uuid = ((VerticalTextIcon)sideTabbedPane.getIconAt(i)).getUUIDfromTab();
-					//System.out.println("Title: " + (selectedTabTitle));					
+					int i = (((JTabbedPane)e.getSource()).getSelectedIndex());
+					UUID uuid = ((PanelUUID)sideTabbedPane.getComponentAt(i)).getUUID();
 					if (sideTabbedPane.getSelectedIndex() == 0){
 						toolBar.switchButtons(0);
-						//setAlwaysOnTop(true);
-						//setAlwaysOnTop(false);
 						bringToFront();
-					} else if (sideTabbedPane.getSelectedIndex() != 0){						
-						//Application app = ApplicationManager.getApplication(selectedTabTitle);												
-						Application app = ApplicationManagerFactory.getInstance().getApplication(uuid);																													
-						/*if(HostConfigurator.OS.contains("Windows") == false){
-							iconify();
-						}	*/					
+					} else if (sideTabbedPane.getSelectedIndex() != 0){																
+						Application app = ApplicationManagerFactory.getInstance().getApplication(uuid);			
 						bringToBack();
 						app.bringToFront();					
 						toolBar.switchButtons(1);						
@@ -254,31 +246,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
 				}
 			}
 		}
-		
-		/*public void mouseReleased(MouseEvent e){     					
-     		//3 = right mouse click
-     		if(e.getButton() == 3){
-     			if(e.getSource() == sideTabbedPane){					
-					int i = (((JTabbedPane)e.getSource()).getSelectedIndex());					
-					//String selectedTabTitle = ((VerticalTextIcon)sideTabbedPane.getIconAt(i)).getTabTitle();
-					UUID uuid = ((VerticalTextIcon)sideTabbedPane.getIconAt(i)).getUUIDfromTab();
-					//System.out.println("Title: " + (selectedTabTitle));
-					if (sideTabbedPane.getSelectedIndex() == 0){
-						toolBar.switchButtons(0);
-						setAlwaysOnTop(true);
-						setAlwaysOnTop(false);						
-					} else if (sideTabbedPane.getSelectedIndex() != 0){						
-						//Application app = ApplicationManager.getApplication(selectedTabTitle);
-						Application app = ApplicationManagerFactory.getInstance().getApplication(uuid);																							
-						app.bringToFront();			
-						toolBar.switchButtons(1);						
-					}else {
-						setAlwaysOnTop(true);
-						setAlwaysOnTop(false);
-					}
-				}			        			    
-     		}
-		}	*/	
 	}
     
     private void bringToFront() {

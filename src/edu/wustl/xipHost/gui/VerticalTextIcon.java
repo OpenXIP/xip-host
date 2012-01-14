@@ -2,6 +2,7 @@ package edu.wustl.xipHost.gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -11,10 +12,13 @@ import java.awt.geom.AffineTransform;
 import java.util.UUID;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
@@ -26,9 +30,8 @@ public class VerticalTextIcon extends JComponent implements Icon, SwingConstants
     int width, height; 
     boolean clockwize; 
  
-    public VerticalTextIcon(String text, UUID uuid, boolean clockwize){ 
+    public VerticalTextIcon(String text, boolean clockwize){ 
         this.text = text; 
-        this.uuid = uuid;
         width = SwingUtilities.computeStringWidth(fm, text);
         height = fm.getHeight(); 
         this.clockwize = clockwize;
@@ -42,14 +45,8 @@ public class VerticalTextIcon extends JComponent implements Icon, SwingConstants
         g.setFont(font); 
         g.setColor(Color.BLACK); 
         if(clockwize){     	
-        	
-        	if(HostConfigurator.OS.contains("Mac OS X") == false) {	
-        		g2.translate(x + getIconWidth(), y); 
-        		g2.rotate(Math.PI/2); 
-            } else {
-            	g2.translate(x, y + getIconHeight()); 
-            	g2.rotate(-Math.PI/2); 
-            }
+    		g2.translate(x + getIconWidth(), y); 
+    		g2.rotate(Math.PI/2);   
         } else { 
             g2.translate(x, y + getIconHeight()); 
             g2.rotate(-Math.PI/2); 
@@ -68,12 +65,16 @@ public class VerticalTextIcon extends JComponent implements Icon, SwingConstants
         return width; 
     }
     
-    public static void addTab(JTabbedPane tabPane, String text, UUID uuid, Component comp){ 
+    public static void addTab(JTabbedPane tabPane, String text, Component comp){ 
         int tabPlacement = tabPane.getTabPlacement(); 
         switch(tabPlacement){ 
             case JTabbedPane.LEFT: 
             case JTabbedPane.RIGHT:                 
-        		tabPane.addTab(null, new VerticalTextIcon(text, uuid, tabPlacement == JTabbedPane.RIGHT), comp);                	
+            	if(HostConfigurator.OS.contains("Mac OS X") == false){
+            		tabPane.addTab(null, new VerticalTextIcon(text, tabPlacement == JTabbedPane.RIGHT), comp);  
+            	} else {
+            		tabPane.addTab(text, null, comp); 
+            	}
             	return;
             default: 
                 tabPane.addTab(text, null, comp); 
@@ -102,5 +103,5 @@ public class VerticalTextIcon extends JComponent implements Icon, SwingConstants
             default: 
                 return new JTabbedPane(tabPlacement); 
         } 
-    } 
+    }
 }
