@@ -659,7 +659,30 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			cbxDicom.setEnabled(true);
 			cbxAimSeg.setEnabled(true);
 		}
-		//if(logger.isDebugEnabled()){
+		if(selectedDataSearchResult != null) {
+			List<Patient> patients = selectedDataSearchResult.getPatients();
+			boolean enableCheckBoxes = false;
+			for(Patient logPatient : patients){
+				if(enableCheckBoxes) break;
+				List<Study> studies = logPatient.getStudies();
+				for(Study logStudy : studies){
+					if(enableCheckBoxes) break;
+					List<Series> series = logStudy.getSeries();
+					for(Series logSeries : series){
+						if(enableCheckBoxes) break;
+						List<Item> items = logSeries.getItems();
+						if(items.size() > 0){
+							if(enableCheckBoxes) break;
+							cbxDicom.setEnabled(true);
+							cbxAimSeg.setEnabled(true);
+							enableCheckBoxes = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if(logger.isDebugEnabled()){
 			logger.debug("Value of selectedDataSearchresult: ");
 			if(selectedDataSearchResult != null) {
 				List<Patient> patients = selectedDataSearchResult.getPatients();
@@ -672,18 +695,13 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 						for(Series logSeries : series){
 							logger.debug("      " + logSeries.toString() + " / Contains subset of items: " + logSeries.containsSubsetOfItems());
 							List<Item> items = logSeries.getItems();
-							boolean enableCheckBoxes = false;
 							for(Item logItem : items){
 								logger.debug("         " + logItem.toString());
-								if(enableCheckBoxes == false) {
-									cbxDicom.setEnabled(true);
-									cbxAimSeg.setEnabled(true);
-								}
 							}
 						}
 					}
 				}
-			//}
+			}
 		}
 	}
 }
