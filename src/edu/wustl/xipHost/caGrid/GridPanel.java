@@ -647,89 +647,23 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
-	}
-	
-	
-	/**
-	 * Method is used to update selectedDataSearchResult after sub-queries
-	 * If PatientNode selected before sub-query, all of the studies belonging to this patient should not 
-	 * only be selected but also added to the selectedDataSearchResult object.
-	 * @throws InterruptedException 
-	 */
-	void updateSelectedDataSearchResult(DefaultMutableTreeNode node) {
-		synchronized(result){
-			try {
-				while(subqueryCompleted == false){
-					result.wait();
-				}
-				//PatientNode is not included, because Patient node are found always in first query and not not sub-queries
-				if (node instanceof PatientNode){
-					Patient patient = (Patient)node.getUserObject();
-					if(selectedDataSearchResult != null){
-						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-						if(selectedPatient != null){
-							if(((PatientNode) node).isSelected()){
-								Patient updatedPatient = result.getPatient(patient.getPatientID());
-								List<Study> studies = updatedPatient.getStudies();
-								for(Study study : studies){
-									if(!selectedPatient.contains(study.getStudyInstanceUID())){
-										selectedPatient.addStudy(study);
-									}							
-								}
+		if(logger.isDebugEnabled()){
+			logger.debug("Value of selectedDataSearchresult: ");
+			if(selectedDataSearchResult != null) {
+				List<Patient> patients = selectedDataSearchResult.getPatients();
+				for(Patient logPatient : patients){
+					logger.debug(logPatient.toString());
+					List<Study> studies = logPatient.getStudies();
+					for(Study logStudy : studies){
+						logger.debug("   " + logStudy.toString());
+						List<Series> series = logStudy.getSeries();
+						for(Series logSeries : series){
+							logger.debug("      " + logSeries.toString() + " / Contains subset of items: " + logSeries.containsSubsetOfItems());
+							List<Item> items = logSeries.getItems();
+							for(Item logItem : items){
+								logger.debug("         " + logItem.toString());
 							}
 						}
-					}
-				} else if (node instanceof StudyNode){
-					Study study = (Study)node.getUserObject();
-					DefaultMutableTreeNode patientNode = (DefaultMutableTreeNode) node.getParent();
-					Patient patient = (Patient)patientNode.getUserObject();
-					if(selectedDataSearchResult != null){
-						Patient selectedPatient = selectedDataSearchResult.getPatient(patient.getPatientID());
-						if(selectedPatient != null){
-							Study selectedStudy = selectedPatient.getStudy(study.getStudyInstanceUID());
-							if(selectedStudy != null){
-								if(((StudyNode) node).isSelected()){
-									Study updatedStudy = result.getPatient(patient.getPatientID()).getStudy(study.getStudyInstanceUID());
-									List<Series> series = updatedStudy.getSeries();
-									for(Series oneSeries : series){
-										if(!selectedStudy.contains(oneSeries.getSeriesInstanceUID())){
-											selectedStudy.addSeries(oneSeries);
-										}
-									}
-								} 
-							}						
-						}		
-					}						 
-				} 
-			} catch (InterruptedException e) {
-				logger.error(e, e);
-			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Value of selectedDataSearchresult: ");
-				if(selectedDataSearchResult != null){
-					List<Patient> patients = selectedDataSearchResult.getPatients();					
-					for (Patient logPatient : patients) {
-						if(logPatient != null){
-							logger.debug(logPatient.toString());
-							List<Study> studies = logPatient.getStudies();
-							for (Study logStudy : studies) {
-								if(logStudy != null){
-									logger.debug("   " + logStudy.toString());
-									List<Series> series = logStudy.getSeries();
-									for (Series logSeries : series) {
-										if(logSeries != null){
-											logger.debug("      " + logSeries.toString());
-											List<Item> items = logSeries.getItems();
-											for(Item logItem : items){
-												if(logItem != null){
-													logger.debug("         " + logItem.toString());
-												}											
-											}
-										}									
-									}
-								}	
-							}
-						}					
 					}
 				}
 			}
