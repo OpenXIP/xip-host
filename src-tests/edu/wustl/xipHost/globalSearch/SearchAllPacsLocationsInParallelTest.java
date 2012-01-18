@@ -29,7 +29,6 @@ import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.dicom.AttributePanel;
 import edu.wustl.xipHost.dicom.DicomManager;
 import edu.wustl.xipHost.dicom.DicomManagerFactory;
-import edu.wustl.xipHost.dicom.server.Workstation2;
 import junit.framework.TestCase;
 
 /**
@@ -40,7 +39,6 @@ public class SearchAllPacsLocationsInParallelTest extends TestCase {
 	GlobalSearchPanel panel;
 	
 	AttributeList criteria;
-	Workstation2 ws2 = new Workstation2();
 	GridManager gridMgr;
 	DicomManager dicomMgr;	
 	/* (non-Javadoc)
@@ -127,9 +125,7 @@ public class SearchAllPacsLocationsInParallelTest extends TestCase {
 		}
 		AttributePanel mFP = new AttributePanel(filter);
 		criteria = mFP.getFilterList();	
-		if(!ws2.isRunning()){
-			ws2.run();
-		}
+		
 	}
 	
 	//GlobalSearchPanel 1A - basic flow. 
