@@ -58,7 +58,9 @@ public class QueryPacsLocationTest {
 		if(files.length > 0) {
 			for(int i = 0 ; i < files.length; i++) {
 				File file = files[i];
-				Util.delete(file);
+				if(!file.getName().endsWith(".svn")){
+					Util.delete(file);
+				}
 			}
 		}
 		prelaodDataToWorkstation2();
@@ -69,7 +71,9 @@ public class QueryPacsLocationTest {
 		File[] files = hsqldbDir.listFiles();
 		for(int i = 0 ; i < files.length; i++) {
 			File file = files[i];
-			Util.delete(file);
+			if(!file.getName().endsWith(".svn")){
+				Util.delete(file);
+			}
 		}
 	}
 	

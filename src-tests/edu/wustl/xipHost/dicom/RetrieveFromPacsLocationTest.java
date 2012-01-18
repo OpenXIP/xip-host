@@ -110,7 +110,7 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 		if(workstation3_retrieve_dir.exists() == false){
 			workstation3_retrieve_dir.mkdir();
 		} else {
-			File[] files = workstation3_retrieve_dir.listFiles();
+			File[] files = workstation3_retrieve_dir.listFiles(new DCMFileFilter());
 			if(files.length > 0) {
 				for(int i = 0 ; i < files.length; i++) {
 					File file = files[i];
@@ -123,7 +123,7 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 		if(workstation4_retrieve_dir.exists() == false){
 			workstation4_retrieve_dir.mkdir();
 		} else {
-			File[] files = workstation4_retrieve_dir.listFiles();
+			File[] files = workstation4_retrieve_dir.listFiles(new DCMFileFilter());
 			if(files.length > 0) {
 				for(int i = 0 ; i < files.length; i++) {
 					File file = files[i];
@@ -137,7 +137,9 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 		if(files.length > 0) {
 			for(int i = 0 ; i < files.length; i++) {
 				File file = files[i];
-				Util.delete(file);
+				if(!file.getName().endsWith(".svn")){
+					Util.delete(file);
+				}
 			}
 		}
 		
@@ -207,12 +209,12 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 	
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		File[] files1 = workstation4_retrieve_dir.listFiles();
+		File[] files1 = workstation4_retrieve_dir.listFiles(new DCMFileFilter());
 		for(int i = 0 ; i < files1.length; i++) {
 			File file = files1[i];
 			Util.delete(file);
 		}
-		File[] files2 = workstation3_retrieve_dir.listFiles();
+		File[] files2 = workstation3_retrieve_dir.listFiles(new DCMFileFilter());
 		for(int i = 0 ; i < files2.length; i++) {
 			File file = files2[i];
 			Util.delete(file);
@@ -220,7 +222,9 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 		File[] files = hsqldbDir.listFiles();
 		for(int i = 0 ; i < files.length; i++) {
 			File file = files[i];
-			Util.delete(file);
+			if(!file.getName().endsWith(".svn")){
+				Util.delete(file);
+			}
 		}
 	}
 	
