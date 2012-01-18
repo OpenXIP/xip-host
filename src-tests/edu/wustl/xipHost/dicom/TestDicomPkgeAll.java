@@ -14,7 +14,7 @@ public class TestDicomPkgeAll {
 	
 	
 	public static Test suite(){
-		TestSuite suite = new TestSuite("Running all tests from caGrid package.");
+		TestSuite suite = new TestSuite("Running all tests from dicom package.");
 		suite.addTestSuite(AddPacsLocationTest.class);
 		suite.addTestSuite(LoadPacsLocationsTest.class);
 		suite.addTestSuite(MimeTypeTest.class);
@@ -22,7 +22,6 @@ public class TestDicomPkgeAll {
 		suite.addTestSuite(PacsLocationTest.class);
 		suite.addTestSuite(RemovePacsLocationTest.class);
 		suite.addTestSuite(StorePacsLocationTest.class);
-		//suite.addTest(QueryPacsLocationTest.suite());
 		return suite;		
 	}
 }

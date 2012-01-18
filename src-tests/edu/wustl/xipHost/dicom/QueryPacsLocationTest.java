@@ -4,6 +4,14 @@
 package edu.wustl.xipHost.dicom;
 
 import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,23 +22,55 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.hostControl.Util;
 /**
  * @author Jaroslaw Krych
  *
  */
 public class QueryPacsLocationTest {
+	final static Logger logger = Logger.getLogger(QueryPacsLocationTest.class);	
 	static AttributeList criteria;	
 	static PacsLocation pacsLoc;
 	static TestServerSetup setup;
+	static File hsqldbDir;
+	static DicomManagerImpl dicomMgr;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		setup = new TestServerSetup();	
+		setup = new TestServerSetup();
+
+		dicomMgr = new DicomManagerImpl();
+		Properties workstation2Prop = new Properties();
+		try {
+			workstation2Prop.load(new FileInputStream("./src-tests/edu/wustl/xipHost/dicom/server/workstation2.properties"));
+			workstation2Prop.setProperty("Application.SavedImagesFolderName", new File("./test-content/WORKSTATION2").getCanonicalPath());
+		} catch (FileNotFoundException e1) {
+			logger.error(e1, e1);	
+			System.exit(0);
+		} catch (IOException e1) {
+			logger.error(e1, e1);
+			System.exit(0);
+		}
+		dicomMgr.runDicomStartupSequence("./src-tests/edu/wustl/xipHost/dicom/server/serverTest2", workstation2Prop);
+		
+		hsqldbDir = new File("./src-tests/edu/wustl/xipHost/dicom/server/hsqldb/data");
+		File[] files = hsqldbDir.listFiles();
+		if(files.length > 0) {
+			for(int i = 0 ; i < files.length; i++) {
+				File file = files[i];
+				Util.delete(file);
+			}
+		}
+		prelaodDataToWorkstation2();
 	}
 	
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		setup.shutDownTestServer();
+		File[] files = hsqldbDir.listFiles();
+		for(int i = 0 ; i < files.length; i++) {
+			File file = files[i];
+			Util.delete(file);
+		}
 	}
 	
 	//DicomManagerImpl 1A - basic flow. AttributeList, PacsLocation are valid and network is on.
@@ -38,10 +78,8 @@ public class QueryPacsLocationTest {
 	public void testQueryPacsLocation1A() {										              		
 		pacsLoc = setup.getLocation();
 		criteria = setup.getCriteria();
-		SearchResult result = DicomManagerFactory.getInstance().query(criteria, pacsLoc);
-		//Check if return type is an instance of DicomSearchResult and not null						
+		SearchResult result = DicomManagerFactory.getInstance().query(criteria, pacsLoc);					
 		Boolean blnType = result instanceof SearchResult; //instanceof would return false if result would be null
-		//assertNotNull("AttributeList is correct", result);
 		assertTrue("Result returned is DicomSearchResult but system did not define it this way.", blnType);
 	}
 
@@ -117,7 +155,7 @@ public class QueryPacsLocationTest {
 	}
 		
 	//DicomManagerImpl 1G - alternative flow. AttributeList valid, checks number of patients, series and images
-	//Test if returned result contains number of patients, studies, series and images as expected
+	//Tests if returned result contains number of patients, studies, series and images as expected
 	//Also locationDesc should be different than null and not empty
 	@Test
 	public void testQueryPacsLocation1G() {										              
@@ -146,4 +184,16 @@ public class QueryPacsLocationTest {
 		PacsLocation loc = new PacsLocation("127.0.0.1", 30002, "WORKSTATION2", "WashU WS2");				
 		assertNull(" ", DicomManagerFactory.getInstance().query(criteria, loc));			
 	}	
+	
+	static void prelaodDataToWorkstation2(){
+		logger.debug("Preloading WORKSTATION2 data source");
+		DCMFileFilter dcmFilter = new DCMFileFilter();
+		File file = new File("./dicom-dataset-demo");
+		File[] files = file.listFiles(dcmFilter);
+		if(files == null){
+			return;
+		}		
+		PacsLocation loc = new PacsLocation("127.0.0.1", 3002, "WORKSTATION2", "WashU WS2");		;
+		dicomMgr.submit(files, loc);
+	}
 }

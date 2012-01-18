@@ -3,11 +3,6 @@
  */
 package edu.wustl.xipHost.dicom;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
 import org.apache.log4j.Logger;
 import com.pixelmed.dicom.AgeStringAttribute;
 import com.pixelmed.dicom.Attribute;
@@ -36,14 +31,12 @@ public class TestServerSetup {
 	final static Logger logger = Logger.getLogger(TestServerSetup.class);
 	AttributeList criteria;	
 	PacsLocation pacsLoc;
-	DicomManagerImpl dicomMgr;
 	
 	public TestServerSetup() {
 		setUp();
 	}
 	
 	public void setUp(){
-		dicomMgr = new DicomManagerImpl();
 		pacsLoc = new PacsLocation("127.0.0.1", 3002, "WORKSTATION2", "WashU WS2");		
 		criteria = new AttributeList();
 		try {
@@ -127,19 +120,6 @@ public class TestServerSetup {
 			logger.error(e,	e);			
 		}
 		//Make sure serverTest doesn't use serverTest.properties extension. Server properties wouldn't load properly.
-		dicomMgr.startHSQLDB("./src-tests/edu/wustl/xipHost/dicom/server/serverTest");
-		Properties workstation2Prop = new Properties();
-		try {
-			workstation2Prop.load(new FileInputStream("./src-tests/edu/wustl/xipHost/dicom/server/workstation2.properties"));
-			workstation2Prop.setProperty("Application.SavedImagesFolderName", new File("./test-content/WORKSTATION2").getCanonicalPath());
-		} catch (FileNotFoundException e1) {
-			logger.error(e1, e1);	
-			System.exit(0);
-		} catch (IOException e1) {
-			logger.error(e1, e1);
-			System.exit(0);
-		}
-		dicomMgr.startPixelmedServer(workstation2Prop);
 	}
 
 	public AttributeList getCriteria(){
@@ -148,14 +128,5 @@ public class TestServerSetup {
 	
 	public PacsLocation getLocation(){
 		return pacsLoc;
-	}
-	
-	public void shutDownTestServer(){
-		dicomMgr.closeDicomServer("jdbc:hsqldb:./src-tests/edu/wustl/xipHost/dicom/server/hsqldb/data/ws2db", "sa", "");
-	}
-	
-	public static void main(String [] args){
-		TestServerSetup setUp = new TestServerSetup();
-		setUp.shutDownTestServer();
 	}
 }
