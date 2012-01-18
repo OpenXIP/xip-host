@@ -11,12 +11,12 @@ import edu.wustl.xipHost.dicom.DicomUtil;
  * @author Jaroslaw Krych
  *
  */
-public class FileRunner implements Runnable {		
+public class DICOMFileRunner implements Runnable {		
 	BasicDicomParser2 parser = new BasicDicomParser2();
 	File item;
 	String[][] map = null;	
 	
-	public FileRunner(File item){
+	public DICOMFileRunner(File item){
 		this.item = item;		
 	}	
 	
