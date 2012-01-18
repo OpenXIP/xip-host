@@ -12,7 +12,7 @@ import junit.framework.TestCase;
  *
  */
 public class RunFileRunnerTest extends TestCase implements DicomParseListener {
-	FileRunner runner;
+	DICOMFileRunner runner;
 	String[][] result;
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -31,7 +31,7 @@ public class RunFileRunnerTest extends TestCase implements DicomParseListener {
 	//FileRunner 1A - basic flow. Item is a valid dicom file.
 	//Result: resulting String[][] is noy null has length equal 1
 	public void testRunFileRunner1A(){
-		runner = new FileRunner(new File("./test-content/WorlistDataset/1.3.6.1.4.1.9328.50.1.20034.dcm"));
+		runner = new DICOMFileRunner(new File("./test-content/WorlistDataset/1.3.6.1.4.1.9328.50.1.20034.dcm"));
 		runner.addDicomParseListener(this);
 		runner.run();
 		int size = result.length;
@@ -43,7 +43,7 @@ public class RunFileRunnerTest extends TestCase implements DicomParseListener {
 	//FileRunner 1B - alternative flow. Item is a not a dicom file.
 	//Result: null
 	public void testRunFileRunner1B(){
-		runner = new FileRunner(new File("./src-tests/edu/wustl/xipHost/dicom/text.txt"));
+		runner = new DICOMFileRunner(new File("./src-tests/edu/wustl/xipHost/dicom/text.txt"));
 		runner.addDicomParseListener(this);
 		runner.run();
 		assertNull("System did not recognize non dicom file.", result);
@@ -52,14 +52,14 @@ public class RunFileRunnerTest extends TestCase implements DicomParseListener {
 	//FileRunner 1C - alternative flow. Item is null.
 	//Result: null
 	public void testRunFileRunner1C(){
-		runner = new FileRunner(null);
+		runner = new DICOMFileRunner(null);
 		runner.addDicomParseListener(this);
 		runner.run();
 		assertNull("System was unable to handle item equals null.", result);
 	}
 
 	public void dicomAvailable(DicomParseEvent e) {
-		FileRunner source = (FileRunner)e.getSource();
+		DICOMFileRunner source = (DICOMFileRunner)e.getSource();
 		result = source.getParsingResult();
 		
 	}
