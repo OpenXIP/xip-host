@@ -10,7 +10,7 @@ import java.util.EventObject;
  */
 public class DicomParseEvent extends EventObject {			
 
-		public DicomParseEvent(FileRunner source){	
+		public DicomParseEvent(DICOMFileRunner source){	
 				super(source);
 		}
 }

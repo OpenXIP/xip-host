@@ -49,6 +49,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
+import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
@@ -238,11 +239,17 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 			File selectedFile = null;
 			for(int i = 0; i < selectedFiles.length; i++){
 				selectedFile = selectedFiles[i];
-				URI uri = selectedFile.toURI();
-				FileRunner runner = new FileRunner(new File(uri));
-				runner.addDicomParseListener(this);
-				exeService.execute(runner);
-				numOfParsingRequestsSent++;
+				if(!selectedFile.isDirectory()){
+					if(DicomUtil.isDICOM(selectedFile)){
+						URI uri = selectedFile.toURI();
+						DICOMFileRunner runner = new DICOMFileRunner(new File(uri));
+						runner.addDicomParseListener(this);
+						exeService.execute(runner);
+						numOfParsingRequestsSent++;
+					}
+				} else {
+					return;
+				}
 			}
 			synchronized(this){
 				while(numOfParsingRequestsSent != numOfParsingRequestsRecieved){
@@ -267,7 +274,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 
 	@Override
 	public synchronized void dicomAvailable(DicomParseEvent e) {
-		FileRunner source = (FileRunner)e.getSource();
+		DICOMFileRunner source = (DICOMFileRunner)e.getSource();
 		String[][] result = source.getParsingResult();		
 		updateSearchResult(result);	
 		updateUI();		
