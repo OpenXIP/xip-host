@@ -41,7 +41,6 @@ public class InsertToTestWorkstation {
 		}
 		dicomMgr.runDicomStartupSequence("./src-tests/edu/wustl/xipHost/dicom/server/serverTest", workstation2Prop);
 		dicomMgr.submit(files, loc);
-		dicomMgr.runDicomShutDownSequence("jdbc:hsqldb:./src-tests/edu/wustl/xipHost/dicom/server/hsqldb/data/ws2db", "sa", "");
 	}
 
 	/**
