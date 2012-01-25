@@ -147,11 +147,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	    buildRightPanelLayout();
 	    buildLayout();
 	}
-		
-	AttributeList criteria;	
-	void setCriteriaList(AttributeList criteria){
-		this.criteria = criteria;
-	}
 	
 	Query avtQuery;
 	public void actionPerformed(ActionEvent e) {
@@ -169,7 +164,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);			
 			progressBar.updateUI();
-			setCriteriaList(criteriaPanel.getFilterList());	
+			AttributeList criteria = criteriaPanel.getFilterList();	
 			Map<String, Object> adAimCriteria = criteriaPanel.panelAVT.getSearchCriteria();
 			Map<Integer, Object> dicomPrivateTagCriterion = criteriaPanel.panelPrivateTag.getSearchCriteria();			
 			Boolean bln = criteriaPanel.verifyCriteria(criteria, adAimCriteria);			
