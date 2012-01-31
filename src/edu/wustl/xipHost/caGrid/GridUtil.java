@@ -1,5 +1,6 @@
 package edu.wustl.xipHost.caGrid;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -89,9 +90,11 @@ public class GridUtil {
 		while(iter.hasNext()){
 			AttributeTag attTag  = (AttributeTag)iter.next();
 			String attValue = Attribute.getSingleStringValueOrEmptyString(criteriaList, attTag);
-			String nciaAttName = mapDicomTagToNCIATagName(attTag.toString());
-			
-			if(nciaAttName != null && !attValue.isEmpty()){
+			String nciaAttName = null;
+			if(!attValue.isEmpty()){
+				nciaAttName = mapDicomTagToNCIATagName(attTag.toString());
+			}
+			if(nciaAttName != null){
 				//System.out.println(nciaAttName + " " + attValue);
 				logger.debug("Attribute name: " + nciaAttName + " Value: " + attValue);
 				//wild card is not allowed with grid criteria and should be replaced by empty string 
