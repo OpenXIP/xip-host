@@ -69,7 +69,7 @@ public class GridUtil {
 	}
 	
 	//if value of aaplyQueryModifier > 0 then QueryModifier is used
-	int numOfSeriesTargetsPassed = 0;
+	//int numOfSeriesTargetsPassed = 0;
 	boolean applyQueryModifier = false;
 	public CQLQuery convertToCQLStatement(AttributeList criteriaList, CQLTargetName value){
 		if(criteriaList == null || value == null){
@@ -82,7 +82,7 @@ public class GridUtil {
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Study.class.getCanonicalName());
 		}else if(value == CQLTargetName.SERIES){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
-			numOfSeriesTargetsPassed++;
+			//numOfSeriesTargetsPassed++;
 		}
 		CQLQuery cqlq = null;		
 		DicomDictionary dictionary = AttributeList.getDictionary();
@@ -109,7 +109,7 @@ public class GridUtil {
 				query = new HashMap<String, String>();
 				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
 			}
-			if(applyQueryModifier){
+			/*if(applyQueryModifier){
 				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Image.class.getCanonicalName());
 				cqlq = h2cql.makeCQLQuery(query);
 				QueryModifier queryModifier = new QueryModifier();
@@ -117,13 +117,13 @@ public class GridUtil {
 				cqlq.setQueryModifier(queryModifier);
 			} else {
 				cqlq = h2cql.makeCQLQuery(query);
-			}
-				
+			}*/
+			cqlq = h2cql.makeCQLQuery(query);
 			/*System.err.println(ObjectSerializer.toString(cqlq, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));*/
-			if(numOfSeriesTargetsPassed > 0){
+			/*if(numOfSeriesTargetsPassed > 0){
 				applyQueryModifier = true;
-			}
+			}*/
 			return cqlq;
 		} catch (FileNotFoundException e) {
 			logger.error(e, e);
@@ -153,8 +153,9 @@ public class GridUtil {
 		Patient patientFromGrid = null;
 		Study studyFromGrid = null;
 		Series seriesFromGrid = null;
+		
 		while (iter.hasNext()) {			
-			java.lang.Object obj = iter.next();
+			Object obj = iter.next();
 			if (obj == null) {
 				System.out.println("something not right.  obj is null");
 				continue;
@@ -202,6 +203,7 @@ public class GridUtil {
 			} else if(selectedObject instanceof Study){
 				studyFromGrid = Study.class.cast(selectedObject);
 				gov.nih.nci.ncia.domain.Series seriesGrid = gov.nih.nci.ncia.domain.Series.class.cast(obj);
+				gov.nih.nci.ncia.domain.Series seriesGrid2 = (gov.nih.nci.ncia.domain.Series)obj;
 				String seriesNumber = seriesGrid.getSeriesNumber().toString();if(seriesNumber == null){seriesNumber = "";}
 				String modality = seriesGrid.getModality();if(modality == null){modality = "";}
 				String seriesDesc = seriesGrid.getSeriesDescription();if(seriesDesc == null){seriesDesc = "";}						
