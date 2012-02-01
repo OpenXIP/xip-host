@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -57,7 +58,6 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
-import edu.wustl.xipHost.avt2ext.AVTQuery;
 import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -105,6 +105,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
 	Color xipLightBlue = new Color(156, 162, 189);
+	
 	GridManager gridMgr;
 	DataAccessListener l;
 	
@@ -171,7 +172,10 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		buildLeftPanelLayout();
 		add(leftPanel);
 		add(rightPanel);
+		
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
+		rightPanel.btnSelectAll.addActionListener(this);
+		rightPanel.btnDeselectAll.addActionListener(this);
 		progressBar.setIndeterminate(false);
 	    progressBar.setString("");	    
 	    progressBar.setStringPainted(true);	    
@@ -188,7 +192,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
                 
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
-        constraints.gridy = 0;        
+        constraints.gridy = 0; 
         constraints.insets.top = 10;
         constraints.insets.left = 20;        
         constraints.insets.bottom = 5;        
@@ -314,8 +318,12 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				progressBar.setString("");
 				progressBar.setIndeterminate(false);
 			}
-		}
-	}	
+		} else if (e.getSource() == rightPanel.btnSelectAll){
+			resultTree.selectAll(true);
+		} else if (e.getSource() == rightPanel.btnDeselectAll){
+			resultTree.selectAll(false);
+		}	
+	} 
 	
 	
 	
@@ -677,7 +685,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			State state = app.getState();
 			// TODO Fill in with whatever is needed to make this work with Grid
 			// TODO replace AVTQuery and AVTRetrieve2 with GridQuery and GridRetrieve
-			Query query = new AVTQuery();
+			Query query = null;
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,

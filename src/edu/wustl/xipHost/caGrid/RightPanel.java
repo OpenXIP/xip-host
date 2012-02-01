@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -45,6 +46,10 @@ public class RightPanel extends JPanel {
     ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");
 	JLabel lblGlobus = new JLabel(iconGlobus, JLabel.CENTER);
 	JPanel annotPanel = new JPanel();
+	JPanel optionsPanel = new JPanel();
+	JPanel btnSelectionPanel = new JPanel();
+	JButton btnSelectAll = new JButton("Select All");
+	JButton btnDeselectAll = new JButton("Deselect All");
 	
 	Font font_1 = new Font("Tahoma", 0, 13); 
 	Font font_2 = new Font("Tahoma", 0, 12);
@@ -77,6 +82,15 @@ public class RightPanel extends JPanel {
 		cbxAnnot.setBackground(xipColor);
 		cbxAnnot.setForeground(Color.WHITE);
 									
+		btnSelectAll.setBackground(xipColor);
+		btnDeselectAll.setBackground(xipColor);
+		btnSelectionPanel.setBackground(xipColor);
+		btnSelectionPanel.setLayout(new FlowLayout());
+		btnSelectionPanel.add(btnSelectAll);
+		btnSelectionPanel.add(btnDeselectAll);
+		optionsPanel.add(btnSelectionPanel);
+		optionsPanel.setBackground(xipColor);
+		
 		annotPanel.setBackground(xipColor);
 		annotPanel.add(cbxAnnot);
 		annotPanel.add(list);
@@ -85,7 +99,9 @@ public class RightPanel extends JPanel {
 	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));		    
 	    Border border1 = BorderFactory.createLoweredBevelBorder();
 	    treeView.setBorder(border1);		
-		add(treeView);
+		
+	    add(treeView);
+		add(optionsPanel);
 		add(annotPanel);
 		buildLayout();		
 	}
@@ -117,6 +133,15 @@ public class RightPanel extends JPanel {
         constraints.insets.bottom = 5;
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(annotPanel, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        constraints.insets.left = 0;
+        constraints.insets.right = 20;
+        constraints.insets.bottom = 5;
+        constraints.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(optionsPanel, constraints);
 	}
 	
 	void buildLayoutAnnotPanel(){
