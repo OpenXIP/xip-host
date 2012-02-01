@@ -76,6 +76,7 @@ import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
 import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
@@ -124,7 +125,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		ComboBoxRenderer renderer = new ComboBoxRenderer();		
 		list.setRenderer(renderer);
 		list.setMaximumRowCount(10);
-		//list.setSelectedIndex(-1);
 		list.setSelectedIndex(0);
 		GridLocation itemDICOM = (GridLocation)list.getSelectedItem();
 		selectedGridTypeDicomService = (GridLocation)itemDICOM;
@@ -132,36 +132,20 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		list.setFont(font_2);
 		list.setEditable(false);		
 		list.addActionListener(this);
-		//rightPanel.list.setSelectedIndex(-1);
 		rightPanel.list.setSelectedIndex(0);
 		GridLocation itemAIM = (GridLocation)rightPanel.list.getSelectedItem();
 		selectedGridTypeAimService = (GridLocation)itemAIM;			
 		rightPanel.list.addActionListener(this);
 		resultTree = rightPanel.getGridJTreePanel(); 
-		//resultTree.addTreeSelectionListener(this);	
 		resultTree.addDataSelectionListener(this);
 		resultTree.addMouseListener(ml);
 		rightPanel.lblGlobus.addMouseListener(
 			new MouseAdapter(){
 				public void mouseClicked(MouseEvent e){																
-					//TODO display and manage LocationsDilog
-					/*new LocationsDialog(HostConfigurator.getHostConfigurator().getMainWindow(), gridMgr.getGridTypeAimLocations());					
-					comboModel.removeAllElements();
-					List<GridLocation> gridTypeDicomLocations = gridMgr.getGridTypeDicomLocations();
-					for(int i = 0; i < gridTypeDicomLocations.size(); i++){
-						comboModel.addElement(gridTypeDicomLocations.get(i));
-					}
-					rightPanel.comboModel.removeAllElements();
-					List<GridLocation> gridTypeAimLocations = gridMgr.getGridTypeAimLocations();
-					for(int i = 0; i < gridTypeAimLocations.size(); i++){
-						rightPanel.comboModel.addElement(gridTypeAimLocations.get(i));
-					}
-					list.update(list.getGraphics());*/
 					new UnderDevelopmentDialog(rightPanel.lblGlobus.getLocationOnScreen());
 				}
 			}
 		);
-		//rightPanel.cbxAnnot.addItemListener(this);
 		Border border1 = BorderFactory.createLoweredBevelBorder();
 		list.setBorder(border1);		
 		lblTitle.setForeground(Color.WHITE);
@@ -172,19 +156,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		lblGlobus.addMouseListener(
 			new MouseAdapter(){
 				public void mouseClicked(MouseEvent e){																					
-					//TODO display and manage LocationsDilog
-					/*new LocationsDialog(HostConfigurator.getHostConfigurator().getMainWindow(), gridMgr.getGridTypeDicomLocations());					
-					comboModel.removeAllElements();
-					List<GridLocation> gridTypeDicomLocations = gridMgr.getGridTypeDicomLocations();
-					for(int i = 0; i < gridTypeDicomLocations.size(); i++){
-						comboModel.addElement(gridTypeDicomLocations.get(i));
-					}
-					rightPanel.comboModel.removeAllElements();
-					List<GridLocation> gridTypeAimLocations = gridMgr.getGridTypeAimLocations();
-					for(int i = 0; i < gridTypeAimLocations.size(); i++){
-						rightPanel.comboModel.addElement(gridTypeAimLocations.get(i));
-					}
-					list.update(list.getGraphics());*/
 					new UnderDevelopmentDialog(lblGlobus.getLocationOnScreen());
 				}
 			}
@@ -200,16 +171,13 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		buildLeftPanelLayout();
 		add(leftPanel);
 		add(rightPanel);
-
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
-
 		progressBar.setIndeterminate(false);
 	    progressBar.setString("");	    
 	    progressBar.setStringPainted(true);	    
 	    progressBar.setBackground(new Color(156, 162, 189));
 	    progressBar.setForeground(xipColor);
-	    add(progressBar);
-	    	    
+	    add(progressBar);	    
 		buildLayout();
 	}
 	
@@ -310,7 +278,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	
 	
 	GridLocation selectedGridTypeDicomService;
-	GridLocation selectedGridTypeAimService;	
+	GridLocation selectedGridTypeAimService;
+	Query gridQuery;
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == list){
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
@@ -319,21 +288,25 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
 			selectedGridTypeAimService = (GridLocation)item;			
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){
-			logger.info("Starting GRID query.");
+			logger.info("Executing GRID query ...");
 			//Remove existing children from the result JTree and reload JTree
 			resultTree.getRootNode().removeAllChildren();
-			resultTree.getTreeModel().reload(resultTree.getRootNode());
+			selectedDataSearchResult = new SearchResult();
+			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
+			queryNode = null;
 			rightPanel.cbxAnnot.setEnabled(true);
+			progressBar.setBackground(new Color(156, 162, 189));
+		    progressBar.setForeground(xipColor);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();							
-			setCriteriaList(criteriaPanel.getFilterList());				
+			AttributeList criteria = criteriaPanel.getFilterList();				
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);
 			if(bln && selectedGridTypeDicomService != null){											
 				GridUtil gridUtil = gridMgr.getGridUtil();
 				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);							
 				activeSubqueryMonitor = false;
-				GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, null, null);				
+				gridQuery = new GridQuery(cql, selectedGridTypeDicomService, null, null);				
 				gridQuery.addDataAccessListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();									
@@ -344,11 +317,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		}
 	}	
 	
-	AttributeList criteria;	
-	void setCriteriaList(AttributeList criteria){
-		this.criteria = criteria;
-	}
-	//getCriteria, map criteria to NCIA Model Map, verify criteria	
 	
 	
 	class ComboBoxRenderer extends JLabel implements ListCellRenderer {
@@ -380,22 +348,18 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	boolean subqueryCompleted;
 	@Override
 	public void queryResultsAvailable(QueryEvent e) {
-		synchronized(this){
-			GridQuery gridQuery = (GridQuery)e.getSource();
-			result = gridQuery.getSearchResult();
-			if(activeSubqueryMonitor == true){
-				subqueryCompleted = true;
-			}
-			synchronized(result){
-				rightPanel.getGridJTreePanel().updateNodes(result);
-				if(activeSubqueryMonitor){
-					result.notify();
-				}
-				activeSubqueryMonitor = true;
-			}
-		}	
-		progressBar.setString("GridSearch finished");
-		progressBar.setIndeterminate(false);
+		Query query = (Query) e.getSource();
+		result = query.getSearchResult();
+		if(activeSubqueryMonitor == true){
+			subqueryCompleted = true;
+		}
+		synchronized(result){
+			resultTree.updateNodes(result);
+			resultTree.updateNodeProgressive(queryNode);
+			activeSubqueryMonitor = true;
+		}
+		progressBar.setString("AVT AD Search finished");
+		progressBar.setIndeterminate(false);	
 	}
 	
 	@Override
@@ -465,6 +429,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	Object selectedNode;
 	int queryNodeIndex = 0;
 	boolean wasDoubleClick = false;
+	DefaultMutableTreeNode queryNode;
 	MouseListener ml = new MouseAdapter(){
 	     public void mouseClicked(final MouseEvent e) {	        
 	    	 	int x = e.getX();
@@ -475,7 +440,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		        	wasDoubleClick = true;
 		        	subqueryCompleted = false;
 			     	if (path != null) {    		
-			     		DefaultMutableTreeNode queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		    
+			     		queryNode = (DefaultMutableTreeNode)resultTree.getLastSelectedPathComponent();		    
 			     		if (queryNode == null) return;		 
 			     		if (!queryNode.isRoot()) {
 			     			queryNodeIndex = resultTree.getRowForPath(new TreePath(queryNode.getPath()));
@@ -509,8 +474,9 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 											logger.error(e1, e1);
 											notifyException(e1.getMessage());
 										}
-		     							initialCriteria.put(t,a);}
-			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
+		     							initialCriteria.put(t,a);
+		     						}
+			     					gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addDataAccessListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
@@ -536,8 +502,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 								} catch (DicomException e1) {
 									logger.error(e1, e1);
 									notifyException(e1.getMessage());
-								} 
-			     				//setCriteriaList(updatedCriteria);				
+								} 			
 			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
@@ -551,7 +516,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 											logger.error(e1, e1);
 											notifyException(e1.getMessage());
 										}		     						
-			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
+			     					gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addDataAccessListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
@@ -590,7 +555,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 											logger.error(e1, e1);
 											notifyException(e1.getMessage());
 									}		     						
-			     					GridQuery gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
+			     					gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
 			     					gridQuery.addDataAccessListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
@@ -599,12 +564,14 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     					progressBar.setIndeterminate(false);
 			     				}			     				
 			     				repaint();
-			     				
-			     				
 			     			}
 			     		}
 			     	}
-		        } 
+		        } else if (e.getClickCount() == 1) {
+		        	if(queryNode instanceof PatientNode || queryNode instanceof StudyNode || queryNode instanceof SeriesNode) {
+				    	//TODO
+				    }
+		        }
 		    }
 	};	
 	
@@ -642,11 +609,12 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		}			
 	}
 	
-	
 	SearchResult selectedDataSearchResult;
 	@Override
 	public void dataSelectionChanged(DataSelectionEvent event) {
 		selectedDataSearchResult = (SearchResult)event.getSource();
+		selectedDataSearchResult.setOriginalCriteria(result.getOriginalCriteria());
+		selectedDataSearchResult.setDataSourceDescription("Selected data for " + result.getDataSourceDescription());
 		if(logger.isDebugEnabled()){
 			logger.debug("Value of selectedDataSearchresult: ");
 			if(selectedDataSearchResult != null) {
@@ -658,7 +626,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 						logger.debug("   " + logStudy.toString());
 						List<Series> series = logStudy.getSeries();
 						for(Series logSeries : series){
-							logger.debug("      " + logSeries.toString() + " / Contains subset of items: " + logSeries.containsSubsetOfItems());
+							logger.debug("      " + logSeries.toString());
 							List<Item> items = logSeries.getItems();
 							for(Item logItem : items){
 								logger.debug("         " + logItem.toString());
@@ -669,6 +637,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			}
 		}
 	}
+	
 	
 	@Override
 	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
