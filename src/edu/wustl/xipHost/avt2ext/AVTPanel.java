@@ -151,7 +151,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	Query avtQuery;
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == criteriaPanel.getQueryButton()){												
-			logger.info("Starting AVT query.");
+			logger.info("Executing AVT query ...");
 			resultTree.rootNode.removeAllChildren();
 			cbxDicom.setEnabled(false);
 			cbxAimSeg.setEnabled(false);
