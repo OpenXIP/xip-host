@@ -38,8 +38,6 @@ public class GridQuery implements Query {
 	SearchResult previousSearchResult;
 	Object queriedObject;
 	
-	
-	
 	@Override
 	public void setQuery(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria, QueryTarget target, SearchResult previousSearchResult, Object queriedObject) { 
 		// TODO Auto-generated method stub
@@ -126,7 +124,7 @@ public class GridQuery implements Query {
 		CQLQueryResultsIterator iter;		
 		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 			dicomClient = new DataServiceClient(location.getAddress());			
-		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
+		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
 			nciaClient = new NCIACoreServiceClient(location.getAddress());
 		}else{
 			return null;
@@ -135,7 +133,7 @@ public class GridQuery implements Query {
 		CQLQueryResults results = null;
 		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 			results = dicomClient.query(fcqlq);
-		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
+		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
 			results = nciaClient.query(fcqlq);
 		}						
         iter = new CQLQueryResultsIterator(results);        
