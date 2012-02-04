@@ -72,7 +72,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	public boolean runHostStartupSequence(){		
 		logger.info("Launching XIP Host. Platform " + OS);
 		hostConfig = new File("./config/xipConfig.xml");
-		if(loadHostConfigParameters(hostConfig) == false){		
+		if(loadHostConfigParameters(hostConfig) == false){
 			new ExceptionDialog("Unable to load Host configuration parameters.", 
 					"Ensure host config file config file is valid.",
 					"Host Startup Dialog");
