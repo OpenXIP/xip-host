@@ -17,6 +17,9 @@ import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomDictionary;
+
+import edu.wustl.xipHost.dataModel.ImageItem;
+import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
@@ -83,6 +86,8 @@ public class GridUtil {
 		}else if(value == CQLTargetName.SERIES){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
 			//numOfSeriesTargetsPassed++;
+		}else if(value == CQLTargetName.IMAGE){
+			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Image.class.getCanonicalName());
 		}
 		CQLQuery cqlq = null;		
 		DicomDictionary dictionary = AttributeList.getDictionary();
@@ -202,19 +207,25 @@ public class GridUtil {
 				}
 			} else if(selectedObject instanceof Study){
 				studyFromGrid = Study.class.cast(selectedObject);
-				gov.nih.nci.ncia.domain.Series seriesGrid = gov.nih.nci.ncia.domain.Series.class.cast(obj);
-				gov.nih.nci.ncia.domain.Series seriesGrid2 = (gov.nih.nci.ncia.domain.Series)obj;
+				gov.nih.nci.ncia.domain.Series seriesGrid = gov.nih.nci.ncia.domain.Series.class.cast(obj);			
 				String seriesNumber = seriesGrid.getSeriesNumber().toString();if(seriesNumber == null){seriesNumber = "";}
 				String modality = seriesGrid.getModality();if(modality == null){modality = "";}
 				String seriesDesc = seriesGrid.getSeriesDescription();if(seriesDesc == null){seriesDesc = "";}						
-				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}				
+				//String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}	
+				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = seriesNumber;}	
 				if(studyFromGrid.contains(seriesInstanceUID) == false){
 					seriesFromGrid = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);	
 					studyFromGrid.addSeries(seriesFromGrid);
 				}
 			} else if(selectedObject instanceof Series){
 				seriesFromGrid = Series.class.cast(selectedObject);
-				
+				gov.nih.nci.ncia.domain.Image imageGrid = gov.nih.nci.ncia.domain.Image.class.cast(obj);			
+				String imageNumber = imageGrid.getId().toString();if(imageNumber == null){imageNumber = "";}				
+				String sopInstanceUID = imageGrid.getSopInstanceUID();if(sopInstanceUID == null){sopInstanceUID = "";}				
+				if(seriesFromGrid.contains(sopInstanceUID) == false){
+					Item imageFromGrid = new ImageItem(sopInstanceUID);	
+					seriesFromGrid.addItem(imageFromGrid);
+				}
 			}
 		}
 		return resultGrid;
