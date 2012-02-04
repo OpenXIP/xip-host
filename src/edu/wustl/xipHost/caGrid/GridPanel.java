@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -74,10 +73,7 @@ import edu.wustl.xipHost.gui.UnderDevelopmentDialog;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
-import edu.wustl.xipHost.gui.checkboxTree.PatientNode;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
-import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
-import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
@@ -463,21 +459,25 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     				progressBar.setIndeterminate(true);
 			     				progressBar.updateUI();				     				
 			     				String[] characterSets = { "ISO_IR 100" };
-			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);			  
+			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			     				String patientID = initialCriteria.get(TagFromName.PatientID).getDelimitedStringValuesOrEmptyString();
 			     				try {			     					
 			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
 			     						a.addValue(selectedPatient.getPatientID());
 			     						initialCriteria.put(t,a); }
 								} catch (DicomException e1) {
 									logger.error(e1, e1);
-									notifyException(e1.getMessage());								} 											     						
-			     				Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
-			     				if(bln && selectedGridTypeDicomService != null){											
+									notifyException(e1.getMessage());								
+								} 											     						
+		     					Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
+		     					if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
 			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.STUDY);				
+			     					//After PatientID is added to the initial criteria and criteria are verified, cql is created.
+			     					//In the next step initialCriteria is rolled back to its original value. 	
 			     					{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
 		     							try {
-											a.addValue("");
+		     								a.addValue(patientID);
 										} catch (DicomException e1) {
 											logger.error(e1, e1);
 											notifyException(e1.getMessage());
@@ -503,6 +503,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     				progressBar.updateUI();	
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			     				String studyInstanceUID = initialCriteria.get(TagFromName.StudyInstanceUID).getDelimitedStringValuesOrEmptyString();
 			     				try {			     								     					 			     									     						
 			     					{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
 				     					a.addValue(selectedStudy.getStudyInstanceUID());									 
@@ -515,10 +516,9 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
 			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.SERIES);	
-			     					//CQLQuery cql = GridUtil.convertToCQLWithNCIAHelper(criteria);
 			     					try {
 			     						{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     							
-											a.addValue("");										
+			     							a.addValue(studyInstanceUID);									
 											initialCriteria.put(t,a);}
 										} catch (DicomException e1) {
 											logger.error(e1, e1);
@@ -534,6 +534,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     				}			     				
 			     				repaint();
 			     			} else if(selectedNode instanceof Series){
+			     				// Temporarily disabled until casting to Series and SeriesInstanceUID issue is resolved
 			     				Series selectedSeries = Series.class.cast(selectedNode);
 			     				logger.info("Starting node query: " + selectedSeries.toString());
 			     				//Retrieve items for selected series
@@ -543,6 +544,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     				progressBar.updateUI();
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
+			     				String seriesInstanceUID = initialCriteria.get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();
 			     				try {			     								     					 			     									     						
 			     					{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
 				     					a.addValue(selectedSeries.getSeriesInstanceUID());									 
@@ -554,10 +556,10 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 								Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
 			     				if(bln && selectedGridTypeDicomService != null){											
 			     					GridUtil gridUtil = gridMgr.getGridUtil();
-			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.SERIES);	
+			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.IMAGE);	
 			     					try {
 			     						{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     							
-											a.addValue("");										
+											a.addValue(seriesInstanceUID);										
 											initialCriteria.put(t,a);}
 									} catch (DicomException e1) {
 											logger.error(e1, e1);
@@ -575,10 +577,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     			}
 			     		}
 			     	}
-		        } else if (e.getClickCount() == 1) {
-		        	if(queryNode instanceof PatientNode || queryNode instanceof StudyNode || queryNode instanceof SeriesNode) {
-				    	//TODO
-				    }
 		        }
 		    }
 	};	
