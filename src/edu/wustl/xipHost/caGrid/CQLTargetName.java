@@ -10,5 +10,6 @@ package edu.wustl.xipHost.caGrid;
 public enum CQLTargetName {
 	PATIENT,
 	STUDY,
-	SERIES
+	SERIES,
+	IMAGE
 }
