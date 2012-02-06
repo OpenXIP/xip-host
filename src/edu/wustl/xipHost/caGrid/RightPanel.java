@@ -28,7 +28,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTreeProgressive;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
@@ -96,7 +95,7 @@ public class RightPanel extends JPanel {
 		annotPanel.add(list);
 		annotPanel.add(lblGlobus);
 		buildLayoutAnnotPanel();						
-	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));		    
+	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() + 30));		    
 	    Border border1 = BorderFactory.createLoweredBevelBorder();
 	    treeView.setBorder(border1);		
 		
@@ -118,7 +117,7 @@ public class RightPanel extends JPanel {
 		constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 0;
-        constraints.insets.top = 30;
+        constraints.insets.top = 10;
         constraints.insets.left = 0;
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;        
@@ -197,7 +196,7 @@ public class RightPanel extends JPanel {
 			    return renderer;
 			  }
 		
-	}	
+	}
 		
 	public static void main (String [] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
