@@ -136,8 +136,7 @@ public class GridQuery implements Query {
 		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
 			results = nciaClient.query(fcqlq);
 		}						
-        iter = new CQLQueryResultsIterator(results);        
-        //SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location);	                
+        iter = new CQLQueryResultsIterator(results, true);              
         SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location, previousSearchResult, queriedObject);
         return result;			
 	}		
