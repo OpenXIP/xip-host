@@ -1,31 +1,31 @@
 package edu.wustl.xipHost.caGrid;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomDictionary;
-
-import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.cagrid.cqlquery.QueryModifier;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
@@ -148,6 +148,7 @@ public class GridUtil {
 		}		
 	}
 	
+	
 	public static SearchResult convertCQLQueryResultsIteratorToSearchResult(CQLQueryResultsIterator iter, GridLocation location, SearchResult initialSearchResult, Object selectedObject){
 		SearchResult resultGrid = null;
 		if(initialSearchResult == null){
@@ -155,79 +156,84 @@ public class GridUtil {
 		}else{
 			resultGrid = initialSearchResult;
 		}	
-		Patient patientFromGrid = null;
-		Study studyFromGrid = null;
-		Series seriesFromGrid = null;
-		
-		while (iter.hasNext()) {			
-			Object obj = iter.next();
-			if (obj == null) {
-				System.out.println("something not right.  obj is null");
-				continue;
-			}
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/mm/yyyy");
+		Patient patient = null;
+		Study study = null;
+		Series series = null;
+	
+		while (iter.hasNext()) {
+		    String xmlObj = (String)iter.next();
+		    Object obj = convertToDataModelObject(xmlObj);
 			//selectedObject == null means it is a first query in a progressive query process 
 			if(selectedObject == null){
-				if(obj instanceof gov.nih.nci.ncia.domain.Patient){
-					gov.nih.nci.ncia.domain.Patient patientGrid = gov.nih.nci.ncia.domain.Patient.class.cast(obj);			
-					String patientName = patientGrid.getPatientName(); if(patientName == null){patientName = "";}
-					String patientID = patientGrid.getPatientId(); if(patientID == null){patientID = "";}
-					Calendar patientBirthDate = patientGrid.getPatientBirthDate();				
-					String strPatientBirthDate = null;
-					if(patientBirthDate != null){
-						strPatientBirthDate = sdf.format(patientBirthDate.getTime());
-						if(strPatientBirthDate == null){strPatientBirthDate = "";}
-			        }else{
-			        	strPatientBirthDate = "";
-			        }
-					if(resultGrid.contains(patientID) == false){
-						patientFromGrid = new Patient(patientName, patientID, strPatientBirthDate);
-						resultGrid.addPatient(patientFromGrid);
+				if(obj instanceof Patient){
+					patient = (Patient)obj;
+					if(resultGrid.contains(patient.getPatientID()) == false){
+						resultGrid.addPatient(patient);
 					}
 				}else{
 					
 				}
 			} else if(selectedObject instanceof Patient){
-				patientFromGrid = Patient.class.cast(selectedObject);
-				gov.nih.nci.ncia.domain.Study studyGrid = gov.nih.nci.ncia.domain.Study.class.cast(obj);				
-				Calendar calendar = studyGrid.getStudyDate(); 			
-				String studyDate = null;
-				if(calendar != null){
-		        	studyDate = sdf.format(calendar.getTime());if(studyDate == null){studyDate = "";}
-		        }else{
-		        	studyDate = "";
-		        }
-				String studyID = studyGrid.getStudyId();if(studyID == null){studyID = "";}	
-				String studyDesc = studyGrid.getStudyDescription();if(studyDesc == null){studyDesc = "";}
-				String studyInstanceUID = studyGrid.getStudyInstanceUID();if(studyInstanceUID == null){studyInstanceUID = "";}				
-				studyFromGrid = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
-				if(patientFromGrid.contains(studyInstanceUID) == false){
-					studyFromGrid = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
-					patientFromGrid.addStudy(studyFromGrid);
+				patient = Patient.class.cast(selectedObject);
+				study = (Study)obj;
+				if(patient.contains(study.getStudyInstanceUID()) == false){
+					patient.addStudy(study);
 				}
 			} else if(selectedObject instanceof Study){
-				studyFromGrid = Study.class.cast(selectedObject);
-				gov.nih.nci.ncia.domain.Series seriesGrid = gov.nih.nci.ncia.domain.Series.class.cast(obj);			
-				String seriesNumber = seriesGrid.getSeriesNumber().toString();if(seriesNumber == null){seriesNumber = "";}
-				String modality = seriesGrid.getModality();if(modality == null){modality = "";}
-				String seriesDesc = seriesGrid.getSeriesDescription();if(seriesDesc == null){seriesDesc = "";}						
-				//String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = "";}	
-				String seriesInstanceUID = seriesGrid.getSeriesInstanceUID();if(seriesInstanceUID == null){seriesInstanceUID = seriesNumber;}	
-				if(studyFromGrid.contains(seriesInstanceUID) == false){
-					seriesFromGrid = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);	
-					studyFromGrid.addSeries(seriesFromGrid);
+				study = Study.class.cast(selectedObject);
+				series = (Series)obj;
+				if(study.contains(series.getSeriesInstanceUID()) == false){
+					study.addSeries(series);
 				}
 			} else if(selectedObject instanceof Series){
-				seriesFromGrid = Series.class.cast(selectedObject);
-				gov.nih.nci.ncia.domain.Image imageGrid = gov.nih.nci.ncia.domain.Image.class.cast(obj);			
-				String imageNumber = imageGrid.getId().toString();if(imageNumber == null){imageNumber = "";}				
-				String sopInstanceUID = imageGrid.getSopInstanceUID();if(sopInstanceUID == null){sopInstanceUID = "";}				
-				if(seriesFromGrid.contains(sopInstanceUID) == false){
-					Item imageFromGrid = new ImageItem(sopInstanceUID);	
-					seriesFromGrid.addItem(imageFromGrid);
+				series = Series.class.cast(selectedObject);
+				Item item = (Item)obj; 			
+				if(series.contains(item.getItemID()) == false){
+					series.addItem(item);
 				}
 			}
 		}
 		return resultGrid;
-	}	
+	}
+	
+	static SAXBuilder builder = new SAXBuilder();
+	static Object convertToDataModelObject(String xml){
+	    Document document;
+	    Element root;
+	    InputStream is = new ByteArrayInputStream(xml.getBytes());
+	    try {
+			document = builder.build(is);
+			root = document.getRootElement();
+			String objName = root.getName();
+			if(objName.equalsIgnoreCase("Patient")){
+				String patientName = root.getAttribute("patientName").getValue().trim(); if(patientName == null){patientName = "";}
+				String patientID = root.getAttribute("patientId").getValue().trim(); if(patientID == null){patientID = "";}			
+				String strPatientBirthDate = "";
+				Patient patient = new Patient(patientName, patientID, strPatientBirthDate);
+				return patient;
+			} else if (objName.equalsIgnoreCase("Study")) {
+				String studyDate = root.getAttribute("studyDate").getValue().trim(); if(studyDate == null){studyDate = "";}
+				String studyID = root.getAttribute("studyId").getValue().trim(); if(studyID == null){studyID = "";}	
+				String studyDesc = root.getAttribute("studyDescription").getValue().trim(); if(studyDesc == null){studyDesc = "";}
+				String studyInstanceUID = root.getAttribute("studyInstanceUID").getValue().trim(); if(studyInstanceUID == null){studyInstanceUID = "";}				
+				Study study = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
+				return study;
+			} else if (objName.equalsIgnoreCase("Series")) {
+				String seriesNumber = root.getAttribute("seriesNumber").getValue().trim(); if(seriesNumber == null){seriesNumber = "";}
+				String modality = root.getAttribute("modality").getValue().trim(); if(modality == null){modality = "";}
+				String seriesDesc = root.getAttribute("seriesDescription").getValue().trim();if(seriesDesc == null){seriesDesc = "";}
+				String seriesInstanceUID = root.getAttribute("instanceUID").getValue().trim(); if(seriesInstanceUID == null){seriesInstanceUID = "";}
+				Series series = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);
+				return series;
+			} else if (objName.equalsIgnoreCase("Image")) {
+				return null;
+			}
+		} catch (JDOMException e) {
+			return null;
+		} catch (IOException e) {
+			return null;
+		}
+	    return null;
+	}
+	
 }
