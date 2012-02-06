@@ -33,12 +33,10 @@ public class OptionsDialog extends JDialog implements ActionListener{
 		String ADD_CMD = "Add application";
 		String VIEW_CMD = "View applications";					
 		String HOST_CMD = "Host settings";
-		String SECUR_CMD = "caGrid security";
 		
 		public JButton btnAdd = new JButton(ADD_CMD);
 		public JButton btnView = new JButton(VIEW_CMD);							
 		public JButton btnHostSet = new JButton(HOST_CMD);
-		public JButton btnGridSecur = new JButton(SECUR_CMD);
 		JPanel btnPanel = new JPanel();
 		Color xipBtn = new Color(56, 73, 150);
 		Color xipColor = new Color(51, 51, 102);
@@ -49,25 +47,20 @@ public class OptionsDialog extends JDialog implements ActionListener{
 			btnAdd.setPreferredSize(new Dimension(150, 25));
 			btnView.setPreferredSize(new Dimension(150, 25));
 			btnHostSet.setPreferredSize(new Dimension(150, 25));
-			btnGridSecur.setPreferredSize(new Dimension(150, 25));
 			btnAdd.setBackground(xipBtn);
 			btnAdd.setForeground(Color.BLACK);
 			btnView.setBackground(xipBtn);
 			btnView.setForeground(Color.BLACK);
 			btnHostSet.setBackground(xipBtn);
 			btnHostSet.setForeground(Color.BLACK);
-			btnGridSecur.setBackground(xipBtn);
-			btnGridSecur.setForeground(Color.BLACK);
 		    btnPanel.add(btnAdd);				
 		    btnPanel.add(btnView);			       							   			    
 		    btnPanel.add(btnHostSet);
-		    btnPanel.add(btnGridSecur);
 		    btnPanel.setBackground(xipColor);
 		    add(btnPanel);
 		    btnAdd.addActionListener(this);
 		    btnView.addActionListener(this);
 		    btnHostSet.addActionListener(this);
-		    btnGridSecur.addActionListener(this);
 		    setVisible(false);		               
 		    setResizable(true);
 		    pack();
@@ -123,10 +116,10 @@ public class OptionsDialog extends JDialog implements ActionListener{
 			}else if(e.getSource() == btnHostSet){				
 				Point point = btnHostSet.getLocationOnScreen();
 				new UnderDevelopmentDialog(point);
-			}else if(e.getSource() == btnGridSecur){				
+			}/*else if(e.getSource() == btnGridSecur){				
 				Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
 				Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-				//Login.setValidateGridSecur(true);
+				Login.setValidateGridSecur(true);
 				String user = HostConfigurator.getHostConfigurator().getUser();
 				String password = "123";								
 				setCursor(hourglassCursor);
@@ -141,7 +134,7 @@ public class OptionsDialog extends JDialog implements ActionListener{
 					Login.setValidateGridSecur(false);
 					setCursor(normalCursor);
 				}
-			}			
+			}	*/		
 		}
 			
 }
