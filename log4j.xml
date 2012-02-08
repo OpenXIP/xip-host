@@ -82,7 +82,10 @@
   <logger name="edu.wustl.xipHost.gui.BasicSearchCriteriaVerifier">
 	<appender-ref ref="Grid_Appender"/>
   </logger>
-   <logger name="edu.wustl.xipHost.caGrid.GridUtil">
+  <logger name="edu.wustl.xipHost.caGrid.GridUtil">
+	<appender-ref ref="Grid_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.caGrid.GridRetrieveNCIA">
 	<appender-ref ref="Grid_Appender"/>
   </logger>
   
