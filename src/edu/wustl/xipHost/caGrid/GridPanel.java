@@ -65,6 +65,7 @@ import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -610,8 +611,10 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			allRetrivedFiles.addAll(result);
 		} else if(e.getSource() instanceof GridRetrieveNCIA){
 			GridRetrieveNCIA dicomRetrieve = (GridRetrieveNCIA)e.getSource();
-			List<File> result = dicomRetrieve.getRetrievedFiles();
-			allRetrivedFiles.addAll(result);
+			
+			
+			//List<File> result = dicomRetrieve.getRetrievedFiles();
+			//allRetrivedFiles.addAll(result);
 		} else if(e.getSource() instanceof AimRetrieve){
 			AimRetrieve aimRetrieve = (AimRetrieve)e.getSource();
 			List<File> result = aimRetrieve.getRetrievedFiles();
@@ -665,7 +668,59 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	@Override
 	public void launchApplication(ApplicationEvent event, ApplicationTerminationListener listener) {
 		logger.debug("Current data source tab: " + this.getClass().getName());
-		// If nothing is selected, there is nothing to launch with
+		//Retrieve caGrid DICOM and NBIA data first, then launch application
+		numRetrieveThreadsReturned = 0;
+		numRetrieveThreadsStarted = 0;
+		List<CQLQuery> criteriaDicom = getDicomRetrieveCriteria();
+		List<CQLQuery> criteriaAim = getAimRetrieveCriteria();	
+		allRetrivedFiles = new ArrayList<File>();
+		progressBar.setString("Retrieving data ...");
+		progressBar.setIndeterminate(true);
+		progressBar.updateUI();	
+		criteriaPanel.getQueryButton().setBackground(Color.GRAY);
+		criteriaPanel.getQueryButton().setEnabled(false);
+		rightPanel.cbxAnnot.setEnabled(true);																
+		if(selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("DICOM")){					
+			for(int i = 0; i < criteriaDicom.size(); i++){
+				CQLQuery cqlQuery = criteriaDicom.get(i);
+				try {				
+					Retrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());			
+					Thread t = new Thread(gridRetrieve);
+					t.start();						
+					numRetrieveThreadsStarted++;							
+				} catch (IOException e1) {
+					logger.error(e1, e1);
+				}																				
+			}
+		}else if (selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
+			Map<Series, Study> map = getSelectedSeries();
+			Set<Series> seriesSet = map.keySet();
+			Iterator<Series> iter = seriesSet.iterator();
+			while (iter.hasNext()){
+				Series series = iter.next();
+				String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
+				Retrieve nciaRetrieve = new GridRetrieveNCIA(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
+				Thread t = new Thread(nciaRetrieve);
+				t.start();
+				numRetrieveThreadsStarted++;
+			}
+		}												
+		
+		//Retrieve AIM				
+		if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){
+			for(int i = 0; i < criteriaAim.size(); i++){
+				CQLQuery aimCQL = criteriaAim.get(i);						
+				try {
+					Retrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
+					Thread t = new Thread(aimRetrieve);
+					t.start();
+					numRetrieveThreadsStarted++;
+				} catch (IOException e1) {
+					logger.error(e1, e1);
+				}					
+			}					
+		}
+		
 		//check if selectedDataSearchresult is not null and at least one PatientNode is selected
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)resultTree.getRootNode();
 		boolean isDataSelected = DataSelectionValidator.isDataSelected(rootNode);
@@ -698,92 +753,26 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			//Check if application to be launched is not running.
 			//If yes, create new application instance
 			State state = app.getState();
-			// TODO Fill in with whatever is needed to make this work with Grid
-			// TODO replace AVTQuery and AVTRetrieve2 with GridQuery and GridRetrieve
-			Query query = null;
+			Query query = (Query)gridQuery;
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
 			if(state != null && !state.equals(State.EXIT)){
 				Application instanceApp = new Application(instanceName, instanceExePath, instanceVendor,
 						instanceVersion, instanceIconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
+				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.caGrid.GridRetrieve");
 				instanceApp.setDoSave(false);
+				instanceApp.setApplicationTmpDir(tmpDir);
 				appMgr.addApplication(instanceApp);	
 				instanceApp.addApplicationTerminationListener(listener);
 				instanceApp.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
 			}else{
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
+				app.setDataSourceDomainName("edu.wustl.xipHost.caGrid.GridRetrieve");
 				app.setApplicationTmpDir(tmpDir);
 				app.addApplicationTerminationListener(listener);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
-			}	
-	
-			
-			//TODO Remove all the following
-			// Start background retrieving of data that could eventually be given to the application
-			numRetrieveThreadsReturned = 0;
-			List<CQLQuery> criteriasDicom = getDicomRetrieveCriteria();
-			List<CQLQuery> criteriasAim = getAimRetrieveCriteria();	
-			allRetrivedFiles = new ArrayList<File>();
-			numRetrieveThreadsStarted = 0;
-			//number of criteriaDicom and criteriaAim should be equal 
-			int numOfCriterias = criteriasDicom.size();
-			if( numOfCriterias > 0){
-				progressBar.setString("Processing retrieve request ...");
-				progressBar.setIndeterminate(true);
-				progressBar.updateUI();	
-				criteriaPanel.getQueryButton().setBackground(Color.GRAY);
-				criteriaPanel.getQueryButton().setEnabled(false);
-				rightPanel.cbxAnnot.setEnabled(true);																
-				if(selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("DICOM")){					
-					for(int i = 0; i < criteriasDicom.size(); i++){
-						CQLQuery cqlQuery = criteriasDicom.get(i);
-						try {
-							//Retrieve Dicom						
-							GridRetrieve gridRetrieve = new GridRetrieve(cqlQuery, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-							//gridRetrieve.addDataAccessListener(this);						
-							Thread t = new Thread(gridRetrieve);
-							t.start();						
-							numRetrieveThreadsStarted++;							
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							//TODO
-							//Set to mumber of threads to terminate retrieve
-						}																				
-					}
-				}else if (selectedGridTypeDicomService.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
-					//Retrieve DICOM from NBIA
-					Map<Series, Study> map = getSelectedSeries();
-					Set<Series> seriesSet = map.keySet();
-					Iterator<Series> iter = seriesSet.iterator();
-					while (iter.hasNext()){
-						Series series = iter.next();
-						String selectedSeriesInstanceUID = series.getSeriesInstanceUID();			
-						GridRetrieveNCIA nciaRetrieve = new GridRetrieveNCIA(selectedSeriesInstanceUID, selectedGridTypeDicomService, gridMgr.getImportDirectory());
-						//nciaRetrieve.addDataAccessListener(l);
-						Thread t = new Thread(nciaRetrieve);
-						t.start();
-						numRetrieveThreadsStarted++;
-					}
-				}												
-			}
-			//Retrieve AIM				
-			if(rightPanel.cbxAnnot.isSelected() && selectedGridTypeAimService != null){
-				for(int i = 0; i < criteriasAim.size(); i++){
-					CQLQuery aimCQL = criteriasAim.get(i);						
-					try {
-						AimRetrieve aimRetrieve = new AimRetrieve(aimCQL, selectedGridTypeAimService, gridMgr.getImportDirectory());
-						//aimRetrieve.addDataAccessListener(l);
-						Thread t = new Thread(aimRetrieve);
-						t.start();
-						numRetrieveThreadsStarted++;
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}					
-				}					
 			}
 		}
 	}
