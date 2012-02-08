@@ -12,24 +12,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.zip.ZipInputStream;
 import org.apache.axis.types.URI.MalformedURIException;
+import org.apache.log4j.Logger;
 import org.cagrid.transfer.context.client.TransferServiceContextClient;
 import org.cagrid.transfer.context.client.helper.TransferClientHelper;
 import org.cagrid.transfer.context.stubs.types.TransferServiceContextReference;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.wg23.Uuid;
+
 import edu.osu.bmi.utils.io.zip.ZipEntryInputStream;
 import edu.wustl.xipHost.caGrid.GridLocation;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
-import edu.wustl.xipHost.iterator.TargetElement;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
 
 
@@ -39,6 +42,7 @@ import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
  */
 
 public class GridRetrieveNCIA implements Retrieve {
+	final static Logger logger = Logger.getLogger(GridRetrieveNCIA.class);
 	String seriesInstanceUID;
 	GridLocation gridLocation;
 	File importLocation;
@@ -57,24 +61,22 @@ public class GridRetrieveNCIA implements Retrieve {
 				localLocation.mkdirs();
 			this.importLocation = localLocation;		
 			
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (IOException e) {
+			logger.error(e, e);
 		}			
 		
 		//this.importLocation = importLocation;
 		try {
 			client = new NCIACoreServiceClient(gridLocation.getAddress());
 		} catch (MalformedURIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e, e);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e, e);
 		} 
 	}
 	
 	public void run() {
+		Map<String, ObjectLocator> objectLocators = new HashMap<String, ObjectLocator>();
 		InputStream istream = null;
 		TransferServiceContextClient tclient = null;
 		TransferServiceContextReference tscr;
@@ -83,80 +85,70 @@ public class GridRetrieveNCIA implements Retrieve {
 			tclient = new TransferServiceContextClient(tscr.getEndpointReference());
 			istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e, e);
 		}					
 		if(istream == null){			
+			logger.warn("NBIA: InputStream is NULL!");
 			return;
 		}
 		ZipInputStream zis = new ZipInputStream(istream);
         ZipEntryInputStream zeis = null;
         BufferedInputStream bis = null;
-        int ii = 1;
         while(true) {
         	try {
         		zeis = new ZipEntryInputStream(zis);
 			} catch (EOFException e) {
 				break;
 			} catch (IOException e) {				
-				System.out.println("IOException " + e);
+				logger.error(e, e);
 			}
             String unzzipedFile = null;
 			try {
 				unzzipedFile = importLocation.getCanonicalPath();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (IOException e) {
+				logger.error(e, e);
 			}
-            System.out.println(ii++ + " filename: " + zeis.getName());
+            System.out.println(" filename: " + zeis.getName());
             bis = new BufferedInputStream(zeis);
             byte[] data = new byte[8192];
             int bytesRead = 0;
+            String retrievedFilePath = unzzipedFile + File.separator + zeis.getName();
             try {
-            	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(unzzipedFile + File.separator + zeis.getName()));
-				while ((bytesRead = (bis.read(data, 0, data.length))) > 0)  {
+            	
+            	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(retrievedFilePath));
+				while ((bytesRead = (bis.read(data, 0, data.length))) != -1)  {
 					bos.write(data, 0, bytesRead);
 				}
 				bos.flush();
 		        bos.close();
 			} catch (IOException e) {
-				System.out.println("IOException " + e);
+				logger.error(e, e);
 			}
+            ObjectLocator objLoc = new ObjectLocator();
+    		Uuid itemUUID = new Uuid();
+    		itemUUID.setUuid(UUID.randomUUID().toString());
+    		objLoc.setUuid(itemUUID);				
+    		objLoc.setUri(retrievedFilePath); 
+    		objectLocators.put(itemUUID.getUuid(), objLoc);	
         }
         try {
 			zis.close();
-		} catch (IOException e) {
-			System.out.println("IOException " + e);
-		}
-        try {
 			tclient.destroy();
-		} catch (RemoteException e) {
-			e.printStackTrace();			
+		} catch (IOException e) {
+			logger.error(e, e);
 		}
-		//fireResultsAvailable();
+        fireResultsAvailable(objectLocators);
 	}
 	
-	public List<File> getRetrievedFiles(){
-		File[] fs = importLocation.listFiles();
-		List<File> files = new ArrayList<File>();
-		for(int i = 0; i < fs.length; i++){
-			files.add(fs[i]);
-		}
-		return files;
-	}
-	
-	
-	void fireResultsAvailable(String targetElementID){
-		RetrieveEvent event = new RetrieveEvent(targetElementID);         		        
+	void fireResultsAvailable(Map<String, ObjectLocator> objectLocators){
+		RetrieveEvent event = new RetrieveEvent(objectLocators);         		        
 		listener.retrieveResultsAvailable(event);
 	}
 
-	DataAccessListener listener;	
-
+	RetrieveListener listener;	
 	@Override
 	public void addRetrieveListener(RetrieveListener l) {
-		// TODO Auto-generated method stub
-		
+		listener = l;
 	}
 
 	@Override
