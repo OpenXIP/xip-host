@@ -352,11 +352,12 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 		}else if(e.getSource() instanceof GridRetrieveNCIA){
 			GridRetrieveNCIA source = (GridRetrieveNCIA)e.getSource();			
 			if(source == nbiaRetrievePrev){				
-				prev.addAll(nbiaRetrievePrev.getRetrievedFiles());				
-				nbiaPrevRetrieved = true;
+				
+				//prev.addAll(nbiaRetrievePrev.getRetrievedFiles());				
+				//nbiaPrevRetrieved = true;
 			}else if(source == nbiaRetrieveCurr){
-				curr.addAll(nbiaRetrieveCurr.getRetrievedFiles());					
-				nbiaCurrRetrieved = true;
+				//curr.addAll(nbiaRetrieveCurr.getRetrievedFiles());					
+				//nbiaCurrRetrieved = true;
 			}			
 		} else if(e.getSource() instanceof AimRetrieve){
 			AimRetrieve source = (AimRetrieve) e.getSource();
