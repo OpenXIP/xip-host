@@ -485,7 +485,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			}		
 		}else{
 			cancelProcessing();
-			/*if(cancelProcessing()){
+			/* if(cancelProcessing()){
 				return shutDown();
 			}	*/		
 		}
