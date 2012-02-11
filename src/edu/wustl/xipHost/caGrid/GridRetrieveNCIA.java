@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -22,12 +23,13 @@ import org.apache.log4j.Logger;
 import org.cagrid.transfer.context.client.TransferServiceContextClient;
 import org.cagrid.transfer.context.client.helper.TransferClientHelper;
 import org.cagrid.transfer.context.stubs.types.TransferServiceContextReference;
+import org.dcm4che2.data.Tag;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
-
 import edu.osu.bmi.utils.io.zip.ZipEntryInputStream;
 import edu.wustl.xipHost.caGrid.GridLocation;
+import edu.wustl.xipHost.caGrid.GridLocation.Type;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
@@ -45,27 +47,33 @@ public class GridRetrieveNCIA implements Retrieve {
 	final static Logger logger = Logger.getLogger(GridRetrieveNCIA.class);
 	String seriesInstanceUID;
 	GridLocation gridLocation;
-	File importLocation;
 	NCIACoreServiceClient client;
 	
-	public GridRetrieveNCIA(String seriesInstanceUID, GridLocation gridLocation, File importLocation){
+	Map<Integer, Object> dicomCriteria;
+	Map<String, Object> aimCriteria;
+	List<ObjectDescriptor> objectDescriptors;
+	File importDir;
+	RetrieveTarget retrieveTarget;
+	DataSource dataSource;
+	
+	public GridRetrieveNCIA(){}
+	
+	public GridRetrieveNCIA(String seriesInstanceUID, GridLocation gridLocation, File importDir){
 		this.seriesInstanceUID = seriesInstanceUID; 
 		this.gridLocation = gridLocation;
 		
 		File inputDir;
 		try {
-			inputDir = File.createTempFile("DICOM-XIPHOST", null, importLocation);			
+			inputDir = File.createTempFile("DICOM-XIPHOST", null, importDir);			
 			File localLocation = new File(inputDir.getCanonicalPath());
 			inputDir.delete();
 			if (!localLocation.exists())
 				localLocation.mkdirs();
-			this.importLocation = localLocation;		
+			this.importDir = localLocation;		
 			
 		} catch (IOException e) {
 			logger.error(e, e);
-		}			
-		
-		//this.importLocation = importLocation;
+		}
 		try {
 			client = new NCIACoreServiceClient(gridLocation.getAddress());
 		} catch (MalformedURIException e) {
@@ -81,6 +89,19 @@ public class GridRetrieveNCIA implements Retrieve {
 		TransferServiceContextClient tclient = null;
 		TransferServiceContextReference tscr;
 		try {
+			Iterator<Integer> iter = dicomCriteria.keySet().iterator();
+			//FIXME address miltiple series not just one
+			gridLocation = new GridLocation("http://imaging.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "NBIA-5.0", "NBIA Production Server at NCI");
+			while(iter.hasNext()){
+				Integer dicomTag = iter.next();
+				if(dicomTag.equals(Tag.SeriesInstanceUID)){
+					seriesInstanceUID = (String)dicomCriteria.get(dicomTag);
+					break;
+				}
+			}
+			if(client == null){
+				client = new NCIACoreServiceClient(gridLocation.getAddress());
+			}
 			tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
 			tclient = new TransferServiceContextClient(tscr.getEndpointReference());
 			istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
@@ -104,7 +125,7 @@ public class GridRetrieveNCIA implements Retrieve {
 			}
             String unzzipedFile = null;
 			try {
-				unzzipedFile = importLocation.getCanonicalPath();
+				unzzipedFile = importDir.getCanonicalPath();
 			} catch (IOException e) {
 				logger.error(e, e);
 			}
@@ -152,10 +173,9 @@ public class GridRetrieveNCIA implements Retrieve {
 	}
 
 	@Override
-	public void setCriteria(Map<Integer, Object> dicomCriteria,
-			Map<String, Object> aimCriteria) {
-		// TODO Auto-generated method stub
-		
+	public void setCriteria(Map<Integer, Object> dicomCriteria, Map<String, Object> aimCriteria) {
+		this.dicomCriteria = dicomCriteria;
+		this.aimCriteria = aimCriteria;
 	}
 
 	@Override
@@ -166,25 +186,33 @@ public class GridRetrieveNCIA implements Retrieve {
 
 	@Override
 	public void setDataSource(DataSource dataSource) {
-		// TODO Auto-generated method stub
-		
+		this.dataSource = dataSource;
 	}
 
 	@Override
 	public void setImportDir(File importDir) {
-		// TODO Auto-generated method stub
+		this.importDir = importDir;
 		
 	}
 
+	List<ObjectDescriptor> objDescsDICOM;
+	List<ObjectDescriptor> objDescsAIM;
 	@Override
 	public void setObjectDescriptors(List<ObjectDescriptor> objectDescriptors) {
-		// TODO Auto-generated method stub
-		
+		this.objectDescriptors = objectDescriptors;
+		objDescsDICOM = new ArrayList<ObjectDescriptor>();
+		objDescsAIM = new ArrayList<ObjectDescriptor>();
+		for(ObjectDescriptor objDesc : objectDescriptors){
+			if(objDesc.getMimeType().equalsIgnoreCase("application/dicom")){
+				objDescsDICOM.add(objDesc);
+			} else if (objDesc.getMimeType().equalsIgnoreCase("text/xml")){
+				objDescsAIM.add(objDesc);
+			}
+		}
 	}
 
 	@Override
 	public void setRetrieveTarget(RetrieveTarget retrieveTarget) {
-		// TODO Auto-generated method stub
-		
+		this.retrieveTarget = retrieveTarget;		
 	}
 }
