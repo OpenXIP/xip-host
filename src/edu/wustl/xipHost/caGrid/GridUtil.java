@@ -5,27 +5,38 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.nema.dicom.wg23.Modality;
+import org.nema.dicom.wg23.ObjectDescriptor;
+import org.nema.dicom.wg23.Uid;
+import org.nema.dicom.wg23.Uuid;
+
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomDictionary;
+
+import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
+import gov.nih.nci.cagrid.cqlquery.QueryModifier;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
@@ -71,9 +82,6 @@ public class GridUtil {
 		}		 
 	}
 	
-	//if value of aaplyQueryModifier > 0 then QueryModifier is used
-	//int numOfSeriesTargetsPassed = 0;
-	boolean applyQueryModifier = false;
 	public CQLQuery convertToCQLStatement(AttributeList criteriaList, CQLTargetName value){
 		if(criteriaList == null || value == null){
 			return null;
@@ -85,7 +93,6 @@ public class GridUtil {
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Study.class.getCanonicalName());
 		}else if(value == CQLTargetName.SERIES){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
-			//numOfSeriesTargetsPassed++;
 		}else if(value == CQLTargetName.IMAGE){
 			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Image.class.getCanonicalName());
 		}
@@ -114,16 +121,12 @@ public class GridUtil {
 				query = new HashMap<String, String>();
 				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
 			}
-			/*if(applyQueryModifier){
-				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Image.class.getCanonicalName());
-				cqlq = h2cql.makeCQLQuery(query);
+			cqlq = h2cql.makeCQLQuery(query);
+			if(value == CQLTargetName.IMAGE){
 				QueryModifier queryModifier = new QueryModifier();
 				queryModifier.setCountOnly(true);
 				cqlq.setQueryModifier(queryModifier);
-			} else {
-				cqlq = h2cql.makeCQLQuery(query);
-			}*/
-			cqlq = h2cql.makeCQLQuery(query);
+			}
 			/*System.err.println(ObjectSerializer.toString(cqlq, 
 					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));*/
 			/*if(numOfSeriesTargetsPassed > 0){
@@ -179,18 +182,40 @@ public class GridUtil {
 				if(patient.contains(study.getStudyInstanceUID()) == false){
 					patient.addStudy(study);
 				}
+				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+				patient.setLastUpdated(lastUpdated);
 			} else if(selectedObject instanceof Study){
 				study = Study.class.cast(selectedObject);
 				series = (Series)obj;
 				if(study.contains(series.getSeriesInstanceUID()) == false){
 					study.addSeries(series);
 				}
+				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+				study.setLastUpdated(lastUpdated);
 			} else if(selectedObject instanceof Series){
 				series = Series.class.cast(selectedObject);
-				Item item = (Item)obj; 			
-				if(series.contains(item.getItemID()) == false){
+				//Item item = (Item)obj; 
+				int countResult = (Integer)obj;
+				for(int i = 0; i < countResult; i++){
+					ObjectDescriptor objDesc = new ObjectDescriptor();
+					Uuid objDescUUID = new Uuid();
+					objDescUUID.setUuid(UUID.randomUUID().toString());
+					objDesc.setUuid(objDescUUID);
+					String mimeType = "application/dicom";
+					objDesc.setMimeType(mimeType);			
+					Uid uid = new Uid();
+					String sopClassUID = "";
+					uid.setUid(sopClassUID);
+					objDesc.setClassUID(uid);				
+					Modality mod = new Modality();
+					mod.setModality("");
+					objDesc.setModality(mod);
+					Item item = new ImageItem(String.valueOf(i));
+					item.setObjectDescriptor(objDesc);
 					series.addItem(item);
 				}
+				Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
+				series.setLastUpdated(lastUpdated);
 			}
 		}
 		return resultGrid;
@@ -225,8 +250,9 @@ public class GridUtil {
 				String seriesInstanceUID = root.getAttribute("instanceUID").getValue().trim(); if(seriesInstanceUID == null){seriesInstanceUID = "";}
 				Series series = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);
 				return series;
-			} else if (objName.equalsIgnoreCase("Image")) {
-				return null;
+			} else if (objName.equalsIgnoreCase("CQLCountResult")) {
+				String countResult = root.getAttribute("count").getValue().trim(); if(countResult == null){countResult = "0";}
+				return Integer.valueOf(countResult);
 			}
 		} catch (JDOMException e) {
 			return null;
