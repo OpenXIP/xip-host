@@ -5,6 +5,7 @@ package edu.wustl.xipHost.caGrid;
 
 import static org.junit.Assert.*;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
+import gov.nih.nci.cagrid.cqlquery.QueryModifier;
 import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
@@ -72,8 +73,12 @@ public class QueryNBIATest {
 			//queryHashMap.put(HashmapToCQLQuery.TARGET_NAME_KEY, Series.class.getCanonicalName());
 			//queryHashMap.put(HashmapToCQLQuery.TARGET_NAME_KEY, Study.class.getCanonicalName());
 			queryHashMap.put(HashmapToCQLQuery.TARGET_NAME_KEY, Image.class.getCanonicalName());
-			queryHashMap.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", "1.3.6.1.4.1.9328.50.1.4717");
-			queryHashMap.put("gov.nih.nci.ncia.domain.Series.seriesInstanceUID", "1.3.6.1.4.1.9328.50.1.4718");
+			//queryHashMap.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", "1.3.6.1.4.1.9328.50.1.4717");
+			//queryHashMap.put("gov.nih.nci.ncia.domain.Series.instanceUID", "1.3.6.1.4.1.9328.50.1.4718");
+			queryHashMap.put("gov.nih.nci.ncia.domain.Patient.patientId", "1.3.6.1.4.1.9328.50.1.0008");
+			queryHashMap.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", "1.3.6.1.4.1.9328.50.1.4434");
+			queryHashMap.put("gov.nih.nci.ncia.domain.Series.instanceUID", "1.3.6.1.4.1.9328.50.1.4435");
+			//queryHashMap.put("gov.nih.nci.ncia.domain.Image.sopInstanceUID", "1.3.6.1.4.1.9328.50.1.4433");  
 		}else{
  
 		}
@@ -83,6 +88,12 @@ public class QueryNBIATest {
 			
 			try {
 				cqlQuery = h2cql.makeCQLQuery(queryHashMap);
+				QueryModifier queryModifier = new QueryModifier();
+				//String[] attributeNames = new String[1];
+				//attributeNames[0] = "gov.nih.nci.ncia.domain.Image.sopInstanceUID";
+				//queryModifier.setAttributeNames(attributeNames);
+				queryModifier.setCountOnly(true);
+				cqlQuery.setQueryModifier(queryModifier);
 				System.err.println(ObjectSerializer.toString(cqlQuery, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 			} catch (MalformedQueryException e) {
 				e.printStackTrace();

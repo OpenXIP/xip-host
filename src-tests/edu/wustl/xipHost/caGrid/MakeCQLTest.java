@@ -42,11 +42,11 @@ public class MakeCQLTest extends TestCase {
 			e.printStackTrace(System.err);			
 		}
 		CQLQuery cql = gridUtil.convertToCQLStatement(attList, CQLTargetName.SERIES);
-		/*try {
+		try {
 			System.err.println(ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 		} catch (SerializationException e) {			
 			e.printStackTrace();
-		}*/	
+		}	
 		assertNotNull("AttributeList is valid but system unble to make CQL.", cql);		
 	}		
 }

@@ -8,13 +8,20 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+
+import com.pixelmed.dicom.AttributeList;
+
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
+import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
+import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
+import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
+import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
@@ -28,8 +35,10 @@ import junit.framework.TestCase;
 public class QueryGridLocationTest extends TestCase implements DataAccessListener {
 	//GridLocation gridLoc = new GridLocation("http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "OSU");
 	//GridLocation gridLoc = new GridLocation("http://ividemo.bmi.ohio-state.edu:8080/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "OSU");
-	GridLocation gridLoc = new GridLocation("http://node05.cci.emory.edu:8081/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "DICOM Server Emory");
+	//GridLocation gridLoc = new GridLocation("http://node05.cci.emory.edu:8081/wsrf/services/cagrid/DICOMDataService", Type.DICOM, "DICOM", "DICOM Server Emory");
+	GridLocation gridLoc = new GridLocation("http://imaging.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "NBIA-5.0", "NBIA Staging Server at NCI");
 	CQLQuery cqlQuery = null;
+	AttributeList criteria = new AttributeList();
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
@@ -75,7 +84,7 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 	//CQL statement and GridLocation are valid and network is on.
 	public void testQueryGridLocation1A() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              				
 		SearchResult result = null;
-		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		GridQuery gridQuery = new GridQuery(cqlQuery, criteria, gridLoc, null, null);
 		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
@@ -99,7 +108,6 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 		if (queryHashMap.isEmpty()) {			
 			queryHashMap.put(HashmapToCQLQuery.TARGET_NAME_KEY, Series.class.getCanonicalName());
 			queryHashMap.put("gov.nih.nci.ncia.domain.Series.generalSeriesInstanceUID", "1.3.6.1.4.1.9328.50.1.9263");
-			//"gov.nih.nci.ncia.domain.Series.generalSeriesInstanceUID" is incorrect
 		}else{
  
 		}
@@ -121,7 +129,7 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}		
-		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		Query gridQuery = new GridQuery(cqlQuery, criteria, gridLoc, null, null);
 		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
@@ -129,7 +137,7 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 			t.join();
 		} catch (InterruptedException e) {			
 			e.printStackTrace();
-		}
+		}		 
 		//assertNull("CQL statement was invalid. Returned result should be null but system did not define it this way.", result);
 		fail("CQL statement was invalid but system failed to report an error.");				
 	}
@@ -147,7 +155,7 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 	//CQL statement is valid but GridLocation does not exist and network is on.
 	public void testQueryGridLocation1D() throws RemoteException, ConnectException {										              
 		gridLoc = new GridLocation("http://127.0.0.1", Type.DICOM, "DICOM", "Test Location");	//There is no repository at http://127.0.0.1 		
-		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		GridQuery gridQuery = new GridQuery(cqlQuery, criteria, gridLoc, null, null);
 		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
@@ -162,7 +170,7 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 	//GridManagerImpl - query grid 1E - alternative flow. 
 	//CQL statement is null and GridLocation is valid.
 	public void testQueryGridLocation1E() throws org.apache.axis.types.URI.MalformedURIException, ConnectException {										              
-		GridQuery gridQuery = new GridQuery(null, gridLoc, null, null);
+		GridQuery gridQuery = new GridQuery(null, criteria, gridLoc, null, null);
 		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
@@ -178,7 +186,7 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 	//GridManagerImpl - query grid 1F - alternative flow. 
 	//CQL statement is valid but GridLocation is null.
 	public void testQueryGridLocation1F() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              		
-		GridQuery gridQuery = new GridQuery(cqlQuery, null, null, null);
+		GridQuery gridQuery = new GridQuery(cqlQuery, criteria, null, null, null);
 		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
@@ -194,7 +202,7 @@ public class QueryGridLocationTest extends TestCase implements DataAccessListene
 	//GridManagerImpl - query grid 1G - alternative flow. 
 	//CQL statement is valid and GridLocation is valid. Test if location desc is not null and not empty string.
 	public void testQueryGridLocation1G() throws org.apache.axis.types.URI.MalformedURIException, RemoteException, ConnectException {										              		
-		GridQuery gridQuery = new GridQuery(cqlQuery, gridLoc, null, null);
+		GridQuery gridQuery = new GridQuery(cqlQuery, criteria, gridLoc, null, null);
 		gridQuery.addDataAccessListener(this);
 		Thread t = new Thread(gridQuery);
 		t.start();
