@@ -94,7 +94,11 @@ public class GridQuery implements Query {
 			}
 		}
 		CQLTargetName cqlTargetName = null;
-		if(this.target.equals(QueryTarget.ITEM)){
+		if(this.target.equals(QueryTarget.STUDY)){
+			cqlTargetName = CQLTargetName.STUDY;
+		} else if(this.target.equals(QueryTarget.SERIES)){
+			cqlTargetName = CQLTargetName.SERIES;
+		} else if(this.target.equals(QueryTarget.ITEM)){
 			cqlTargetName = CQLTargetName.IMAGE;
 		}	
 		cql = gridUtil.convertToCQLStatement(convertedCriteria, cqlTargetName);
@@ -121,11 +125,11 @@ public class GridQuery implements Query {
 		this.queriedObject = queriedObject;
 		if(logger.isDebugEnabled()){
 			String strCQL = "";
-			try {
+			/*try {
 				strCQL = ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery"));
 			} catch (SerializationException e) {			
 				logger.error(e, e);
-			}
+			}*/
 			logger.debug("CQL query statement: " + "\r\n" + "\r\n" + strCQL);
 			logger.debug("Grid location: " + gridLocation.toString());
 			if(previousSearchResult == null){
