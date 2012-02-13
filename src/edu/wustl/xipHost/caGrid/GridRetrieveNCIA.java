@@ -48,7 +48,6 @@ public class GridRetrieveNCIA implements Retrieve {
 	String seriesInstanceUID;
 	GridLocation gridLocation;
 	NCIACoreServiceClient client;
-	
 	Map<Integer, Object> dicomCriteria;
 	Map<String, Object> aimCriteria;
 	List<ObjectDescriptor> objectDescriptors;
@@ -115,6 +114,7 @@ public class GridRetrieveNCIA implements Retrieve {
 		ZipInputStream zis = new ZipInputStream(istream);
         ZipEntryInputStream zeis = null;
         BufferedInputStream bis = null;
+        int i = 0;
         while(true) {
         	try {
         		zeis = new ZipEntryInputStream(zis);
@@ -146,11 +146,12 @@ public class GridRetrieveNCIA implements Retrieve {
 				logger.error(e, e);
 			}
             ObjectLocator objLoc = new ObjectLocator();
-    		Uuid itemUUID = new Uuid();
-    		itemUUID.setUuid(UUID.randomUUID().toString());
+    		ObjectDescriptor objDesc = objDescsDICOM.get(i);
+			Uuid itemUUID = objDesc.getUuid();
     		objLoc.setUuid(itemUUID);				
     		objLoc.setUri(retrievedFilePath); 
     		objectLocators.put(itemUUID.getUuid(), objLoc);	
+    		i++;
         }
         try {
 			zis.close();
