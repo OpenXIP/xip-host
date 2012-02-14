@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.zip.ZipInputStream;
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.log4j.Logger;
@@ -89,8 +88,7 @@ public class GridRetrieveNCIA implements Retrieve {
 		TransferServiceContextReference tscr;
 		try {
 			Iterator<Integer> iter = dicomCriteria.keySet().iterator();
-			//FIXME address miltiple series not just one
-			gridLocation = new GridLocation("http://imaging.nci.nih.gov/wsrf/services/cagrid/NCIACoreService", Type.DICOM, "NBIA-5.0", "NBIA Production Server at NCI");
+			gridLocation = GridManagerFactory.getInstance().selectedGridLocation();
 			while(iter.hasNext()){
 				Integer dicomTag = iter.next();
 				if(dicomTag.equals(Tag.SeriesInstanceUID)){
@@ -115,6 +113,7 @@ public class GridRetrieveNCIA implements Retrieve {
         ZipEntryInputStream zeis = null;
         BufferedInputStream bis = null;
         int i = 0;
+        logger.debug("Files retrieved from " + gridLocation.toString() + "\r\n");
         while(true) {
         	try {
         		zeis = new ZipEntryInputStream(zis);
@@ -129,7 +128,7 @@ public class GridRetrieveNCIA implements Retrieve {
 			} catch (IOException e) {
 				logger.error(e, e);
 			}
-            System.out.println(" filename: " + zeis.getName());
+            logger.debug(" filename: " + zeis.getName());
             bis = new BufferedInputStream(zeis);
             byte[] data = new byte[8192];
             int bytesRead = 0;
@@ -192,8 +191,17 @@ public class GridRetrieveNCIA implements Retrieve {
 
 	@Override
 	public void setImportDir(File importDir) {
-		this.importDir = importDir;
-		
+		File inputDir;
+		try {
+			inputDir = File.createTempFile("DICOM-XIPHOST", null, importDir);			
+			File dir = new File(inputDir.getCanonicalPath());
+			inputDir.delete();
+			if (!dir.exists())
+				dir.mkdirs();
+			this.importDir = dir;		
+		} catch (IOException e) {
+			logger.error(e, e);
+		}
 	}
 
 	List<ObjectDescriptor> objDescsDICOM;

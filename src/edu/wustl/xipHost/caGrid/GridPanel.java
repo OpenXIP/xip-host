@@ -130,6 +130,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		list.setSelectedIndex(0);
 		GridLocation itemDICOM = (GridLocation)list.getSelectedItem();
 		selectedGridTypeDicomService = (GridLocation)itemDICOM;
+		gridMgr.setSelectedGridLocation(selectedGridTypeDicomService);
 		list.setPreferredSize(new Dimension(465, 25));
 		list.setFont(font_2);
 		list.setEditable(false);		
@@ -299,7 +300,8 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == list){
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
-			selectedGridTypeDicomService = (GridLocation)item;			
+			selectedGridTypeDicomService = (GridLocation)item;
+			gridMgr.setSelectedGridLocation(selectedGridTypeDicomService);
 		}else if(e.getSource() == rightPanel.list){
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
 			selectedGridTypeAimService = (GridLocation)item;			
