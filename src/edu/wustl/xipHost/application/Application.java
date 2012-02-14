@@ -763,7 +763,6 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 								retrieve.setObjectDescriptors(objectDesc);
 								Thread t = new Thread(retrieve);
 								t.start();
-								//dicomCriteria.remove(Tag.SOPInstanceUID);
 								try {
 									t.join();
 									//Reset value of SOPInstanceUID in dicomCriteria

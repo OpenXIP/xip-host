@@ -292,5 +292,17 @@ public class GridManagerImpl implements GridManager {
 			}
 		}
 		return false;
+	}
+
+	
+	@Override
+	public GridLocation selectedGridLocation() {
+		return gridLocation;
+	}
+
+	GridLocation gridLocation;
+	@Override
+	public void setSelectedGridLocation(GridLocation gridLocation) {
+		this.gridLocation = gridLocation;
 	}	
 }

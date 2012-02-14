@@ -54,4 +54,6 @@ public interface GridManager {
 	public abstract void setImportDirectory(File hostTmpDir);
 	public abstract File getImportDirectory();
 	public abstract boolean exists(GridLocation gridLocation);
+	public abstract GridLocation selectedGridLocation();
+	public abstract void setSelectedGridLocation(GridLocation gridLocation);
 }
