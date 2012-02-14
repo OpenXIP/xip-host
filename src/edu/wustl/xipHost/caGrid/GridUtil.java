@@ -117,7 +117,7 @@ public class GridUtil {
 		try {
 			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap());
 			if (query.isEmpty()) {					
-				System.out.println("Query was empty");
+				logger.warn("Query was empty");
 				query = new HashMap<String, String>();
 				query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
 			}

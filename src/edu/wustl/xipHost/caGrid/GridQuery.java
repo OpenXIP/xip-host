@@ -11,8 +11,6 @@ import java.util.Map;
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
-import org.globus.wsrf.encoding.ObjectSerializer;
-import org.globus.wsrf.encoding.SerializationException;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -21,7 +19,9 @@ import com.pixelmed.dicom.ShortStringAttribute;
 import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-import javax.xml.namespace.QName;
+//import javax.xml.namespace.QName;
+//import org.globus.wsrf.encoding.ObjectSerializer;
+//import org.globus.wsrf.encoding.SerializationException;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -102,11 +102,11 @@ public class GridQuery implements Query {
 			cqlTargetName = CQLTargetName.IMAGE;
 		}	
 		cql = gridUtil.convertToCQLStatement(convertedCriteria, cqlTargetName);
-		try {
+		/*try {
 			System.err.println(ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
 		} catch (SerializationException e) {
 			logger.error(e,  e);
-		}
+		}*/
 	}
 	
 	
