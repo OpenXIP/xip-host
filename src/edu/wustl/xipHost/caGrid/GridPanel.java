@@ -18,9 +18,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -39,10 +36,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
-import org.globus.wsrf.encoding.ObjectSerializer;
-import org.globus.wsrf.encoding.SerializationException;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.State;
 import com.pixelmed.dicom.Attribute;
@@ -63,9 +57,7 @@ import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
-import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
-import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -317,7 +309,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		    progressBar.setForeground(xipColor);
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
-			progressBar.updateUI();							
 			AttributeList criteria = criteriaPanel.getFilterList();				
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);
 			if(bln && selectedGridTypeDicomService != null){											
@@ -380,7 +371,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			resultTree.updateNodeProgressive(queryNode);
 			activeSubqueryMonitor = true;
 		}
-		progressBar.setString("AVT AD Search finished");
+		progressBar.setString("Search finished");
 		progressBar.setIndeterminate(false);	
 	}
 	
@@ -447,8 +438,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     				//Retrieve studies for selected patient
 			     				rightPanel.cbxAnnot.setEnabled(true);
 			     				progressBar.setString("Processing search request ...");
-			     				progressBar.setIndeterminate(true);
-			     				progressBar.updateUI();				     				
+			     				progressBar.setIndeterminate(true);		     				
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
 			     				String patientID = initialCriteria.get(TagFromName.PatientID).getDelimitedStringValuesOrEmptyString();
@@ -490,8 +480,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     				//Retrieve series for selected study
 			     				rightPanel.cbxAnnot.setEnabled(true);
 			     				progressBar.setString("Processing search request ...");
-			     				progressBar.setIndeterminate(true);
-			     				progressBar.updateUI();	
+			     				progressBar.setIndeterminate(true);			     				
 			     				String[] characterSets = { "ISO_IR 100" };
 			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
 			     				String studyInstanceUID = initialCriteria.get(TagFromName.StudyInstanceUID).getDelimitedStringValuesOrEmptyString();
@@ -524,48 +513,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 			     					progressBar.setIndeterminate(false);
 			     				}			     				
 			     				repaint();
-			     			} else if(selectedNode instanceof Series){
-			     				// Temporarily disabled until casting to Series and SeriesInstanceUID issue is resolved
-			     				/*
-			     				Series selectedSeries = Series.class.cast(selectedNode);
-			     				logger.info("Starting node query: " + selectedSeries.toString());
-			     				//Retrieve items for selected series
-			     				rightPanel.cbxAnnot.setEnabled(true);
-			     				progressBar.setString("Processing search request ...");
-			     				progressBar.setIndeterminate(true);
-			     				progressBar.updateUI();
-			     				String[] characterSets = { "ISO_IR 100" };
-			     				SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
-			     				String seriesInstanceUID = initialCriteria.get(TagFromName.SeriesInstanceUID).getDelimitedStringValuesOrEmptyString();
-			     				try {			     								     					 			     									     						
-			     					{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 
-				     					a.addValue(selectedSeries.getSeriesInstanceUID());									 
-				     					initialCriteria.put(t,a); }
-								} catch (DicomException e1) {
-									logger.error(e1, e1);
-									notifyException(e1.getMessage());
-								}
-								Boolean bln = criteriaPanel.verifyCriteria(initialCriteria);
-			     				if(bln && selectedGridTypeDicomService != null){											
-			     					GridUtil gridUtil = gridMgr.getGridUtil();
-			     					CQLQuery cql = gridUtil.convertToCQLStatement(initialCriteria, CQLTargetName.IMAGE);	
-			     					try {
-			     						{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); 		     							
-											a.addValue(seriesInstanceUID);										
-											initialCriteria.put(t,a);}
-									} catch (DicomException e1) {
-											logger.error(e1, e1);
-											notifyException(e1.getMessage());
-									}		     						
-			     					gridQuery = new GridQuery(cql, selectedGridTypeDicomService, result, selectedNode);
-			     					gridQuery.addDataAccessListener(l);
-			     					Thread t = new Thread(gridQuery); 					
-			     					t.start();									
-			     				}else{
-			     					progressBar.setString("");
-			     					progressBar.setIndeterminate(false);
-			     				}			     				
-			     				repaint(); */
 			     			}
 			     		}
 			     	}
@@ -601,8 +548,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 						logger.debug("   " + logStudy.toString());
 						List<Series> series = logStudy.getSeries();
 						for(Series logSeries : series){
-							//Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
-							//logSeries.setLastUpdated(lastUpdated);
 							logger.debug("      " + logSeries.toString());
 							List<Item> items = logSeries.getItems();
 							for(Item logItem : items){

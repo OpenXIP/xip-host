@@ -19,9 +19,9 @@ import com.pixelmed.dicom.ShortStringAttribute;
 import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-//import javax.xml.namespace.QName;
-//import org.globus.wsrf.encoding.ObjectSerializer;
-//import org.globus.wsrf.encoding.SerializationException;
+import javax.xml.namespace.QName;
+import org.globus.wsrf.encoding.ObjectSerializer;
+import org.globus.wsrf.encoding.SerializationException;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -125,11 +125,11 @@ public class GridQuery implements Query {
 		this.queriedObject = queriedObject;
 		if(logger.isDebugEnabled()){
 			String strCQL = "";
-			/*try {
+			try {
 				strCQL = ObjectSerializer.toString(cql, new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery"));
 			} catch (SerializationException e) {			
 				logger.error(e, e);
-			}*/
+			}
 			logger.debug("CQL query statement: " + "\r\n" + "\r\n" + strCQL);
 			logger.debug("Grid location: " + gridLocation.toString());
 			if(previousSearchResult == null){
