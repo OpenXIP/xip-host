@@ -47,7 +47,7 @@ public class ConvertToCQLTest extends TestCase {
 		
         HashMap<String, String> queryHashMap = new HashMap<String, String>();
 		queryHashMap.put(HashmapToCQLQuery.TARGET_NAME_KEY, Series.class.getCanonicalName());
-		queryHashMap.put("gov.nih.nci.ncia.domain.Series.seriesInstanceUID", "1.3.6.1.4.1.9328.50.1.9772");		
+		queryHashMap.put("gov.nih.nci.ncia.domain.Series.instanceUID", "1.3.6.1.4.1.9328.50.1.9772");		
 		/* Convert hash map to SQL */
 		HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap());
 		CQLQuery expectedCQL = h2cql.makeCQLQuery(queryHashMap); 

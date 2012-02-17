@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 public class LoadNCIAModelMapTest extends TestCase {
 	GridUtil util;
 	protected void setUp() throws Exception {
-		 util = new GridUtil();
+		util = new GridUtil();
 	}
 	
 	//GridUtil 1A of the basic flow. NCIAModelMap file exists and is correct.
@@ -22,8 +22,7 @@ public class LoadNCIAModelMapTest extends TestCase {
 	}
 
 	//GridUtil 1B of the basic flow. NCIAModelMap file does not exist.
-	public void testLoadNCIAModelMap1B() throws IOException {						
-		
+	public void testLoadNCIAModelMap1B() throws IOException {
 		try {			
 			FileInputStream fis = new FileInputStream("./src-tests/edu/wustl/xipHost/caGrid/NCIAModelMapVOID.properties");
 			util.loadNCIAModelMap(fis);

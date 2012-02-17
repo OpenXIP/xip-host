@@ -36,11 +36,11 @@ public class MapDicomTagToNCIATagNameTest extends TestCase {
 	}
 	
 	//GridUtil 1D of the basic flow. NCIAModelMap file exists and is correct.
-	//Test if tag (0x0020,0x000e) maps to "gov.nih.nci.ncia.domain.Series.seriesInstanceUID"
+	//Test if tag (0x0020,0x000e) maps to "gov.nih.nci.ncia.domain.Series.instanceUID"
 	//Test for resistance to upper and lower case tags
 	public void testMapDicomTagToNCIATagName1D()  {						
 		String nciaName = util.mapDicomTagToNCIATagName("(0x0020,0x000e)");		
-		assertEquals("Data is valid but mapping failed.", "gov.nih.nci.ncia.domain.Series.seriesInstanceUID", nciaName);		
+		assertEquals("Data is valid but mapping failed.", "gov.nih.nci.ncia.domain.Series.instanceUID", nciaName);		
 	}
 	
 	//GridUtil 1E - test of the alternative flow. NCIAModelMap file exists, is correct but no tag found in the file. 
