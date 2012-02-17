@@ -10,7 +10,7 @@ import junit.framework.TestSuite;
  * @author Jaroslaw Krych
  *
  */
-public class TestcaGridPkgeAll {
+public class TestcaGridPkgeAllJUnit3_8 {
 	public static Test suite(){
 		TestSuite suite = new TestSuite("Running JUnit 3.8 tests from caGrid package.");
 		suite.addTestSuite(AddGridLocationTest.class);
@@ -20,11 +20,9 @@ public class TestcaGridPkgeAll {
 		suite.addTestSuite(RemoveGridLocationTest.class);		
 		suite.addTestSuite(StoreGridLocationsTest.class);
 		suite.addTestSuite(RunGridStartupSequenceTest.class);
-		
-		
-		//suite.addTestSuite(ConvertToCQLTest.class);
-		//suite.addTestSuite(LoadNCIAModelMapTest.class);
-		//suite.addTestSuite(MapDicomTagToNCIATagNameTest.class);
+		suite.addTestSuite(ConvertToCQLTest.class);
+		suite.addTestSuite(LoadNCIAModelMapTest.class);
+		suite.addTestSuite(MapDicomTagToNCIATagNameTest.class);
 		//suite.addTestSuite(QueryGridLocationTest.class);
 		//suite.addTestSuite(RetrieveDicomDataTest.class);
 		return suite;
