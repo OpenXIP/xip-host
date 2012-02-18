@@ -6,8 +6,12 @@ package edu.wustl.xipHost.worklist;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import org.dcm4che2.data.Tag;
 import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
 import org.nema.dicom.wg23.ArrayOfPatient;
 import org.nema.dicom.wg23.ArrayOfSeries;
@@ -35,7 +39,7 @@ import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.caGrid.GridRetrieve;
 import edu.wustl.xipHost.caGrid.GridRetrieveEvent;
-import edu.wustl.xipHost.caGrid.GridRetrieveNCIA;
+import edu.wustl.xipHost.caGrid.GridRetrieveNBIA;
 import edu.wustl.xipHost.caGrid.GridUtil;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
 import edu.wustl.xipHost.dataAccess.QueryListener;
@@ -226,8 +230,8 @@ public class WorklistEntry implements Runnable, QueryListener {
 	GridRetrieve gridRetrieveCurr;
 	AimRetrieve aimRetrievePrev;
 	AimRetrieve aimRetrieveCurr;
-	GridRetrieveNCIA nbiaRetrievePrev;
-	GridRetrieveNCIA nbiaRetrieveCurr;
+	GridRetrieveNBIA nbiaRetrievePrev;
+	GridRetrieveNBIA nbiaRetrieveCurr;
 	public void execute(File importLocation){						
 		System.out.println("Executing worklist entry ...");										
 		dicomPrevRetrieved = false;
@@ -253,11 +257,23 @@ public class WorklistEntry implements Runnable, QueryListener {
 			}
 		}
 		if(gridLocDICOM.getProtocolVersion().equalsIgnoreCase("NBIA-4.2")){
-			nbiaRetrievePrev = new GridRetrieveNCIA(getSeriesInstanceUIDPrev(), gridLocDICOM, importLocation);
+			nbiaRetrievePrev = new GridRetrieveNBIA();
+			Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
+			Map<String, Object> aimCriteria = new HashMap<String, Object>();
+			dicomCriteria.put(Tag.SeriesInstanceUID, getSeriesInstanceUIDPrev());
+			nbiaRetrievePrev.setCriteria(dicomCriteria, aimCriteria);
+			nbiaRetrievePrev.setImportDir(importLocation);
+			GridManagerFactory.getInstance().setSelectedGridLocation(gridLocDICOM);
 			//nbiaRetrievePrev.addDataAccessListener(this);
 			Thread t1 = new Thread(nbiaRetrievePrev);
 			t1.start();
-			nbiaRetrieveCurr = new GridRetrieveNCIA(getSeriesInstanceUIDCurr(), gridLocDICOM, importLocation);
+			nbiaRetrieveCurr = new GridRetrieveNBIA();
+			Map<Integer, Object> dicomCriteria2 = new HashMap<Integer, Object>();
+			Map<String, Object> aimCriteria2 = new HashMap<String, Object>();
+			dicomCriteria2.put(Tag.SeriesInstanceUID, getSeriesInstanceUIDCurr());
+			nbiaRetrieveCurr.setCriteria(dicomCriteria2, aimCriteria2);
+			nbiaRetrieveCurr.setImportDir(importLocation);
+			GridManagerFactory.getInstance().setSelectedGridLocation(gridLocDICOM);
 			//nbiaRetrieveCurr.addDataAccessListener(this);
 			Thread t2 = new Thread(nbiaRetrieveCurr);
 			t2.start();			
@@ -348,8 +364,8 @@ public class WorklistEntry implements Runnable, QueryListener {
 				curr.addAll(gridRetrieveCurr.getRetrievedFiles());					
 				dicomCurrRetrieved = true;
 			}						
-		}else if(e.getSource() instanceof GridRetrieveNCIA){
-			GridRetrieveNCIA source = (GridRetrieveNCIA)e.getSource();			
+		}else if(e.getSource() instanceof GridRetrieveNBIA){
+			GridRetrieveNBIA source = (GridRetrieveNBIA)e.getSource();			
 			if(source == nbiaRetrievePrev){				
 				
 				//prev.addAll(nbiaRetrievePrev.getRetrievedFiles());				
