@@ -12,20 +12,21 @@ import edu.wustl.xipHost.dicom.BasicDicomParser2;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.hostControl.Util;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.cagrid.data.MalformedQueryException;
-import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import org.dcm4che2.data.Tag;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.wg23.Uuid;
 
 /**
  * @author Jaroslaw Krych
@@ -65,15 +66,34 @@ public class RetrieveNBIATest implements RetrieveListener {
 		}	
 	}
 
-	//GridRetrieveNCIA - retrieve dicom from the NBIA 1A - basic flow. 
+	//GridRetrieveNBIA - retrieve DICOM from the NBIA 1A - basic flow. 
 	//CQL statement, GridLocation and import directory are valid and network is on.
-	//CQL statement constructed for the series level 
-	//study and series InstanceUIDs must be included in CQL statement
+	//CQL statement constructed for the Series level 
+	//Study and Series InstanceUIDs must be included in CQL statement
 	@Test
 	public void testRetrieveDicomData1A() throws IOException {
-		//String studyInstanceUID = "1.3.6.1.4.1.9328.50.1.4717";
 		String seriesInstanceUID = "1.3.6.1.4.1.9328.50.1.4718";
-		Retrieve gridRetrieve = new GridRetrieveNCIA(seriesInstanceUID, gridLoc, importDir);
+		Retrieve gridRetrieve = new GridRetrieveNBIA();
+		Map<Integer, Object> dicomCriteria = new HashMap<Integer, Object>();
+		Map<String, Object> aimCriteria = new HashMap<String, Object>();
+		dicomCriteria.put(Tag.SeriesInstanceUID, seriesInstanceUID);
+		gridRetrieve.setCriteria(dicomCriteria, aimCriteria);
+		gridRetrieve.setImportDir(importDir);
+		GridManagerFactory.getInstance().setSelectedGridLocation(gridLoc);
+		List<ObjectDescriptor> objectDescs = new ArrayList<ObjectDescriptor>();
+		ObjectDescriptor objDesc1 = new ObjectDescriptor();
+		Uuid objDescUUID = new Uuid();
+		objDescUUID.setUuid(UUID.randomUUID().toString());
+		objDesc1.setUuid(objDescUUID);
+		objDesc1.setMimeType("application/dicom");			
+		ObjectDescriptor objDesc2 = new ObjectDescriptor();
+		Uuid objDescUUID2 = new Uuid();
+		objDescUUID2.setUuid(UUID.randomUUID().toString());
+		objDesc2.setUuid(objDescUUID2);
+		objDesc2.setMimeType("application/dicom");			
+		objectDescs.add(objDesc1);
+		objectDescs.add(objDesc2);
+		gridRetrieve.setObjectDescriptors(objectDescs);
 		gridRetrieve.addRetrieveListener(this);
 		Thread t = new Thread(gridRetrieve);
 		t.start();
@@ -82,7 +102,7 @@ public class RetrieveNBIATest implements RetrieveListener {
 		} catch (InterruptedException e) {			
 			e.printStackTrace();
 		}
-		//To ensure that the right dicom were retrieved get files and scan each item seriesInstanceUID
+		//To ensure that the right DICOM were retrieved get files, scan each of them and assert seriesInstanceUIDs
 		boolean isRetrieveOK = true;
 		if(objectLocators.size() == 0){isRetrieveOK = false;}
 		Iterator<String> iter = objectLocators.keySet().iterator();
@@ -101,44 +121,6 @@ public class RetrieveNBIATest implements RetrieveListener {
 			}	
 		}
 		assertTrue("Wrong data retrieved. See seriesInstanceUID.", isRetrieveOK);
-	}
-	
-	/* Creates CQL for grid retrieve - only for testing purposes */
-	protected CQLQuery createCQLQuery(String studyInstanceUID, String seriesInstanceUID){
-		HashMap<String, String> query = new HashMap<String, String>();		
-		if(studyInstanceUID != null && seriesInstanceUID != null){
-			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Series.class.getCanonicalName());
-			query.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", studyInstanceUID);
-			query.put("gov.nih.nci.ncia.domain.Series.seriesInstanceUID", seriesInstanceUID);
-		}else if(studyInstanceUID != null && seriesInstanceUID == null){				
-			query.put(HashmapToCQLQuery.TARGET_NAME_KEY, gov.nih.nci.ncia.domain.Study.class.getCanonicalName());
-			query.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", studyInstanceUID);
-		}else{
-			
-		}
-		/* Convert hash map to SQL */
-		HashmapToCQLQuery h2cql;
-		CQLQuery cqlQuery = null;	
-		try {
-			h2cql = new HashmapToCQLQuery(new ModelMap());							
-			cqlQuery = h2cql.makeCQLQuery(query);
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ModelMapException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (MalformedQueryException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		return cqlQuery;
 	}
 
 	Map<String, ObjectLocator> objectLocators;
