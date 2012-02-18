@@ -23,9 +23,9 @@ import javax.xml.namespace.QName;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
 import edu.wustl.xipHost.caGrid.GridLocation;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -221,9 +221,9 @@ public class GridQuery implements Query {
 		return searchResult;
 	}
 	
-	DataAccessListener listener;
+	QueryListener listener;
 	@Override
-	public void addDataAccessListener(DataAccessListener l) {
+	public void addQueryListener(QueryListener l) {
 		listener = l; 
 		
 	}

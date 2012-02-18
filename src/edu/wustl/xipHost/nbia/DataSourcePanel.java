@@ -35,11 +35,10 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -58,7 +57,7 @@ import edu.wustl.xipHost.iterator.IterationTarget;
  * @author Jaroslaw Krych
  *
  */
-public class DataSourcePanel extends JPanel implements ActionListener, ApplicationListener, DataAccessListener, DataSelectionListener {	
+public class DataSourcePanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener {	
 	final static Logger logger = Logger.getLogger(DataSourcePanel.class);
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();			
 	SearchResultPanel searchResultPanel = new SearchResultPanel();
@@ -68,7 +67,7 @@ public class DataSourcePanel extends JPanel implements ActionListener, Applicati
 	//Color xipBtn = new Color(56, 73, 150);
 	Color xipLightBlue = new Color(156, 162, 189);
 	DataSource ds;
-	DataAccessListener l;
+	QueryListener l;
 	
 	public DataSourcePanel(){
 		l = this;
@@ -152,7 +151,7 @@ public class DataSourcePanel extends JPanel implements ActionListener, Applicati
 				SearchResult previousSearchResult = null;
 				Object queriedObject = null;
 				query.setQuery(dicomCriteria, aimCriteria, target, previousSearchResult, queriedObject);				
-				query.addDataAccessListener(this);
+				query.addQueryListener(this);
 				Thread t = new Thread(query); 					
 				t.start();		
 			} else {
@@ -261,7 +260,7 @@ public class DataSourcePanel extends JPanel implements ActionListener, Applicati
 			     					SearchResult previousSearchResult = null;
 			     					Object queriedObject = null;
 			     					query.setQuery(dicomCriteria, aimCriteria, target, previousSearchResult, queriedObject);				
-			     					query.addDataAccessListener(l);
+			     					query.addQueryListener(l);
 			     					Thread t = new Thread(query); 					
 			     					t.start();								
 			     				}else{
@@ -305,7 +304,7 @@ public class DataSourcePanel extends JPanel implements ActionListener, Applicati
 			     					SearchResult previousSearchResult = null;
 			     					Object queriedObject = null;
 			     					query.setQuery(dicomCriteria, aimCriteria, target, previousSearchResult, queriedObject);				
-			     					query.addDataAccessListener(l);
+			     					query.addQueryListener(l);
 			     					Thread t = new Thread(query); 					
 			     					t.start();								
 			     				}else{
@@ -348,7 +347,7 @@ public class DataSourcePanel extends JPanel implements ActionListener, Applicati
 			     					SearchResult previousSearchResult = null;
 			     					Object queriedObject = null;
 			     					query.setQuery(dicomCriteria, aimCriteria, target, previousSearchResult, queriedObject);				
-			     					query.addDataAccessListener(l);
+			     					query.addQueryListener(l);
 			     					Thread t = new Thread(query); 					
 			     					t.start();								
 			     				}else{
@@ -455,12 +454,6 @@ public class DataSourcePanel extends JPanel implements ActionListener, Applicati
 	
 	Map<Series, Study>  getSelectedSeries(){
 		return null;
-	}
-	
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 }

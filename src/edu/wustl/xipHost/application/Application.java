@@ -34,10 +34,10 @@ import org.nema.dicom.wg23.QueryResult;
 import org.nema.dicom.wg23.Rectangle;
 import org.nema.dicom.wg23.State;
 import org.nema.dicom.wg23.Uuid;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveFactory;
@@ -72,7 +72,7 @@ import edu.wustl.xipHost.wg23.NativeModelRunner;
 import edu.wustl.xipHost.wg23.StateExecutor;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 
-public class Application implements NativeModelListener, TargetIteratorListener, DataAccessListener, RetrieveListener {	
+public class Application implements NativeModelListener, TargetIteratorListener, QueryListener, RetrieveListener {	
 	final static Logger logger = Logger.getLogger(Application.class);
 	UUID id;
 	String name;

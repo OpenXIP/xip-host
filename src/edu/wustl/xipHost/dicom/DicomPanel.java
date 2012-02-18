@@ -43,10 +43,9 @@ import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.iterator.IterationTarget;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -66,7 +65,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
  * @author Jaroslaw Krych
  *
  */
-public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, DataAccessListener, DataSelectionListener {
+public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(DicomPanel.class);
 	JPanel calledLocationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select Called DICOM Service Location:");		
@@ -386,7 +385,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			Boolean bln = criteriaPanel.verifyCriteria(criteria);						
 			if(bln && calledPacsLocation != null){
 				DicomQuery dicomQuery = new DicomQuery(criteria, calledPacsLocation);
-				dicomQuery.addDataAccessListener(this);
+				dicomQuery.addQueryListener(this);
 				Thread t = new Thread(dicomQuery);				
 				t.start();				
 			}else{
@@ -413,12 +412,6 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		resultTree.updateNodes(result);
 		progressBar.setString("DicomSearch finished");
 		progressBar.setIndeterminate(false);		
-	}
-	
-
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		   	
 	}
 	
 	class ComboBoxRenderer extends JLabel implements ListCellRenderer {

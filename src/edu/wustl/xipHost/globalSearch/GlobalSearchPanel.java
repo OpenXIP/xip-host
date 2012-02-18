@@ -21,9 +21,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import com.pixelmed.dicom.AttributeList;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.caGrid.CQLTargetName;
 import edu.wustl.xipHost.caGrid.GridLocation;
@@ -45,7 +44,7 @@ import gov.nih.nci.cagrid.cqlquery.CQLQuery;
  * @author Jaroslaw Krych
  *
  */
-public class GlobalSearchPanel extends JPanel implements ActionListener, DataAccessListener {	
+public class GlobalSearchPanel extends JPanel implements ActionListener, QueryListener {	
 	JButton btnLocations = new JButton("Locations");	
 	JPanel btnPanel = new JPanel();
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();
@@ -277,7 +276,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, DataAcc
 			for(int i = 0; i < pacsLocs.size(); i++){							
 				PacsLocation loc = pacsLocs.get(i);								
 				DicomQuery dicomQuery = new DicomQuery(criteria, loc);
-				dicomQuery.addDataAccessListener(this);
+				dicomQuery.addQueryListener(this);
 				exeService.execute(dicomQuery);	
 				
 				/*GlobalSearchQuery globalQuery = new GlobalSearchQuery(criteria, loc);
@@ -292,7 +291,7 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, DataAcc
 			if(cql == null){return false;}
 			for(int i = 0 ; i < gridLocs.size(); i++){								
 				GridQuery gridQuery = new GridQuery(cql, criteria, gridLocs.get(i), null, null);				
-				gridQuery.addDataAccessListener(this);
+				gridQuery.addQueryListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();	
 			}														
@@ -336,10 +335,4 @@ public class GlobalSearchPanel extends JPanel implements ActionListener, DataAcc
 		// TODO Auto-generated method stub
 		
 	}
-	
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		// TODO Auto-generated method stub
-		
-	}	
 }

@@ -12,7 +12,6 @@ import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
@@ -75,16 +74,16 @@ public class XDSDocumentRetrieve implements Retrieve {
 	}
 	
     void fireResultsAvailable(String targetElementID){
-		RetrieveEvent event = new RetrieveEvent(targetElementID);         		
+		//FIXME
+    	//RetrieveEvent event = new RetrieveEvent(targetElementID);
+    	RetrieveEvent event = null;
         listener.retrieveResultsAvailable(event);
 	}
 
-    DataAccessListener listener;
-    
+    RetrieveListener listener;
 	@Override
 	public void addRetrieveListener(RetrieveListener l) {
-		// TODO Auto-generated method stub
-		
+		listener = l;
 	}
 
 	@Override

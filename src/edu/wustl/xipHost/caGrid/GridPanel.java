@@ -54,10 +54,11 @@ import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.caGrid.GridUtil;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -79,7 +80,7 @@ import gov.nih.nci.cagrid.cqlquery.CQLQuery;
  * @author Jaroslaw Krych
  *
  */
-public class GridPanel extends JPanel implements ActionListener, ApplicationListener, DataAccessListener, DataSelectionListener, ItemListener {	
+public class GridPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener, ItemListener, RetrieveListener {	
 	final static Logger logger = Logger.getLogger(GridPanel.class);
 	JPanel locationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select caGRID DICOM Service Location:");		
@@ -100,7 +101,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	Color xipLightBlue = new Color(156, 162, 189);
 	
 	GridManager gridMgr;
-	DataAccessListener l;
+	QueryListener l;
 	
 	public GridPanel(){
 		l = this;
@@ -316,7 +317,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				CQLQuery cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);							
 				activeSubqueryMonitor = false;
 				gridQuery = new GridQuery(cql, criteria, selectedGridTypeDicomService, null, null);				
-				gridQuery.addDataAccessListener(this);
+				gridQuery.addQueryListener(this);
 				Thread t = new Thread(gridQuery); 					
 				t.start();									
 			}else{
@@ -466,7 +467,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		     							initialCriteria.put(t,a);
 		     						}
 			     					gridQuery = new GridQuery(cql, initialCriteria, selectedGridTypeDicomService, result, selectedNode);
-			     					gridQuery.addDataAccessListener(l);
+			     					gridQuery.addQueryListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
 			     				}else{
@@ -505,7 +506,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 											notifyException(e1.getMessage());
 										}		     						
 			     					gridQuery = new GridQuery(cql, initialCriteria, selectedGridTypeDicomService, result, selectedNode);
-			     					gridQuery.addDataAccessListener(l);
+			     					gridQuery.addQueryListener(l);
 			     					Thread t = new Thread(gridQuery); 					
 			     					t.start();									
 			     				}else{

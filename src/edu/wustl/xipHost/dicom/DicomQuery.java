@@ -5,9 +5,9 @@ package edu.wustl.xipHost.dicom;
 
 import java.util.Map;
 import com.pixelmed.dicom.AttributeList;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 
@@ -81,9 +81,9 @@ public class DicomQuery implements Query {
 		listener.queryResultsAvailable(event);
 	}
 
-	DataAccessListener listener; 
+	QueryListener listener; 
 	@Override
-	public void addDataAccessListener(DataAccessListener l) {
+	public void addQueryListener(QueryListener l) {
 		this.listener = l;
 	}
 }

@@ -51,11 +51,10 @@ import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
 import edu.wustl.xipHost.iterator.IterationTarget;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -74,7 +73,7 @@ import edu.wustl.xipHost.gui.checkboxTree.SeriesNode;
 import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
-public class AVTPanel extends JPanel implements ActionListener, ItemListener, DataAccessListener, ApplicationListener, DataSelectionListener {
+public class AVTPanel extends JPanel implements ActionListener, ItemListener, QueryListener, ApplicationListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(AVTPanel.class);
 	SearchCriteriaPanelAVT criteriaPanel = new SearchCriteriaPanelAVT();	
 	SearchResultTreeProgressive resultTree = new SearchResultTreeProgressive();
@@ -97,7 +96,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	JButton btnDeselectAll = new JButton("Deselect All");
 	Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
 	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-	DataAccessListener l;
+	QueryListener l;
 	
 	public AVTPanel(){
 		l = this;
@@ -182,7 +181,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 				activeSubqueryMonitor = false;
 				//pass adCriteria to AVTQuery
 				avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
-				avtQuery.addDataAccessListener(this);
+				avtQuery.addQueryListener(this);
 				Thread t = new Thread(avtQuery);
 				t.start();
 			}else{
@@ -334,11 +333,6 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 	}
 	
 	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {		
-		
-	}	
-	
-	@Override
 	public void notifyException(String message) {
 		progressBar.setIndeterminate(false);		
 		progressBar.setForeground(Color.RED);
@@ -413,7 +407,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 									}
 	 							initialCriteria.put(t,a);}		     						     							     					
 		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.STUDY, result, selectedNode);
-		     					avtQuery.addDataAccessListener(l);
+		     					avtQuery.addQueryListener(l);
 		     					Thread t = new Thread(avtQuery); 
 		     					t.start();
 		     				} else {
@@ -454,7 +448,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 									notifyException(e1.getMessage());
 								}		     															     					
 		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.SERIES, result, selectedNode);
-		     					avtQuery.addDataAccessListener(l);
+		     					avtQuery.addQueryListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();							
 		     				}else{
@@ -495,7 +489,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Da
 									notifyException(e1.getMessage());
 								}		     															     					
 		     					avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.ITEM, result, selectedNode);
-		     					avtQuery.addDataAccessListener(l);
+		     					avtQuery.addQueryListener(l);
 		     					Thread t = new Thread(avtQuery); 					
 		     					t.start();							
 		     				}else{

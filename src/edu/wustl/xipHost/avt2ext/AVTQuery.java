@@ -10,19 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Logger;
-
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.dicom.GeneralImage;
 import com.siemens.scr.avt.ad.dicom.GeneralSeries;
 import com.siemens.scr.avt.ad.dicom.GeneralStudy;
 import com.siemens.scr.avt.ad.dicom.Patient;
-
 import edu.wustl.xipApplication.aim.AimParser;
 import edu.wustl.xipHost.iterator.Criteria;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dicom.DicomUtil;
@@ -175,9 +173,9 @@ public class AVTQuery implements Query{
         listener.notifyException(message);
 	}
 
-	DataAccessListener listener;
+	QueryListener listener;
 	@Override
-	public void addDataAccessListener(DataAccessListener l) {
+	public void addQueryListener(QueryListener l) {
 		listener = l; 
 		
 	}
@@ -255,5 +253,4 @@ public class AVTQuery implements Query{
 			}
 		}
 	}
-	
 }

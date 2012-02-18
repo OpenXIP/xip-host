@@ -11,4 +11,5 @@ import java.util.EventListener;
  */
 public interface QueryListener extends EventListener {
 	public void queryResultsAvailable(QueryEvent e);
+	public void notifyException(String message);
 }

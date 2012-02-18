@@ -43,11 +43,10 @@ import edu.wustl.xipHost.application.ApplicationListener;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.Retrieve;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.gui.ExceptionDialog;
@@ -69,7 +68,7 @@ import edu.wustl.xipHost.pdq.PDQLocation;
  *
  */
 public class XDSPanel extends JPanel implements ActionListener, XDSSearchListener, ApplicationListener, 
-									ListSelectionListener, DataAccessListener, DataSelectionListener {
+									ListSelectionListener, QueryListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(XDSPanel.class);
 	JPanel pdqLocationSelectionPanel = new JPanel();
 	JLabel lblPdqTitle = new JLabel("Select Patient Demographic Supplier:");		
@@ -184,7 +183,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();	
 			XDSDocumentQuery xsdQuery = new XDSDocumentQuery(selectedID.getPatID());
-			xsdQuery.addDataAccessListener(this);
+			xsdQuery.addQueryListener(this);
 			Thread t = new Thread(xsdQuery);
 			t.start();
 		}
@@ -379,12 +378,6 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		JList list = ((JList)e.getSource());		
 		selectedID = (XDSPatientIDResponse)list.getSelectedValue();
 		criteriaPanel.getQueryButton().setEnabled(true);
-	}
-	
-	
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		
 	}
 
 	Application targetApp = null;

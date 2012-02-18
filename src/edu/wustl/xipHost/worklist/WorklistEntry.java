@@ -37,9 +37,8 @@ import edu.wustl.xipHost.caGrid.GridRetrieve;
 import edu.wustl.xipHost.caGrid.GridRetrieveEvent;
 import edu.wustl.xipHost.caGrid.GridRetrieveNCIA;
 import edu.wustl.xipHost.caGrid.GridUtil;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dicom.BasicDicomParser2;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.wg23.WG23DataModel;
@@ -50,7 +49,7 @@ import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
  * @author Jaroslaw Krych
  *
  */
-public class WorklistEntry implements Runnable, DataAccessListener {
+public class WorklistEntry implements Runnable, QueryListener {
 	String subjectName;
 	String subjectID;
 	String studyDate;
@@ -571,12 +570,6 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 	}
 	@Override
 	public void queryResultsAvailable(QueryEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

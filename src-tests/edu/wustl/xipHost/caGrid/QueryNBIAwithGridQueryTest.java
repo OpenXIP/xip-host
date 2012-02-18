@@ -1,19 +1,16 @@
 package edu.wustl.xipHost.caGrid;
 
 import static org.junit.Assert.*;
-
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -21,14 +18,12 @@ import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -37,7 +32,7 @@ import com.pixelmed.dicom.ShortStringAttribute;
 import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 
-public class QueryNBIAwithGridQueryTest implements DataAccessListener {
+public class QueryNBIAwithGridQueryTest implements QueryListener {
 	final static Logger logger = Logger.getLogger(QueryNBIAwithGridQueryTest.class);
 	static GridUtil gridUtil;
 	static GridLocation nbiaLocation;
@@ -70,7 +65,7 @@ public class QueryNBIAwithGridQueryTest implements DataAccessListener {
 		{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("1.3.6.1.4.1.9328.50.1.0009"); criteria.put(t,a); }
 		cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);
 		Query gridQuery = new GridQuery(cql, criteria, nbiaLocation, null, null);				
-		gridQuery.addDataAccessListener(this);
+		gridQuery.addQueryListener(this);
 		Thread t = new Thread(gridQuery); 					
 		t.start();
 		try {
@@ -100,7 +95,7 @@ public class QueryNBIAwithGridQueryTest implements DataAccessListener {
 		Patient patient1 = new Patient("1.3.6.1.4.1.9328.50.1.0009", "1.3.6.1.4.1.9328.50.1.0009", "");
 		previousSeachResult.addPatient(patient1);
 		Query gridQuery = new GridQuery(cql, criteria, nbiaLocation, previousSeachResult, patient1);				
-		gridQuery.addDataAccessListener(this);
+		gridQuery.addQueryListener(this);
 		Thread t = new Thread(gridQuery); 					
 		t.start();
 		try {
@@ -141,7 +136,7 @@ public class QueryNBIAwithGridQueryTest implements DataAccessListener {
 		patient1.addStudy(study1);
 		previousSeachResult.addPatient(patient1);
 		Query gridQuery = new GridQuery(cql, criteria, nbiaLocation, previousSeachResult, study1);				
-		gridQuery.addDataAccessListener(this);
+		gridQuery.addQueryListener(this);
 		Thread t = new Thread(gridQuery); 					
 		t.start();
 		try {
@@ -197,7 +192,7 @@ public class QueryNBIAwithGridQueryTest implements DataAccessListener {
 		dicomCriteria.put(Tag.StudyInstanceUID, "1.3.6.1.4.1.9328.50.1.4893");
 		dicomCriteria.put(Tag.SeriesInstanceUID, "1.3.6.1.4.1.9328.50.1.4978");
 		gridQuery.setQuery(dicomCriteria, aimCriteria, QueryTarget.ITEM, previousSeachResult, series1);
-		gridQuery.addDataAccessListener(this);
+		gridQuery.addQueryListener(this);
 		Thread t = new Thread(gridQuery); 					
 		t.start();
 		try {
@@ -221,12 +216,6 @@ public class QueryNBIAwithGridQueryTest implements DataAccessListener {
 	public void queryResultsAvailable(QueryEvent e) {
 		Query query = (Query) e.getSource();
 		result = query.getSearchResult();
-	}
-
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

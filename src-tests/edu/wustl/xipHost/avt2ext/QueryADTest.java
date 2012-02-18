@@ -20,11 +20,10 @@ import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.dicom.GeneralStudy;
 import edu.wustl.xipHost.avt2ext.AVTFactory;
 import edu.wustl.xipHost.avt2ext.AVTQuery;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dicom.DicomUtil;
@@ -33,7 +32,7 @@ import edu.wustl.xipHost.dicom.DicomUtil;
  * @author Jaroslaw Krych
  *
  */
-public class QueryADTest implements DataAccessListener{
+public class QueryADTest implements QueryListener{
 	final static Logger logger = Logger.getLogger(QueryADTest.class);
 	static ADFacade adService;
 	static CriteriaSetup setup;
@@ -61,7 +60,7 @@ public class QueryADTest implements DataAccessListener{
 		Map<Integer, Object> adCriteria = DicomUtil.convertToADDicomCriteria(attList);
 		Map<String, Object> adAimCriteria = new HashMap<String, Object>();
 		Query avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
-		avtQuery.addDataAccessListener(this);
+		avtQuery.addQueryListener(this);
 		Thread t = new Thread(avtQuery);
 		t.start();	
 		try {
@@ -83,7 +82,7 @@ public class QueryADTest implements DataAccessListener{
 		Map<Integer, Object> adDicomCriteria = DicomUtil.convertToADDicomCriteria(attList);
 		Map<String, Object> adAimCriteria = new HashMap<String, Object>();
 		Query avtQuery = new AVTQuery(adDicomCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
-		avtQuery.addDataAccessListener(this);
+		avtQuery.addQueryListener(this);
 		Thread t1 = new Thread(avtQuery);
 		t1.start();	
 		try {
@@ -93,7 +92,7 @@ public class QueryADTest implements DataAccessListener{
 		}
 		Patient selectedNode = result.getPatients().get(0);
 		Query avtQuery2 = new AVTQuery(adDicomCriteria, adAimCriteria, QueryTarget.STUDY, result, selectedNode);
-		avtQuery2.addDataAccessListener(this);
+		avtQuery2.addQueryListener(this);
 		Thread t2 = new Thread(avtQuery2);
 		t2.start();	
 		try {
@@ -142,7 +141,7 @@ public class QueryADTest implements DataAccessListener{
 		Object value = "Extremely Obvious";
 		adAimCriteria.put(key, value);
 		Query avtQuery = new AVTQuery(adCriteria, adAimCriteria, QueryTarget.PATIENT, null, null);
-		avtQuery.addDataAccessListener(this);
+		avtQuery.addQueryListener(this);
 		Thread t = new Thread(avtQuery);
 		t.start();	
 		try {
@@ -155,12 +154,6 @@ public class QueryADTest implements DataAccessListener{
 		boolean isNumPatients = (result.getPatients().size() == 1);
 		assertTrue("Unable to find specified patientID.", isQueryOK);
 		assertTrue("Actual number of found patients is different than 1.", isNumPatients);
-	}
-	
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	SearchResult result;

@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import edu.wustl.xipHost.iterator.Criteria;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
@@ -253,9 +253,9 @@ public class AVTQueryStub implements Query {
 		return resultAD;
 	}
 
-	DataAccessListener listener;
+	QueryListener listener;
 	@Override
-	public void addDataAccessListener(DataAccessListener l) {
+	public void addQueryListener(QueryListener l) {
 		listener = l;
 		
 	}

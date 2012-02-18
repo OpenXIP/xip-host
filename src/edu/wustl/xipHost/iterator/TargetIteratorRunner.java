@@ -9,11 +9,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.Query;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dataAccess.QueryTarget;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -26,7 +25,7 @@ import org.dcm4che2.data.Tag;
  * @author Matthew Kelsey & Jarek Krych
  *
  */
-public class TargetIteratorRunner implements Runnable, DataAccessListener {
+public class TargetIteratorRunner implements Runnable, QueryListener {
 	final static Logger logger = Logger.getLogger(TargetIteratorRunner.class);
 	SearchResult selectedDataSearchResult;
 	IterationTarget target;
@@ -122,7 +121,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 			dicomCriteria.put(Tag.PatientName, patient.getPatientName());
 			dicomCriteria.put(Tag.PatientID, patient.getPatientID());
 			query.setQuery(dicomCriteria, aimCriteria, QueryTarget.STUDY, selectedDataSearchResult, patient);
-			query.addDataAccessListener(this);
+			query.addQueryListener(this);
 			Thread t = new Thread((Runnable) query);
 			t.start();	
 			try {
@@ -160,7 +159,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 			dicomCriteria.put(Tag.PatientName, patientName);
 			dicomCriteria.put(Tag.StudyInstanceUID, study.getStudyInstanceUID());
 			query.setQuery(dicomCriteria, aimCriteria, QueryTarget.SERIES, selectedDataSearchResult, study);
-			query.addDataAccessListener(this);
+			query.addQueryListener(this);
 			Thread t = new Thread((Runnable) query);
 			t.start();
 			try {
@@ -206,7 +205,7 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 			dicomCriteria.put(Tag.SeriesInstanceUID, series.getSeriesInstanceUID());
 			//dicomCriteria.put(Tag.Modality, series.getModality());
 			query.setQuery(dicomCriteria, aimCriteria, QueryTarget.ITEM, selectedDataSearchResult, series);
-			query.addDataAccessListener(this);
+			query.addQueryListener(this);
 			Thread t = new Thread((Runnable) query);
 			t.start();
 			try {
@@ -391,12 +390,6 @@ public class TargetIteratorRunner implements Runnable, DataAccessListener {
 	@Override
 	public void notifyException(String message) {
 		logger.error(message);
-	}
-
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

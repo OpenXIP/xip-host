@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
-import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.QueryEvent;
-import edu.wustl.xipHost.dataAccess.RetrieveEvent;
+import edu.wustl.xipHost.dataAccess.QueryListener;
 import edu.wustl.xipHost.dicom.BasicDicomParser2;
 import edu.wustl.xipHost.dicom.DicomUtil;
 import edu.wustl.xipHost.hostControl.Util;
@@ -19,7 +18,7 @@ import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
 import junit.framework.TestCase;
 
-public class RetrieveDicomDataTest extends TestCase implements DataAccessListener{
+public class RetrieveDicomDataTest extends TestCase implements QueryListener{
 	GridLocation gridLoc;
 	CQLQuery cqlQuery = null;
 	BasicDicomParser2 parser;
@@ -300,12 +299,6 @@ public class RetrieveDicomDataTest extends TestCase implements DataAccessListene
 
 	@Override
 	public void queryResultsAvailable(QueryEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void retrieveResultsAvailable(RetrieveEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

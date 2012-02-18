@@ -12,10 +12,6 @@ import org.nema.dicom.wg23.ObjectLocator;
  *
  */
 public class RetrieveEvent extends EventObject {
-	//TODO to be removed
-	public RetrieveEvent(String targetElementID){	
-		super(targetElementID);
-	}
 	
 	public RetrieveEvent(Map<String, ObjectLocator> objectLocators){
 		super(objectLocators);
