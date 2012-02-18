@@ -16,7 +16,7 @@ public class GridRetrieveEvent extends EventObject {
 	public GridRetrieveEvent(AimRetrieve source){	
 		super(source);
 	}
-	public GridRetrieveEvent(GridRetrieveNCIA source){
+	public GridRetrieveEvent(GridRetrieveNBIA source){
 		super(source);
 	}
 }

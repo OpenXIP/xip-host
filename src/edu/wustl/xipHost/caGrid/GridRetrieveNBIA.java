@@ -10,14 +10,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
-import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.log4j.Logger;
 import org.cagrid.transfer.context.client.TransferServiceContextClient;
 import org.cagrid.transfer.context.client.helper.TransferClientHelper;
@@ -41,8 +39,8 @@ import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
  *
  */
 
-public class GridRetrieveNCIA implements Retrieve {
-	final static Logger logger = Logger.getLogger(GridRetrieveNCIA.class);
+public class GridRetrieveNBIA implements Retrieve {
+	final static Logger logger = Logger.getLogger(GridRetrieveNBIA.class);
 	String seriesInstanceUID;
 	GridLocation gridLocation;
 	NCIACoreServiceClient client;
@@ -53,32 +51,7 @@ public class GridRetrieveNCIA implements Retrieve {
 	RetrieveTarget retrieveTarget;
 	DataSource dataSource;
 	
-	public GridRetrieveNCIA(){}
-	
-	public GridRetrieveNCIA(String seriesInstanceUID, GridLocation gridLocation, File importDir){
-		this.seriesInstanceUID = seriesInstanceUID; 
-		this.gridLocation = gridLocation;
-		
-		File inputDir;
-		try {
-			inputDir = File.createTempFile("DICOM-XIPHOST", null, importDir);			
-			File localLocation = new File(inputDir.getCanonicalPath());
-			inputDir.delete();
-			if (!localLocation.exists())
-				localLocation.mkdirs();
-			this.importDir = localLocation;		
-			
-		} catch (IOException e) {
-			logger.error(e, e);
-		}
-		try {
-			client = new NCIACoreServiceClient(gridLocation.getAddress());
-		} catch (MalformedURIException e) {
-			logger.error(e, e);
-		} catch (RemoteException e) {
-			logger.error(e, e);
-		} 
-	}
+	public GridRetrieveNBIA(){}
 	
 	public void run() {
 		Map<String, ObjectLocator> objectLocators = new HashMap<String, ObjectLocator>();

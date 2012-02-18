@@ -606,7 +606,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				instanceApp.setSelectedDataSearchResult(selectedDataSearchResult);
 				instanceApp.setQueryDataSource(query);
 				instanceApp.setRetrieveTarget(RetrieveTarget.DICOM);
-				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.caGrid.GridRetrieveNCIA");
+				instanceApp.setDataSourceDomainName("edu.wustl.xipHost.caGrid.GridRetrieveNBIA");
 				instanceApp.setDoSave(false);
 				instanceApp.setApplicationTmpDir(tmpDir);
 				appMgr.addApplication(instanceApp);	
@@ -617,7 +617,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				app.setSelectedDataSearchResult(selectedDataSearchResult);
 				app.setQueryDataSource(query);
 				app.setRetrieveTarget(RetrieveTarget.DICOM);
-				app.setDataSourceDomainName("edu.wustl.xipHost.caGrid.GridRetrieveNCIA");
+				app.setDataSourceDomainName("edu.wustl.xipHost.caGrid.GridRetrieveNBIA");
 				app.setApplicationTmpDir(tmpDir);
 				app.addApplicationTerminationListener(listener);
 				app.launch(appMgr.generateNewHostServiceURL(), appMgr.generateNewApplicationServiceURL());
