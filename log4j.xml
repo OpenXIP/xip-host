@@ -91,7 +91,7 @@
   <logger name="edu.wustl.xipHost.caGrid.QueryNBIAwithGridQueryTest">
 	<appender-ref ref="Grid_Appender"/>
   </logger>
-  <logger name="edu.wustl.xipHost.caGrid.GridRetrieveNCIA">
+  <logger name="edu.wustl.xipHost.caGrid.GridRetrieveNBIA">
 	<appender-ref ref="Grid_Appender"/>
   </logger>
   
