@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2012 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.application;
 
@@ -86,42 +86,34 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	int concurrentInstances;
 	IterationTarget iterationTarget;
 	int numStateNotificationThreads = 2;
+	boolean isValid;
 	ExecutorService exeService = Executors.newFixedThreadPool(numStateNotificationThreads);	
 	
-	/* Application is a WG23 compatibile application*/	
 	public Application(String name, File exePath, String vendor, String version, File iconFile,
-			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget){								
-		if(name == null || exePath == null || vendor == null || version == null ||
-				type == null || wg23DataModelType == null || iterationTarget == null){
-			throw new IllegalArgumentException("Application parameters are invalid: " + 
-					name + " , " + exePath + " , " + vendor + " , " + version + 
-					type + " , " + requiresGUI + " , " + wg23DataModelType + " , " + iterationTarget);	
+			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget){
+		id = UUID.randomUUID();
+		this.name = name;
+		this.exePath = exePath;
+		this.vendor = vendor;
+		this.version = version;
+		if(iconFile != null && iconFile.exists()){
+			this.iconFile = iconFile;
+		}else{
+			this.iconFile = null;
+		}
+		this.type = type;
+		this.requiresGUI = requiresGUI;
+		this.wg23DataModelType = wg23DataModelType;
+		this.concurrentInstances = concurrentInstances;
+		this.iterationTarget = iterationTarget;
+		if(name == null || exePath == null || type == null || wg23DataModelType == null || iterationTarget == null){
+			isValid = false;
 		} else if(name.isEmpty() || name.trim().length() == 0 || exePath.exists() == false ||
 				type.isEmpty() || wg23DataModelType.isEmpty() || concurrentInstances == 0){
-			try {
-				throw new IllegalArgumentException("Application parameters are invalid: " + 
-						name + " , " + exePath.getCanonicalPath() + " , " + vendor + " , " + version);
-			} catch (IOException e) {
-				throw new IllegalArgumentException("Application exePath is invalid. Application name: " + 
-						name);
-			}
-		} else{
-			id = UUID.randomUUID();
-			this.name = name;
-			this.exePath = exePath;
-			this.vendor = vendor;
-			this.version = version;
-			if(iconFile != null && iconFile.exists()){
-				this.iconFile = iconFile;
-			}else{
-				this.iconFile = null;
-			}
-			this.type = type;
-			this.requiresGUI = requiresGUI;
-			this.wg23DataModelType = wg23DataModelType;
-			this.concurrentInstances = concurrentInstances;
-			this.iterationTarget = iterationTarget;
-		}		
+			isValid = false;
+		} else {
+			isValid = true;
+		}
 	}
 		
 	public UUID getID(){
@@ -131,52 +123,38 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		return name;
 	}
 	public void setName(String name){
-		if(name == null || name.isEmpty() || name.trim().length() == 0){
-			throw new IllegalArgumentException("Invalid application name: " + name);
-		}else{
-			this.name = name;
-		}		
+		this.name = name;
+		if(name == null || name.isEmpty() || name.trim().length() == 0) {
+			isValid = false;
+		}
 	}
 	public File getExePath(){
 		return exePath;
 	}
 	public void setExePath(File path){
-		if(path == null){
-			throw new IllegalArgumentException("Invalid exePath name: " + path);
-		}else{
-			exePath = path;
-		}		
+		exePath = path;
+		if(exePath == null || exePath.exists() == false) {
+			isValid = false;
+		}
 	}
 	public String getVendor(){
 		return vendor;
 	}
 	public void setVendor(String vendor){
-		if(vendor == null){
-			throw new IllegalArgumentException("Invalid vendor: " + vendor);
-		}else{
-			this.vendor = vendor;
-		}		
+		this.vendor = vendor;
 	}
 	public String getVersion(){
 		return version;
 	}
 	public void setVersion(String version){
-		if(version == null){
-			throw new IllegalArgumentException("Invalid version: " + version);
-		}else{
-			this.version = version;
-		}		
+		this.version = version;	
 	}
 		
 	public File getIconFile(){
 		return iconFile;
 	}
 	public void setIconFile(File iconFile){
-		if(iconFile == null){
-			throw new IllegalArgumentException("Invalid exePath name: " + iconFile);
-		}else{
-			this.iconFile = iconFile;
-		}	
+		this.iconFile = iconFile;
 	}
 	
 	public String getType() {
@@ -185,6 +163,9 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 
 	public void setType(String type) {
 		this.type = type;
+		if(type == null || type.isEmpty()) {
+			isValid = false;
+		}
 	}
 
 	public boolean requiresGUI() {
@@ -201,6 +182,9 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 
 	public void setWG23DataModelType(String wg23DataModelType) {
 		this.wg23DataModelType = wg23DataModelType;
+		if(wg23DataModelType == null || wg23DataModelType.isEmpty()) {
+			isValid = false;
+		}
 	}
 
 	public int getConcurrentInstances() {
@@ -209,6 +193,9 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 
 	public void setConcurrentInstances(int concurrentInstances) {
 		this.concurrentInstances = concurrentInstances;
+		if( concurrentInstances == 0) {
+			isValid = false;
+		}
 	}
 
 	public IterationTarget getIterationTarget() {
@@ -217,6 +204,13 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 
 	public void setIterationTarget(IterationTarget iterationTarget) {
 		this.iterationTarget = iterationTarget;
+		if(iterationTarget == null) {
+			isValid = false;
+		}
+	}
+	
+	public boolean isValid(){
+		return isValid;
 	}
 	
 	
