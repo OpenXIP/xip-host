@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications>
+  <application>
+    <name />
+    <exePath />
+    <vendor />
+    <version />
+    <iconFile />
+    <type>rendering</type>
+    <requiresGUI>true</requiresGUI>
+    <wg23DataModelType>files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+</applications>
+

@@ -50,12 +50,15 @@ public class LoadApplicationsTest extends TestCase {
 		}						
 	}
 	
-	//ApplicationManager 1Cb - Alternative flow: xml file does not contain one of the elements
+	//ApplicationManager 1Cb - Alternative flow: xml file does not contain one of the xml elements to form valid Application
+	//Expected result: applications added to not valid application List
 	public void testLoadApplications1Cb() throws JDOMException, IOException {
 		File file = new File("./src-tests/edu/wustl/xipHost/application/applicationsTest1Cb.xml");
-		//wheb xml is incomplete system should catch IllegalArgumentException and ignore the application
-		//for which exception was caught
-		assertTrue("System failed to load applications", mgr.loadApplications(file));								
+		//when xml is incomplete system should create not valid Application and add it to the List of notValidApplications
+		assertTrue("System failed to load applications", mgr.loadApplications(file));
+		//assertEquals("Number of valid applications should be 1, but it is: " + mgr.getApplications().size(), mgr.getApplications(), 1);
+		int numOfNotValidApplications = mgr.getNotValidApplications().size();
+		assertEquals("Number of not valid applications should be 2, but it is: " + numOfNotValidApplications, numOfNotValidApplications, 2);
 	}
 	
 	//ApplicationManager 1D - Alternative flow: xml file is valid but does not contain any applications

@@ -35,94 +35,65 @@ public class CreateApplicationTest extends TestCase {
 	//Application 1Ba - alternative flow. Application name is empty, other parameters are valid.
 	//Result: throws IllegalArgumentException
 	public void testCreateApplication1Ba() throws IllegalArgumentException {				
-		try{
-			new Application("", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-			fail("Application name is empty");
-		}catch(IllegalArgumentException e){
-			assertTrue(true);
-		}				
+			Application  app = new Application("", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+			assertFalse("Application name is empty. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());	
 	}
 	
 	//Application 1Bb - alternative flow. Application name is null, other parameters are valid.
 	//Result: throws IllegalArgumentException
-	public void testCreateApplication1Bb() {				
-		try{
-			new Application(null, exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-			fail("Application name is empty");
-		}catch(IllegalArgumentException e){
-			assertTrue(true);
-		}				
+	public void testCreateApplication1Bb() {
+		Application  app = new Application(null, exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		assertFalse("Application name is NULL. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());				
 	}
 	
 	//Application 1Bc - alternative flow. Application name is an empty character, other parameters are valid.
 	//Result: throws IllegalArgumentException
 	public void testCreateApplication1Bc() {				
-		try{
-			new Application(" ", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-			fail("Application name is an empty character");
-		}catch(IllegalArgumentException e){
-			assertTrue(true);
-		}				
+		Application  app = new Application(" ", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		assertFalse("Application name has an empty char. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());				
 	}
 	
 	//Application 1Ca - alternative flow. Application exePath is empty, other parameters are valid.
 	//Result: throws IllegalArgumentException
 	public void testCreateApplication1Ca() {				
-		try{
-			new Application("ApplicationTest", new File(""), "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-			fail("Application exePath is an empty character");
-		}catch(IllegalArgumentException e){
-			assertTrue(true);
-		}				
+		Application  app = new Application("ApplicationTest", new File(""), "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		assertFalse("Application exePath is empty. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());				
 	}
 	
 	//Application 1Cb - alternative flow. Application exePath is null, other parameters are valid.
 	//Result: throws IllegalArgumentException
 	public void testCreateApplication1Cb() {				
-		try{
-			new Application("ApplicationTest", null, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-			fail("Application exePath is null");
-		}catch(IllegalArgumentException e){
-			assertTrue(true);
-		}				
+		Application app = new Application("ApplicationTest", null, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		assertFalse("Application exePath is NULL. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());							
 	}
 	
-	//Application 1Cc - alternative flow. Application exePath.getName contains illegal character, other parameters are valid.
+	//Application 1Cc - alternative flow. Application exePath contains illegal character, other parameters are valid.
 	//Result: throws IllegalArgumentException
 	public void testCreateApplication1Cc() {				
-		try{
-			new Application("ApplicationTest", new File("./src-tests/edu/wustl/xipHost/application/t?est.bat"), "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-			fail("Application exePath name contains illegal characters");
-		}catch(IllegalArgumentException e){
-			assertTrue(true);
-		}				
+		Application app = new Application("ApplicationTest", new File("./src-tests/edu/wustl/xipHost/application/t?est.bat"), "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		assertFalse("Application exePath contains illegal char. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());		
 	}
 	
 	//Application 1Da - alternative flow. Application iconFile is null other parameters are valid.
 	//Result: new application instance is created with iconFile null (so not icon used for display)
 	public void testCreateApplication1Da() {				
-		Application app = new Application("Application1", exePath, "", "", null, "rendering", true, "files", 1, IterationTarget.SERIES);
-		//Application's iconFile should be set to applications name
-		boolean isAppOK = false;
-		if(app instanceof Application && 
-				app.getIconFile() == null){
-					isAppOK = true;
-		}		
-		assertTrue("Error when creating Application with null iconFile.", isAppOK);		
+		Application app = new Application("Application1", exePath, "", "", null, "rendering", true, "files", 1, IterationTarget.SERIES);	
+		assertTrue("Error when creating Application with null iconFile.", app.isValid());		
 	}
 	
 	//Application 1Db - alternative flow. Application iconFile does not exist other parameters are valid.
 	//Result: new application instance is created with iconFile null (so not icon used for display)
 	public void testCreateApplication1Db() {				
 		iconFile = new File("src-tests/edu/wustl/xipHost/application/testNoExisting.png");
-		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-		//Application's iconFile should be set to applications name
-		boolean isAppOK = false;
-		if(app instanceof Application && 
-				app.getIconFile() == null){
-					isAppOK = true;
-		}		
-		assertTrue("Error when creating Application with null iconFile.", isAppOK);		
-		
+		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);	
+		assertTrue("Error when creating Application with null iconFile.", app.isValid());		
+	}
+	
+	//Application 1E - alternative flow. Application attribute concurrentInstances is set to 0.
+	//Result: new application instance should be created but isValid shoul dbe set to false.
+	public void testCreateApplication1E() {				
+		iconFile = new File("src-tests/edu/wustl/xipHost/application/testNoExisting.png");
+		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 0, IterationTarget.SERIES);	
+		assertFalse("Error when creating Application with concurrent instances attribute set to 0.", app.isValid());		
 	}
 }

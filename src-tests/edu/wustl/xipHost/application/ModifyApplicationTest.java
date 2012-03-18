@@ -2,7 +2,6 @@ package edu.wustl.xipHost.application;
 
 import java.io.File;
 import java.util.UUID;
-import org.nema.dicom.wg23.State;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import junit.framework.TestCase;
 
@@ -50,24 +49,8 @@ public class ModifyApplicationTest extends TestCase {
 	//testing setters
 	public void testModifyApplication1C() {						
 		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
-		try{
-			//app.setName("");
-			app.setExePath(null);
-		}catch(IllegalArgumentException e){
-			assertTrue(true);
-		}
-				
-	}
-	
-	//ApplicationManager 1D - alternative flow. UUID found, new parameters are correct 
-	//but application State is <> null.
-	public void testModifyApplication1D() {						
-		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
-		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-		UUID uuid = app.getID();
-		mgr.addApplication(app);
-		app.setState(State.INPROGRESS);
-		assertFalse("Application State <> null and EXIT but system modified application.",mgr.modifyApplication(uuid, modifiedApp));				
+		app.setExePath(null);
+		assertFalse("Application exePath set to NULL. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());
 	}
 	
 	//ApplicationManager 1E - alternative flow. UUID is null, new parameters are correct 
@@ -76,7 +59,7 @@ public class ModifyApplicationTest extends TestCase {
 		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		UUID uuid = null;
 		mgr.addApplication(app);		
-		assertFalse("UUID was null but system modified application.",mgr.modifyApplication(uuid, modifiedApp));				
+		assertFalse("UUID was null but system modified application.", mgr.modifyApplication(uuid, modifiedApp));				
 	}
 	
 }

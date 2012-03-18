@@ -6,6 +6,11 @@
     <!-- version /-->
     <version />    
     <iconFile/>
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
   </application>
   <application>
     <name>SiemensConeDemo</name>
@@ -13,6 +18,11 @@
     <vendor />
     <version />
     <iconFile/>
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
   </application>  
 </applications>
 
