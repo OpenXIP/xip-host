@@ -151,6 +151,9 @@
   <logger name="edu.wustl.xipHost.application.Application">
 	<appender-ref ref="ApplicationOnHost_Appender"/>
   </logger>	
+  <logger name="edu.wustl.xipHost.application.ApplicationManagerImpl">
+	<appender-ref ref="ApplicationOnHost_Appender"/>
+  </logger>	
   <logger name="edu.wustl.xipHost.gui.checkboxTree.SearchResultTree">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
