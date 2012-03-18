@@ -23,6 +23,7 @@ public interface ApplicationManager {
 	public Application getApplication(UUID uuid);
 	public Application getApplication(String applicationName);	
 	public List<Application> getApplications();	
+	public List<Application> getNotValidApplications();
 	public int getNumberOfApplications();
 	public URL generateNewApplicationServiceURL();	
 	public URL generateNewHostServiceURL();	
