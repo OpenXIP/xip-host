@@ -13,16 +13,13 @@ import com.pixelmed.dicom.ShortStringAttribute;
 import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.ivi.helper.NCIADataServiceHelper;
 import junit.framework.TestCase;
 
 public class MakeCQLTest extends TestCase {
-	NCIADataServiceHelper nciaHelper;
 	GridUtil gridUtil;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		nciaHelper = new NCIADataServiceHelper();
 		gridUtil = new GridUtil();
 		FileInputStream fis = new FileInputStream("./src-tests/edu/wustl/xipHost/caGrid/NCIAModelMap.properties");
 		gridUtil.loadNCIAModelMap(fis);
