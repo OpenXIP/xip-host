@@ -2,9 +2,6 @@ package edu.wustl.xipHost.caGrid;
 
 import gov.nih.nci.cagrid.authentication.bean.BasicAuthenticationCredential;
 import gov.nih.nci.cagrid.authentication.bean.Credential;
-import gov.nih.nci.cagrid.authentication.client.AuthenticationClient;
-import gov.nih.nci.cagrid.dorian.client.IFSUserClient;
-import gov.nih.nci.cagrid.opensaml.SAMLAssertion;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
@@ -49,11 +46,13 @@ public class GridLogin {
 			bac.setUserId(userName);
 			bac.setPassword(password);
 			credential.setBasicAuthenticationCredential(bac);
-			AuthenticationClient client = new AuthenticationClient(url, credential);
+			/* Commented JK on February 22nd, 2012
+			*/
+			/*AuthenticationClient client = new AuthenticationClient(url, credential);
 			SAMLAssertion saml;
 			saml = client.authenticate();
 			IFSUserClient c2 = new IFSUserClient(url);
-			/* commented on May 7th, 2011
+			
 			ProxyLifetime lifetime = new ProxyLifetime();
 			lifetime.setHours(12);
 			lifetime.setMinutes(0);
@@ -63,7 +62,7 @@ public class GridLogin {
 			GlobusCredential cred = c2.createProxy(saml, lifetime, delegation);
 			ProxyUtil.saveProxyAsDefault(cred);
 			System.out.println("logged in with identity: " + cred.getIdentity() + ", saved proxy as default");
-			*/	
+				*/
 			return new Boolean(true);
 		}catch(Exception e){
 			//System.out.print("Exception JK : "+ e);
@@ -71,6 +70,30 @@ public class GridLogin {
 		}
 		
 	}
+	
+	/*public static GlobusCredential authenticate(String dorianURL, String authenticationServiceURL, String userId,
+	        String password) throws Exception {
+	        // Create credential
+
+	        BasicAuthentication auth = new BasicAuthentication();
+	        auth.setUserId(userId);
+	        auth.setPassword(password);
+
+	        // Authenticate to the IdP (DorianIdP) using credential
+
+	        AuthenticationClient authClient = new AuthenticationClient(authenticationServiceURL);
+	        SAMLAssertion saml = authClient.authenticate(auth);
+
+	        // Requested Grid Credential lifetime (12 hours)
+
+	        CertificateLifetime lifetime = new CertificateLifetime();
+	        lifetime.setHours(12);
+
+	        // Request PKI/Grid Credential
+	        GridUserClient dorian = new GridUserClient(dorianURL);
+	        GlobusCredential credential = dorian.requestUserCertificate(saml, lifetime);
+	        return credential;
+	    }*/
 	
 	public void getAssertionCertificate(String userName, String password) {
 		//TODO get assertion certificate logic
@@ -83,7 +106,8 @@ public class GridLogin {
 	 */
 	public static void main(String[] args) throws Exception {		
 		GridLogin login = new GridLogin();
-		System.out.println(login.login("wustl", "erlERL3r()"));
+		//System.out.println(login.login("wustl", "erlERL3r()"));
+		//login.authenticate("https://dorian.cagrid.org:6443/wsrf/services/cagrid/Dorian", "http://training03.cagrid.org:6080/wsrf/services/DefaultIndexService", "wustl", "erlERL3r()");
 		
 	}
 
