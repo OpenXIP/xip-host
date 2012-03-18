@@ -25,6 +25,7 @@ public class TestcaGridPkgeAllJUnit3_8 {
 		suite.addTestSuite(MapDicomTagToNCIATagNameTest.class);
 		//suite.addTestSuite(QueryGridLocationTest.class);
 		//suite.addTestSuite(RetrieveDicomDataTest.class);
+		//suite.addTestSuite(StoreAimObjectsTest.class);
 		return suite;
 		
 	}
