@@ -9,11 +9,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -24,7 +27,9 @@ import org.nema.dicom.wg23.State;
 import edu.wustl.xipHost.iterator.IterationTarget;
 
 public class ApplicationManagerImpl implements ApplicationManager{		
-	static List<Application> applications = new ArrayList<Application>();		
+	final static Logger logger = Logger.getLogger(ApplicationManagerImpl.class);
+	static List<Application> validApplications = new ArrayList<Application>();
+	List<Application> notValidApplications = new ArrayList<Application>();
 	Document document;
 	SAXBuilder saxBuilder = new SAXBuilder();
 	
@@ -46,11 +51,10 @@ public class ApplicationManagerImpl implements ApplicationManager{
 				IterationTarget iterationTarget = null;
 		        List<?> appList = root.getChildren("application");		        
 		        Iterator<?> iter = appList.iterator();
-		        int i= 0;
 		        while(iter.hasNext()){                                                               
 		        	Element application = (Element)iter.next();
 		        	name = application.getChildText("name");
-		        	exePath = new File(application.getChildText("exePath")).getCanonicalPath();		        	
+		        	exePath = application.getChildText("exePath");		        	
 		        	vendor = application.getChildText("vendor");
 		        	version = application.getChildText("version");
 		        	iconFile = application.getChildText("iconFile");
@@ -60,15 +64,24 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		        	concurrentInstances = Integer.parseInt(application.getChildText("concurrentInstances"));
 		        	String strTarget = application.getChildText("iterationTarget");
 		        	iterationTarget = IterationTarget.valueOf(strTarget);
-		        	try{		        				        				        		
-		        		Application app = new Application(name, new File(exePath), vendor, version, new File(iconFile),
-		        				type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-		        		app.addApplicationTerminationListener(applicationTerminationListener);
-			    		addApplication(app);		        	
-			        	i++;
-		        	}catch (IllegalArgumentException e){
-		        		System.out.println("Unable to load: " + name + " " + exePath + " - invalid parameters.");
-		        	}		        			        			        	
+		        		        				        				        		
+	        		Application app;
+					try {
+						File exeFile = null;
+						if (!exePath.isEmpty()) {
+							exeFile = new File(new URI(exePath));
+						}
+						app = new Application(name, exeFile, vendor, version, new File(iconFile),
+								type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+						if(app.isValid()) {
+							app.addApplicationTerminationListener(applicationTerminationListener);
+							addApplication(app);
+						} else {
+							notValidApplications.add(app);
+						} 
+					} catch (URISyntaxException e) {
+						logger.error(e, e);
+					}       			        			        	
 		        }   			
 			return true;
 		}				                                   		       
@@ -77,7 +90,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	public boolean storeApplications(List<Application> applications, File xipAppFile){      	
 		if(applications == null || xipAppFile == null){return false;}
 		Element root = new Element("applications");						
-		for(int i = 0; i < getNumberOfApplications(); i++){						
+		for(int i = 0; i < applications.size(); i++){						
 			if(applications.get(i).getDoSave()){
 				try {
 					Element application = new Element("application");                
@@ -95,7 +108,11 @@ public class ApplicationManagerImpl implements ApplicationManager{
 				        application.addContent(name);
 				        	name.setText(applications.get(i).getName());
 				        application.addContent(exePath);			            
-							exePath.setText(applications.get(i).getExePath().getCanonicalPath());						
+							if(applications.get(i).getExePath() != null) {
+								exePath.setText(applications.get(i).getExePath().toURI().toURL().toExternalForm());	
+							} else {
+								exePath.setText("");
+							}								
 				        application.addContent(vendor);
 				        	vendor.setText(applications.get(i).getVendor());
 				        application.addContent(version);
@@ -103,7 +120,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			        	application.addContent(iconFile);
 			        	File icon = applications.get(i).getIconFile();			       
 			        	if(icon != null){
-			        		iconFile.setText(applications.get(i).getIconFile().getCanonicalPath());
+			        		iconFile.setText(applications.get(i).getIconFile().toURI().toURL().toExternalForm());
 			        	}else {
 			        		iconFile.setText("");
 			        	}
@@ -118,10 +135,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			        	application.addContent(iterationTarget);
 			        		iterationTarget.setText(applications.get(i).getIterationTarget().toString());
 				} catch (MalformedURLException e) {				
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error(e, e);
 				}
 			}			
 		}		                	
@@ -144,7 +158,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 				
 	public boolean addApplication(Application newApplication){				
 		try{
-			applications.add(newApplication);
+			validApplications.add(newApplication);
 			return true;
 		}catch(IllegalArgumentException e){
 			return false;
@@ -186,12 +200,12 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	 */
 	public boolean removeApplication(UUID applicationUUID){
 		for(int i = 0; i < getNumberOfApplications(); i++){
-			if(applications.get(i).getID().equals(applicationUUID)){								
-				Application app = applications.get(i);
+			if(validApplications.get(i).getID().equals(applicationUUID)){								
+				Application app = validApplications.get(i);
 				if(app.getState() != null && !app.getState().equals(State.EXIT)){
 					return false;
 				}else{
-					applications.remove(i);
+					validApplications.remove(i);
 					return true;
 				}				
 			}
@@ -201,13 +215,14 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		
 	public Application getApplication(UUID uuid){
 		Application app = null;
-		for(int i = 0; i < applications.size(); i++){
-			if(applications.get(i).getID().equals(uuid)){
-				app = applications.get(i);
+		for(int i = 0; i < validApplications.size(); i++){
+			if(validApplications.get(i).getID().equals(uuid)){
+				app = validApplications.get(i);
 			}
 		}		
 		return app;
-	}		
+	}
+	
 	/**
 	 * Method was intended for use with worklist, which used applications' names.
 	 * Worklist enties do not contain applications UUID. UUIDs are asigned dynamically
@@ -217,21 +232,29 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	 */
 	public Application getApplication(String applicationName){
 		Application app = null;
-		for(int i = 0; i < applications.size(); i++){
-			if(applications.get(i).getName().equalsIgnoreCase(applicationName)){
-				app = applications.get(i);
+		for(int i = 0; i < validApplications.size(); i++){
+			if(validApplications.get(i).getName().equalsIgnoreCase(applicationName)){
+				app = validApplications.get(i);
 			}
 		}
 		return app;
 	}
 		
 	public List<Application> getApplications(){
-		return applications;
+		return validApplications;
+	}
+	
+	public List<Application> getNotValidApplications(){
+		return notValidApplications;
 	}
 	
 	public int getNumberOfApplications(){
-		return applications.size();
-	}	
+		return validApplications.size();
+	}
+	
+	public int getNumberOfNotValidApplications(){
+		return notValidApplications.size();
+	}
 		
     
 	public URL generateNewApplicationServiceURL(){
