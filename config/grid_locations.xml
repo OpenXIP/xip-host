@@ -4,13 +4,13 @@
     <gridAddress>http://imaging.nci.nih.gov/wsrf/services/cagrid/NCIACoreService</gridAddress>
     <shortName>NBIA Production Server at NCI</shortName>
     <type>DICOM</type>
-    <protocolVersion>NBIA-4.2</protocolVersion>
+    <protocolVersion>NBIA-5.0</protocolVersion>
   </grid_location>
   <grid_location>
     <gridAddress>http://imaging-stage.nci.nih.gov/wsrf/services/cagrid/NCIACoreService</gridAddress>
     <shortName>NBIA Staging Server at NCI</shortName>
     <type>DICOM</type>
-    <protocolVersion>NBIA-4.2</protocolVersion>
+    <protocolVersion>NBIA-5.0</protocolVersion>
   </grid_location>
   <grid_location>
     <gridAddress>http://node01.cci.emory.edu:8080/wsrf/services/cagrid/AIMTCGADataService</gridAddress>
