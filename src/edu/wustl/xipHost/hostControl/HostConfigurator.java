@@ -600,8 +600,12 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		logger.info("Shutting down XIP Host.");
 		//Store Host configuration parameters
 		storeHostConfigParameters(hostConfig);
+		List<Application> notValidApplications = appMgr.getNotValidApplications();
+		List<Application> appsToStore = new ArrayList<Application>();
+		appsToStore.addAll(applications);
+		appsToStore.addAll(notValidApplications);
 		//Store Applications		
-		appMgr.storeApplications(applications, xipApplicationsConfig);
+		appMgr.storeApplications(appsToStore, xipApplicationsConfig);
 		//Perform Grid shutdown that includes store grid locations
 		if(gridMgr.runGridShutDownSequence() == false){
 			new ExceptionDialog("Error when storing grid locations.", 
