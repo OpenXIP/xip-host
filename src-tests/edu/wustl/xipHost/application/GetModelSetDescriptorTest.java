@@ -26,7 +26,7 @@ public class GetModelSetDescriptorTest extends TestCase {
 	Application app;
 	List<Uuid> objUUIDs;
 	String exePath = "./src-tests/edu/wustl/xipHost/application/test.bat";
-	File iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png");
+	String iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png").getAbsolutePath();
 	
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()

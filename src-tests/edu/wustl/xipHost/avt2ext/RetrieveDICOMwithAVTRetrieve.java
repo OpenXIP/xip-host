@@ -73,7 +73,7 @@ public class RetrieveDICOMwithAVTRetrieve implements RetrieveListener, TargetIte
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		String exePath = new String("./src-tests/edu/wustl/xipHost/application/test.bat");
-		File iconFile = new File("./src-tests/edu/wustl/xipHost/application/test.png");
+		String iconFile = new File("./src-tests/edu/wustl/xipHost/application/test.png").getAbsolutePath();
 		app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		app.setNumberOfSentNotifications(1);
 		avtQuery = new AVTQueryStub(null, null, null, null, null);

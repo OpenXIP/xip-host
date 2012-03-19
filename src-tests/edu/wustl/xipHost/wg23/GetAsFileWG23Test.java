@@ -25,7 +25,7 @@ public class GetAsFileWG23Test extends TestCase {
 	HostImpl hostImpl;
 	protected void setUp() throws Exception {
 		super.setUp();
-		app = new Application("Application1", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+		app = new Application("Application1", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", "src-tests/edu/wustl/xipHost/application/test.png",
 				"rendering", true, "files", 1, IterationTarget.SERIES);
 		List<File> filesPrev = new ArrayList<File>();
 		List<File> filesCurr = new ArrayList<File>();

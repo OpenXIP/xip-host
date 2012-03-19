@@ -9,12 +9,12 @@ import junit.framework.TestCase;
 public class RemoveApplicationTest extends TestCase {
 	ApplicationManager mgr;
 	String exePath;
-	File iconFile;
+	String iconFile;
 	protected void setUp() throws Exception {
 		super.setUp();
 		mgr = ApplicationManagerFactory.getInstance();
 		exePath = new String("./src-tests/edu/wustl/xipHost/application/test.bat");
-		iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png");
+		iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png").getAbsolutePath();
 	}
 
 	//ApplicationManager 1A - basic flow. Application UUID found, State = null.

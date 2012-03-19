@@ -1,8 +1,6 @@
 package edu.wustl.xipHost.wg23;
 
-import java.io.File;
 import org.nema.dicom.wg23.State;
-
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.HostImpl;
@@ -19,7 +17,7 @@ public class ChangeStateWG23Test extends TestCase {
 	HostImpl hostImpl;
 	protected void setUp() throws Exception {
 		super.setUp();
-		app = new Application("Application1", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+		app = new Application("Application1", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", "src-tests/edu/wustl/xipHost/application/test.png",
 				"rendering", true, "files", 1, IterationTarget.SERIES);
 		hostImpl = new HostImpl(app);
 	}	

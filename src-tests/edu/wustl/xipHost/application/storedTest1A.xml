@@ -2,10 +2,10 @@
 <applications>
   <application>
     <name>Application1</name>
-    <exePath>file:/Users/krych/Documents/workspace2/XIPHost/./src-tests/edu/wustl/xipHost/application/test.bat</exePath>
+    <exePath>./src-tests/edu/wustl/xipHost/application/test.bat</exePath>
     <vendor />
     <version />
-    <iconFile>file:/Users/krych/Documents/workspace2/XIPHost/src-tests/edu/wustl/xipHost/application/test.png</iconFile>
+    <iconFile>src-tests/edu/wustl/xipHost/application/test.png</iconFile>
     <type>rendering</type>
     <requiresGUI>true</requiresGUI>
     <wg23DataModelType>files</wg23DataModelType>
@@ -14,10 +14,10 @@
   </application>
   <application>
     <name>Application2</name>
-    <exePath>file:/Users/krych/Documents/workspace2/XIPHost/./src-tests/edu/wustl/xipHost/application/test.bat</exePath>
+    <exePath>./src-tests/edu/wustl/xipHost/application/test.bat</exePath>
     <vendor />
     <version />
-    <iconFile>file:/Users/krych/Documents/workspace2/XIPHost/src-tests/edu/wustl/xipHost/application/test.png</iconFile>
+    <iconFile>src-tests/edu/wustl/xipHost/application/test.png</iconFile>
     <type>rendering</type>
     <requiresGUI>true</requiresGUI>
     <wg23DataModelType>files</wg23DataModelType>

@@ -9,11 +9,11 @@ import junit.framework.TestCase;
 public class CreateApplicationTest extends TestCase {
 
 	String exePath;
-	File iconFile;
+	String iconFile;
 	protected void setUp() throws Exception {
 		super.setUp();
 		exePath = new String("./src-tests/edu/wustl/xipHost/application/test.bat");
-		iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png");
+		iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png").getAbsolutePath();
 	}
 	
 	//Application 1A - basic flow. All parameters are valid.
@@ -84,7 +84,7 @@ public class CreateApplicationTest extends TestCase {
 	//Application 1Db - alternative flow. Application iconFile does not exist other parameters are valid.
 	//Result: new application instance is created with iconFile null (so not icon used for display)
 	public void testCreateApplication1Db() {				
-		iconFile = new File("src-tests/edu/wustl/xipHost/application/testNoExisting.png");
+		iconFile = new File("src-tests/edu/wustl/xipHost/application/testNoExisting.png").getAbsolutePath();
 		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);	
 		assertTrue("Error when creating Application with null iconFile.", app.isValid());		
 	}
@@ -92,7 +92,7 @@ public class CreateApplicationTest extends TestCase {
 	//Application 1E - alternative flow. Application attribute concurrentInstances is set to 0.
 	//Result: new application instance should be created but isValid shoul dbe set to false.
 	public void testCreateApplication1E() {				
-		iconFile = new File("src-tests/edu/wustl/xipHost/application/testNoExisting.png");
+		iconFile = new File("src-tests/edu/wustl/xipHost/application/testNoExisting.png").getAbsolutePath();
 		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 0, IterationTarget.SERIES);	
 		assertFalse("Error when creating Application with concurrent instances attribute set to 0.", app.isValid());		
 	}
