@@ -589,7 +589,7 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Qu
 			logger.debug("Vendor: " + instanceVendor);
 			String instanceVersion = app.getVersion();
 			logger.debug("Version: " + instanceVersion);
-			File instanceIconFile = app.getIconFile();
+			String instanceIconFile = app.getIconPath();
 			String type = app.getType();
 			logger.debug("Type: " + type);
 			boolean requiresGUI = app.requiresGUI();

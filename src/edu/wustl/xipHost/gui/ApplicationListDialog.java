@@ -55,8 +55,8 @@ public class ApplicationListDialog extends JDialog {
 				this.values[i][1] = ((Application)values[i]).getExePath();
 				this.values[i][2] = ((Application)values[i]).getVendor();
 				this.values[i][3] = ((Application)values[i]).getVersion();
-				if(((Application)values[i]).getIconFile() != null){
-					this.values[i][4] = ((Application)values[i]).getIconFile().getAbsolutePath();
+				if(((Application)values[i]).getIconPath() != null){
+					this.values[i][4] = ((Application)values[i]).getIconPath();
 				}else{
 					this.values[i][4] = "";
 				}

@@ -18,7 +18,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.IOException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -275,7 +274,7 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 					logger.debug("Allowable concurrent instances: " + txtConcurrentInstances.getText());
 					logger.debug("              Iteration target: " + iterationTarget.toString());
 				}
-				app = new Application(txtName.getText(), txtPath.getText(), txtVendor.getText(), txtVersion.getText(), new File(txtIconFile.getText()), 
+				app = new Application(txtName.getText(), txtPath.getText(), txtVendor.getText(), txtVersion.getText(), txtIconFile.getText(), 
 						type, requiresGUI, wg23DataModelType, 
 						Integer.valueOf(txtConcurrentInstances.getText()), iterationTarget);
 				ApplicationManager appMgr = ApplicationManagerFactory.getInstance();

@@ -660,7 +660,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);				
-					appMgr.addApplication(new Application("TestApp_WG23FileAccess", pathExe, "", "", iconFile, "analytical", true, "files", 1, IterationTarget.SERIES));
+					appMgr.addApplication(new Application("TestApp_WG23FileAccess", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "files", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -672,7 +672,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
-					appMgr.addApplication(new Application("TestApp_WG23NativeModel", pathExe, "", "", iconFile, "analytical", true, "native", 1, IterationTarget.SERIES));
+					appMgr.addApplication(new Application("TestApp_WG23NativeModel", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "native", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -684,7 +684,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
-					appMgr.addApplication(new Application("RECIST_Adjudicator", pathExe, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES));
+					appMgr.addApplication(new Application("RECIST_Adjudicator", pathExe, "", "", iconFile.getAbsolutePath(), "rendering", true, "files", 1, IterationTarget.SERIES));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -697,7 +697,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);				
-					appMgr.addApplication(new Application("TestApp_WG23FileAccess", pathExe, "", "", iconFile, "analytical", true, "files", 1, IterationTarget.SERIES));
+					appMgr.addApplication(new Application("TestApp_WG23FileAccess", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "files", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -709,7 +709,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
-					appMgr.addApplication(new Application("TestApp_WG23NativeModel", pathExe, "", "", iconFile, "analytical", true, "native", 1, IterationTarget.SERIES));
+					appMgr.addApplication(new Application("TestApp_WG23NativeModel", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "native", 1, IterationTarget.SERIES));
 				}catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

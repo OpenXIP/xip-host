@@ -40,10 +40,10 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	
 	public void addApplicationIcon(Application app){
 		ImageIcon iconFile;
-		if(app.getIconFile() == null){
+		if(app.getIconPath() == null){
 			iconFile = null;
 		}else{
-			iconFile = new ImageIcon(app.getIconFile().getPath());
+			iconFile = new ImageIcon(app.getIconPath());
 		}
 		final AppButton btn = new AppButton(app.getName(), iconFile);
 		double preferredWidth = btn.getPreferredSize().getWidth();

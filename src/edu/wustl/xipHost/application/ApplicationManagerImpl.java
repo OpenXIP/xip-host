@@ -64,7 +64,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		        	iterationTarget = IterationTarget.valueOf(strTarget);
 		        		        				        				        		
 	        		Application app;
-					app = new Application(name, exePath, vendor, version, new File(iconFile),
+					app = new Application(name, exePath, vendor, version, iconFile,
 							type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 					if(app.isValid()) {
 						app.addApplicationTerminationListener(applicationTerminationListener);
@@ -82,51 +82,47 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		Element root = new Element("applications");						
 		for(int i = 0; i < applications.size(); i++){						
 			if(applications.get(i).getDoSave()){
-				try {
-					Element application = new Element("application");                
-					Element name = new Element("name");
-			        Element exePath = new Element("exePath");
-			        Element vendor = new Element("vendor");
-			        Element version = new Element("version");
-			        Element iconFile = new Element("iconFile");
-			        Element type = new Element("type");
-			        Element requiresGUI = new Element("requiresGUI");
-			        Element wg23DataModelType = new Element("wg23DataModelType");
-			        Element concurrentInstances = new Element("concurrentInstances");
-			        Element iterationTarget = new Element("iterationTarget");
-					root.addContent(application);        	                	                                        		        
-				        application.addContent(name);
-				        	name.setText(applications.get(i).getName());
-				        application.addContent(exePath);			            
-							if(applications.get(i).getExePath() != null) {
-								exePath.setText(applications.get(i).getExePath());	
-							} else {
-								exePath.setText("");
-							}								
-				        application.addContent(vendor);
-				        	vendor.setText(applications.get(i).getVendor());
-				        application.addContent(version);
-				        	version.setText(applications.get(i).getVersion());	       	
-			        	application.addContent(iconFile);
-			        	File icon = applications.get(i).getIconFile();			       
-			        	if(icon != null){
-			        		iconFile.setText(applications.get(i).getIconFile().toURI().toURL().toExternalForm());
-			        	}else {
-			        		iconFile.setText("");
-			        	}
-			        	application.addContent(type);
-			        		type.setText(applications.get(i).getType());
-			        	application.addContent(requiresGUI);
-			        		requiresGUI.setText(new Boolean(applications.get(i).requiresGUI()).toString());
-			        	application.addContent(wg23DataModelType);
-			        		wg23DataModelType.setText(applications.get(i).getWG23DataModelType());
-			        	application.addContent(concurrentInstances);
-			        		concurrentInstances.setText(String.valueOf(applications.get(i).getConcurrentInstances()));
-			        	application.addContent(iterationTarget);
-			        		iterationTarget.setText(applications.get(i).getIterationTarget().toString());
-				} catch (MalformedURLException e) {				
-					logger.error(e, e);
-				}
+				Element application = new Element("application");                
+				Element name = new Element("name");
+				Element exePath = new Element("exePath");
+				Element vendor = new Element("vendor");
+				Element version = new Element("version");
+				Element iconFile = new Element("iconFile");
+				Element type = new Element("type");
+				Element requiresGUI = new Element("requiresGUI");
+				Element wg23DataModelType = new Element("wg23DataModelType");
+				Element concurrentInstances = new Element("concurrentInstances");
+				Element iterationTarget = new Element("iterationTarget");
+				root.addContent(application);        	                	                                        		        
+				    application.addContent(name);
+				    	name.setText(applications.get(i).getName());
+				    application.addContent(exePath);			            
+						if(applications.get(i).getExePath() != null) {
+							exePath.setText(applications.get(i).getExePath());	
+						} else {
+							exePath.setText("");
+						}								
+				    application.addContent(vendor);
+				    	vendor.setText(applications.get(i).getVendor());
+				    application.addContent(version);
+				    	version.setText(applications.get(i).getVersion());	       	
+					application.addContent(iconFile);
+					String icon = applications.get(i).getIconPath();			       
+					if(icon != null){
+						iconFile.setText(icon);
+					}else {
+						iconFile.setText("");
+					}
+					application.addContent(type);
+						type.setText(applications.get(i).getType());
+					application.addContent(requiresGUI);
+						requiresGUI.setText(new Boolean(applications.get(i).requiresGUI()).toString());
+					application.addContent(wg23DataModelType);
+						wg23DataModelType.setText(applications.get(i).getWG23DataModelType());
+					application.addContent(concurrentInstances);
+						concurrentInstances.setText(String.valueOf(applications.get(i).getConcurrentInstances()));
+					application.addContent(iterationTarget);
+						iterationTarget.setText(applications.get(i).getIterationTarget().toString());
 			}			
 		}		                	
     	Document document = new Document(root);
@@ -174,12 +170,12 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		String newExePath = modifiedApplication.getExePath();
 		String newVendor = modifiedApplication.getVendor();
 		String newVersion = modifiedApplication.getVersion();
-		File newIconFile = modifiedApplication.getIconFile();
+		String newIconFile = modifiedApplication.getIconPath();
 		app.setName(newName);
 		app.setExePath(newExePath);
 		app.setVendor(newVendor);
 		app.setVersion(newVersion);
-		app.setIconFile(newIconFile);
+		app.setIconPath(newIconFile);
 		return true;		
 	}
 	

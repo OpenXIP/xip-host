@@ -79,6 +79,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	String vendor;
 	String version;
 	File iconFile;
+	String iconFilePath;
 	String type;
 	boolean requiresGUI;
 	String wg23DataModelType;
@@ -88,17 +89,24 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	boolean isValid;
 	ExecutorService exeService = Executors.newFixedThreadPool(numStateNotificationThreads);	
 	
-	public Application(String name, String exePath, String vendor, String version, File iconFile,
+	public Application(String name, String exePath, String vendor, String version, String iconFile,
 			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget){
 		id = UUID.randomUUID();
 		this.name = name;
 		this.exePath = exePath;
 		this.vendor = vendor;
 		this.version = version;
-		if(iconFile != null && iconFile.exists()){
-			this.iconFile = iconFile;
-		}else{
-			this.iconFile = null;
+		iconFilePath = iconFile;
+		if(iconFile != null){
+			File file = new File(iconFile);
+			if(file.exists()){
+				this.iconFile = file;
+			}else{
+				this.iconFile = null;
+				if(!iconFilePath.isEmpty()){
+					logger.warn("Application: " + getName() + " icon file path: " + iconFilePath + " is not valid.");
+				}
+			}
 		}
 		this.type = type;
 		this.requiresGUI = requiresGUI;
@@ -111,17 +119,12 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 				type.isEmpty() || wg23DataModelType.isEmpty() || concurrentInstances == 0){
 			isValid = false;
 		} else {
-			
-			try {
-				File exeFile = new File(new URI(exePath));
-				if(exeFile.exists()){
-					isValid = true;
-				} else {
-					isValid = false;
-				}
-			} catch (URISyntaxException e) {
+			File exeFile = new File(exePath);
+			if(exeFile.exists()){
+				isValid = true;
+			} else {
 				isValid = false;
-				logger.warn("Application: " + getName() + " can't be loaded. INVALID executable path: " + exePath);
+				logger.warn("Application: " + getName() + " exePath: " + exePath + " is not valid.");
 			}
 		}
 	}
@@ -141,22 +144,19 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	public String getExePath(){
 		return exePath;
 	}
+	
 	public void setExePath(String path){
 		exePath = path;
 		if(exePath == null) {
 			isValid = false;
 			return;
 		}
-		try {
-			File exeFile = new File(new URI(exePath));
-			if(exeFile.exists()){
-				isValid = true;
-			} else {
-				isValid = false;
-			}
-		} catch (URISyntaxException e) {
+		File exeFile = new File(exePath);
+		if(exeFile.exists()){
+			isValid = true;
+		} else {
 			isValid = false;
-			logger.warn("Application's exePath: " + exePath + " is not valid: ");
+			logger.warn("Application: " + getName() + " exePath: " + exePath + " is not valid.");
 		}
 	}
 	public String getVendor(){
@@ -172,11 +172,22 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		this.version = version;	
 	}
 		
-	public File getIconFile(){
-		return iconFile;
+	public String getIconPath(){
+		return iconFilePath;
 	}
-	public void setIconFile(File iconFile){
-		this.iconFile = iconFile;
+	public void setIconPath(String iconFilePath){
+		this.iconFilePath = iconFilePath;
+		if(iconFilePath != null){
+			File file = new File(iconFilePath);
+			if(file.exists()){
+				this.iconFile = file;
+			}else{
+				this.iconFile = null;
+				if(!this.iconFilePath.isEmpty()){
+					logger.warn("Application: " + getName() + " icon file path: " + this.iconFilePath + " is not valid.");
+				}
+			}
+		}
 	}
 	
 	public String getType() {

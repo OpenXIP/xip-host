@@ -268,7 +268,7 @@ public class WorklistPanel extends JPanel implements WorklistEntryListener{
 			String instanceExePath = app.getExePath();
 			String instanceVendor = app.getVendor();
 			String instanceVersion = app.getVersion();
-			File instanceIconFile = app.getIconFile();
+			String instanceIconFile = app.getIconPath();
 			String type = app.getType();
 			boolean requiresGUI = app.requiresGUI();
 			String wg23DataModelType = app.getWG23DataModelType();
