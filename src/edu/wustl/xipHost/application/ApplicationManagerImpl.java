@@ -9,8 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -66,21 +64,13 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		        	iterationTarget = IterationTarget.valueOf(strTarget);
 		        		        				        				        		
 	        		Application app;
-					try {
-						File exeFile = null;
-						if (!exePath.isEmpty()) {
-							exeFile = new File(new URI(exePath));
-						}
-						app = new Application(name, exeFile, vendor, version, new File(iconFile),
-								type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
-						if(app.isValid()) {
-							app.addApplicationTerminationListener(applicationTerminationListener);
-							addApplication(app);
-						} else {
-							notValidApplications.add(app);
-						} 
-					} catch (URISyntaxException e) {
-						logger.error(e, e);
+					app = new Application(name, exePath, vendor, version, new File(iconFile),
+							type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
+					if(app.isValid()) {
+						app.addApplicationTerminationListener(applicationTerminationListener);
+						addApplication(app);
+					} else {
+						notValidApplications.add(app);
 					}       			        			        	
 		        }   			
 			return true;
@@ -109,7 +99,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 				        	name.setText(applications.get(i).getName());
 				        application.addContent(exePath);			            
 							if(applications.get(i).getExePath() != null) {
-								exePath.setText(applications.get(i).getExePath().toURI().toURL().toExternalForm());	
+								exePath.setText(applications.get(i).getExePath());	
 							} else {
 								exePath.setText("");
 							}								
@@ -181,7 +171,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			}
 		}
 		String newName = modifiedApplication.getName();
-		File newExePath = modifiedApplication.getExePath();
+		String newExePath = modifiedApplication.getExePath();
 		String newVendor = modifiedApplication.getVendor();
 		String newVersion = modifiedApplication.getVersion();
 		File newIconFile = modifiedApplication.getIconFile();

@@ -5,7 +5,6 @@ package edu.wustl.xipHost.application;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -76,7 +75,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	final static Logger logger = Logger.getLogger(Application.class);
 	UUID id;
 	String name;
-	File exePath;
+	String exePath;
 	String vendor;
 	String version;
 	File iconFile;
@@ -89,7 +88,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	boolean isValid;
 	ExecutorService exeService = Executors.newFixedThreadPool(numStateNotificationThreads);	
 	
-	public Application(String name, File exePath, String vendor, String version, File iconFile,
+	public Application(String name, String exePath, String vendor, String version, File iconFile,
 			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget){
 		id = UUID.randomUUID();
 		this.name = name;
@@ -108,11 +107,22 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		this.iterationTarget = iterationTarget;
 		if(name == null || exePath == null || type == null || wg23DataModelType == null || iterationTarget == null){
 			isValid = false;
-		} else if(name.isEmpty() || name.trim().length() == 0 || exePath.exists() == false ||
+		} else if(name.isEmpty() || name.trim().length() == 0 || exePath.trim().isEmpty() ||
 				type.isEmpty() || wg23DataModelType.isEmpty() || concurrentInstances == 0){
 			isValid = false;
 		} else {
-			isValid = true;
+			
+			try {
+				File exeFile = new File(new URI(exePath));
+				if(exeFile.exists()){
+					isValid = true;
+				} else {
+					isValid = false;
+				}
+			} catch (URISyntaxException e) {
+				isValid = false;
+				logger.warn("Application: " + getName() + " can't be loaded. INVALID executable path: " + exePath);
+			}
 		}
 	}
 		
@@ -128,13 +138,25 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			isValid = false;
 		}
 	}
-	public File getExePath(){
+	public String getExePath(){
 		return exePath;
 	}
-	public void setExePath(File path){
+	public void setExePath(String path){
 		exePath = path;
-		if(exePath == null || exePath.exists() == false) {
+		if(exePath == null) {
 			isValid = false;
+			return;
+		}
+		try {
+			File exeFile = new File(new URI(exePath));
+			if(exeFile.exists()){
+				isValid = true;
+			} else {
+				isValid = false;
+			}
+		} catch (URISyntaxException e) {
+			isValid = false;
+			logger.warn("Application's exePath: " + exePath + " is not valid: ");
 		}
 	}
 	public String getVendor(){
@@ -251,44 +273,38 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		//diploy host service				
 		host = new HostImpl(this);	
 		hostEndpoint = Endpoint.publish(hostServiceURL.toString(), host);
-		// Ways of launching XIP application: exe, bat, class or jar
-		//if(((String)getExePath().getName()).endsWith(".exe") || ((String)getExePath().getName()).endsWith(".bat")){
-		try {
-			if(getExePath().toURI().toURL().toExternalForm().endsWith(".exe") || getExePath().toURI().toURL().toExternalForm().endsWith(".bat")){
-				try {																							
-					Runtime.getRuntime().exec("cmd /c start /min " + getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());		         
-				} catch (IOException e) {			
-					logger.error(e, e);				
-				} catch (URISyntaxException e) {
-					logger.error(e, e);	
-				}			
-			} else if (getExePath().toURI().toURL().toExternalForm().endsWith(".sh")){
-				//Mac OS X compatible
-				//To be able to run Runtime.exec() on the Mac OS X parameters must be passed via String[] instead of one String
-				// sh files must have a executable mode and reside in XIPApp/bin directory
-				try {												
-					/*String[] cmdarray = {getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
-							"--applicationURL", appServiceURL.toURI().toURL().toExternalForm()};*/
-					String[] cmdarray = {"/usr/X11/bin/xterm", "-e", getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
-							"--applicationURL", appServiceURL.toURI().toURL().toExternalForm(), " ; le_exec"};
-					logger.debug("Launching hosted application. Application name: " + getName() + " --hostURL " + hostServiceURL.toURI().toURL().toExternalForm() + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
-					Runtime.getRuntime().exec(cmdarray) ;
-				} catch (IOException e) {			
-					logger.error(e, e);	
-				} catch (URISyntaxException e) {
-					logger.error(e, e);	
-				}		
-			} else {
-				try {
-					Runtime.getRuntime().exec(getExePath().toURI().toURL().toExternalForm() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());					
-				} catch (IOException e) {
-					logger.error(e, e);	
-				} catch (URISyntaxException e) {
-					logger.error(e, e);	
-				}		
-			}
-		} catch (MalformedURLException e) {
-			logger.error(e, e);	
+		if(getExePath().endsWith(".exe") || getExePath().endsWith(".bat")){
+			try {																							
+				Runtime.getRuntime().exec("cmd /c start /min " + getExePath() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());		         
+			} catch (IOException e) {			
+				logger.error(e, e);				
+			} catch (URISyntaxException e) {
+				logger.error(e, e);	
+			}			
+		} else if (getExePath().endsWith(".sh")){
+			//Mac OS X compatible
+			//To be able to run Runtime.exec() on the Mac OS X parameters must be passed via String[] instead of one String
+			// sh files must have a executable mode and reside in XIPApp/bin directory
+			try {												
+				/*String[] cmdarray = {getExePath().getAbsolutePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
+						"--applicationURL", appServiceURL.toURI().toURL().toExternalForm()};*/
+				String[] cmdarray = {"/usr/X11/bin/xterm", "-e", getExePath(), "--hostURL", hostServiceURL.toURI().toURL().toExternalForm(),
+						"--applicationURL", appServiceURL.toURI().toURL().toExternalForm(), " ; le_exec"};
+				logger.debug("Launching hosted application. Application name: " + getName() + " --hostURL " + hostServiceURL.toURI().toURL().toExternalForm() + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());
+				Runtime.getRuntime().exec(cmdarray) ;
+			} catch (IOException e) {			
+				logger.error(e, e);	
+			} catch (URISyntaxException e) {
+				logger.error(e, e);	
+			}		
+		} else {
+			try {
+				Runtime.getRuntime().exec(getExePath() + " " + "--hostURL" + " " + hostServiceURL.toURI().toURL().toExternalForm() + " " + "--applicationURL" + " " + appServiceURL.toURI().toURL().toExternalForm());					
+			} catch (IOException e) {
+				logger.error(e, e);	
+			} catch (URISyntaxException e) {
+				logger.error(e, e);	
+			}		
 		}
 		TargetIteratorRunner targetIter = new TargetIteratorRunner(selectedDataSearchResult, getIterationTarget(), query, this);
 		try {

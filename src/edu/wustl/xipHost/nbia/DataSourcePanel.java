@@ -407,7 +407,7 @@ public class DataSourcePanel extends JPanel implements ActionListener, Applicati
 			logger.debug("Application internal id: " + appID);
 			String instanceName = app.getName();
 			logger.debug("Application name: " + instanceName);
-			File instanceExePath = app.getExePath();
+			String instanceExePath = app.getExePath();
 			logger.debug("Exe path: " + instanceExePath);
 			String instanceVendor = app.getVendor();
 			logger.debug("Vendor: " + instanceVendor);

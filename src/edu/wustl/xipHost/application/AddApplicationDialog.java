@@ -275,7 +275,7 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 					logger.debug("Allowable concurrent instances: " + txtConcurrentInstances.getText());
 					logger.debug("              Iteration target: " + iterationTarget.toString());
 				}
-				app = new Application(txtName.getText(), new File(txtPath.getText()), txtVendor.getText(), txtVersion.getText(), new File(txtIconFile.getText()), 
+				app = new Application(txtName.getText(), txtPath.getText(), txtVendor.getText(), txtVersion.getText(), new File(txtIconFile.getText()), 
 						type, requiresGUI, wg23DataModelType, 
 						Integer.valueOf(txtConcurrentInstances.getText()), iterationTarget);
 				ApplicationManager appMgr = ApplicationManagerFactory.getInstance();

@@ -11,7 +11,6 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ImageIcon;
@@ -63,7 +62,7 @@ public class ApplicationBar extends JPanel implements ActionListener {
 	
 	public static void main(String[] args) {
 		List<Application> applications = new ArrayList<Application>();
-		File exePath = new File("./src-tests/edu/wustl/xipHost/application/test.bat");
+		String exePath = new String("./src-tests/edu/wustl/xipHost/application/test.bat");
 		Application test1 = new Application("Test1", exePath, "WashU", "1.0", null, "analytical", true, "files", 1, IterationTarget.SERIES);
 		Application test2 = new Application("Test2", exePath, "WashU", "1.0", null, "analytical", true, "files", 1, IterationTarget.SERIES);
 		Application test3 = new Application("Test3", exePath, "WashU", "1.0", null, "analytical", true, "files", 1, IterationTarget.SERIES);

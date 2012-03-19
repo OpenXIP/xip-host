@@ -265,7 +265,7 @@ public class WorklistPanel extends JPanel implements WorklistEntryListener{
 		//Check if application assigned to the worklist entry is not running. If it is create new instance 
 		if(app.getState() != null && !app.getState().equals(State.EXIT)){
 			String instanceName = app.getName();
-			File instanceExePath = app.getExePath();
+			String instanceExePath = app.getExePath();
 			String instanceVendor = app.getVendor();
 			String instanceVersion = app.getVersion();
 			File instanceIconFile = app.getIconFile();
