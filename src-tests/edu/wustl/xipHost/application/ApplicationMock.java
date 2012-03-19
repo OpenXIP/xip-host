@@ -16,7 +16,7 @@ import edu.wustl.xipHost.wg23.ClientToApplication;
 public class ApplicationMock extends Application {
 
 	ClientToApplicationMock clientToApplication;
-	public ApplicationMock(String name, File exePath, String vendor, String version, File iconFile,
+	public ApplicationMock(String name, String exePath, String vendor, String version, File iconFile,
 			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget) {
 		super(name, exePath, vendor, version, iconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);	
 		clientToApplication = new ClientToApplicationMock();

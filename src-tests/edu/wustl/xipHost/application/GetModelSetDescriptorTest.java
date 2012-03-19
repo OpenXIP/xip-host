@@ -25,7 +25,7 @@ public class GetModelSetDescriptorTest extends TestCase {
 	String collectionName; 
 	Application app;
 	List<Uuid> objUUIDs;
-	File exePath = new File("./src-tests/edu/wustl/xipHost/application/test.bat");
+	String exePath = "./src-tests/edu/wustl/xipHost/application/test.bat";
 	File iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png");
 	
 	/* (non-Javadoc)

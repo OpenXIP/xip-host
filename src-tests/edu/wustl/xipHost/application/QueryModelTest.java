@@ -42,7 +42,7 @@ public class QueryModelTest extends TestCase {
 		xpaths.add("/DICOM_DATASET/ELEMENT[@name=\"SOPInstanceUID\"]/value[@number=\"1\"]/text()");
 		//xpaths.add("//ELEMENT");
 		xpaths.add("/DICOM_DATASET/ELEMENT[@name=\"SOPInstanceUID\"]/value[@number=\"2\"]/text()");
-		app = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+		app = new Application("Application1", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
 				"rendering", true, "files", 1, IterationTarget.SERIES);
 		collectionName = app.getID().toString();
 		xm = XindiceManagerFactory.getInstance();

@@ -17,7 +17,7 @@ public class ApplicationStub extends Application {
 	/**
 	 * 
 	 */
-	public ApplicationStub(String name, File exePath, String vendor, String version, File iconFile,
+	public ApplicationStub(String name, String exePath, String vendor, String version, File iconFile,
 			String type, boolean requiresGUI, String wg23DataModelType, int concurrentInstances, IterationTarget iterationTarget) {
 		super(name, exePath, vendor, version, iconFile, type, requiresGUI, wg23DataModelType, concurrentInstances, iterationTarget);
 	}

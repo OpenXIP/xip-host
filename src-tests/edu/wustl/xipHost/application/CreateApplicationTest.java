@@ -8,11 +8,11 @@ import junit.framework.TestCase;
 
 public class CreateApplicationTest extends TestCase {
 
-	File exePath;
+	String exePath;
 	File iconFile;
 	protected void setUp() throws Exception {
 		super.setUp();
-		exePath = new File("./src-tests/edu/wustl/xipHost/application/test.bat");
+		exePath = new String("./src-tests/edu/wustl/xipHost/application/test.bat");
 		iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png");
 	}
 	
@@ -56,7 +56,7 @@ public class CreateApplicationTest extends TestCase {
 	//Application 1Ca - alternative flow. Application exePath is empty, other parameters are valid.
 	//Result: throws IllegalArgumentException
 	public void testCreateApplication1Ca() {				
-		Application  app = new Application("ApplicationTest", new File(""), "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		Application  app = new Application("ApplicationTest", "", "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		assertFalse("Application exePath is empty. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());				
 	}
 	
@@ -70,7 +70,7 @@ public class CreateApplicationTest extends TestCase {
 	//Application 1Cc - alternative flow. Application exePath contains illegal character, other parameters are valid.
 	//Result: throws IllegalArgumentException
 	public void testCreateApplication1Cc() {				
-		Application app = new Application("ApplicationTest", new File("./src-tests/edu/wustl/xipHost/application/t?est.bat"), "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		Application app = new Application("ApplicationTest", "./src-tests/edu/wustl/xipHost/application/t?est.bat", "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
 		assertFalse("Application exePath contains illegal char. Application should be set to isValid = false, but is: isValid = " + app.isValid(), app.isValid());		
 	}
 	

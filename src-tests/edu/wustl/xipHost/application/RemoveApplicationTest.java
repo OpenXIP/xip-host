@@ -8,12 +8,12 @@ import junit.framework.TestCase;
 
 public class RemoveApplicationTest extends TestCase {
 	ApplicationManager mgr;
-	File exePath;
+	String exePath;
 	File iconFile;
 	protected void setUp() throws Exception {
 		super.setUp();
 		mgr = ApplicationManagerFactory.getInstance();
-		exePath = new File("./src-tests/edu/wustl/xipHost/application/test.bat");
+		exePath = new String("./src-tests/edu/wustl/xipHost/application/test.bat");
 		iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png");
 	}
 

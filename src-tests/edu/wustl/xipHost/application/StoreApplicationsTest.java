@@ -16,9 +16,9 @@ public class StoreApplicationsTest {
 	@Before
 	public void setUp() throws Exception {
 		mgr = ApplicationManagerFactory.getInstance();
-		app1 = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+		app1 = new Application("Application1", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
 				"rendering", true, "files", 1, IterationTarget.SERIES);
-		app2 = new Application("Application2", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+		app2 = new Application("Application2", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
 				"rendering", true, "files", 1, IterationTarget.SERIES);
 	}
 	

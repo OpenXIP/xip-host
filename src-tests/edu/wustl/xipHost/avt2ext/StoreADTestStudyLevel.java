@@ -117,7 +117,7 @@ public class StoreADTestStudyLevel extends TestCase {
 		objLoc3.setUri(uri3);
 		objLocs.add(objLoc3);
 		
-		ApplicationStub appStub = new ApplicationStub("TestApp", new File("./src-tests/edu/wustl/xipHost/avt2ext/applicationStub.bat"), "VendorTest", "", null, 
+		ApplicationStub appStub = new ApplicationStub("TestApp", new String("./src-tests/edu/wustl/xipHost/avt2ext/applicationStub.bat"), "VendorTest", "", null, 
 				"analytical", true, "files", 1, IterationTarget.SERIES);
 		appStub.setObjectLocators(arrayObjLocs);
 		Application app = appStub;

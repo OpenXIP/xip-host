@@ -41,7 +41,7 @@ public class QueryModelPerformanceTest extends TestCase {
 		doc = builder.build(nativeModelFile);
 		modelUUIDs = new ArrayList<Uuid>();
 		xpaths = new ArrayList<String>();
-		app = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
+		app = new Application("Application1", new String("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
 				"rendering", true, "files", 1, IterationTarget.SERIES);
 		collectionName = app.getID().toString();
 		xm = XindiceManagerFactory.getInstance();
