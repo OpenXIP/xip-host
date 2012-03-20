@@ -6,7 +6,6 @@ package edu.wustl.xipHost.dicom;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -110,7 +109,7 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 		if(workstation3_retrieve_dir.exists() == false){
 			workstation3_retrieve_dir.mkdir();
 		} else {
-			File[] files = workstation3_retrieve_dir.listFiles(new DCMFileFilter());
+			File[] files = workstation3_retrieve_dir.listFiles(new DcmFileFilter());
 			if(files.length > 0) {
 				for(int i = 0 ; i < files.length; i++) {
 					File file = files[i];
@@ -123,7 +122,7 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 		if(workstation4_retrieve_dir.exists() == false){
 			workstation4_retrieve_dir.mkdir();
 		} else {
-			File[] files = workstation4_retrieve_dir.listFiles(new DCMFileFilter());
+			File[] files = workstation4_retrieve_dir.listFiles(new DcmFileFilter());
 			if(files.length > 0) {
 				for(int i = 0 ; i < files.length; i++) {
 					File file = files[i];
@@ -209,12 +208,12 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 	
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		File[] files1 = workstation4_retrieve_dir.listFiles(new DCMFileFilter());
+		File[] files1 = workstation4_retrieve_dir.listFiles(new DcmFileFilter());
 		for(int i = 0 ; i < files1.length; i++) {
 			File file = files1[i];
 			Util.delete(file);
 		}
-		File[] files2 = workstation3_retrieve_dir.listFiles(new DCMFileFilter());
+		File[] files2 = workstation3_retrieve_dir.listFiles(new DcmFileFilter());
 		for(int i = 0 ; i < files2.length; i++) {
 			File file = files2[i];
 			Util.delete(file);
@@ -300,7 +299,7 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 
 	static void prelaodDataToWorkstation4(){
 		logger.debug("Preloading WORKSTATION4 data source");
-		DCMFileFilter dcmFilter = new DCMFileFilter();
+		DcmFileFilter dcmFilter = new DcmFileFilter();
 		File file = new File("./dicom-dataset-demo");
 		File[] files = file.listFiles(dcmFilter);
 		if(files == null){
@@ -310,15 +309,3 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 		dicomMgr1.submit(files, loc);
 	}
 }
-	
-	class DCMFileFilter implements FileFilter {
-	
-		@Override
-		public boolean accept(File file) {
-			String filename = file.getName();
-			if(filename.endsWith(".dcm")) {
-				return true;
-			}
-			return false;
-		}
-	}

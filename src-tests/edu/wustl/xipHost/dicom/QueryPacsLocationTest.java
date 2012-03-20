@@ -191,7 +191,7 @@ public class QueryPacsLocationTest {
 	
 	static void prelaodDataToWorkstation2(){
 		logger.debug("Preloading WORKSTATION2 data source");
-		DCMFileFilter dcmFilter = new DCMFileFilter();
+		DcmFileFilter dcmFilter = new DcmFileFilter();
 		File file = new File("./dicom-dataset-demo");
 		File[] files = file.listFiles(dcmFilter);
 		if(files == null){
