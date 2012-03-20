@@ -49,7 +49,7 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
-import edu.wustl.xipHost.dicom.DicomUtil;
+import edu.wustl.xipHost.dicom.DcmFileFilter;
 import edu.wustl.xipHost.gui.HostMainWindow;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
@@ -239,16 +239,25 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 			File selectedFile = null;
 			for(int i = 0; i < selectedFiles.length; i++){
 				selectedFile = selectedFiles[i];
-				if(!selectedFile.isDirectory()){
-					if(DicomUtil.isDICOM(selectedFile)){
-						URI uri = selectedFile.toURI();
-						DICOMFileRunner runner = new DICOMFileRunner(new File(uri));
-						runner.addDicomParseListener(this);
-						exeService.execute(runner);
-						numOfParsingRequestsSent++;
-					}
+				if(!selectedFile.isDirectory()){					
+					URI uri = selectedFile.toURI();
+					DICOMFileRunner runner = new DICOMFileRunner(new File(uri));
+					runner.addDicomParseListener(this);
+					exeService.execute(runner);
+					numOfParsingRequestsSent++;					
 				} else {
-					return;
+					File[] files = selectedFile.listFiles(new DcmFileFilter());
+					for(int j = 0; j < files.length; j++){
+						File file = files[j];
+						if(!file.isDirectory()){
+							DICOMFileRunner runner = new DICOMFileRunner(file);
+							runner.addDicomParseListener(this);
+							exeService.execute(runner);
+							numOfParsingRequestsSent++;
+						} else {
+							searchDirectory(file);
+						}
+					}
 				}
 			}
 			synchronized(this){
@@ -269,6 +278,21 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 			resultTree.selectAll(true);
 		} else if (e.getSource() == btnDeselectAll){
 			resultTree.selectAll(false);
+		}
+	}
+	
+	void searchDirectory(File dir){
+		File[] files = dir.listFiles(new DcmFileFilter());
+		for(int j = 0; j < files.length; j++){
+			File file = files[j];
+			if(!file.isDirectory()){
+				DICOMFileRunner runner = new DICOMFileRunner(file);
+				runner.addDicomParseListener(this);
+				exeService.execute(runner);
+				numOfParsingRequestsSent++;
+			} else {
+				searchDirectory(file);
+			}
 		}
 	}
 
