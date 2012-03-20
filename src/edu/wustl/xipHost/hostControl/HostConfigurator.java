@@ -657,7 +657,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			if(appMgr.getApplication("TestApp_WG23FileAccess") == null){
 				try {
 					String pathExe = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/XIPApplication_WashU_3.bat").getCanonicalPath();
-					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);				
 					appMgr.addApplication(new Application("TestApp_WG23FileAccess", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "files", 1, IterationTarget.SERIES));
@@ -669,7 +668,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			if(appMgr.getApplication("TestApp_WG23NativeModel") == null){
 				try{	
 					String pathExe = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/XIPAppNativeModel.bat").getCanonicalPath();
-					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
 					appMgr.addApplication(new Application("TestApp_WG23NativeModel", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "native", 1, IterationTarget.SERIES));
@@ -681,7 +679,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			if(appMgr.getApplication("RECIST_Adjudicator") == null){				
 				try {
 					String pathExe = new File("../XIPApp/bin/RECISTFollowUpAdjudicator.bat").getCanonicalPath();
-					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
 					appMgr.addApplication(new Application("RECIST_Adjudicator", pathExe, "", "", iconFile.getAbsolutePath(), "rendering", true, "files", 1, IterationTarget.SERIES));
@@ -694,7 +691,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			if(appMgr.getApplication("TestApp_WG23FileAccess") == null){
 				try {
 					String pathExe = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/XIPApplication_WashU_3.sh").getCanonicalPath();
-					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);				
 					appMgr.addApplication(new Application("TestApp_WG23FileAccess", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "files", 1, IterationTarget.SERIES));
@@ -706,7 +702,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			if(appMgr.getApplication("TestApp_WG23NativeModel") == null){
 				try{	
 					String pathExe = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/XIPAppNativeModel.sh").getCanonicalPath();
-					File exeFile = new File(pathExe);
 					String pathIcon = new File("./../XIPApp/bin/edu/wustl/xipApplication/samples/ApplicationIcon-16x16.png").getCanonicalPath();
 					File iconFile = new File(pathIcon);
 					appMgr.addApplication(new Application("TestApp_WG23NativeModel", pathExe, "", "", iconFile.getAbsolutePath(), "analytical", true, "native", 1, IterationTarget.SERIES));
