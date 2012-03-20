@@ -31,7 +31,6 @@ import com.pixelmed.dicom.SpecificCharacterSet;
 import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.TimeAttribute;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
-import eu.medsea.util.MimeUtil;
 
 /**
  * @author Jaroslaw Krych
@@ -46,10 +45,13 @@ public class DicomUtil {
     	if(file == null){
     		throw new FileNotFoundException();
     	}
+    	if(file.isDirectory()){
+    		throw new IOException();
+    	}
     	String mimeType = new String();
 		byte[] data;
 		String magicNum = new String();
-		Boolean isDCM = file.getAbsolutePath().endsWith(".dcm");
+		Boolean isDCM = file.getAbsolutePath().toLowerCase().endsWith(".dcm");
 		if(isDCM){
 			return mimeType = "application/dicom";
 		} else {
@@ -66,7 +68,7 @@ public class DicomUtil {
 					mimeType = "application/dicom";
 				}else{				
 					//mimeType = new MimetypesFileTypeMap().getContentType(file);
-					mimeType = MimeUtil.getMimeType(file);
+					//TODO
 				}
 			} catch (IOException e) {
 				throw new IOException();	
