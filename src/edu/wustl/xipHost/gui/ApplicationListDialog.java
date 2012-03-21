@@ -4,13 +4,18 @@
 package edu.wustl.xipHost.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -25,7 +30,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import edu.wustl.xipHost.application.AddApplicationDialog;
 import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.iterator.IterationTarget;
 
 /**
  * <font  face="Tahoma" size="2">
@@ -34,7 +41,10 @@ import edu.wustl.xipHost.application.Application;
  * @author Jaroslaw Krych
  * </font>
  */
-public class ApplicationListDialog extends JDialog {			
+public class ApplicationListDialog extends JDialog {
+	Icon statusValid = new ImageIcon("./gif/AppStatusValid.png");
+	Icon statusNotValid = new ImageIcon("./gif/AppStatusNotValid.png");
+	Font font = new Font("Tahoma", 1, 14);
 	JPanel panel = new JPanel();			
 	ApplicationListTableModel tableModel = new ApplicationListTableModel();
 	public JTable appListTable = new JTable(tableModel);	
@@ -42,29 +52,37 @@ public class ApplicationListDialog extends JDialog {
 	int numOfRows;	
 	Font font_1 = new Font("Tahoma", 0, 13);
 	Font font_2 = new Font("Tahoma", 0, 12);
-	Border border = BorderFactory.createLineBorder(Color.black);	
-		
+	Border border = BorderFactory.createLineBorder(Color.BLACK);
+	EditApplicationMouseAdapter editMouseListener = new EditApplicationMouseAdapter();
 	
 	public ApplicationListDialog(Frame owner, Object[] values){						
-		super(owner, "Registered applications", true);  
+		super(owner, "Registered applications", true); 
 		if(values != null){
 			numOfRows = values.length;		
-			this.values = new Object[numOfRows][10];		
+			this.values = new Object[numOfRows][11];		
 			for(int i = 0; i < numOfRows; i++){
-				this.values[i][0] = ((Application)values[i]).getName();
-				this.values[i][1] = ((Application)values[i]).getExePath();
-				this.values[i][2] = ((Application)values[i]).getVendor();
-				this.values[i][3] = ((Application)values[i]).getVersion();
-				if(((Application)values[i]).getIconPath() != null){
-					this.values[i][4] = ((Application)values[i]).getIconPath();
-				}else{
-					this.values[i][4] = "";
+				Application app = (Application)values[i];
+				Icon statusIcon;
+				if(app.isValid()){
+					statusIcon = statusValid;
+				} else {
+					statusIcon = statusNotValid;
 				}
-				this.values[i][5] = ((Application)values[i]).getType();
-				this.values[i][6] = ((Application)values[i]).requiresGUI();
-				this.values[i][7] = ((Application)values[i]).getWG23DataModelType();
-				this.values[i][8] = ((Application)values[i]).getConcurrentInstances();
-				this.values[i][9] = ((Application)values[i]).getIterationTarget().toString();
+				this.values[i][0] = statusIcon;
+				this.values[i][1] = app.getName();
+				this.values[i][2] = app.getExePath();
+				this.values[i][3] = app.getVendor();
+				this.values[i][4] = app.getVersion();
+				if(app.getIconPath() != null){
+					this.values[i][5] = app.getIconPath();
+				}else{
+					this.values[i][5] = "";
+				}
+				this.values[i][6] = app.getType();
+				this.values[i][7] = app.requiresGUI();
+				this.values[i][8] = app.getWG23DataModelType();
+				this.values[i][9] = app.getConcurrentInstances();
+				this.values[i][10] = app.getIterationTarget();
 			}		
 		}		
 		add(panel);		
@@ -78,27 +96,34 @@ public class ApplicationListDialog extends JDialog {
 		for (int i = 0; i < 10; i++) {            
             column = appListTable.getColumnModel().getColumn( i );            
             switch(i) {
-                case 0:                                    	
-                	column.setCellRenderer(new Renderer());                    
-                case 1:
-                	column.setCellRenderer(new Renderer());                                                        
+            	case 0: 
+            		column.setCellRenderer(new IconRenderer());
+            		break;
+            	case 1:
+                	column.setCellRenderer(new Renderer());         
+                	break;
                 case 2:
                 	column.setCellRenderer(new Renderer());
+                	break;
                 case 3:                	                	                	
                 	column.setCellRenderer(new Renderer());  
+                	break;
+                case 7: 
+                	column.setCellRenderer(new Renderer());  
+                	break;
             }                                                
-            column.setPreferredWidth( tableModel.getColumnWidth( i ) );            
+            column.setPreferredWidth( tableModel.getColumnWidth( i ) ); 
         }
-		
-		//workListTable.setPreferredScrollableViewportSize( new Dimension(600, 550) );		
+		appListTable.addMouseListener(editMouseListener);
 		JScrollPane jsp = new JScrollPane(appListTable);
 		jsp.setPreferredSize(new Dimension(900, 300));
 		panel.add(jsp);
-		buildLayout();         		
+		buildLayout(); 	
 	}
 		
 	class ApplicationListTableModel extends AbstractTableModel {
 		String[] strArrayColumnNames = {
+			"Status",
 			"Name", 
 			"Path",
             "Vendor",
@@ -122,7 +147,7 @@ public class ApplicationListDialog extends JDialog {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			switch( columnIndex ) {
                 case 0:
-                    return values[rowIndex][0];
+                    return (Icon)values[rowIndex][0];
                 case 1:
                     return values[rowIndex][1];
                 case 2:
@@ -143,9 +168,16 @@ public class ApplicationListDialog extends JDialog {
                     return values[rowIndex][9];
                 case 10:
                     return values[rowIndex][10];
+                case 11:
+                    return values[rowIndex][11];
                 default:
                     return null;
             }           			
+		}
+		
+		@Override
+		public Class<?> getColumnClass(int col){			
+			return getValueAt(0, col).getClass();			
 		}
 				
 		public String getColumnName( int col ) {
@@ -154,35 +186,38 @@ public class ApplicationListDialog extends JDialog {
 		
 		public int getColumnWidth( int nCol ) {
             switch( nCol ) {
-                //Name
-            	case 0:
+                //Status
+	            case 0:
+	                return 50;	
+	            //Name
+	            case 1:
                     return 200;
                 //Path
-            	case 1:
+            	case 2:
                     return 350;
                 //Vendor
-            	case 2:
+            	case 3:
                     return 200;
                 //Version
-            	case 3:
+            	case 4:
                     return 150;
                 //Icon
-            	case 4:
-                    return 200;
-                //Type
             	case 5:
                     return 200;
-                //requires GUI
+                //Type
             	case 6:
                     return 200;
-                //WG23 data model
+                //requires GUI
             	case 7:
                     return 200;
-                //Allowable instances
+                //WG23 data model
             	case 8:
+                    return 200;
+                //Allowable instances
+            	case 9:
                     return 300;
                 //Iteration target
-            	case 9:
+            	case 10:
                     return 200;
                 default:
                     return 150;
@@ -192,26 +227,40 @@ public class ApplicationListDialog extends JDialog {
 	}	
 	
 	public void buildLayout(){
-		//GridBagLayout dimensions: 3 rows x 5 column
         GridBagLayout layout = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();
         setLayout(layout);
-                
+        
         constraints.fill = GridBagConstraints.HORIZONTAL;        
         constraints.gridx = 0;
         constraints.gridy = 0;     
         constraints.gridwidth = 3;
         constraints.gridheight = 1;
-        //constraints.insets.right = 10;
         constraints.insets.bottom = 10;
         layout.setConstraints(panel, constraints);                  
 	}
-	
+
 	public class Renderer extends DefaultTableCellRenderer implements TableCellRenderer{        
         public Renderer(){            
             setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         }         
-    }    
+    }  
+	
+	public class IconRenderer extends DefaultTableCellRenderer {
+
+		public IconRenderer(){
+			setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		}
+		
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, 
+	                                                 int row, int column) {
+			Icon icon = (Icon)value;
+		    setText(null);
+		    setIcon(icon);
+		    return this;
+		}
+	}
+
 		
 	public Boolean display(){				
 		try {
@@ -245,6 +294,34 @@ public class ApplicationListDialog extends JDialog {
 	
 	public static void main(String[] args){
 		new ApplicationListDialog(new JFrame(), null).display();
+	}
+	
+	class EditApplicationMouseAdapter extends MouseAdapter {
+		int row;					
+		public void mouseClicked(MouseEvent e) {
+			if(e.getButton() == 1){
+				JTable source = (JTable)e.getSource();
+				row = source.rowAtPoint( e.getPoint() );
+				appListTable.setRowSelectionInterval(row, row);		
+				if(e.getClickCount() == 2){					
+					String name = (String)tableModel.getValueAt(row, 1);
+					String path = (String)tableModel.getValueAt(row, 2);
+					String vendor = (String)tableModel.getValueAt(row, 3);
+					String version = (String)tableModel.getValueAt(row, 4);
+					String iconPath = (String)tableModel.getValueAt(row, 5);
+					String type = (String)tableModel.getValueAt(row, 6);
+					Boolean requiresGUI = (Boolean)tableModel.getValueAt(row, 7);
+					String wg23DataModel = (String)tableModel.getValueAt(row, 8);
+					int instances = (Integer) tableModel.getValueAt(row, 9);
+					IterationTarget iterationTarget = (IterationTarget) tableModel.getValueAt(row, 10);
+					//Application app = new Application(name, path, vendor, version, iconPath,
+					//		type, requiresGUI, wg23DataModel, instances, iterationTarget);
+					//JFrame frame = new JFrame();
+					//AddApplicationDialog editDialog = new AddApplicationDialog(frame);
+					//TODO
+				}
+			}
+		}
 	}
 	
 }	

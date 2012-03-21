@@ -4,7 +4,6 @@
 package edu.wustl.xipHost.gui;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
@@ -12,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -21,9 +21,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import edu.wustl.xipHost.application.AddApplicationDialog;
 import edu.wustl.xipHost.application.Application;
+import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
-import edu.wustl.xipHost.hostControl.HostConfigurator;
-import edu.wustl.xipHost.hostControl.Login;
 
 /**
  * @author Jaroslaw Krych
@@ -43,7 +42,7 @@ public class OptionsDialog extends JDialog implements ActionListener{
 		
 		public OptionsDialog(JFrame owner){			
 			super(owner, "Options", true);			
-			btnPanel.setLayout(new GridLayout(4, 1));			
+			btnPanel.setLayout(new GridLayout(3, 1));			
 			btnAdd.setPreferredSize(new Dimension(150, 25));
 			btnView.setPreferredSize(new Dimension(150, 25));
 			btnHostSet.setPreferredSize(new Dimension(150, 25));
@@ -78,7 +77,6 @@ public class OptionsDialog extends JDialog implements ActionListener{
 		
 		public void close(){
 			setVisible(false);
-			//dispose();
 		}
 		
 		public static void main (String [] args){
@@ -107,7 +105,12 @@ public class OptionsDialog extends JDialog implements ActionListener{
 				close();
 			}else if(e.getSource() == btnView){
 				Application [] apps;
-				List<Application> listApps = ApplicationManagerFactory.getInstance().getApplications();
+				ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
+				List<Application> listApps = new ArrayList<Application>();
+				List<Application> validApps = appMgr.getApplications();
+				List<Application> notValidApps = appMgr.getNotValidApplications();
+				listApps.addAll(validApps);
+				listApps.addAll(notValidApps);
 				apps = new Application[listApps.size()];
 				listApps.toArray(apps);				
 				ApplicationListDialog appList = new ApplicationListDialog(new JFrame(), apps);
@@ -116,25 +119,7 @@ public class OptionsDialog extends JDialog implements ActionListener{
 			}else if(e.getSource() == btnHostSet){				
 				Point point = btnHostSet.getLocationOnScreen();
 				new UnderDevelopmentDialog(point);
-			}/*else if(e.getSource() == btnGridSecur){				
-				Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);	
-				Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-				Login.setValidateGridSecur(true);
-				String user = HostConfigurator.getHostConfigurator().getUser();
-				String password = "123";								
-				setCursor(hourglassCursor);
-				try{
-					if (Login.validateUser(user, password)){
-						Login.setValidateGridSecur(false);
-						setCursor(normalCursor);					
-					}else{
-											
-					}
-				}catch(RuntimeException excep){					
-					Login.setValidateGridSecur(false);
-					setCursor(normalCursor);
-				}
-			}	*/		
+			}	
 		}
 			
 }

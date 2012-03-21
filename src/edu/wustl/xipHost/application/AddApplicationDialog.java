@@ -505,5 +505,12 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void setName(String name) {
+		txtName.setText(name);
+		if(name == null || name.isEmpty() || name.trim().length() == 0) {
+			txtName.setForeground(Color.RED);
+		}
+	}
 	
 }
