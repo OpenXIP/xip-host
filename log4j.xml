@@ -181,7 +181,7 @@
   <logger name="edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
-  <logger name="edu.wustl.xipHost.application.AddApplicationDialog">
+  <logger name="edu.wustl.xipHost.application.EditApplicationDialog">
 	<appender-ref ref="HostMain_Appender"/>
   </logger>	
   <logger name="edu.wustl.xipHost.dicom.DicomManagerImpl">
