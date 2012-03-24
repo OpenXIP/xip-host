@@ -18,7 +18,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
+
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -30,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
+
 import org.apache.log4j.Logger;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.gui.ExceptionDialog;
@@ -37,8 +42,8 @@ import edu.wustl.xipHost.gui.FileChooser;
 import edu.wustl.xipHost.gui.HostMainWindow;
 
 
-public class AddApplicationDialog extends JDialog implements ActionListener, FocusListener {
-	final static Logger logger = Logger.getLogger(AddApplicationDialog.class);
+public class EditApplicationDialog extends JDialog implements ActionListener, FocusListener {
+	final static Logger logger = Logger.getLogger(EditApplicationDialog.class);
 	JLabel lblName = new JLabel("Name");
 	JLabel lblPath = new JLabel("Path");
 	JLabel lblVendor = new JLabel("Vendor");
@@ -66,22 +71,24 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 	JTextField txtConcurrentInstances = new JTextField("", 20);
 	DefaultComboBoxModel comboModelIterationTarget = new DefaultComboBoxModel();
 	JComboBox listIterationTarget = new JComboBox(comboModelIterationTarget);
-	public JButton btnOK = new JButton("OK");
+	JButton btnOK = new JButton("OK");
 	JPanel panel = new JPanel();
 	Application app;
 	FileChooser fileChooser = new FileChooser(false);	
 	Color xipBtn = new Color(56, 73, 150);
 	Font font = new Font("Tahoma", 0, 11);	
+	Border borderRed = BorderFactory.createLineBorder(Color.RED);
+	
 	/**
 	 * @param owner
 	 */
-	public AddApplicationDialog(Frame owner){		
-		super(owner, "Add application", true);
+	public EditApplicationDialog(Frame owner, Application app){		
+		super(owner, "Edit application", true);
+		this.app = app;
 		comboModelType.addElement("Rendering");
 		comboModelType.addElement("Analytical");
 		listType.setMaximumRowCount(10);
 		listType.setPreferredSize(new Dimension((int) txtName.getPreferredSize().getWidth(), (int) txtName.getPreferredSize().getHeight()));
-		listType.setSelectedIndex(0);
 		listType.setFont(font);
 		listType.setEditable(false);		
 		listType.addActionListener(this);
@@ -89,7 +96,6 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 		comboModelRequiresGUI.addElement(false);
 		listRequiresGUI.setMaximumRowCount(2);
 		listRequiresGUI.setPreferredSize(new Dimension((int) txtName.getPreferredSize().getWidth(), (int) txtName.getPreferredSize().getHeight()));
-		listRequiresGUI.setSelectedIndex(0);
 		listRequiresGUI.setFont(font);
 		listRequiresGUI.setEditable(false);		
 		listRequiresGUI.addActionListener(this);
@@ -98,16 +104,14 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 		comboModelDataModelType.addElement("Abstract");
 		listWG23DataModelType.setMaximumRowCount(3);
 		listWG23DataModelType.setPreferredSize(new Dimension((int) txtName.getPreferredSize().getWidth(), (int) txtName.getPreferredSize().getHeight()));
-		listWG23DataModelType.setSelectedIndex(0);
 		listWG23DataModelType.setFont(font);
 		listWG23DataModelType.setEditable(false);		
 		listWG23DataModelType.addActionListener(this);
-		comboModelIterationTarget.addElement("PATIENT");
-		comboModelIterationTarget.addElement("STUDY");
-		comboModelIterationTarget.addElement("SERIES");
+		comboModelIterationTarget.addElement(IterationTarget.PATIENT);
+		comboModelIterationTarget.addElement(IterationTarget.STUDY);
+		comboModelIterationTarget.addElement(IterationTarget.SERIES);
 		listIterationTarget.setMaximumRowCount(3);
 		listIterationTarget.setPreferredSize(new Dimension((int) txtName.getPreferredSize().getWidth(), (int) txtName.getPreferredSize().getHeight()));
-		listIterationTarget.setSelectedIndex(1);
 		listIterationTarget.setFont(font);
 		listIterationTarget.setEditable(false);		
 		listIterationTarget.addActionListener(this);
@@ -180,9 +184,6 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}	
-						/* It should be just one file for single selection
-						 * Provide exception handling
-						 * */
 						txtIconFile.setText(path);
 						txtIconFile.setCaretPosition(0);
 					}
@@ -196,14 +197,31 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
         Dimension windowSize = this.getPreferredSize();
         setBounds((screenSize.width - windowSize.width) / 2, (screenSize.height - windowSize.height) /2,  windowSize.width, windowSize.height);
 		pack();
-		setVisible(true);
+		//setVisible(true);
 		addWindowListener (
 	            new WindowAdapter(){
 	                public void windowClosing(WindowEvent e){	                	
 	                	dispose();
 	                }
 	            }
-	        );
+	     );
+		if(app == null){
+			listType.setSelectedIndex(0);
+			listRequiresGUI.setSelectedIndex(0);
+			listWG23DataModelType.setSelectedIndex(0);
+			listIterationTarget.setSelectedIndex(1);
+		} else {
+			setName(app.getName());
+			setExePath(app.getExePath());
+			setVendor(app.getVendor());
+			setVersion(app.getVersion());
+			setIconPath(app.getIconPath());
+			setType(app.getType());
+			setRequiresGUI(app.requiresGUI());
+			setWG23DataModelType(app.getWG23DataModelType());
+			setConcurrentInstances(app.getConcurrentInstances());
+			setIterationTarget(app.getIterationTarget());
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -223,7 +241,7 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 			e.printStackTrace();
 		}
     	JFrame frame = new JFrame();		
-		new AddApplicationDialog(frame);						
+		new EditApplicationDialog(frame, null);						
 	}
 
 	String type;
@@ -242,7 +260,7 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 			wg23DataModelType = (String)itemWG23DataModelType;
 		}else if(e.getSource() == listIterationTarget){
 			Object itemIterationTarget = ((JComboBox)e.getSource()).getSelectedItem();
-			iterationTarget = IterationTarget.valueOf((String)itemIterationTarget);
+			iterationTarget = (IterationTarget)itemIterationTarget;
 		}else if(e.getSource() == btnOK){						
 			if(type == null){
 				type = (String)comboModelType.getElementAt(0);
@@ -274,14 +292,37 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 					logger.debug("Allowable concurrent instances: " + txtConcurrentInstances.getText());
 					logger.debug("              Iteration target: " + iterationTarget.toString());
 				}
-				app = new Application(txtName.getText(), txtPath.getText(), txtVendor.getText(), txtVersion.getText(), txtIconFile.getText(), 
-						type, requiresGUI, wg23DataModelType, 
-						Integer.valueOf(txtConcurrentInstances.getText()), iterationTarget);
 				ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
-				app.setDoSave(true);
-				appMgr.addApplication(app); 
-		    	HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
-		    	HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
+				if(app == null){
+					app = new Application(txtName.getText(), txtPath.getText(), txtVendor.getText(), txtVersion.getText(), txtIconFile.getText(), 
+							type, requiresGUI, wg23DataModelType, 
+							Integer.valueOf(txtConcurrentInstances.getText()), iterationTarget);
+					app.setDoSave(true);
+					if(app.isValid()){
+						appMgr.addApplication(app);
+						HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
+				    	HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
+						//addApplicationTerminationListener
+					} 
+				} else {
+					boolean appWasValid = app.isValid();
+					app.setName(txtName.getText());
+					app.setExePath(txtPath.getText());
+					app.setVendor(txtVendor.getText());
+					app.setVersion(txtVersion.getText());
+					app.setIconPath(txtIconFile.getText());
+					app.setType(type);
+					app.setRequiresGUI(requiresGUI);
+					app.setWG23DataModelType(wg23DataModelType);
+					app.setConcurrentInstances(Integer.valueOf(txtConcurrentInstances.getText()));
+					app.setIterationTarget(iterationTarget);
+					if(appWasValid == false && app.isValid()){
+						appMgr.getNotValidApplications().remove(app);
+						appMgr.addApplication(app);
+						HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
+				    	HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
+					}
+				}
 			}catch (IllegalArgumentException e1){
 				new ExceptionDialog("Cannot create new application.", 
 						"Ensure applications parameters are valid.",
@@ -510,7 +551,90 @@ public class AddApplicationDialog extends JDialog implements ActionListener, Foc
 		txtName.setText(name);
 		if(name == null || name.isEmpty() || name.trim().length() == 0) {
 			txtName.setForeground(Color.RED);
+			txtName.setBorder(borderRed);
+			txtName.setPreferredSize(new Dimension((int)txtName.getPreferredSize().getWidth(), (int)txtName.getPreferredSize().getHeight() + 2));
 		}
 	}
+	
+	public void setExePath(String exePath){
+		txtPath.setText(exePath);
+		if(exePath == null) {
+			txtPath.setForeground(Color.RED);
+			txtPath.setBorder(borderRed);
+			txtPath.setPreferredSize(new Dimension((int)txtName.getPreferredSize().getWidth(), (int)txtName.getPreferredSize().getHeight() + 2));
+			return;
+		}
+		File exeFile = new File(exePath);
+		if(!exeFile.exists()){
+			txtPath.setForeground(Color.RED);
+			txtPath.setBorder(borderRed);
+			txtPath.setPreferredSize(new Dimension((int)txtName.getPreferredSize().getWidth(), (int)txtName.getPreferredSize().getHeight() + 2));
+		}
+	}
+	
+	public void setVendor(String vendor){
+		txtVendor.setText(vendor);
+	}
+	
+	public void setVersion(String version){
+		txtVersion.setText(version);	
+	}
+	
+	public void setIconPath(String iconFilePath){
+		txtIconFile.setText(iconFilePath);
+		if(iconFilePath == null){
+			txtIconFile.setForeground(Color.RED);
+			txtIconFile.setBorder(borderRed);
+			txtIconFile.setPreferredSize(new Dimension((int)txtName.getPreferredSize().getWidth(), (int)txtName.getPreferredSize().getHeight() + 2));
+			return;
+		}
+		File file = new File(iconFilePath);
+		if(!iconFilePath.trim().isEmpty() && !file.exists()){
+			txtIconFile.setForeground(Color.RED);
+			txtIconFile.setBorder(borderRed);
+			txtIconFile.setPreferredSize(new Dimension((int)txtName.getPreferredSize().getWidth(), (int)txtName.getPreferredSize().getHeight() + 2));
+		}
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+		comboModelType.setSelectedItem(type);
+		if(!type.equalsIgnoreCase("Rendering") && !type.equalsIgnoreCase("Analytical")){
+			listType.setForeground(Color.RED);
+		}
+	}
+	
+	public void setRequiresGUI(boolean requiresGUI) {
+		this.requiresGUI = requiresGUI;
+		comboModelRequiresGUI.setSelectedItem(requiresGUI);
+	}
+	
+	public void setWG23DataModelType(String wg23DataModelType) {
+		this.wg23DataModelType = wg23DataModelType;
+		comboModelDataModelType.setSelectedItem(wg23DataModelType);
+		if(!wg23DataModelType.equalsIgnoreCase("Files") && !wg23DataModelType.equalsIgnoreCase("Native models") &&
+				!wg23DataModelType.equalsIgnoreCase("Abstract")){
+			listWG23DataModelType.setForeground(Color.RED);
+		}
+	}
+	
+	public void setConcurrentInstances(int concurrentInstances) {
+		txtConcurrentInstances.setText(String.valueOf(concurrentInstances));
+		if( concurrentInstances <= 0) {
+			txtConcurrentInstances.setForeground(Color.RED);
+			txtConcurrentInstances.setBorder(borderRed);
+			txtConcurrentInstances.setPreferredSize(new Dimension((int)txtName.getPreferredSize().getWidth(), (int)txtName.getPreferredSize().getHeight() + 2));
+		}
+	}
+	
+	public void setIterationTarget(IterationTarget iterationTarget) {
+		this.iterationTarget = iterationTarget;
+		comboModelIterationTarget.setSelectedItem(iterationTarget);
+		if(!iterationTarget.equals(IterationTarget.PATIENT) && !iterationTarget.equals(IterationTarget.STUDY) &&
+				!iterationTarget.equals(IterationTarget.SERIES)){
+			listIterationTarget.setForeground(Color.RED);
+		}
+	}
+
 	
 }
