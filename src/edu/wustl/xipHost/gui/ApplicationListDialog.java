@@ -30,6 +30,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import edu.wustl.xipHost.application.ApplicationManager;
+import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.EditApplicationDialog;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.iterator.IterationTarget;
@@ -314,8 +316,10 @@ public class ApplicationListDialog extends JDialog {
 					String wg23DataModel = (String)tableModel.getValueAt(row, 8);
 					int instances = (Integer) tableModel.getValueAt(row, 9);
 					IterationTarget iterationTarget = (IterationTarget) tableModel.getValueAt(row, 10);
-					Application app = new Application(name, path, vendor, version, iconPath, type,
-							requiresGUI, wg23DataModel, instances, iterationTarget);
+					//Application app = new Application(name, path, vendor, version, iconPath, type,
+					//		requiresGUI, wg23DataModel, instances, iterationTarget);
+					ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
+					Application app = appMgr.getApplication(name);
 					JFrame frame = new JFrame();
 					EditApplicationDialog editDialog = new EditApplicationDialog(frame, app);
 					editDialog.setVisible(true);

@@ -272,7 +272,7 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 				wg23DataModelType = (String)comboModelDataModelType.getElementAt(0);
 			}
 			if(iterationTarget == null){
-				iterationTarget = IterationTarget.valueOf((String)comboModelIterationTarget.getElementAt(1));
+				iterationTarget = (IterationTarget) comboModelIterationTarget.getElementAt(1);
 			}
 			if(txtConcurrentInstances.getText().isEmpty()){
 				txtConcurrentInstances.setText("Eneter number of instances");
