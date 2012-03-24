@@ -19,7 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import edu.wustl.xipHost.application.AddApplicationDialog;
+import edu.wustl.xipHost.application.EditApplicationDialog;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
@@ -101,7 +101,8 @@ public class OptionsDialog extends JDialog implements ActionListener{
 
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == btnAdd){
-				new AddApplicationDialog(new JFrame());
+				EditApplicationDialog appDialog = new EditApplicationDialog(new JFrame(), null);
+				appDialog.setVisible(true);
 				close();
 			}else if(e.getSource() == btnView){
 				Application [] apps;
