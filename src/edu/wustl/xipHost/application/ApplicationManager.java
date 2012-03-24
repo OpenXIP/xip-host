@@ -18,6 +18,7 @@ public interface ApplicationManager {
 	public boolean loadApplications (File xipAppFile) throws JDOMException, IOException;
 	public boolean storeApplications(List<Application> applications, File xipAppFile);			
 	public boolean addApplication(Application newApplication);
+	public boolean addNotValidApplication(Application notValidApplication);
 	public boolean modifyApplication(UUID applicationUUID, Application modifiedApplication);
 	public boolean removeApplication(UUID applicationUUID);	
 	public Application getApplication(UUID uuid);

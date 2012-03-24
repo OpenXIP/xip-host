@@ -70,7 +70,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 						app.addApplicationTerminationListener(applicationTerminationListener);
 						addApplication(app);
 					} else {
-						notValidApplications.add(app);
+						addNotValidApplication(app);
 					}       			        			        	
 		        }   			
 			return true;
@@ -149,6 +149,11 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		}catch(IllegalArgumentException e){
 			return false;
 		}		
+	}
+	
+	public boolean addNotValidApplication(Application notValidApplication){
+		notValidApplications.add(notValidApplication);
+		return true;
 	}
 	
 	/**
