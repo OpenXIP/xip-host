@@ -223,9 +223,12 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	 */
 	public Application getApplication(String applicationName){
 		Application app = null;
-		for(int i = 0; i < validApplications.size(); i++){
-			if(validApplications.get(i).getName().equalsIgnoreCase(applicationName)){
-				app = validApplications.get(i);
+		List<Application> allAppliations = new ArrayList<Application>();
+		allAppliations.addAll(validApplications);
+		allAppliations.addAll(notValidApplications);
+		for(int i = 0; i < allAppliations.size(); i++){
+			if(allAppliations.get(i).getName().equalsIgnoreCase(applicationName)){
+				app = allAppliations.get(i);
 			}
 		}
 		return app;
