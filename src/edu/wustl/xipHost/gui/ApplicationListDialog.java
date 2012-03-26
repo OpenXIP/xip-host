@@ -13,6 +13,9 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -29,12 +32,10 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-
 import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.EditApplicationDialog;
 import edu.wustl.xipHost.application.Application;
-import edu.wustl.xipHost.iterator.IterationTarget;
 
 /**
  * <font  face="Tahoma" size="2">
@@ -226,6 +227,17 @@ public class ApplicationListDialog extends JDialog {
             }
         }
 		
+		public void fireTableRowUpdated(int firstRow, int lastRow){
+			appListTable.revalidate();
+			/*Thread t = new Thread(){
+				public void run(){
+					appListTable.revalidate();
+					appListTable.updateUI();
+				}
+			};
+			t.start();*/
+		}
+		
 	}	
 	
 	public void buildLayout(){
@@ -298,6 +310,7 @@ public class ApplicationListDialog extends JDialog {
 		new ApplicationListDialog(new JFrame(), null).display();
 	}
 	
+	EditApplicationDialog editDialog;
 	class EditApplicationMouseAdapter extends MouseAdapter {
 		int row;					
 		public void mouseClicked(MouseEvent e) {
@@ -307,26 +320,47 @@ public class ApplicationListDialog extends JDialog {
 				appListTable.setRowSelectionInterval(row, row);		
 				if(e.getClickCount() == 2){					
 					String name = (String)tableModel.getValueAt(row, 1);
-					String path = (String)tableModel.getValueAt(row, 2);
-					String vendor = (String)tableModel.getValueAt(row, 3);
-					String version = (String)tableModel.getValueAt(row, 4);
-					String iconPath = (String)tableModel.getValueAt(row, 5);
-					String type = (String)tableModel.getValueAt(row, 6);
-					Boolean requiresGUI = (Boolean)tableModel.getValueAt(row, 7);
-					String wg23DataModel = (String)tableModel.getValueAt(row, 8);
-					int instances = (Integer) tableModel.getValueAt(row, 9);
-					IterationTarget iterationTarget = (IterationTarget) tableModel.getValueAt(row, 10);
-					//Application app = new Application(name, path, vendor, version, iconPath, type,
-					//		requiresGUI, wg23DataModel, instances, iterationTarget);
+					//TODO getApplication by name may not work when name is an empty String
 					ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
 					Application app = appMgr.getApplication(name);
 					JFrame frame = new JFrame();
-					EditApplicationDialog editDialog = new EditApplicationDialog(frame, app);
+					editDialog = new EditApplicationDialog(frame, app);
+					editDialog.addWindowListener(editApplicationListener);
 					editDialog.setVisible(true);
 				}
 			}
 		}
 	}
+
+	WindowListener editApplicationListener = new WindowAdapter() {
+		public void windowClosed(WindowEvent w) {
+			int appRow = appListTable.getSelectedRow();
+			Application app = editDialog.getApplication();
+			Icon statusIcon;
+			if(app.isValid()){
+				statusIcon = statusValid;
+			} else {
+				statusIcon = statusNotValid;
+			}
+			values[appRow][0] = statusIcon;
+			values[appRow][1] = app.getName();
+			values[appRow][2] = app.getExePath();
+			values[appRow][3] = app.getVendor();
+			values[appRow][4] = app.getVersion();
+			if(app.getIconPath() != null){
+				values[appRow][5] = app.getIconPath();
+			}else{
+				values[appRow][5] = "";
+			}
+			values[appRow][6] = app.getType();
+			values[appRow][7] = app.requiresGUI();
+			values[appRow][8] = app.getWG23DataModelType();
+			values[appRow][9] = app.getConcurrentInstances();
+			values[appRow][10] = app.getIterationTarget();
+			tableModel.fireTableRowsUpdated(appRow, appRow);
+		}
+	};
+	
 	
 }	
 

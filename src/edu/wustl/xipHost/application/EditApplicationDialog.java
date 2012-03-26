@@ -16,11 +16,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -34,7 +31,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
-
 import org.apache.log4j.Logger;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.gui.ExceptionDialog;
@@ -197,14 +193,6 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
         Dimension windowSize = this.getPreferredSize();
         setBounds((screenSize.width - windowSize.width) / 2, (screenSize.height - windowSize.height) /2,  windowSize.width, windowSize.height);
 		pack();
-		//setVisible(true);
-		addWindowListener (
-	            new WindowAdapter(){
-	                public void windowClosing(WindowEvent e){	                	
-	                	dispose();
-	                }
-	            }
-	     );
 		if(app == null){
 			listType.setSelectedIndex(0);
 			listRequiresGUI.setSelectedIndex(0);
@@ -321,6 +309,11 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 						appMgr.addApplication(app);
 						HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
 				    	HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
+					} else if(appWasValid == true && app.isValid() == false) {
+						appMgr.removeApplication(app.getID());
+						appMgr.addNotValidApplication(app);
+						HostMainWindow.getHostIconBar().getApplicationBar().removeApplicationIcon(app);
+						HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
 					}
 				}
 			}catch (IllegalArgumentException e1){
@@ -328,7 +321,7 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 						"Ensure applications parameters are valid.",
 						"Add Application Dialog");
 				return;
-			}			
+			}
 			dispose();
 		}else{
 			app = null;
