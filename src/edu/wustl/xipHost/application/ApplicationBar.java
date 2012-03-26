@@ -13,6 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -57,6 +59,19 @@ public class ApplicationBar extends JPanel implements ActionListener {
 		btn.addActionListener(this);
 		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		add(btn);
+	}
+	
+	public void removeApplicationIcon(Application app){
+		Component[] btns = getComponents();
+		for(Component btn : btns){
+			if(btn instanceof AppButton){
+				AppButton appBtn = (AppButton)btn;
+				UUID appUUID = appBtn.getApplicationUUID();
+				if(app.getID().equals(appUUID)){
+					remove(btn);
+				}
+			}
+		}
 	}
 
 	
