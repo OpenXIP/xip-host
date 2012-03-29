@@ -11,6 +11,8 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -21,7 +23,9 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -44,7 +48,7 @@ import edu.wustl.xipHost.application.Application;
  * @author Jaroslaw Krych
  * </font>
  */
-public class ApplicationListDialog extends JDialog {
+public class ApplicationListDialog extends JDialog implements ActionListener {
 	Icon statusValid = new ImageIcon("./gif/AppStatusValid.png");
 	Icon statusNotValid = new ImageIcon("./gif/AppStatusNotValid.png");
 	Font font = new Font("Tahoma", 1, 14);
@@ -57,6 +61,10 @@ public class ApplicationListDialog extends JDialog {
 	Font font_2 = new Font("Tahoma", 0, 12);
 	Border border = BorderFactory.createLineBorder(Color.BLACK);
 	EditApplicationMouseAdapter editMouseListener = new EditApplicationMouseAdapter();
+	JPopupMenu popupMenu = new JPopupMenu();
+	JMenuItem itemAdd = new JMenuItem("Add");
+	JMenuItem itemEdit = new JMenuItem("Edit"); 
+	JMenuItem itemDelete = new JMenuItem("Delete");
 	
 	public ApplicationListDialog(Frame owner, Object[] values){						
 		super(owner, "Registered applications", true); 
@@ -121,6 +129,15 @@ public class ApplicationListDialog extends JDialog {
 		JScrollPane jsp = new JScrollPane(appListTable);
 		jsp.setPreferredSize(new Dimension(900, 300));
 		panel.add(jsp);
+		itemAdd.setHorizontalTextPosition(JMenuItem.RIGHT);
+		itemAdd.addActionListener(this);
+		itemEdit.setHorizontalTextPosition(JMenuItem.RIGHT);
+		itemEdit.addActionListener(this);
+		itemDelete.setHorizontalTextPosition(JMenuItem.RIGHT);
+		itemDelete.addActionListener(this);
+		popupMenu.add(itemAdd);
+		popupMenu.add(itemEdit);
+		popupMenu.add(itemDelete);
 		buildLayout(); 	
 	}
 		
@@ -229,13 +246,12 @@ public class ApplicationListDialog extends JDialog {
 		
 		public void fireTableRowUpdated(int firstRow, int lastRow){
 			appListTable.revalidate();
-			/*Thread t = new Thread(){
-				public void run(){
-					appListTable.revalidate();
-					appListTable.updateUI();
-				}
-			};
-			t.start();*/
+			appListTable.repaint();
+		}
+		
+		public void fireTableRowsDeleted(int firstRow, int lastRow){
+			appListTable.revalidate();
+			appListTable.repaint();
 		}
 		
 	}	
@@ -311,13 +327,14 @@ public class ApplicationListDialog extends JDialog {
 	}
 	
 	EditApplicationDialog editDialog;
+	int row;	
 	class EditApplicationMouseAdapter extends MouseAdapter {
-		int row;					
+						
 		public void mouseClicked(MouseEvent e) {
-			if(e.getButton() == 1){
-				JTable source = (JTable)e.getSource();
-				row = source.rowAtPoint( e.getPoint() );
-				appListTable.setRowSelectionInterval(row, row);		
+			JTable source = (JTable)e.getSource();
+			row = source.rowAtPoint( e.getPoint() );
+			appListTable.setRowSelectionInterval(row, row);	
+			if(e.getButton() == 1){	
 				if(e.getClickCount() == 2){					
 					String name = (String)tableModel.getValueAt(row, 1);
 					//TODO getApplication by name may not work when name is an empty String
@@ -328,6 +345,8 @@ public class ApplicationListDialog extends JDialog {
 					editDialog.addWindowListener(editApplicationListener);
 					editDialog.setVisible(true);
 				}
+			} else if (e.getButton() == 3){
+				 //popupMenu.show((JTable)e.getSource(), e.getX(), e.getY());
 			}
 		}
 	}
@@ -360,8 +379,20 @@ public class ApplicationListDialog extends JDialog {
 			tableModel.fireTableRowsUpdated(appRow, appRow);
 		}
 	};
-	
-	
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		popupMenu.setVisible(false);
+		JMenuItem source = (JMenuItem)e.getSource();
+		if(source == itemAdd){
+			
+		} else if (source == itemEdit) {
+			
+		} else if (source == itemDelete) {
+			
+			tableModel.fireTableRowsDeleted(row, row);
+		}
+	}
 }	
 
 	
