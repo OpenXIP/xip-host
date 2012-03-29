@@ -48,12 +48,6 @@ public class ApplicationBar extends JPanel implements ActionListener {
 			iconFile = new ImageIcon(app.getIconPath());
 		}
 		final AppButton btn = new AppButton(app.getName(), iconFile);
-		double preferredWidth = btn.getPreferredSize().getWidth();
-		if(preferredWidth < 100){
-			btn.setPreferredSize(new Dimension(100, 25));
-		} else {
-			btn.setPreferredSize(new Dimension((int)preferredWidth, 25));
-		}
 		btn.setApplicationUUID(app.getID());
 		btn.setForeground(Color.BLACK);			
 		btn.addActionListener(this);
@@ -69,6 +63,19 @@ public class ApplicationBar extends JPanel implements ActionListener {
 				UUID appUUID = appBtn.getApplicationUUID();
 				if(app.getID().equals(appUUID)){
 					remove(btn);
+				}
+			}
+		}
+	}
+	
+	public void updateApplicationTextAndIcon(Application app){
+		Component[] btns = getComponents();
+		for(Component btn : btns){
+			if(btn instanceof AppButton){
+				AppButton appBtn = (AppButton)btn;
+				UUID appUUID = appBtn.getApplicationUUID();
+				if(app.getID().equals(appUUID)){
+					appBtn.setAppButtonTextAndIcon(app.getName(), new ImageIcon(app.getIconPath()));
 				}
 			}
 		}
