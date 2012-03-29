@@ -166,7 +166,7 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		Application app = getApplication(applicationUUID);
 		if(app == null){
 			return false;
-		}else if(app.getState() != null){
+		} else if(app.getState() != null){
 			if(!app.getState().equals(State.EXIT) || !app.getState().equals(null)){
 				return false;
 			}
@@ -176,11 +176,21 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		String newVendor = modifiedApplication.getVendor();
 		String newVersion = modifiedApplication.getVersion();
 		String newIconFile = modifiedApplication.getIconPath();
+		String newType = modifiedApplication.getType();
+		boolean newRequiresGUI = modifiedApplication.requiresGUI();
+		String newWG23DataModelType = modifiedApplication.getWG23DataModelType();
+		int newConcurrentInstances = modifiedApplication.getConcurrentInstances();
+		IterationTarget newIterationTarget = modifiedApplication.getIterationTarget();
 		app.setName(newName);
 		app.setExePath(newExePath);
 		app.setVendor(newVendor);
 		app.setVersion(newVersion);
 		app.setIconPath(newIconFile);
+		app.setType(newType);
+		app.setRequiresGUI(newRequiresGUI);
+		app.setWG23DataModelType(newWG23DataModelType);
+		app.setConcurrentInstances(newConcurrentInstances);
+		app.setIterationTarget(newIterationTarget);
 		return true;		
 	}
 	
