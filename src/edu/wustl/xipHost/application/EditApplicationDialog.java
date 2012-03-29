@@ -14,6 +14,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -81,6 +84,9 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 	public EditApplicationDialog(Frame owner, Application app){		
 		super(owner, "Edit application", true);
 		this.app = app;
+		txtName.addKeyListener(customKeyListener);
+		txtPath.addKeyListener(customKeyListener);
+		txtIconFile.addKeyListener(customKeyListener);
 		comboModelType.addElement("Rendering");
 		comboModelType.addElement("Analytical");
 		listType.setMaximumRowCount(10);
@@ -313,6 +319,11 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 						appMgr.removeApplication(app.getID());
 						appMgr.addNotValidApplication(app);
 						HostMainWindow.getHostIconBar().getApplicationBar().removeApplicationIcon(app);
+						HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
+					} else if (appWasValid == true && app.isValid()){
+						//Update
+						appMgr.modifyApplication(app.getID(), app);
+						HostMainWindow.getHostIconBar().getApplicationBar().updateApplicationTextAndIcon(app);
 						HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
 					}
 				}
@@ -629,5 +640,17 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 		}
 	}
 
+	Border borderEmpty = BorderFactory.createEmptyBorder();
+	int count = 0;
+	KeyListener customKeyListener = new KeyAdapter(){
+		public void keyTyped(KeyEvent e){
+			JTextField txtField = (JTextField)(e.getSource());
+			txtField.setForeground(Color.BLACK);
+			txtField.setBorder(borderEmpty);
+			txtField.setPreferredSize(new Dimension((int)txtField.getPreferredSize().getWidth(), (int)txtField.getPreferredSize().getHeight() - 2));
+			txtField.revalidate();
+			txtField.repaint();
+		}
+	};
 	
 }
