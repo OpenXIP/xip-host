@@ -297,7 +297,9 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 						HostMainWindow.getHostIconBar().getApplicationBar().addApplicationIcon(app);
 				    	HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
 						//addApplicationTerminationListener
-					} 
+					} else {
+						appMgr.addNotValidApplication(app);
+					}
 				} else {
 					boolean appWasValid = app.isValid();
 					app.setName(txtName.getText());
