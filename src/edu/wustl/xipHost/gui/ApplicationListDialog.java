@@ -62,9 +62,10 @@ public class ApplicationListDialog extends JDialog implements ActionListener {
 	Border border = BorderFactory.createLineBorder(Color.BLACK);
 	EditApplicationMouseAdapter editMouseListener = new EditApplicationMouseAdapter();
 	JPopupMenu popupMenu = new JPopupMenu();
-	JMenuItem itemAdd = new JMenuItem("Add");
 	JMenuItem itemEdit = new JMenuItem("Edit"); 
 	JMenuItem itemDelete = new JMenuItem("Delete");
+	ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
+	PopupMenuMouseAdapter popupMenuMouseListener = new PopupMenuMouseAdapter();
 	
 	public ApplicationListDialog(Frame owner, Object[] values){						
 		super(owner, "Registered applications", true); 
@@ -129,15 +130,15 @@ public class ApplicationListDialog extends JDialog implements ActionListener {
 		JScrollPane jsp = new JScrollPane(appListTable);
 		jsp.setPreferredSize(new Dimension(900, 300));
 		panel.add(jsp);
-		itemAdd.setHorizontalTextPosition(JMenuItem.RIGHT);
-		itemAdd.addActionListener(this);
 		itemEdit.setHorizontalTextPosition(JMenuItem.RIGHT);
 		itemEdit.addActionListener(this);
+		itemEdit.addMouseMotionListener(popupMenuMouseListener);
 		itemDelete.setHorizontalTextPosition(JMenuItem.RIGHT);
 		itemDelete.addActionListener(this);
-		popupMenu.add(itemAdd);
+		itemDelete.addMouseMotionListener(popupMenuMouseListener);
 		popupMenu.add(itemEdit);
 		popupMenu.add(itemDelete);
+		
 		buildLayout(); 	
 	}
 		
@@ -336,17 +337,21 @@ public class ApplicationListDialog extends JDialog implements ActionListener {
 			appListTable.setRowSelectionInterval(row, row);	
 			if(e.getButton() == 1){	
 				if(e.getClickCount() == 2){					
-					String name = (String)tableModel.getValueAt(row, 1);
-					//TODO getApplication by name may not work when name is an empty String
-					ApplicationManager appMgr = ApplicationManagerFactory.getInstance();
-					Application app = appMgr.getApplication(name);
-					JFrame frame = new JFrame();
-					editDialog = new EditApplicationDialog(frame, app);
-					editDialog.addWindowListener(editApplicationListener);
-					editDialog.setVisible(true);
+					editApplicationUpdateTable();
 				}
 			} else if (e.getButton() == 3){
-				 //popupMenu.show((JTable)e.getSource(), e.getX(), e.getY());
+				 popupMenu.show((JTable)e.getSource(), e.getX(), e.getY());
+			}
+		}
+	}
+	
+	class PopupMenuMouseAdapter extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+			Object source = e.getSource();
+			if(source == itemEdit) {
+				editApplicationUpdateTable();
+			} else if(source == itemDelete){
+				deleteApplicationUpdateTable();
 			}
 		}
 	}
@@ -384,14 +389,50 @@ public class ApplicationListDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		popupMenu.setVisible(false);
 		JMenuItem source = (JMenuItem)e.getSource();
-		if(source == itemAdd){
-			
-		} else if (source == itemEdit) {
-			
+		if (source == itemEdit) {
+			editApplicationUpdateTable();
 		} else if (source == itemDelete) {
-			
-			tableModel.fireTableRowsDeleted(row, row);
+			deleteApplicationUpdateTable();
 		}
+	}
+	
+	
+	void editApplicationUpdateTable(){
+		String name = (String)tableModel.getValueAt(row, 1);
+		//TODO getApplication by name may not work when name is an empty String
+		Application app = appMgr.getApplication(name);
+		JFrame frame = new JFrame();
+		editDialog = new EditApplicationDialog(frame, app);
+		editDialog.addWindowListener(editApplicationListener);
+		editDialog.setVisible(true);
+	}
+	
+	void deleteApplicationUpdateTable(){
+		int appRow = appListTable.getSelectedRow();
+		String appName = (String) tableModel.getValueAt(appRow, 1);
+		Application app = appMgr.getApplication(appName);
+		Object[][] updatedValues = new Object[numOfRows - 1][11];
+		int index = 0;
+		for(int i = 0; i < values.length; i++){
+			for(int j = 0; j < 11; j++){
+				if(i != appRow){
+					updatedValues[index][j] = values[i][j];
+				}
+			}
+			if(i != appRow){
+				index++;
+			}
+		}
+		values = updatedValues;
+		numOfRows--;
+		if(app.isValid()){
+			appMgr.removeApplication(app.getID());
+		} else {
+			appMgr.removeNotValidApplication(app.getID());
+		}
+		HostMainWindow.getHostIconBar().getApplicationBar().removeApplicationIcon(app);
+		HostMainWindow.getHostIconBar().getApplicationBar().updateUI();
+		tableModel.fireTableRowsDeleted(row, row);
 	}
 }	
 
