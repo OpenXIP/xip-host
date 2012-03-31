@@ -5,6 +5,8 @@ package edu.wustl.xipHost.application;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Rectangle;
 import java.util.UUID;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -38,11 +40,16 @@ public class AppButton extends JButton{
 	
 	
 	void setPreferredSize(){
-		double preferredWidth = getPreferredSize().getWidth();
-		if(preferredWidth < 100){
-			setPreferredSize(new Dimension(100, 25));
+		FontMetrics metrics = getFontMetrics(getFont()); 
+		int width = metrics.stringWidth( getText() );
+		int height = metrics.getHeight();
+		Dimension newDimension;
+		if(this.getIcon() != null){
+			newDimension =  new Dimension(width + 60, height + 10);
 		} else {
-			setPreferredSize(new Dimension((int)preferredWidth, 25));
+			newDimension =  new Dimension(width + 40, height + 10);
 		}
+		setPreferredSize(newDimension);
+		setBounds(new Rectangle(getLocation(), getPreferredSize()));
 	}
 }
