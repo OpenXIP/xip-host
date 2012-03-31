@@ -23,7 +23,7 @@ public class ModifyApplicationTest extends TestCase {
 	//ApplicationManager 1A - basic flow. Application UUID found, new parameters are correct.
 	public void testModifyApplication1A() {						
 		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
+		Application modifiedApp = new Application("Modified", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.STUDY);
 		UUID uuid = app.getID();
 		mgr.addApplication(app);
 		assertTrue("UUID and modified parameters were correct, but system was unable to modify application.", mgr.modifyApplication(uuid, modifiedApp));
@@ -34,7 +34,8 @@ public class ModifyApplicationTest extends TestCase {
 				mgr.getApplication(uuid).getName().equalsIgnoreCase("Modified") &&
 				mgr.getApplication(uuid).getExePath().equals(modifiedApp.getExePath()) &&
 				mgr.getApplication(uuid).getVendor().equalsIgnoreCase("") &&
-				mgr.getApplication(uuid).getVersion().equalsIgnoreCase(""));
+				mgr.getApplication(uuid).getVersion().equalsIgnoreCase("") &&
+				mgr.getApplication(uuid).getIterationTarget().equals(IterationTarget.STUDY));
 	}
 
 	//ApplicationManager 1B - alternative flow. UUID not found, new parameters are correct.
