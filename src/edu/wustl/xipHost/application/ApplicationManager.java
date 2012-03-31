@@ -21,6 +21,7 @@ public interface ApplicationManager {
 	public boolean addNotValidApplication(Application notValidApplication);
 	public boolean modifyApplication(UUID applicationUUID, Application modifiedApplication);
 	public boolean removeApplication(UUID applicationUUID);	
+	public void removeNotValidApplication(UUID uuid);
 	public Application getApplication(UUID uuid);
 	public Application getApplication(String applicationName);	
 	public List<Application> getApplications();	

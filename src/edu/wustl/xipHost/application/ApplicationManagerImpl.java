@@ -212,7 +212,20 @@ public class ApplicationManagerImpl implements ApplicationManager{
 			}
 		}
 		return false;
-	}		
+	}
+	
+	public void removeNotValidApplication(UUID uuid){
+		for(int i = 0; i < getNumberOfNotValidApplications(); i++){
+			List<Application> apps = getNotValidApplications();
+			Iterator<Application> iter = apps.iterator();
+			while(iter.hasNext()){
+				Application app = iter.next();
+				if(app.getID().equals(uuid)){
+					iter.remove();
+				}
+			}
+		}
+	}
 		
 	public Application getApplication(UUID uuid){
 		Application app = null;
