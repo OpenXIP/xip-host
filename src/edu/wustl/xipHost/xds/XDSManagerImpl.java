@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -594,7 +593,7 @@ public class XDSManagerImpl implements XDSManager{
 		if ((patientAddress != null) && ( ! patientAddress.isEmpty())){
 			//TODO:Divide into constituent parts:
 			// streetAddress, city, county, state, country, zip, otherDesignation, type
-			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "", "");
+			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "");
 		}
 		//pdqQuery.addPatientAddress("10 PINETREE", "", "", "", "", "", "");
 		//pdqQuery.addPatientAddress(addressStreetAddress, addressCity, addressCounty, addressState, addressCountry, addressZip, addressOtherDesignation, addressType)
