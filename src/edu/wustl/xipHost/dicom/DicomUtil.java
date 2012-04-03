@@ -32,6 +32,8 @@ import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.dicom.TimeAttribute;
 import com.pixelmed.dicom.UniqueIdentifierAttribute;
 
+import eu.medsea.util.MimeUtil;
+
 /**
  * @author Jaroslaw Krych
  *
@@ -68,7 +70,7 @@ public class DicomUtil {
 					mimeType = "application/dicom";
 				}else{				
 					//mimeType = new MimetypesFileTypeMap().getContentType(file);
-					//TODO
+					mimeType = MimeUtil.getMimeType(file);
 				}
 			} catch (IOException e) {
 				throw new IOException();	
