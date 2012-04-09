@@ -12,8 +12,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -24,7 +22,6 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -80,7 +77,7 @@ import gov.nih.nci.cagrid.cqlquery.CQLQuery;
  * @author Jaroslaw Krych
  *
  */
-public class GridPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener, ItemListener, RetrieveListener {	
+public class GridPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener, RetrieveListener {	
 	final static Logger logger = Logger.getLogger(GridPanel.class);
 	JPanel locationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select caGRID DICOM Service Location:");		
@@ -88,7 +85,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 	JLabel lblGlobus = new JLabel(iconGlobus, JLabel.CENTER);		
     DefaultComboBoxModel comboModel;	
 	JComboBox list;
-	JCheckBox enableSecuredConn = new JCheckBox("Enable Secured Connection");
+	//JCheckBox enableSecuredConn = new JCheckBox("Enable Secured Connection");
 	SearchCriteriaPanel criteriaPanel = new SearchCriteriaPanel();			
 	JPanel leftPanel = new JPanel();
 	RightPanel rightPanel = new RightPanel();
@@ -147,10 +144,10 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		lblTitle.setForeground(Color.WHITE);
 		locationSelectionPanel.add(lblTitle);		
 		locationSelectionPanel.add(list);
-		enableSecuredConn.setSelected(false);
-		enableSecuredConn.setForeground(Color.WHITE);
-		enableSecuredConn.addItemListener(this);
-		locationSelectionPanel.add(enableSecuredConn);
+		//enableSecuredConn.setSelected(false);
+		//enableSecuredConn.setForeground(Color.WHITE);
+		//enableSecuredConn.addItemListener(this);
+		//locationSelectionPanel.add(enableSecuredConn);
 		lblGlobus.setToolTipText("DICOM service locations");
 		lblGlobus.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		lblGlobus.addMouseListener(
@@ -252,14 +249,14 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblGlobus, constraints);  
         
-        constraints.fill = GridBagConstraints.NONE;        
+        /*constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 3;        
         constraints.insets.top = 10;
         constraints.insets.left = 20;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
-        layout.setConstraints(enableSecuredConn, constraints);  
+        layout.setConstraints(enableSecuredConn, constraints);*/  
 	}	
 	
 	void buildLeftPanelLayout(){
@@ -705,7 +702,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		objectLocators = (Map<String, ObjectLocator>) e.getSource();
 	}
 
-	@Override
+	/*@Override
 	public void itemStateChanged(ItemEvent e) {
 		if(e.getSource().equals(enableSecuredConn)){
 			if(enableSecuredConn.isSelected()) {
@@ -714,7 +711,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				logger.debug("Disenabling NBIA/grid DICOM secured connection...");
 			}
 		}
-	}
+	}*/
 	
 }
 

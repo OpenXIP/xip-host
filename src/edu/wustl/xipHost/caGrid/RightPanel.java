@@ -36,7 +36,6 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
  * Creates RightPanel fo caGridDiscoveryPanel
  */
 public class RightPanel extends JPanel {	
-	//SearchResultTree gridJTree;	
 	SearchResultTree gridJTree;
 	JScrollPane treeView;
     JCheckBox cbxAnnot;
@@ -45,7 +44,6 @@ public class RightPanel extends JPanel {
     ImageIcon iconGlobus = new ImageIcon("./gif/applications-internet.png");
 	JLabel lblGlobus = new JLabel(iconGlobus, JLabel.CENTER);
 	JPanel annotPanel = new JPanel();
-	JPanel optionsPanel = new JPanel();
 	JPanel btnSelectionPanel = new JPanel();
 	JButton btnSelectAll = new JButton("Select All");
 	JButton btnDeselectAll = new JButton("Deselect All");
@@ -57,8 +55,7 @@ public class RightPanel extends JPanel {
 	Color xipLightBlue = new Color(156, 162, 189);
 	
 	public RightPanel(){		
-		setBackground(xipColor);
-		//gridJTree = new SearchResultTree();			    
+		setBackground(xipColor);			    
 		gridJTree = new SearchResultTreeProgressive();
 		treeView = new JScrollPane(gridJTree);
 		cbxAnnot = new JCheckBox("with annotations", true);
@@ -82,25 +79,25 @@ public class RightPanel extends JPanel {
 		cbxAnnot.setForeground(Color.WHITE);
 									
 		btnSelectAll.setBackground(xipColor);
+		btnSelectAll.setPreferredSize(new Dimension(120, 25));
 		btnDeselectAll.setBackground(xipColor);
+		btnDeselectAll.setPreferredSize(new Dimension(120, 25));
 		btnSelectionPanel.setBackground(xipColor);
 		btnSelectionPanel.setLayout(new FlowLayout());
 		btnSelectionPanel.add(btnSelectAll);
 		btnSelectionPanel.add(btnDeselectAll);
-		optionsPanel.add(btnSelectionPanel);
-		optionsPanel.setBackground(xipColor);
 		
 		annotPanel.setBackground(xipColor);
 		annotPanel.add(cbxAnnot);
 		annotPanel.add(list);
 		annotPanel.add(lblGlobus);
 		buildLayoutAnnotPanel();						
-	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() + 30));		    
+	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));		    
 	    Border border1 = BorderFactory.createLoweredBevelBorder();
 	    treeView.setBorder(border1);		
 		
 	    add(treeView);
-		add(optionsPanel);
+		add(btnSelectionPanel);
 		add(annotPanel);
 		buildLayout();		
 	}
@@ -140,7 +137,7 @@ public class RightPanel extends JPanel {
         constraints.insets.right = 20;
         constraints.insets.bottom = 5;
         constraints.anchor = GridBagConstraints.CENTER;
-        layout.setConstraints(optionsPanel, constraints);
+        layout.setConstraints(btnSelectionPanel, constraints);
 	}
 	
 	void buildLayoutAnnotPanel(){

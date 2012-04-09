@@ -68,8 +68,7 @@ public class DicomUtil {
 				}			
 				if(magicNum.equalsIgnoreCase("DICM")){
 					mimeType = "application/dicom";
-				}else{				
-					//mimeType = new MimetypesFileTypeMap().getContentType(file);
+				}else{
 					mimeType = MimeUtil.getMimeType(file);
 				}
 			} catch (IOException e) {
