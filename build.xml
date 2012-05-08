@@ -39,8 +39,8 @@
 	    <fileset dir="${ext.lib}" includes="**/*.jar" />     
 	    <fileset dir="${lib.Xindice}" includes="**/*.jar" />     
 	    <fileset dir="${lib.OHT}" includes="**/*.jar" />     
-    	<fileset dir="${lib.NBIA}" includes="**/*.jar" />     
 	    <fileset dir="${lib.AVT}" includes="**/*.jar" />     
+        <fileset dir="${lib.NBIA}" includes="**/*.jar" />     
 	    <fileset dir="${lib}" />
 	    <!--fileset dir="${lib}" includes="**/*.jar" -->     
 	         <!--	<include name="caGrid-1.0-data-*.jar" /> -->
@@ -73,7 +73,15 @@
 	
    <target name="jar" depends="compile" description="generate the distribution jar">
       <!-- Put everything in ${build.classes} into the XXXX-${DSTAMP}.jar file -->
-      <jar jarfile="${build.lib}/XIPHost.jar" basedir="${build.classes}"/>
+      <manifestclasspath jarfile="${build.lib}/XIPHost.jar" property="manifest.class.path">
+  		<classpath refid="run.classpath"/>
+	  </manifestclasspath> 
+      <jar jarfile="${build.lib}/XIPHost.jar" basedir="${build.classes}">
+      	<manifest>
+			<attribute name="Main-Class" value="${main-class}"/>
+			<attribute name="Class-Path" value="${manifest.class.path}"/>
+		</manifest>
+  	  </jar>
    </target>
    
    <!-- =============================================================== -->   

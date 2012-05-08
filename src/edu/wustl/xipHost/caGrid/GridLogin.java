@@ -2,9 +2,13 @@ package edu.wustl.xipHost.caGrid;
 
 import gov.nih.nci.cagrid.authentication.bean.BasicAuthenticationCredential;
 import gov.nih.nci.cagrid.authentication.bean.Credential;
+import gov.nih.nci.cagrid.ncia.util.SecureClientUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
+
+import org.globus.gsi.GlobusCredential;
 
 /**
  * <font  face="Tahoma" size="2" color="Black">
@@ -35,9 +39,17 @@ public class GridLogin {
 			Properties prop = new Properties();
 			prop.load(new FileInputStream(f));
 			
-			String url = prop.getProperty("cagrid.master.dorian.service.url");
-			System.out.println("url is " + url);
+			//String url = prop.getProperty("cagrid.master.dorian.service.url");
+			//System.out.println("url is " + url);
+			String dorianURL = prop.getProperty("cagrid.master.dorian.service.url");
+			String authUrl = prop.getProperty("cagrid.master.authentication.service.url");
+
+			GlobusCredential globusCred = SecureClientUtil.generateGlobusCredential(userName,
+					password,
+                    dorianURL,
+                    authUrl);
 			
+			System.out.println("Globus credential is " + globusCred.toString());
 			
 			/***********************/
 			
@@ -65,7 +77,7 @@ public class GridLogin {
 				*/
 			return new Boolean(true);
 		}catch(Exception e){
-			//System.out.print("Exception JK : "+ e);
+			System.out.print("Exception JK : "+ e);
 			return new Boolean(false);
 		}
 		
