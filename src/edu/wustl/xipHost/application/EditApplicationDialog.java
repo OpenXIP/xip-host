@@ -194,7 +194,7 @@ public class EditApplicationDialog extends JDialog implements ActionListener, Fo
 		buildLayout();
 		add(panel);
 		setResizable(false);								
-		//this.setPreferredSize(new Dimension(300, 200));
+		setPreferredSize(new Dimension(700, 500));
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension windowSize = this.getPreferredSize();
         setBounds((screenSize.width - windowSize.width) / 2, (screenSize.height - windowSize.height) /2,  windowSize.width, windowSize.height);
