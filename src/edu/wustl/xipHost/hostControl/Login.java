@@ -2,20 +2,15 @@ package edu.wustl.xipHost.hostControl;
 
 import org.openhealthtools.ihe.atna.auditor.IHEAuditor;
 import org.openhealthtools.ihe.atna.auditor.codes.rfc3881.RFC3881EventCodes.RFC3881EventOutcomeCodes;
-
 import edu.wustl.xipHost.caGrid.GridLogin;
 import edu.wustl.xipHost.xua.XUALogin;
-
 
 public class Login {
 	
 	static GridLogin gridLogin = new GridLogin();
 	static XUALogin xuaLogin = new XUALogin();
-	
-	//establishSecureConnection
-	
 	public static boolean useXUA = false;
-	public static boolean validateGridSecur = false;
+	public static boolean validateGridSecur = true;
 	/**
 	 * validateUser is a client to middleware authorization and authentication component
 	 */		
