@@ -1,14 +1,24 @@
 package edu.wustl.xipHost.caGrid;
 
-import gov.nih.nci.cagrid.authentication.bean.BasicAuthenticationCredential;
-import gov.nih.nci.cagrid.authentication.bean.Credential;
 import gov.nih.nci.cagrid.ncia.util.SecureClientUtil;
-
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Properties;
-
+import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 
 /**
  * <font  face="Tahoma" size="2" color="Black">
@@ -18,7 +28,7 @@ import org.globus.gsi.GlobusCredential;
  * </font>
  */
 public class GridLogin {
-
+	final static Logger logger = Logger.getLogger(GridLogin.class);
 	
 	public boolean login(String userName, String password) {				
 		//args[0] = "wustl";
@@ -30,8 +40,6 @@ public class GridLogin {
 				System.out.println("usage: <name> <password>");				
 				System.exit(-1);
 			}
-			//System.out.println(userName + " " + password);
-			
 			// using the currentGrid
 			File f = new File("./resources/service_urls.properties");
 			System.out.println("properties file is " + f.getCanonicalPath());
@@ -44,72 +52,60 @@ public class GridLogin {
 			String dorianURL = prop.getProperty("cagrid.master.dorian.service.url");
 			String authUrl = prop.getProperty("cagrid.master.authentication.service.url");
 
-			GlobusCredential globusCred = SecureClientUtil.generateGlobusCredential(userName,
+			globusCred = SecureClientUtil.generateGlobusCredential(userName,
 					password,
                     dorianURL,
                     authUrl);
 			
 			System.out.println("Globus credential is " + globusCred.toString());
-			
-			/***********************/
-			
-			Credential credential = new Credential();
-			BasicAuthenticationCredential bac = new BasicAuthenticationCredential();
-			bac.setUserId(userName);
-			bac.setPassword(password);
-			credential.setBasicAuthenticationCredential(bac);
-			/* Commented JK on February 22nd, 2012
-			*/
-			/*AuthenticationClient client = new AuthenticationClient(url, credential);
-			SAMLAssertion saml;
-			saml = client.authenticate();
-			IFSUserClient c2 = new IFSUserClient(url);
-			
-			ProxyLifetime lifetime = new ProxyLifetime();
-			lifetime.setHours(12);
-			lifetime.setMinutes(0);
-			lifetime.setSeconds(0);
-			int delegation = 1;
-			
-			GlobusCredential cred = c2.createProxy(saml, lifetime, delegation);
-			ProxyUtil.saveProxyAsDefault(cred);
-			System.out.println("logged in with identity: " + cred.getIdentity() + ", saved proxy as default");
-				*/
 			return new Boolean(true);
 		}catch(Exception e){
+			globusCred = null;
 			System.out.print("Exception JK : "+ e);
 			return new Boolean(false);
 		}
 		
 	}
 	
-	/*public static GlobusCredential authenticate(String dorianURL, String authenticationServiceURL, String userId,
-	        String password) throws Exception {
-	        // Create credential
-
-	        BasicAuthentication auth = new BasicAuthentication();
-	        auth.setUserId(userId);
-	        auth.setPassword(password);
-
-	        // Authenticate to the IdP (DorianIdP) using credential
-
-	        AuthenticationClient authClient = new AuthenticationClient(authenticationServiceURL);
-	        SAMLAssertion saml = authClient.authenticate(auth);
-
-	        // Requested Grid Credential lifetime (12 hours)
-
-	        CertificateLifetime lifetime = new CertificateLifetime();
-	        lifetime.setHours(12);
-
-	        // Request PKI/Grid Credential
-	        GridUserClient dorian = new GridUserClient(dorianURL);
-	        GlobusCredential credential = dorian.requestUserCertificate(saml, lifetime);
-	        return credential;
-	    }*/
+	static boolean isConnectionSecured;
+	public static boolean isConnectionSecured(){
+		return isConnectionSecured;
+	}
 	
-	public void getAssertionCertificate(String userName, String password) {
-		//TODO get assertion certificate logic
-		
+	static GlobusCredential globusCred;
+	public static GlobusCredential getGlobusCredential(){
+		return globusCred;
+	}
+	
+	public GlobusCredential acquireGlobusCredential(String userName, String password){
+		try{			
+			if(userName == null) {
+				logger.warn("UserName is null");
+				return null;
+			}
+			if(password == null){
+				logger.warn("Password is null");
+				return null;
+			}
+			File f = new File("./resources/service_urls.properties");
+	
+			Properties prop = new Properties();
+			prop.load(new FileInputStream(f));
+			String dorianURL = prop.getProperty("cagrid.master.dorian.service.url");
+			String authUrl = prop.getProperty("cagrid.master.authentication.service.url");
+			
+			globusCred = SecureClientUtil.generateGlobusCredential(userName,
+					password,
+                    dorianURL,
+                    authUrl);
+			isConnectionSecured = true;
+			return globusCred;
+		}catch(Exception e){
+			globusCred = null;
+			isConnectionSecured = false;
+			logger.error(e,  e);
+			return globusCred;
+		}
 	}
 	
 	/**
@@ -117,10 +113,115 @@ public class GridLogin {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {		
+		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");		
 		GridLogin login = new GridLogin();
-		//System.out.println(login.login("wustl", "erlERL3r()"));
-		//login.authenticate("https://dorian.cagrid.org:6443/wsrf/services/cagrid/Dorian", "http://training03.cagrid.org:6080/wsrf/services/DefaultIndexService", "wustl", "erlERL3r()");
-		
+		login.loadNBIAConnectionProperties();
+		String userName = login.getUserName();
+		String password = login.getEncyptedPassword();
+		GlobusCredential globusCred = login.acquireGlobusCredential(userName, password);
+		System.out.println("Globus credential is " + globusCred.toString());
 	}
+	
+	String userName;
+	public String getUserName(){
+		return userName;
+	}
+	
+	String encryptedPassword;
+	public String getEncyptedPassword(){
+		return encryptedPassword;
+	}
+	
+	public void loadNBIAConnectionProperties(){
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileInputStream("./resources/nbiaConnection.properties"));
+			userName = prop.getProperty("nbia.connection.username");
+			encryptedPassword = prop.getProperty("nbia.connection.password");
+		} catch (FileNotFoundException e) {
+			logger.error(e, e);
+		} catch (IOException e) {
+			logger.error(e, e);
+		}
+	}
+	
+	 public void storePassword() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+			String password = "";
+
+			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+			keyGen.init(128);
+			SecretKey sk = keyGen.generateKey();
+			String hexSkey = byteArrayToHexString(sk.getEncoded());
+			//hexSkey should be stored somewhere
+			
+		    byte[] keyValue = hexStringToByteArray(hexSkey);
+			SecretKeySpec sks = new SecretKeySpec(keyValue, "AES");
+			Cipher cipher = Cipher.getInstance("AES");
+			try {
+				cipher.init(Cipher.ENCRYPT_MODE, sks, cipher.getParameters());
+			} catch (InvalidAlgorithmParameterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			byte[] encrypted = cipher.doFinal(password.getBytes());
+			String passwordEncrypted =  byteArrayToHexString(encrypted);
+		}
+		
+		private static String byteArrayToHexString(byte[] b){
+		    StringBuffer sb = new StringBuffer(b.length * 2);
+		    for (int i = 0; i < b.length; i++){
+		      int v = b[i] & 0xff;
+		      if (v < 16) {
+		        sb.append('0');
+		      }
+		      sb.append(Integer.toHexString(v));
+		    }
+		    return sb.toString().toUpperCase();
+		}
+		
+		private static byte[] hexStringToByteArray(String s) {
+		    byte[] b = new byte[s.length() / 2];
+		    for (int i = 0; i < b.length; i++){
+		      int index = i * 2;
+		      int v = Integer.parseInt(s.substring(index, index + 2), 16);
+		      b[i] = (byte)v;
+		    }
+		    return b;
+		}
+		
+		public static String getPassword() {
+			String hexSkey = ""; //hexSkey needs to be retrieve from somewhere
+		    byte[] keyValue = hexStringToByteArray(hexSkey);
+			SecretKeySpec sks = new SecretKeySpec(keyValue, "AES");
+			String password = null;
+			try {
+				Cipher cipher = Cipher.getInstance("AES");
+				cipher.init(Cipher.DECRYPT_MODE, sks);
+				 
+		       
+				String encryptedPassword = ""; //taken from properties file
+				byte[] encrypted = hexStringToByteArray(encryptedPassword);;
+		       
+		        byte[] pwd = cipher.doFinal(encrypted);
+		        password = new String(pwd);
+			} catch (NoSuchAlgorithmException e) {
+				logger.error(e.getMessage(), e);
+				password = null;
+			} catch (NoSuchPaddingException e) {
+				logger.error(e.getMessage(), e);
+				password = null;
+			} catch (InvalidKeyException e) {
+				logger.error(e.getMessage(), e);
+				password = null;
+			} catch (IllegalBlockSizeException e) {
+				logger.error(e.getMessage(), e);
+				password = null;
+			} catch (BadPaddingException e) {
+				logger.error(e.getMessage(), e);
+				password = null;
+			}
+	        return password;
+		}
+	
 
 }
