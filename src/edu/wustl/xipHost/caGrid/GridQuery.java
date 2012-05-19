@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Washington University in St. Louis. All Rights Reserved.
+ * Copyright (c) 2012 Washington University in St. Louis. All Rights Reserved.
  */
 package edu.wustl.xipHost.caGrid;
 
@@ -201,6 +201,12 @@ public class GridQuery implements Query {
 			dicomClient = new DataServiceClient(location.getAddress());			
 		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
 			nciaClient = new NCIACoreServiceClient(location.getAddress());
+			boolean isConnSecured = GridLogin.isConnectionSecured();
+			if (isConnSecured == false) {
+				nciaClient = new NCIACoreServiceClient(location.getAddress());
+			} else {
+				nciaClient = new NCIACoreServiceClient(location.getAddress(), GridLogin.getGlobusCredential());
+			}
 		}else{
 			return null;
 		}

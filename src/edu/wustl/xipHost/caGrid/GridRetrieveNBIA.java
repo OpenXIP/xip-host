@@ -70,7 +70,12 @@ public class GridRetrieveNBIA implements Retrieve {
 				}
 			}
 			if(client == null){
-				client = new NCIACoreServiceClient(gridLocation.getAddress());
+				boolean isConnSecured = GridLogin.isConnectionSecured();
+				if (isConnSecured == false) {
+					client = new NCIACoreServiceClient(gridLocation.getAddress());
+				} else {
+					client = new NCIACoreServiceClient(gridLocation.getAddress(), GridLogin.getGlobusCredential());
+				}
 			}
 			tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
 			tclient = new TransferServiceContextClient(tscr.getEndpointReference());
