@@ -88,7 +88,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         //tabPaneCenter.addTab("NBIA", icon, nbiaPanel, null);
         tabPaneCenter.addTab("Local File System", icon, localFileSystemPanel, null);
         tabPaneCenter.addTab("AVT AD", icon, avt2extPanel, null);
-        tabPaneCenter.addTab("caGrid", icon, gridPanel, null);                      	   
+        tabPaneCenter.addTab("NBIA/caGrid", icon, gridPanel, null);                      	   
         tabPaneCenter.addTab("PACS", icon, dicomPanel, null);	   
         tabPaneCenter.addTab("GlobalSearch", icon, globalSearchPanel, null);        
         tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
