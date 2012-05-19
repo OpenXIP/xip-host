@@ -228,27 +228,77 @@ public class GridUtil {
 			root = document.getRootElement();
 			String objName = root.getName();
 			if(objName.equalsIgnoreCase("Patient")){
-				String patientName = root.getAttribute("patientName").getValue().trim(); if(patientName == null){patientName = "";}
-				String patientID = root.getAttribute("patientId").getValue().trim(); if(patientID == null){patientID = "";}			
+				String patientName = root.getAttributeValue("patientName");
+				if(patientName != null) {
+					patientName.trim(); 
+				} else {
+					patientName = "";
+				}
+				String patientID = root.getAttributeValue("patientId");
+				if(patientID != null) {
+					patientID.trim(); 			
+				} else {
+					patientID = "";
+				}
 				String strPatientBirthDate = "";
 				Patient patient = new Patient(patientName, patientID, strPatientBirthDate);
 				return patient;
 			} else if (objName.equalsIgnoreCase("Study")) {
-				String studyDate = root.getAttribute("studyDate").getValue().trim(); if(studyDate == null){studyDate = "";}
-				String studyID = root.getAttribute("studyId").getValue().trim(); if(studyID == null){studyID = "";}	
-				String studyDesc = root.getAttribute("studyDescription").getValue().trim(); if(studyDesc == null){studyDesc = "";}
-				String studyInstanceUID = root.getAttribute("studyInstanceUID").getValue().trim(); if(studyInstanceUID == null){studyInstanceUID = "";}				
+				String studyDate = root.getAttributeValue("studyDate");
+				if(studyDate != null) {
+					studyDate.trim(); 
+				} else {
+					studyDate = "";
+				}
+				String studyID = root.getAttributeValue("studyId");
+				if(studyID != null) {
+					studyID.trim(); 
+				} else {
+					studyID = "";
+				}
+				String studyDesc = root.getAttributeValue("studyDescription");
+				if(studyDesc != null) {
+					studyDesc.trim(); 
+				} else {
+					studyDesc = "";
+				}
+				String studyInstanceUID = root.getAttributeValue("studyInstanceUID");
+				if(studyInstanceUID != null) {
+					studyInstanceUID.trim(); 				
+				} else {
+					studyInstanceUID = "";
+				}
 				Study study = new Study(studyDate, studyID, studyDesc, studyInstanceUID);
 				return study;
 			} else if (objName.equalsIgnoreCase("Series")) {
-				String seriesNumber = root.getAttribute("seriesNumber").getValue().trim(); if(seriesNumber == null){seriesNumber = "";}
-				String modality = root.getAttribute("modality").getValue().trim(); if(modality == null){modality = "";}
-				String seriesDesc = root.getAttribute("seriesDescription").getValue().trim();if(seriesDesc == null){seriesDesc = "";}
-				String seriesInstanceUID = root.getAttribute("instanceUID").getValue().trim(); if(seriesInstanceUID == null){seriesInstanceUID = "";}
+				String seriesNumber = root.getAttributeValue("seriesNumber");
+				if(seriesNumber != null) {
+					seriesNumber.trim(); 
+				} else {
+					seriesNumber = "";
+				}
+				String modality = root.getAttributeValue("modality");
+				if(modality != null){
+					modality.trim(); 
+				} else {
+					modality = "";
+				}
+				String seriesDesc = root.getAttributeValue("seriesDescription");
+				if(seriesDesc != null) {
+					seriesDesc.trim();
+				} else {
+					seriesDesc = "";
+				}
+				String seriesInstanceUID = root.getAttributeValue("instanceUID");
+				if(seriesInstanceUID != null) {
+					seriesInstanceUID.trim(); 
+				} else {
+					seriesInstanceUID = "";
+				}
 				Series series = new Series(seriesNumber, modality, seriesDesc, seriesInstanceUID);
 				return series;
 			} else if (objName.equalsIgnoreCase("CQLCountResult")) {
-				String countResult = root.getAttribute("count").getValue().trim(); if(countResult == null){countResult = "0";}
+				String countResult = root.getAttributeValue("count").trim(); if(countResult == null){countResult = "0";}
 				return Integer.valueOf(countResult);
 			}
 		} catch (JDOMException e) {
