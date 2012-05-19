@@ -94,6 +94,9 @@
   <logger name="edu.wustl.xipHost.caGrid.GridRetrieveNBIA">
 	<appender-ref ref="Grid_Appender"/>
   </logger>
+  <logger name="edu.wustl.xipHost.caGrid.GridLogin">
+	<appender-ref ref="Grid_Appender"/>
+  </logger>
   
   <logger name="edu.wustl.xipHost.dicom.AttributePanel">
 	<appender-ref ref="Dicom_Appender"/>
