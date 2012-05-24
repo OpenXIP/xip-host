@@ -67,7 +67,7 @@ public class GridLogin {
 		
 	}
 	
-	static boolean isConnectionSecured;
+	static boolean isConnectionSecured = false;
 	public static boolean isConnectionSecured(){
 		return isConnectionSecured;
 	}
@@ -115,9 +115,8 @@ public class GridLogin {
 	public static void main(String[] args) throws Exception {		
 		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");		
 		GridLogin login = new GridLogin();
-		login.loadNBIAConnectionProperties();
-		String userName = login.getUserName();
-		String password = login.getEncyptedPassword();
+		String userName = "";
+		String password = "";
 		GlobusCredential globusCred = login.acquireGlobusCredential(userName, password);
 		System.out.println("Globus credential is " + globusCred.toString());
 	}
@@ -131,97 +130,4 @@ public class GridLogin {
 	public String getEncyptedPassword(){
 		return encryptedPassword;
 	}
-	
-	public void loadNBIAConnectionProperties(){
-		Properties prop = new Properties();
-		try {
-			prop.load(new FileInputStream("./resources/nbiaConnection.properties"));
-			userName = prop.getProperty("nbia.connection.username");
-			encryptedPassword = prop.getProperty("nbia.connection.password");
-		} catch (FileNotFoundException e) {
-			logger.error(e, e);
-		} catch (IOException e) {
-			logger.error(e, e);
-		}
-	}
-	
-	 public void storePassword() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
-			String password = "";
-
-			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-			keyGen.init(128);
-			SecretKey sk = keyGen.generateKey();
-			String hexSkey = byteArrayToHexString(sk.getEncoded());
-			//hexSkey should be stored somewhere
-			
-		    byte[] keyValue = hexStringToByteArray(hexSkey);
-			SecretKeySpec sks = new SecretKeySpec(keyValue, "AES");
-			Cipher cipher = Cipher.getInstance("AES");
-			try {
-				cipher.init(Cipher.ENCRYPT_MODE, sks, cipher.getParameters());
-			} catch (InvalidAlgorithmParameterException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			byte[] encrypted = cipher.doFinal(password.getBytes());
-			String passwordEncrypted =  byteArrayToHexString(encrypted);
-		}
-		
-		private static String byteArrayToHexString(byte[] b){
-		    StringBuffer sb = new StringBuffer(b.length * 2);
-		    for (int i = 0; i < b.length; i++){
-		      int v = b[i] & 0xff;
-		      if (v < 16) {
-		        sb.append('0');
-		      }
-		      sb.append(Integer.toHexString(v));
-		    }
-		    return sb.toString().toUpperCase();
-		}
-		
-		private static byte[] hexStringToByteArray(String s) {
-		    byte[] b = new byte[s.length() / 2];
-		    for (int i = 0; i < b.length; i++){
-		      int index = i * 2;
-		      int v = Integer.parseInt(s.substring(index, index + 2), 16);
-		      b[i] = (byte)v;
-		    }
-		    return b;
-		}
-		
-		public static String getPassword() {
-			String hexSkey = ""; //hexSkey needs to be retrieve from somewhere
-		    byte[] keyValue = hexStringToByteArray(hexSkey);
-			SecretKeySpec sks = new SecretKeySpec(keyValue, "AES");
-			String password = null;
-			try {
-				Cipher cipher = Cipher.getInstance("AES");
-				cipher.init(Cipher.DECRYPT_MODE, sks);
-				 
-		       
-				String encryptedPassword = ""; //taken from properties file
-				byte[] encrypted = hexStringToByteArray(encryptedPassword);;
-		       
-		        byte[] pwd = cipher.doFinal(encrypted);
-		        password = new String(pwd);
-			} catch (NoSuchAlgorithmException e) {
-				logger.error(e.getMessage(), e);
-				password = null;
-			} catch (NoSuchPaddingException e) {
-				logger.error(e.getMessage(), e);
-				password = null;
-			} catch (InvalidKeyException e) {
-				logger.error(e.getMessage(), e);
-				password = null;
-			} catch (IllegalBlockSizeException e) {
-				logger.error(e.getMessage(), e);
-				password = null;
-			} catch (BadPaddingException e) {
-				logger.error(e.getMessage(), e);
-				password = null;
-			}
-	        return password;
-		}
-	
-
 }

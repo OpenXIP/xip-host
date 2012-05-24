@@ -21,6 +21,7 @@ import org.cagrid.transfer.context.client.TransferServiceContextClient;
 import org.cagrid.transfer.context.client.helper.TransferClientHelper;
 import org.cagrid.transfer.context.stubs.types.TransferServiceContextReference;
 import org.dcm4che2.data.Tag;
+import org.globus.gsi.GlobusCredential;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
@@ -73,13 +74,18 @@ public class GridRetrieveNBIA implements Retrieve {
 				boolean isConnSecured = GridLogin.isConnectionSecured();
 				if (isConnSecured == false) {
 					client = new NCIACoreServiceClient(gridLocation.getAddress());
+					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
+					tclient = new TransferServiceContextClient(tscr.getEndpointReference());
+					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
 				} else {
-					client = new NCIACoreServiceClient(gridLocation.getAddress(), GridLogin.getGlobusCredential());
+					GlobusCredential globusCred = GridLogin.getGlobusCredential();
+					client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
+					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
+					tclient = new TransferServiceContextClient(tscr.getEndpointReference(), globusCred);
+					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor(), globusCred);
 				}
 			}
-			tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
-			tclient = new TransferServiceContextClient(tscr.getEndpointReference());
-			istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
+			
 		} catch (Exception e) {
 			logger.error(e, e);
 		}					
