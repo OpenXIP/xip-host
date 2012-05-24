@@ -101,7 +101,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			System.exit(0);
 		}
 		dicomMgr = DicomManagerFactory.getInstance();
-		Properties workstation1Prop = new Properties();
+		final Properties workstation1Prop = new Properties();
 		try {
 			workstation1Prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation1.properties"));
 		} catch (FileNotFoundException e1) {
@@ -111,7 +111,12 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			logger.error(e1, e1);
 			System.exit(0);
 		}
-		dicomMgr.runDicomStartupSequence("./pixelmed-server-hsqldb/server", workstation1Prop);		    	    	
+		Thread t = new Thread(){
+			public void run(){
+				dicomMgr.runDicomStartupSequence("./pixelmed-server-hsqldb/server", workstation1Prop);		
+			}
+		};
+		t.run();    	    	
 				
 		// Set up default certificates for security.  Must be done after starting dicom, but before login.
 		//TODO Move code to the configuration file, read entries from the configuration file, and move files to an XIP location.
