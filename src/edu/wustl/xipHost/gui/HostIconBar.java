@@ -34,6 +34,7 @@ public class HostIconBar extends JPanel {
 	JPanel hostTopPanel = new JPanel();
 	JPanel hostPanel = new JPanel();	
 	JButton btnOptions = new JButton("Options", new ImageIcon("./gif/Options24.gif"));
+	JButton btnSwitchUser = new JButton("Switch User", new ImageIcon("./gif/Users.png"));
 	JButton btnExit = new JButton("Exit", new ImageIcon("./gif/hostExit_24x24.png"));
 	JPanel hostBtnPanel = new JPanel();			
 	
@@ -62,27 +63,31 @@ public class HostIconBar extends JPanel {
     	btns[3] = btnSuspend;
     	btns[4] = btnCancel;
     	btns[5] = btnExitApp;
+    	btns[5] = btnSwitchUser;
     	    	
     	for(int i = 0; i < btns.length; i++){    		
         	btns[i].setFont(font);
-        	btns[i].setBackground(new Color(51, 51, 102));
-        	btns[i].setForeground(Color.WHITE);
+        	btns[i].setBackground(xipColor);
+        	btns[i].setForeground(Color.BLACK);
         	btns[i].setOpaque(true);        	
         	btns[i].setRolloverEnabled(true);
         	btns[i].setPreferredSize(new Dimension((int)btns[i].getPreferredSize().getWidth(), 30));
     	}    	
+    	/*
     	btnHost.setBackground(xipColor);
     	btnOptions.setForeground(Color.BLACK);
+    	btnSwitchUser.setForeground(Color.BLACK);
     	btnExit.setForeground(Color.BLACK);
     	btnSuspend.setForeground(Color.BLACK);
     	btnCancel.setForeground(Color.BLACK);
-    	btnExitApp.setForeground(Color.BLACK);
+    	btnExitApp.setForeground(Color.BLACK);*/
     	hostPanel.add(btnHost);
     	hostPanel.add(lblHelp);
     	hostPanel.add(lblAbout);
     	hostPanel.add(lblName);
     	hostPanel.setBackground(xipColor);	    	
     	hostBtnPanel.add(btnOptions);
+    	hostBtnPanel.add(btnSwitchUser);
     	hostBtnPanel.add(btnExit);
     	hostBtnPanel.setBackground(xipColor);
     	appBtnPanel.add(btnSuspend);    	
