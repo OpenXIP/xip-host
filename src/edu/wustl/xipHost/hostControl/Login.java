@@ -11,21 +11,9 @@ public class Login {
 	static XUALogin xuaLogin = new XUALogin();
 	public static boolean useXUA = false;
 	public static boolean validateGridSecur = true;
-	/**
-	 * validateUser is a client to middleware authorization and authentication component
-	 */		
+	
 	public static boolean validateUser(String user, String password){	
-		boolean validUser = true;
-		userName = user;
-		
-		// For simplicity in demos ...
-		if (user.equalsIgnoreCase("rater1") && password.equals("123")) {
-			password = "Rsn@1Rsn@1";
-		}
-		if (user.equalsIgnoreCase("wustl") && password.equals("123") ||user.equalsIgnoreCase("wustl") && password.equals("erl")){
-			password = "erlERL3r()";
-		}
-
+		boolean validUser = false;
 		//set true if security enabled
 		if (validateGridSecur){
 			validUser = gridLogin.login(user, password);
@@ -47,10 +35,15 @@ public class Login {
 		return validUser;
 	}
 	
-	static String userName;
+	String userName;
 	public String getUserName(){
 		return userName;
 	}	
+	
+	public void setUserName(String userName){
+		this.userName = userName;
+	}
+	
 	public static void setValidateGridSecur(boolean bln){
 		validateGridSecur = bln;
 	}
