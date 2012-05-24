@@ -102,6 +102,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
         toolBar.btnExit.addActionListener(this);
         toolBar.btnSuspend.addActionListener(this);
         toolBar.btnCancel.addActionListener(this);
+        toolBar.btnSwitchUser.addActionListener(this);
         toolBar.btnExitApp.addActionListener(this);
         toolBar.lblAbout.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){						
@@ -144,7 +145,13 @@ public class HostMainWindow extends JFrame implements ActionListener {
     		int x = (int)((JButton)e.getSource()).getLocationOnScreen().getX();
     		int y = (int)((JButton)e.getSource()).getLocationOnScreen().getY() + 45;  
     		optionsDialog.display(x, y);
-    	}else if (e.getSource() == toolBar.btnExit) {
+    	} else if(e.getSource() == toolBar.btnSwitchUser) {
+    		//TODO
+    		//Stop all running hosted applications for the previous user
+    		//revoke all permissions given to the previous user
+    		//redisplay LiginDialog to switch user
+    		new UnderDevelopmentDialog(toolBar.btnSwitchUser.getLocationOnScreen());
+    	} else if (e.getSource() == toolBar.btnExit) {
 			HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
     		hostConfig.runHostShutdownSequence();    		    		
 		}else if(e.getSource() == toolBar.btnCancel){

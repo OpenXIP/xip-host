@@ -13,6 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,12 +41,13 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener,
         panel.add(lblHost);                
         panel.add(loginPanel);
         panel.add(lblWashU);
-        panel.setPreferredSize(new Dimension(400, 480));
+        panel.setPreferredSize(new Dimension(400, 500));
         panel.setBorder(new BevelBorder(BevelBorder.RAISED));
         panel.setBackground(new Color(51, 51, 102));
         loginPanel.btnOK.addActionListener(this);	
         loginPanel.txtUser.addKeyListener(this);
-		loginPanel.txtPass.addKeyListener(this);	
+		loginPanel.txtPass.addKeyListener(this);
+		loginPanel.lblGuestUserIcon.addMouseListener(customMouseListener);
 		this.addNewUserListener(this);
         add(panel);
         buildLayout();
@@ -160,22 +165,41 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener,
 	public void setLogin(Login login){
 		this.login = login;
 	}
+	
 	String userName;
 	public boolean validateNewUser(NewUserEvent e, String user, String password) {				
-		if(Login.validateUser(user, password)){
-			if(Login.validateGridSecur){				
-				userName = user;
-				return true;				
-			}else{				
-				userName = user;
-				return true;
+		login.setUserName(user);
+		if(user.equalsIgnoreCase("Guest")){
+			userName  = "Guest";
+			//TODO disable secured NBIA
+			return true;
+		} else {
+			if(Login.validateUser(user, password)){
+				if(Login.validateGridSecur){				
+					userName = user;
+					return true;				
+				}else{				
+					userName = user;
+					return false;
+				}
+			}else{						
+				return false;
 			}
-		}else{						
-			return false;
-		}		
+		}	
 	}
 	
 	boolean isUserOK(){
 		return isUserOK;
 	}
+	
+	MouseListener customMouseListener = new MouseAdapter(){
+		 public void mouseClicked(final MouseEvent e) {	        
+			loginPanel.txtUser.setEnabled(false);
+			loginPanel.txtPass.setEnabled(false);
+			String user = "Guest";
+			String password = "";								
+			isUserOK = fireValidateUser(user, password);				
+			updateUI(isUserOK);		
+		 }
+	};
 }
