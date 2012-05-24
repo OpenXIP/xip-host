@@ -414,7 +414,8 @@ public class DicomManagerImpl implements DicomManager{
 		dbFileName = prop.getProperty("Application.DatabaseFileName");		
 		setDBModel(dbFileName);
 		try {
-			loadPacsLocations(xmlPacsLocFile);				
+			loadPacsLocations(xmlPacsLocFile);	
+			return true;
 		} catch (IOException e) {		
 			logger.error("DICOM module startup sequence error. System could not find: pacs_locations.xml", e);
 			return false;
@@ -422,7 +423,6 @@ public class DicomManagerImpl implements DicomManager{
 			logger.error(e, e);
 			return false;
 		}
-		return true;
 	}
 	
 	public boolean runDicomShutDownSequence(String connectionPath, String user, String password){
