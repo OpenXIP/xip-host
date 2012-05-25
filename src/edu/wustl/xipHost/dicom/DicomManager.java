@@ -19,7 +19,7 @@ public interface DicomManager {
 	 * @param file specifes location of XML file containing PACS addresses
 	 * @return returns true only when all addresses are loaded
 	 */
-	public abstract boolean loadPacsLocations(File file) throws IOException, JDOMException;
+	public boolean loadPacsLocations(File file) throws IOException, JDOMException;
 	public abstract boolean addPacsLocation(PacsLocation pacsLocation);
 	public abstract boolean modifyPacsLocation(PacsLocation oldPacsLocation, PacsLocation newPacsLocation);
 	public abstract boolean removePacsLocation(PacsLocation pacsLocation);
@@ -28,7 +28,7 @@ public interface DicomManager {
 	//public abstract List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling);
 	public abstract boolean submit(File[] dicomFiles, PacsLocation location);
 	public abstract List<PacsLocation> getPacsLocations();	
-	public abstract boolean runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp);
+	public abstract void runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp);
 	public abstract boolean runDicomShutDownSequence(String connectionPath, String user, String password);
 	public String getDBFileName();
 	public PacsLocation getDefaultCallingPacsLocation();

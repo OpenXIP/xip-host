@@ -407,22 +407,11 @@ public class DicomManagerImpl implements DicomManager{
 	}
 
 	File xmlPacsLocFile = new File("./config/pacs_locations.xml");
-	public boolean runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp) {
-		if(xmlPacsLocFile == null ){return false;}
+	public void runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp) {
 		startHSQLDB(hsqldbServerConfigFilePath);		
 		startPixelmedServer(pixelmedProp);
 		dbFileName = prop.getProperty("Application.DatabaseFileName");		
 		setDBModel(dbFileName);
-		try {
-			loadPacsLocations(xmlPacsLocFile);	
-			return true;
-		} catch (IOException e) {		
-			logger.error("DICOM module startup sequence error. System could not find: pacs_locations.xml", e);
-			return false;
-		} catch (JDOMException e) {
-			logger.error(e, e);
-			return false;
-		}
 	}
 	
 	public boolean runDicomShutDownSequence(String connectionPath, String user, String password){
