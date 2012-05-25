@@ -77,6 +77,11 @@ public class GridLogin {
 		return globusCred;
 	}
 	
+	public static void invalidateNBIASecuredConnection(){
+		isConnectionSecured = false;
+		globusCred = null;
+	}
+	
 	public GlobusCredential acquireGlobusCredential(String userName, String password){
 		try{			
 			if(userName == null) {
