@@ -80,6 +80,7 @@ public class GridRetrieveNBIA implements Retrieve {
 				} else {
 					GlobusCredential globusCred = GridLogin.getGlobusCredential();
 					client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
+					client.setAnonymousPrefered(false);
 					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
 					tclient = new TransferServiceContextClient(tscr.getEndpointReference(), globusCred);
 					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor(), globusCred);

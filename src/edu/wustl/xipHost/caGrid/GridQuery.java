@@ -185,7 +185,7 @@ public class GridQuery implements Query {
 	}
 	
 	DataServiceClient dicomClient = null;
-	NCIACoreServiceClient nciaClient = null;
+	NCIACoreServiceClient nbiaClient = null;
 
 	/**
 	 * Method used to perform progressive GRID query. 
@@ -200,12 +200,13 @@ public class GridQuery implements Query {
 		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 			dicomClient = new DataServiceClient(location.getAddress());			
 		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
-			nciaClient = new NCIACoreServiceClient(location.getAddress());
+			nbiaClient = new NCIACoreServiceClient(location.getAddress());
 			boolean isConnSecured = GridLogin.isConnectionSecured();
 			if (isConnSecured == false) {
-				nciaClient = new NCIACoreServiceClient(location.getAddress());
+				nbiaClient = new NCIACoreServiceClient(location.getAddress());
 			} else {
-				nciaClient = new NCIACoreServiceClient(location.getAddress(), GridLogin.getGlobusCredential());
+				nbiaClient = new NCIACoreServiceClient(location.getAddress(), GridLogin.getGlobusCredential());
+				nbiaClient.setAnonymousPrefered(false);
 			}
 		}else{
 			return null;
@@ -215,7 +216,7 @@ public class GridQuery implements Query {
 		if(location != null && location.getProtocolVersion().equalsIgnoreCase("DICOM")){
 			results = dicomClient.query(fcqlq);
 		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
-			results = nciaClient.query(fcqlq);
+			results = nbiaClient.query(fcqlq);
 		}						
         iter = new CQLQueryResultsIterator(results, true);              
         SearchResult result = GridUtil.convertCQLQueryResultsIteratorToSearchResult(iter, location, previousSearchResult, queriedObject);
