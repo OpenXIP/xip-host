@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -33,6 +34,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
+import org.jdom.JDOMException;
 import org.nema.dicom.wg23.State;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.application.AppButton;
@@ -94,9 +96,18 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	JPanel btnSelectionPanel = new JPanel();
 	JButton btnSelectAll = new JButton("Select All");
 	JButton btnDeselectAll = new JButton("Deselect All");
+	File xmlPacsLocFile = new File("./config/pacs_locations.xml");
 	
 	public DicomPanel(){
 		setBackground(xipColor);
+		DicomManager dicomMgr = DicomManagerFactory.getInstance();
+		try {
+			dicomMgr.loadPacsLocations(xmlPacsLocFile);		
+		} catch (IOException e) {		
+			logger.error("DICOM module startup sequence error. System could not find: pacs_locations.xml", e);
+		} catch (JDOMException e) {
+			logger.error(e, e);
+		}
 		resultTree.addDataSelectionListener(this);
 		comboModel = new DefaultComboBoxModel();
 		listCalledLocations = new JComboBox(comboModel);
