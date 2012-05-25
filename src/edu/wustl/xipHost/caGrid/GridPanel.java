@@ -139,8 +139,6 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 				}
 			}
 		);
-		Border border1 = BorderFactory.createLoweredBevelBorder();
-		list.setBorder(border1);		
 		lblTitle.setForeground(Color.WHITE);
 		locationSelectionPanel.add(lblTitle);		
 		locationSelectionPanel.add(list);
@@ -225,8 +223,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 0;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        constraints.insets.top = 10;     
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(lblTitle, constraints);
@@ -234,8 +231,7 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
         constraints.gridy = 1;        
-        constraints.insets.top = 10;
-        constraints.insets.left = 20;        
+        constraints.insets.top = 10;        
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.WEST;
         layout.setConstraints(list, constraints);
