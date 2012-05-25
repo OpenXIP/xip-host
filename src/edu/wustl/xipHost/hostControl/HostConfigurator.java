@@ -146,11 +146,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		};
 		t.start();    	    	
 
-		LoginDialog loginDialog = new LoginDialog();
-		loginDialog.setLogin(login);
-		loginDialog.setModal(true);
-		loginDialog.setVisible(true);
-		userName = login.getUserName();		
+		logNewUser();
 
 		//run GridManagerImpl startup
 		gridMgr = GridManagerFactory.getInstance();
@@ -733,4 +729,16 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		}
 		return preferredHeight;		
 	}
+	
+	public void logNewUser(){
+		LoginDialog loginDialog = new LoginDialog();
+		loginDialog.setLogin(login);
+		loginDialog.setModal(true);
+		loginDialog.setVisible(true);
+		userName = login.getUserName();
+		if(mainWindow != null){
+			HostMainWindow.getHostIconBar().setUserName(userName);
+		}
+	}
+	
 }
