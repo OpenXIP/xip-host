@@ -7,6 +7,7 @@ import javax.swing.*;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.avt2ext.AVTPanel;
+import edu.wustl.xipHost.caGrid.GridLogin;
 import edu.wustl.xipHost.caGrid.GridPanel;
 import edu.wustl.xipHost.dicom.DicomPanel;
 import edu.wustl.xipHost.globalSearch.GlobalSearchPanel;
@@ -148,9 +149,8 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	} else if(e.getSource() == toolBar.btnSwitchUser) {
     		//TODO
     		//Stop all running hosted applications for the previous user
-    		//revoke all permissions given to the previous user
-    		//redisplay LiginDialog to switch user
-    		new UnderDevelopmentDialog(toolBar.btnSwitchUser.getLocationOnScreen());
+    		GridLogin.invalidateNBIASecuredConnection();
+    		HostConfigurator.getHostConfigurator().logNewUser();
     	} else if (e.getSource() == toolBar.btnExit) {
 			HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
     		hostConfig.runHostShutdownSequence();    		    		
