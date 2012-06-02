@@ -13,5 +13,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OHT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/NBIA"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XIP"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Restful"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
