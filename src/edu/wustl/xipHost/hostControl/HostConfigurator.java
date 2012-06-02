@@ -721,7 +721,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		if (height < 768 && height >= 600 ){
 			preferredHeight = 350;
 		}else if(height < 1024 && height >= 768 ){
-			preferredHeight = 470;
+			preferredHeight = 450;
 		}else if (height >= 1024 && height < 1200){
 			preferredHeight = 600 - 100;
 		}else if(height > 1200 && height <= 1440){
