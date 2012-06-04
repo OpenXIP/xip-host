@@ -31,7 +31,7 @@ public class ClientAuthentication {
         try {
             /*httpclient.getCredentialsProvider().setCredentials(
                     new AuthScope("localhost", 443),
-                    new UsernamePasswordCredentials("KrychJ", "Jarek2012@CO"));*/
+                    new UsernamePasswordCredentials("<username>", "<password>"));*/
 
             HttpGet httpget = new HttpGet("https://secure01.cci.emory.edu:8443/SecurityTokenServiceNCIProd/rest/STS/issueToken?targetService=http://services.testcorp.org/provider1");
             BASE64Encoder encoder = new BASE64Encoder();
