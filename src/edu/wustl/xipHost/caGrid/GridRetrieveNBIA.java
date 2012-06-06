@@ -25,7 +25,6 @@ import org.globus.gsi.GlobusCredential;
 import org.nema.dicom.wg23.ObjectDescriptor;
 import org.nema.dicom.wg23.ObjectLocator;
 import org.nema.dicom.wg23.Uuid;
-
 import edu.osu.bmi.utils.io.zip.ZipEntryInputStream;
 import edu.wustl.xipHost.caGrid.GridLocation;
 import edu.wustl.xipHost.dataAccess.DataSource;

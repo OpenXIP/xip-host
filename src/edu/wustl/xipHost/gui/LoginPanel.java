@@ -22,16 +22,18 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+import org.apache.log4j.Logger;
 
 
 /**
  * <font  face="Tahoma" size="2" color="Black">
- * GUI component, used to capture user name and password <b></b>
- * @version	Janaury 2008
- * @author Jaroslaw Krych
+ * XIP Host UI component, used to capture user name and password <b></b>
+ * @version	June 2012
+ * @author Jarek Krych
  * </font>
  */
 public class LoginPanel extends JPanel {
+	final static Logger logger = Logger.getLogger(LoginPanel.class);
 	JLabel lblWelcome = new JLabel("<html><font color=yellow>Welcome!</font></html>");
 	JLabel lblTitle = new JLabel("Login to XIP Host");	
 	JLabel lblUser = new JLabel("Username");
@@ -62,19 +64,15 @@ public class LoginPanel extends JPanel {
 				FileInputStream in = new FileInputStream(welcome);
 				in.read(message);
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
+				logger.error(e, e);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
+				logger.error(e, e);
 			}
 			String messageString = new String(message);
 			lblWelcome.setText(messageString);
 		} 			
 		lblImage.setIcon(icon);
-		//lblImage.setBorder(border2);
-		btnOK.setPreferredSize(new Dimension(100, 25));		
-		//btnOK.setMnemonic(KeyEvent.VK_ENTER);
+		btnOK.setPreferredSize(new Dimension(100, 25));	
 		btnOK.setMnemonic('O');			
 		lblTitle.setFont(font1);
 		lblTitle.setForeground(Color.WHITE);
@@ -111,8 +109,6 @@ public class LoginPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.insets.top = 5;
-        //constraints.insets.left = 5;
-        //constraints.insets.right = 5;
         constraints.insets.bottom = 0;        
         constraints.anchor = GridBagConstraints.CENTER;
         layout.setConstraints(lblWelcome, constraints);              
