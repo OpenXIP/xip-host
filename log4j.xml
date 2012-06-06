@@ -141,6 +141,12 @@
   
   <logger name="edu.wustl.xipHost.hostControl.HostConfigurator">
 	<appender-ref ref="HostMain_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.gui.LoginPanel">
+	<appender-ref ref="HostMain_Appender"/>
+  </logger>
+  <logger name="edu.wustl.xipHost.hostLogin.STSLogin">
+	<appender-ref ref="HostMain_Appender"/>
   </logger>	
   <logger name="edu.wustl.xipHost.hostControl.DataStore">
 	<appender-ref ref="HostMain_Appender"/>
