@@ -1,20 +1,27 @@
 package edu.wustl.xipHost.xua;
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
-import org.apache.commons.io.FileUtils;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.axis.encoding.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
+import org.apache.log4j.Logger;
+import org.globus.gsi.GlobusCredential;
+import org.globus.gsi.GlobusCredentialException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import edu.wustl.xipHost.hostControl.HostConfigurator;
 import sun.misc.BASE64Encoder;
 
 /**
@@ -22,12 +29,12 @@ import sun.misc.BASE64Encoder;
  * a target site that requires user authentication.
  */
 public class ClientAuthentication {
-
+	final static Logger logger = Logger.getLogger(HostConfigurator.class);
     public static void main(String[] args) throws Exception {
     	System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");	
     	System.setProperty("javax.net.ssl.trustStore" , "truststore.jks");
-		System.setProperty("javax.net.ssl.trustStorePassword" , "<truststorepswd>");
-    	DefaultHttpClient httpclient = new DefaultHttpClient();
+		System.setProperty("javax.net.ssl.trustStorePassword" , "123456");
+    	HttpClient httpclient = new DefaultHttpClient();
         try {
             /*httpclient.getCredentialsProvider().setCredentials(
                     new AuthScope("localhost", 443),
@@ -53,7 +60,7 @@ public class ClientAuthentication {
 	    	String xmlResponse = sb.toString();
 	    	System.out.println(xmlResponse);
 	    	//Write xmlResponse to samlSTS.xml file
-	    	FileUtils.writeStringToFile(new File("samlSTS.xml"), xmlResponse);
+	    	/*FileUtils.writeStringToFile(new File("samlSTS.xml"), xmlResponse);
 	    	
 	    	SAXBuilder saxBuilder = new SAXBuilder();
 	    	File certFile = new File("samlSTS.xml");
@@ -68,10 +75,54 @@ public class ClientAuthentication {
 	    		String attValue = att.getValue();
 	    		if(attValue.equals("GlobusCredential")){
 	    			String saml = child.getChildText("AttributeValue", ns);
+	    			InputStream isSaml = new ByteArrayInputStream(saml.getBytes());
+	    			//GlobusCredential globusCred = new GlobusCredential(isSaml);
 	    			System.out.println(saml);
 	    		}
+	    	}*/
+	    	InputStream is2 = new ByteArrayInputStream(xmlResponse.getBytes());
+	    	DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(is2);
+			doc.getDocumentElement().normalize();
+			org.w3c.dom.Element docElement = doc.getDocumentElement();//to be returned to XUA to build XUAAssertion
+	    	System.out.println(docElement.getNodeName());
+	    	System.out.println(docElement.hasChildNodes());
+	    	NodeList childNodes = docElement.getChildNodes();
+	    	for(int i = 0; i < childNodes.getLength(); i++){
+	    		Node childNode = childNodes.item(i);
+	    		if(childNode.getNodeName().equals("saml:AttributeStatement")){
+	    			NodeList attStatementNodes = childNode.getChildNodes();
+	    			for(int j = 0; j < attStatementNodes.getLength(); j++){
+	    				Node node = attStatementNodes.item(j);
+	    				NamedNodeMap atts = node.getAttributes();
+	    				for(int k = 0; k < atts.getLength(); k++){
+	    					Node att = atts.item(k);
+	    					if(att.getNodeValue().endsWith("GlobusCredential")){
+	    						NodeList nodes2 = node.getChildNodes();
+	    						System.out.println(nodes2.item(0).getNodeName());
+	    						String saml = nodes2.item(0).getTextContent();
+	    						System.out.println(saml);
+	    						InputStream inputStreamSaml = new ByteArrayInputStream(saml.getBytes());
+	    						System.out.println(nodes2.item(0).getTextContent());
+	    						try {
+	    							byte[] bytes  = Base64.decode(saml);
+	    							ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+	    							GlobusCredential  credential = new GlobusCredential(stream);
+	    							//GlobusCredential globusCred = new GlobusCredential(inputStreamSaml);
+	    						} catch (GlobusCredentialException e){
+	    							System.err.print(e.getErrorCode());
+	    							System.err.print(e.getMessage());
+	    							e.printStackTrace();
+	    						}
+	    						
+	    					}
+	    				}
+	    				
+	    			}
+	    		}
 	    	}
-	       
+	    	is2.close();
             System.out.println("----------------------------------------");
             System.out.println(response.getStatusLine());
             if (entity != null) {
