@@ -35,6 +35,10 @@ import edu.wustl.xipHost.application.ApplicationManager;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.application.ApplicationTerminationEvent;
 import edu.wustl.xipHost.application.ApplicationTerminationListener;
+import edu.wustl.xipHost.hostLogin.GridLogin;
+import edu.wustl.xipHost.hostLogin.LoginDialog;
+import edu.wustl.xipHost.hostLogin.STSLogin;
+import edu.wustl.xipHost.hostLogin.XUALogin;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
@@ -43,15 +47,14 @@ import edu.wustl.xipHost.dicom.DicomManagerFactory;
 import edu.wustl.xipHost.gui.ConfigPanel;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
-import edu.wustl.xipHost.gui.LoginDialog;
 import edu.wustl.xipHost.worklist.Worklist;
 import edu.wustl.xipHost.worklist.WorklistFactory;
 import edu.wustl.xipHost.xds.XDSManager;
 import edu.wustl.xipHost.xds.XDSManagerFactory;
+import edu.wustl.xipHost.hostLogin.Login;
 
 public class HostConfigurator implements ApplicationTerminationListener {
-	final static Logger logger = Logger.getLogger(HostConfigurator.class);
-	Login login = new Login();		 
+	final static Logger logger = Logger.getLogger(HostConfigurator.class);	 
 	File hostTmpDir;
 	File hostOutDir;
 	File hostConfig;
@@ -221,6 +224,9 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	String pdqSendFacilityOID;
 	String pdqSendApplicationOID;
 	String auditRepositoryURL;
+	String stsURL;
+	String trustStoreLoc;
+	String trustStorePswd;
 	/**	
 	 * (non-Javadoc)
 	 * @see edu.wustl.xipHost.hostControl.HostManager#loadHostConfigParameters()
@@ -336,6 +342,21 @@ public class HostConfigurator implements ApplicationTerminationListener {
 					pdqSendApplicationOID = "";
 				}else{					
 					pdqSendApplicationOID = root.getChild("PdqSendApplicationOID").getValue();																
+				}
+				if(root.getChild("StsUrl") == null){
+					stsURL = "";
+				} else {
+					stsURL = (root.getChild("StsUrl").getValue());
+				}
+				if(root.getChild("HostTrustStoreFile") == null){
+					trustStoreLoc = "";
+				} else {
+					trustStoreLoc = (root.getChild("HostTrustStoreFile").getValue());
+				}
+				if(root.getChild("HostTrustStorePswd") == null){
+					trustStorePswd = "";
+				} else {
+					trustStorePswd = (root.getChild("HostTrustStorePswd").getValue());
 				}
 			} catch (JDOMException e) {				
 				return false;
@@ -730,12 +751,27 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		return preferredHeight;		
 	}
 	
+	static Login login;
+	public static Login getLogin(){
+		return login;
+	}
+	
 	public void logNewUser(){
+		boolean useXUA = false;
+		boolean useNBIASecur = false;
+		boolean useSTS = true;
+		if(useXUA) {
+			login = new XUALogin();
+		} else if (useNBIASecur) {
+			login = new GridLogin();
+		} else if (useSTS) {
+			login = new STSLogin(stsURL, trustStoreLoc, trustStorePswd);
+		}
 		LoginDialog loginDialog = new LoginDialog();
 		loginDialog.setLogin(login);
 		loginDialog.setModal(true);
 		loginDialog.setVisible(true);
-		userName = login.getUserName();
+		userName = login.getUsername();
 		if(mainWindow != null){
 			HostMainWindow.getHostIconBar().setUserName(userName);
 		}

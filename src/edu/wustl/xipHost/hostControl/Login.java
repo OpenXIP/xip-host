@@ -47,8 +47,4 @@ public class Login {
 	public static void setValidateGridSecur(boolean bln){
 		validateGridSecur = bln;
 	}
-	
-	public static void main (String args[]){
-		new Login();
-	}
 }
