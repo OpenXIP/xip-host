@@ -4,6 +4,8 @@
 package edu.wustl.xipHost.hostLogin;
 
 import org.globus.gsi.GlobusCredential;
+import org.openhealthtools.ihe.atna.auditor.IHEAuditor;
+import org.openhealthtools.ihe.atna.auditor.codes.rfc3881.RFC3881EventCodes.RFC3881EventOutcomeCodes;
 import org.w3c.dom.Element;
 
 /**
@@ -14,7 +16,18 @@ public class XUALogin implements Login {
 
 	@Override
 	public boolean login(String username, String password) {
-		// TODO Auto-generated method stub
+		String user = "";
+		boolean validUser = false;
+		if (validUser){
+			// send successful login audit message
+			IHEAuditor.getAuditor().getConfig().setSystemUserId(user);
+			IHEAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
+		} else {
+			// send login failure audit message
+			IHEAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.MINOR_FAILURE, true, "XIP", "192.168.1.10");
+			// TODO: notify user of failure
+		}
+		
 		return false;
 	}
 
@@ -40,6 +53,12 @@ public class XUALogin implements Login {
 	public Element getSamlAssertion() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void invalidateNBIASecuredConnection() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -49,8 +49,6 @@ public class STSLogin implements Login {
 	@Override
 	public boolean login(String username, String password) {
 		this.username = username;
-		//trustStoreFile = "truststore.jks"
-		//trustStorePswd = "123456"
 		System.setProperty("javax.net.ssl.trustStore" , trustStoreFile);
 		System.setProperty("javax.net.ssl.trustStorePassword" , trustStorePswd);
     	HttpClient httpclient = new DefaultHttpClient();
@@ -75,10 +73,12 @@ public class STSLogin implements Login {
    	    	String xmlSamlAssertion = sb.toString();
    	    	parseSamlAssertion(xmlSamlAssertion);
    	    	isConnectionSecured = true;
+   	    	logger.debug("User: " + username + " successfuly authenticated to STS Service");
    	    	return true;
     	} catch (Exception e) {
 			logger.error(e, e);
 			isConnectionSecured = false;
+			logger.debug("User: " + username + " denied access to STS Service");
 			return false;
 		}
     	finally {
@@ -106,6 +106,13 @@ public class STSLogin implements Login {
 	@Override
 	public Element getSamlAssertion() {
 		return samlAssertionElement;
+	}
+	
+	@Override
+	public void invalidateNBIASecuredConnection() {
+		globusCred = null;
+		samlAssertionElement = null;
+		isConnectionSecured = false;
 	}
 	
 	GlobusCredential  globusCred;
@@ -145,5 +152,4 @@ public class STSLogin implements Login {
     	}
     	is.close();
 	}
-
 }
