@@ -32,6 +32,8 @@ import edu.wustl.xipHost.dataAccess.Retrieve;
 import edu.wustl.xipHost.dataAccess.RetrieveEvent;
 import edu.wustl.xipHost.dataAccess.RetrieveListener;
 import edu.wustl.xipHost.dataAccess.RetrieveTarget;
+import edu.wustl.xipHost.hostControl.HostConfigurator;
+import edu.wustl.xipHost.hostLogin.Login;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
 
 
@@ -70,14 +72,15 @@ public class GridRetrieveNBIA implements Retrieve {
 				}
 			}
 			if(client == null){
-				boolean isConnSecured = GridLogin.isConnectionSecured();
+				Login login = HostConfigurator.getLogin();
+				boolean isConnSecured = login.isConnectionSecured();
 				if (isConnSecured == false) {
 					client = new NCIACoreServiceClient(gridLocation.getAddress());
 					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
 					tclient = new TransferServiceContextClient(tscr.getEndpointReference());
 					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
 				} else {
-					GlobusCredential globusCred = GridLogin.getGlobusCredential();
+					GlobusCredential globusCred = login.getGlobusCredential();
 					client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
 					client.setAnonymousPrefered(false);
 					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);

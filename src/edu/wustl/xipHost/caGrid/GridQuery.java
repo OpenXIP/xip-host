@@ -31,6 +31,8 @@ import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Study;
 import edu.wustl.xipHost.dicom.DicomUtil;
+import edu.wustl.xipHost.hostControl.HostConfigurator;
+import edu.wustl.xipHost.hostLogin.Login;
 import edu.wustl.xipHost.iterator.Criteria;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
@@ -201,11 +203,12 @@ public class GridQuery implements Query {
 			dicomClient = new DataServiceClient(location.getAddress());			
 		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
 			nbiaClient = new NCIACoreServiceClient(location.getAddress());
-			boolean isConnSecured = GridLogin.isConnectionSecured();
+			Login login = HostConfigurator.getLogin();
+			boolean isConnSecured = login.isConnectionSecured();
 			if (isConnSecured == false) {
 				nbiaClient = new NCIACoreServiceClient(location.getAddress());
 			} else {
-				nbiaClient = new NCIACoreServiceClient(location.getAddress(), GridLogin.getGlobusCredential());
+				nbiaClient = new NCIACoreServiceClient(location.getAddress(), login.getGlobusCredential());
 				nbiaClient.setAnonymousPrefered(false);
 			}
 		}else{
