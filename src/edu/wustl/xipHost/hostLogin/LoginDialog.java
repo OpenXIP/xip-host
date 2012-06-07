@@ -93,7 +93,9 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
     boolean isUserOK = false;
     public void actionPerformed(ActionEvent e) {		
 		if(e.getSource() == loginPanel.btnOK){
-			resetLoginDialog();
+			String user = loginPanel.txtUser.getText();
+			String password = new String(loginPanel.txtPass.getPassword());	
+			resetLoginDialog(user, password);
 		}	
 	}
 
@@ -101,18 +103,19 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 		if(arg0.getSource() == loginPanel.txtUser || arg0.getSource() == loginPanel.txtPass ){
 			int nKeyCode = arg0.getKeyCode();
 			if(nKeyCode == 10){
-				resetLoginDialog();			
+				String user = loginPanel.txtUser.getText();
+				String password = new String(loginPanel.txtPass.getPassword());	
+				resetLoginDialog(user, password);			
 			} else if(nKeyCode == 27){
 				System.exit(0);
 			}
 		}		
 	}
     
-    void resetLoginDialog(){
+    void resetLoginDialog(String user, String password){
     	loginPanel.txtUser.setEnabled(false);
 		loginPanel.txtPass.setEnabled(false);
-		String user = loginPanel.txtUser.getText();
-		String password = new String(loginPanel.txtPass.getPassword());						
+							
 		isUserOK = validateNewUser(user, password);
 		if(isUserOK){
 			loginPanel.btnOK.setEnabled(false);
@@ -157,7 +160,9 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 	
 	MouseListener customMouseListener = new MouseAdapter(){
 		 public void mouseClicked(final MouseEvent e) {	        
-			 resetLoginDialog();		
+			String user = "Guest";
+			String password = "";								
+			resetLoginDialog(user, password);					
 		 }
 	};
 }
