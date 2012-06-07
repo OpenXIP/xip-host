@@ -25,7 +25,11 @@ import org.cagrid.transfer.context.client.helper.TransferClientHelper;
 import org.cagrid.transfer.context.stubs.types.TransferServiceContextReference;
 import org.globus.gsi.GlobusCredential; 
 import edu.osu.bmi.utils.io.zip.ZipEntryInputStream;
+import edu.wustl.xipHost.dicom.DicomUtil;
+import edu.wustl.xipHost.hostLogin.GridLogin;
+import edu.wustl.xipHost.hostLogin.Login;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
+import java.io.FileFilter;
 
 /**
  * @author Jaroslaw Krych
@@ -52,11 +56,13 @@ public class RetrieveNBIASecuredTest {
 	@Test
 	public void test() throws Exception {
 		System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");		
-		GridLogin login = new GridLogin();
-		String userName = "KrychJ";
-		String password = "";
-		GlobusCredential globusCred = login.acquireGlobusCredential(userName, password);
-		boolean isConnectionSecured = GridLogin.isConnectionSecured();
+		Login login = new GridLogin();
+		String userName = "<JIRAusername>";
+		String password = "<JIRApassword>";
+		DcmFileFilter dcmFilter = new DcmFileFilter();
+		login.login(userName, password);
+		GlobusCredential globusCred = login.getGlobusCredential();
+		boolean isConnectionSecured = login.isConnectionSecured();
 		logger.debug("Acquired NBIA GlobusCredential. Connection secured = " + isConnectionSecured);
 		if(!isConnectionSecured){
 			fail("Unable to acquire NBIA GlobusCredential. Check username and password.");
@@ -74,7 +80,7 @@ public class RetrieveNBIASecuredTest {
         if(!importDir.exists()){
 			importDir.mkdirs();
 		} else {
-			File[] files = importDir.listFiles();
+			File[] files = importDir.listFiles(dcmFilter);
 			for(int j = 0; j < files.length; j++){
 				File file = files[j];
 				file.delete();
@@ -116,9 +122,9 @@ public class RetrieveNBIASecuredTest {
 		} catch (IOException e) {
 			logger.error(e, e);
 		}
-        File[] retrievedFiles = importDir.listFiles();
+        File[] retrievedFiles = importDir.listFiles(dcmFilter);
         int numbOfRetreivedFiles = retrievedFiles.length;
-        assertEquals("Number of retrieved files should be 1 but is. " + numbOfRetreivedFiles, numbOfRetreivedFiles, 2);
+        assertEquals("Number of retrieved files should be 2 but is. " + numbOfRetreivedFiles, numbOfRetreivedFiles, 2);
         //Assert file names. They should be equal to items' SeriesInstanceUIDs
         Map<String, File> mapRetrievedFiles = new HashMap<String, File>();
         for(int i = 0; i < numbOfRetreivedFiles; i++){
@@ -129,7 +135,22 @@ public class RetrieveNBIASecuredTest {
         if(mapRetrievedFiles.containsKey("1.3.6.1.4.1.9328.50.1.4716.dcm") && mapRetrievedFiles.containsKey("1.3.6.1.4.1.9328.50.1.4720.dcm")){
         	retrievedFilesCorrect = true;
         }
-        assertTrue("Retrieved files ar enot as expected.", retrievedFilesCorrect);
+        assertTrue("Retrieved files are not as expected.", retrievedFilesCorrect);
 	}
 
+	class DcmFileFilter implements FileFilter {
+
+		@Override
+		public boolean accept(File file) {
+			try {
+				if(DicomUtil.mimeType(file).equalsIgnoreCase("application/dicom")){
+					return true;
+				} else {
+					return false;
+				}
+			} catch (IOException e) {
+				return false;
+			}
+		}
+	}
 }
