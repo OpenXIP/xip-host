@@ -70,25 +70,22 @@ public class GridRetrieveNBIA implements Retrieve {
 					seriesInstanceUID = (String)dicomCriteria.get(dicomTag);
 					break;
 				}
-			}
-			if(client == null){
-				Login login = HostConfigurator.getLogin();
-				boolean isConnSecured = login.isConnectionSecured();
-				if (isConnSecured == false) {
-					client = new NCIACoreServiceClient(gridLocation.getAddress());
-					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
-					tclient = new TransferServiceContextClient(tscr.getEndpointReference());
-					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
-				} else {
-					GlobusCredential globusCred = login.getGlobusCredential();
-					client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
-					client.setAnonymousPrefered(false);
-					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
-					tclient = new TransferServiceContextClient(tscr.getEndpointReference(), globusCred);
-					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor(), globusCred);
-				}
-			}
-			
+			}			
+			Login login = HostConfigurator.getLogin();
+			boolean isConnSecured = login.isConnectionSecured();
+			if (isConnSecured == false) {
+				client = new NCIACoreServiceClient(gridLocation.getAddress());
+				tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
+				tclient = new TransferServiceContextClient(tscr.getEndpointReference());
+				istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
+			} else {
+				GlobusCredential globusCred = login.getGlobusCredential();
+				client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
+				client.setAnonymousPrefered(false);
+				tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
+				tclient = new TransferServiceContextClient(tscr.getEndpointReference(), globusCred);
+				istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor(), globusCred);
+			}			
 		} catch (Exception e) {
 			logger.error(e, e);
 		}					
