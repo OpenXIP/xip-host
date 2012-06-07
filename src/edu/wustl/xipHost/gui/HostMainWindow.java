@@ -7,11 +7,11 @@ import javax.swing.*;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManagerFactory;
 import edu.wustl.xipHost.avt2ext.AVTPanel;
-import edu.wustl.xipHost.caGrid.GridLogin;
 import edu.wustl.xipHost.caGrid.GridPanel;
 import edu.wustl.xipHost.dicom.DicomPanel;
 import edu.wustl.xipHost.globalSearch.GlobalSearchPanel;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
+import edu.wustl.xipHost.hostLogin.Login;
 import edu.wustl.xipHost.localFileSystem.LocalFileSystemPanel;
 import edu.wustl.xipHost.nbia.DataSourcePanel;
 import edu.wustl.xipHost.worklist.WorklistPanel;
@@ -149,7 +149,8 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	} else if(e.getSource() == toolBar.btnSwitchUser) {
     		//TODO
     		//Stop all running hosted applications for the previous user
-    		GridLogin.invalidateNBIASecuredConnection();
+    		Login login = HostConfigurator.getLogin();
+    		login.invalidateNBIASecuredConnection();
     		HostConfigurator.getHostConfigurator().logNewUser();
     	} else if (e.getSource() == toolBar.btnExit) {
 			HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
