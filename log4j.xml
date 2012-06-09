@@ -71,7 +71,14 @@
 		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
 	</layout>
   </appender>
-  
+  <appender name="XUA_Appender" class="org.apache.log4j.DailyRollingFileAppender">
+	<param name="File" value="./log/xiphost-xua.log"/>
+	<param name="DatePattern" value="'.'yyyy-ww"/>
+	<!-- param name="Threshold" value="DEBUG"/-->
+	<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%t] %C:%M:%L - %m%n"/>
+  	</layout>
+  </appender>
   
   <logger name="edu.wustl.xipHost.caGrid.GridQuery">
 	 <appender-ref ref="Grid_Appender"/>
@@ -223,6 +230,9 @@
   <logger name="edu.wustl.xipHost.dicom.QueryPacsLocationTest">
 	<appender-ref ref="Dicom_Appender"/>
   </logger>		
+  <logger name="edu.wustl.xipHost.hostLogin.XUALogin">
+	<appender-ref ref="XUA_Appender"/>
+  </logger>	
   
   <root>
     <!-- level value="debug"/-->
