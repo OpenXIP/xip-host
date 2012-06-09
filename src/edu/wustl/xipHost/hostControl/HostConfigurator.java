@@ -757,11 +757,11 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	}
 	
 	public void logNewUser(){
-		boolean useXUA = false;
+		boolean useXUA = true;
 		boolean useNBIASecur = false;
-		boolean useSTS = true;
+		boolean useSTS = false;
 		if(useXUA) {
-			login = new XUALogin();
+			login = new XUALogin(stsURL, trustStoreLoc, trustStorePswd);
 		} else if (useNBIASecur) {
 			login = new GridLogin();
 		} else if (useSTS) {
