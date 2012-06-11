@@ -757,9 +757,9 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	}
 	
 	public void logNewUser(){
-		boolean useXUA = true;
+		boolean useXUA = false;
 		boolean useNBIASecur = false;
-		boolean useSTS = false;
+		boolean useSTS = true;
 		if(useXUA) {
 			login = new XUALogin(stsURL, trustStoreLoc, trustStorePswd);
 		} else if (useNBIASecur) {
