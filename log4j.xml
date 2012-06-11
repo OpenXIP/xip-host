@@ -233,6 +233,9 @@
   <logger name="edu.wustl.xipHost.hostLogin.XUALogin">
 	<appender-ref ref="XUA_Appender"/>
   </logger>	
+  <logger name="edu.wustl.xipHost.xua.STSClientAuthenticationTest">
+	<appender-ref ref="XUA_Appender"/>
+  </logger>	
   
   <root>
     <!-- level value="debug"/-->
