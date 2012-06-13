@@ -596,8 +596,9 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	}
 	
 	
-	List<Application> activeApplications = new ArrayList<Application>();
+	List<Application> activeApplications;
 	public void runHostShutdownSequence(){		
+		activeApplications = new ArrayList<Application>();
 		//TODO
 		//Modify runHostShutdownSequence. Hosted application tabs are not removed, host terminates first, or could terminate first before hosted applications have a chance to terminate first
 		//Host can terminate only if no applications are running (verify applications are not running)
@@ -658,6 +659,35 @@ public class HostConfigurator implements ApplicationTerminationListener {
         // Visit each thread group  
         System.exit(0);	
 	}
+	
+	public void terminateActiveApplications(){
+		List<Application> applications = getActiveApplications();
+		for(Application app : applications){			
+			app.shutDown();
+		}
+		while(activeApplications.size() != 0){
+			try {
+				activeApplications.wait();
+			} catch (InterruptedException e) {
+				logger.error(e,  e);
+			}
+		}	
+	}
+	
+	public List<Application> getActiveApplications(){
+		activeApplications = new ArrayList<Application>();
+		List<Application> applications = appMgr.getApplications();
+		synchronized(activeApplications){
+			for(Application app : applications){			
+				State state = app.getState();			
+				if(state != null && state.equals(State.EXIT) == false ){
+					activeApplications.add(app);
+				}
+			}
+			return activeApplications;
+		}	
+	}
+	
 	
 	@Override
 	public void applicationTerminated(ApplicationTerminationEvent event) {
