@@ -19,15 +19,18 @@ public class XUALogin extends STSLogin implements Login {
 	final static Logger logger = Logger.getLogger(XUALogin.class);
 	String username;
 	boolean isConnectionSecured = false;
+	XUAModuleContext context; 
 	
 	public XUALogin(String serviceURL, String trustStoreFile, String trustStorePswd){
 		super(serviceURL, trustStoreFile, trustStorePswd);
+		context = XUAModuleContext.getContext();
+		//context XUAEnabled set to false by default (e.g. for Guest User)
+		context.setXUAEnabled(false); 
 	}
 	
 	@Override
 	public boolean login(String username, String password) {
 		super.login(username, password);
-		XUAModuleContext context = XUAModuleContext.getContext(); 
 		if(super.isConnectionSecured()) {
 			logger.debug("User: " + username + " successfuly authenticated to XUA Service via STS Service");
 			//Send successful login audit message
@@ -44,16 +47,15 @@ public class XUALogin extends STSLogin implements Login {
 				return true;
 			} catch (Exception e) {
 				logger.error(e,  e);
-				isConnectionSecured = true;
+				isConnectionSecured = false;
 				return false;
 			}
 		} else {
-			context.setXUAEnabled(false); 
 			logger.debug("User: " + username + " denied access to XUA Service via STS Service");
 			//Send login failure audit message
 			IHEAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.MINOR_FAILURE, true, "XIP", "192.168.1.10");
 			//TODO: notify user of failure
-			isConnectionSecured = true;
+			isConnectionSecured = false;
 			return false;
 		}
 	}
