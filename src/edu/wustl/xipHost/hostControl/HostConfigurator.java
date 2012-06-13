@@ -358,6 +358,21 @@ public class HostConfigurator implements ApplicationTerminationListener {
 				} else {
 					trustStorePswd = (root.getChild("HostTrustStorePswd").getValue());
 				}
+				if(root.getChild("useXUA") == null){
+					useXUA = false;
+				} else {
+					useXUA = Boolean.valueOf(root.getChild("useNBIASecur").getValue());
+				}
+				if(root.getChild("useNBIASecur") == null){
+					useNBIASecur = false;
+				} else {
+					useNBIASecur = Boolean.valueOf(root.getChild("useNBIASecur").getValue());
+				}
+				if(root.getChild("useSTS") == null){
+					useSTS = false;
+				} else {
+					useSTS = Boolean.valueOf(root.getChild("useSTS").getValue());
+				}
 			} catch (JDOMException e) {				
 				return false;
 			} catch (IOException e) {
@@ -692,6 +707,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	@Override
 	public void applicationTerminated(ApplicationTerminationEvent event) {
 		Application application = (Application)event.getSource();
+		activeApplications = getActiveApplications();
 		synchronized(activeApplications){
 			activeApplications.remove(application);
 			activeApplications.notify();
@@ -786,10 +802,10 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		return login;
 	}
 	
+	boolean useXUA;
+	boolean useNBIASecur;
+	boolean useSTS;
 	public void logNewUser(){
-		boolean useXUA = false;
-		boolean useNBIASecur = false;
-		boolean useSTS = true;
 		if(useXUA) {
 			login = new XUALogin(stsURL, trustStoreLoc, trustStorePswd);
 		} else if (useNBIASecur) {
