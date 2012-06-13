@@ -109,7 +109,7 @@ public class STSLogin implements Login {
 	}
 	
 	@Override
-	public void invalidateNBIASecuredConnection() {
+	public void invalidateSecuredConnection() {
 		globusCred = null;
 		samlAssertionElement = null;
 		isConnectionSecured = false;

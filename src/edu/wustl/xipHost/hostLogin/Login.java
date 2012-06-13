@@ -16,5 +16,5 @@ public interface Login {
 	boolean isConnectionSecured();
 	GlobusCredential getGlobusCredential();
 	Element getSamlAssertion();
-	void invalidateNBIASecuredConnection();
+	void invalidateSecuredConnection();
 }
