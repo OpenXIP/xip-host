@@ -86,7 +86,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
                 
         //Add tabs        
         ImageIcon icon = null;
-        //tabPaneCenter.addTab("NBIA", icon, nbiaPanel, null);
         tabPaneCenter.addTab("Local File System", icon, localFileSystemPanel, null);
         tabPaneCenter.addTab("AVT AD", icon, avt2extPanel, null);
         tabPaneCenter.addTab("NBIA/caGrid", icon, gridPanel, null);                      	   
@@ -98,7 +97,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
         tabPaneCenter.setSelectedComponent(localFileSystemPanel);
         
         toolBar.btnHost.addActionListener(this);
-        //toolBar.btnLocal.addActionListener(this);
         toolBar.btnOptions.addActionListener(this);
         toolBar.btnExit.addActionListener(this);
         toolBar.btnSuspend.addActionListener(this);
@@ -149,8 +147,9 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	} else if(e.getSource() == toolBar.btnSwitchUser) {
     		//TODO
     		//Stop all running hosted applications for the previous user
+    		performSwitchUserTasks();
     		Login login = HostConfigurator.getLogin();
-    		login.invalidateNBIASecuredConnection();
+    		login.invalidateSecuredConnection();
     		HostConfigurator.getHostConfigurator().logNewUser();
     	} else if (e.getSource() == toolBar.btnExit) {
 			HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
@@ -213,27 +212,19 @@ public class HostMainWindow extends JFrame implements ActionListener {
     }
     
     public static void removeTab(UUID appUUID){
-    	int tabCount = sideTabbedPane.getTabCount();    	
-    	for(int i = 0; i < tabCount; i++){
-    		UUID selectedTabUUID = ((PanelUUID)sideTabbedPane.getComponentAt(i)).getUUID();
-    		if(appUUID.equals(selectedTabUUID)){  
-    			final int index;
-    			index = i;
-    			java.awt.EventQueue.invokeLater(new Runnable() {
-    	            @Override
-    	            public void run() {
-    	                if(this != null) {
-    	                	sideTabbedPane.remove(index);					
-    	        			sideTabbedPane.setSelectedIndex(0);
-    	                	sideTabbedPane.repaint();
-    	                }
-    	            }
-    	        });
-    			toolBar.switchButtons(0);
-    			return;
-    		}
+    	synchronized(sideTabbedPane){
+    		int tabCount = sideTabbedPane.getTabCount();    	
+        	for(int i = 0; i < tabCount; i++){
+        		UUID tabUUID = ((PanelUUID)sideTabbedPane.getComponentAt(i)).getUUID();
+        		if(appUUID.equals(tabUUID)){  
+        			sideTabbedPane.remove(i);					
+        			sideTabbedPane.setSelectedIndex(0);
+                	sideTabbedPane.repaint();
+        			toolBar.switchButtons(0);
+        			return;
+        		}
+        	}
     	}
-    	
     }
     
     
@@ -306,5 +297,16 @@ public class HostMainWindow extends JFrame implements ActionListener {
     
     public Component getSelectedSearchTab() {
     	return tabPaneCenter.getSelectedComponent();
+    }
+    
+    void performSwitchUserTasks() {
+    	HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
+    	hostConfig.terminateActiveApplications();
+    	int numOfActiveApplications = hostConfig.getActiveApplications().size();
+    	if(numOfActiveApplications != 0) {
+    		//Inform user about active applications that need to be manually closed
+    	}
+    	//Clear criteria panels
+    	//Clear JTree results
     }
 }
