@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <host>
-	<tmpDir>C:\TmpXIP</tmpDir>
-	<outputDir>C:\OutXIP</outputDir>
+	<tmpDir>/Users/krych/XIP/TmpXIP</tmpDir>
+	<outputDir>/Users/krych/XIP/OutXIP</outputDir>
 	<displayStartup>false</displayStartup>
 
 	<AETitle>WS_XIP</AETitle>
@@ -15,4 +15,8 @@
 
 	<PdqSendFacilityOID>1.3.6.1.4.1.21367.13.10.5420</PdqSendFacilityOID>
 	<PdqSendApplicationOID>1.3.6.1.4.1.21367.13.50.420</PdqSendApplicationOID>
+	
+	<StsUrl>https://secure01.cci.emory.edu:8443/SecurityTokenServiceNCIProd/rest/STS/issueToken?targetService=http://services.testcorp.org/provider1</StsUrl>
+	<HostTrustStoreFile>/Users/krych/Documents/workspace2/XIPHost/config/truststore.jks</HostTrustStoreFile>
+	<HostTrustStorePswd>123456</HostTrustStorePswd>
 </host>
