@@ -19,4 +19,9 @@
 	<StsUrl>https://secure01.cci.emory.edu:8443/SecurityTokenServiceNCIProd/rest/STS/issueToken?targetService=http://services.testcorp.org/provider1</StsUrl>
 	<HostTrustStoreFile>/Users/krych/Documents/workspace2/XIPHost/config/truststore.jks</HostTrustStoreFile>
 	<HostTrustStorePswd>123456</HostTrustStorePswd>
+	
+	<!-- Choose one of the security modules -->
+	<useXUA>false</useXUA>
+	<useNBIASecur>false</useNBIASecur>
+	<useSTS>true</useSTS>
 </host>
