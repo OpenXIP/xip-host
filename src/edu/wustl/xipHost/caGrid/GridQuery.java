@@ -205,7 +205,7 @@ public class GridQuery implements Query {
 			nbiaClient = new NCIACoreServiceClient(location.getAddress());
 			Login login = HostConfigurator.getLogin();
 			boolean isConnSecured = login.isConnectionSecured();
-			if (isConnSecured == false) {
+			if (isConnSecured == false || login.getGlobusCredential() == null) {
 				nbiaClient = new NCIACoreServiceClient(location.getAddress());
 			} else {
 				nbiaClient = new NCIACoreServiceClient(location.getAddress(), login.getGlobusCredential());

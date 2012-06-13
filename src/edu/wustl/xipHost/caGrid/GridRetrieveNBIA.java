@@ -73,13 +73,13 @@ public class GridRetrieveNBIA implements Retrieve {
 			}			
 			Login login = HostConfigurator.getLogin();
 			boolean isConnSecured = login.isConnectionSecured();
-			if (isConnSecured == false) {
+			GlobusCredential globusCred = login.getGlobusCredential();
+			if (isConnSecured == false || globusCred == null) {
 				client = new NCIACoreServiceClient(gridLocation.getAddress());
 				tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
 				tclient = new TransferServiceContextClient(tscr.getEndpointReference());
 				istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
 			} else {
-				GlobusCredential globusCred = login.getGlobusCredential();
 				client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
 				client.setAnonymousPrefered(false);
 				tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
