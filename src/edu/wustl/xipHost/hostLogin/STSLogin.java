@@ -49,43 +49,47 @@ public class STSLogin implements Login {
 	@Override
 	public boolean login(String username, String password) {
 		this.username = username;
-		System.setProperty("javax.net.ssl.trustStore" , trustStoreFile);
-		System.setProperty("javax.net.ssl.trustStorePassword" , trustStorePswd);
-    	HttpClient httpclient = new DefaultHttpClient();
-    	try {
-    		//serviceURL = "https://secure01.cci.emory.edu:8443/SecurityTokenServiceNCIProd/rest/STS/issueToken?targetService=http://services.testcorp.org/provider1"
-    		HttpGet httpget = new HttpGet(serviceURL);
-            BASE64Encoder encoder = new BASE64Encoder();
-            String encodedCredential = encoder.encode( (username + ":" + password).getBytes() );
-            httpget.addHeader("Authorization", "Basic " + encodedCredential);
-            logger.debug("Executing request" + httpget.getRequestLine());
-            HttpResponse response = httpclient.execute(httpget);
-            HttpEntity entity = response.getEntity();
-            
-            InputStream is = entity.getContent();	
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-   	    	StringBuilder sb = new StringBuilder();
-   	    	String line;
-   	    	while ((line = br.readLine()) != null) {
-   	    		sb.append(line);
-   	    	}
-   	    	br.close();
-   	    	String xmlSamlAssertion = sb.toString();
-   	    	parseSamlAssertion(xmlSamlAssertion);
-   	    	isConnectionSecured = true;
-   	    	logger.debug("User: " + username + " successfuly authenticated to STS Service");
-   	    	return true;
-    	} catch (Exception e) {
-			logger.error(e, e);
-			isConnectionSecured = false;
-			logger.debug("User: " + username + " denied access to STS Service");
-			return false;
+		if(username.equals("Guest")) {
+			return true;
+		} else {
+			System.setProperty("javax.net.ssl.trustStore" , trustStoreFile);
+			System.setProperty("javax.net.ssl.trustStorePassword" , trustStorePswd);
+	    	HttpClient httpclient = new DefaultHttpClient();
+	    	try {
+	    		//serviceURL = "https://secure01.cci.emory.edu:8443/SecurityTokenServiceNCIProd/rest/STS/issueToken?targetService=http://services.testcorp.org/provider1"
+	    		HttpGet httpget = new HttpGet(serviceURL);
+	            BASE64Encoder encoder = new BASE64Encoder();
+	            String encodedCredential = encoder.encode( (username + ":" + password).getBytes() );
+	            httpget.addHeader("Authorization", "Basic " + encodedCredential);
+	            logger.debug("Executing request" + httpget.getRequestLine());
+	            HttpResponse response = httpclient.execute(httpget);
+	            HttpEntity entity = response.getEntity();
+	            
+	            InputStream is = entity.getContent();	
+	            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+	   	    	StringBuilder sb = new StringBuilder();
+	   	    	String line;
+	   	    	while ((line = br.readLine()) != null) {
+	   	    		sb.append(line);
+	   	    	}
+	   	    	br.close();
+	   	    	String xmlSamlAssertion = sb.toString();
+	   	    	parseSamlAssertion(xmlSamlAssertion);
+	   	    	isConnectionSecured = true;
+	   	    	logger.debug("User: " + username + " successfuly authenticated to STS Service");
+	   	    	return true;
+	    	} catch (Exception e) {
+				logger.error(e, e);
+				isConnectionSecured = false;
+				logger.debug("User: " + username + " denied access to STS Service");
+				return false;
+			}
+	    	finally {
+	            // When HttpClient instance is no longer needed, shut down the connection manager to ensure
+	            // immediate deallocation of all system resources
+	            httpclient.getConnectionManager().shutdown();
+	        }
 		}
-    	finally {
-            // When HttpClient instance is no longer needed, shut down the connection manager to ensure
-            // immediate deallocation of all system resources
-            httpclient.getConnectionManager().shutdown();
-        }
 	}
 
 	@Override
