@@ -11,7 +11,7 @@ import edu.wustl.xipHost.caGrid.GridPanel;
 import edu.wustl.xipHost.dicom.DicomPanel;
 import edu.wustl.xipHost.globalSearch.GlobalSearchPanel;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
-import edu.wustl.xipHost.hostLogin.Login;
+import edu.wustl.xipHost.hostLogin.SwitchUserDialog;
 import edu.wustl.xipHost.localFileSystem.LocalFileSystemPanel;
 import edu.wustl.xipHost.nbia.DataSourcePanel;
 import edu.wustl.xipHost.worklist.WorklistPanel;
@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -30,7 +31,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
     static HostIconBar toolBar = new HostIconBar();
     static JTabbedPane sideTabbedPane;
     SideTabMouseAdapter mouseAdapter = new SideTabMouseAdapter();
-    //CenterTabMouseAdapter mouseAdapterCenterTabs = new CenterTabMouseAdapter();
     static PanelUUID hostPanel = new PanelUUID();   
     JTabbedPane tabPaneCenter = new JTabbedPane();            
     static Rectangle appScreenSize = new Rectangle();    
@@ -148,9 +148,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
     		//TODO
     		//Stop all running hosted applications for the previous user
     		performSwitchUserTasks();
-    		Login login = HostConfigurator.getLogin();
-    		login.invalidateSecuredConnection();
-    		HostConfigurator.getHostConfigurator().logNewUser();
+    		
     	} else if (e.getSource() == toolBar.btnExit) {
 			HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
     		hostConfig.runHostShutdownSequence();    		    		
@@ -299,12 +297,18 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	return tabPaneCenter.getSelectedComponent();
     }
     
+    SwitchUserDialog switchUserDialog;
+   
     void performSwitchUserTasks() {
     	HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
-    	hostConfig.terminateActiveApplications();
-    	int numOfActiveApplications = hostConfig.getActiveApplications().size();
+    	List<Application> activeApps = hostConfig.getActiveApplications();
+    	int numOfActiveApplications = activeApps.size();
     	if(numOfActiveApplications != 0) {
     		//Inform user about active applications that need to be manually closed
+    		//If users chooses to proceed then
+    		switchUserDialog = new SwitchUserDialog(new Frame(), activeApps);
+    	} else {
+    		HostConfigurator.getHostConfigurator().logNewUser();
     	}
     	//Clear criteria panels
     	//Clear JTree results
