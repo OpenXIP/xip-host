@@ -30,34 +30,39 @@ public class XUALogin extends STSLogin implements Login {
 	
 	@Override
 	public boolean login(String username, String password) {
-		super.login(username, password);
-		if(super.isConnectionSecured()) {
-			logger.debug("User: " + username + " successfuly authenticated to XUA Service via STS Service");
-			//Send successful login audit message
-			IHEAuditor.getAuditor().getConfig().setSystemUserId(username);
-			IHEAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
-			context.setXUAEnabled(true); 
-			try {
-				samlAssertionElement = super.getSamlAssertion();
-				XUAAssertion assertion = new XUAAssertion(samlAssertionElement);
-				context.cacheAssertion(assertion);
-				context.setActiveAssertion(assertion);
-				isConnectionSecured = true;
-				context.setXUAEnabled(true);
-				return true;
-			} catch (Exception e) {
-				logger.error(e,  e);
+		this.username = username;
+		if(username.equals("Guest")) {
+			return true;
+		} else {
+			super.login(username, password);
+			if(super.isConnectionSecured()) {
+				logger.debug("User: " + username + " successfuly authenticated to XUA Service via STS Service");
+				//Send successful login audit message
+				IHEAuditor.getAuditor().getConfig().setSystemUserId(username);
+				IHEAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.SUCCESS, true, "XIP", "192.168.1.10");
+				context.setXUAEnabled(true); 
+				try {
+					samlAssertionElement = super.getSamlAssertion();
+					XUAAssertion assertion = new XUAAssertion(samlAssertionElement);
+					context.cacheAssertion(assertion);
+					context.setActiveAssertion(assertion);
+					isConnectionSecured = true;
+					context.setXUAEnabled(true);
+					return true;
+				} catch (Exception e) {
+					logger.error(e,  e);
+					isConnectionSecured = false;
+					return false;
+				}
+			} else {
+				logger.debug("User: " + username + " denied access to XUA Service via STS Service");
+				//Send login failure audit message
+				IHEAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.MINOR_FAILURE, true, "XIP", "192.168.1.10");
+				//TODO: notify user of failure
 				isConnectionSecured = false;
 				return false;
 			}
-		} else {
-			logger.debug("User: " + username + " denied access to XUA Service via STS Service");
-			//Send login failure audit message
-			IHEAuditor.getAuditor().auditUserAuthenticationLoginEvent(RFC3881EventOutcomeCodes.MINOR_FAILURE, true, "XIP", "192.168.1.10");
-			//TODO: notify user of failure
-			isConnectionSecured = false;
-			return false;
-		}
+		}		
 	}
 
 	@Override

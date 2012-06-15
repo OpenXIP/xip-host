@@ -26,13 +26,17 @@ public class GridLogin implements Login {
 	@Override
 	public boolean login(String username, String password) {
 		this.username = username;
-		acquireGlobusCredential(username, password);
-		if(isConnectionSecured) {
-			logger.debug("User: " + username + " successfuly authenticated to NBIA authentication service");
+		if(username.equals("Guest")) {
 			return true;
 		} else {
-			logger.debug("User: " + username + " denied access to secured NBIA service");
-			return false;
+			acquireGlobusCredential(username, password);
+			if(isConnectionSecured) {
+				logger.debug("User: " + username + " successfuly authenticated to NBIA authentication service");
+				return true;
+			} else {
+				logger.debug("User: " + username + " denied access to secured NBIA service");
+				return false;
+			}
 		}
 	}
 

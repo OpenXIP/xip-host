@@ -114,8 +114,7 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
     
     void resetLoginDialog(String user, String password){
     	loginPanel.txtUser.setEnabled(false);
-		loginPanel.txtPass.setEnabled(false);
-							
+		loginPanel.txtPass.setEnabled(false);					
 		isUserOK = login.login(user, password); 
 		if(isUserOK){
 			loginPanel.btnOK.setEnabled(false);
