@@ -361,7 +361,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 				if(root.getChild("useXUA") == null){
 					useXUA = false;
 				} else {
-					useXUA = Boolean.valueOf(root.getChild("useNBIASecur").getValue());
+					useXUA = Boolean.valueOf(root.getChild("useXUA").getValue());
 				}
 				if(root.getChild("useNBIASecur") == null){
 					useNBIASecur = false;
