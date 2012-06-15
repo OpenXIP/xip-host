@@ -17,9 +17,9 @@ public class AboutDialog extends JDialog {
     JLabel lblInfo_3 = new JLabel("Developed by:");
     JLabel lblInfo_4 = new JLabel("Contact:");
     JPanel labelsPanel = new JPanel(new GridLayout(3, 1));
-    JLabel lblInfo_5 = new JLabel("XIPHost Reference Implementation - Release, April 17th, 2010");
-    JLabel lblInfo_6 = new JLabel("Copyright (c) 2007-2010 Washington University in St. Louis. All Rights Reserved.");
-    JLabel lblInfo_7 = new JLabel("314-747-1728");
+    JLabel lblInfo_5 = new JLabel("XIPHost Reference Implementation - Release, June 25th, 2012");
+    JLabel lblInfo_6 = new JLabel("Copyright (c) 2007-2012 Washington University in St. Louis. All Rights Reserved.");
+    JLabel lblInfo_7 = new JLabel("314-362-6967");
     JPanel versionDataPanel = new JPanel(new GridLayout(3, 1));    
     //ImageIcon iconLogo =  new ImageIcon("./gif/xip-logo.GIF");
     ImageIcon iconLogo =  new ImageIcon("./gif/XIP-Host-Corner-Logo-Red.PNG");
