@@ -116,7 +116,7 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
     	loginPanel.txtUser.setEnabled(false);
 		loginPanel.txtPass.setEnabled(false);
 							
-		isUserOK = validateNewUser(user, password);
+		isUserOK = login.login(user, password); 
 		if(isUserOK){
 			loginPanel.btnOK.setEnabled(false);
 			setVisible(false);			
@@ -140,21 +140,6 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 	Login login;
 	public void setLogin(Login login){
 		this.login = login;
-	}
-	
-	String userName;
-	public boolean validateNewUser(String user, String password) {				
-		if(user.equalsIgnoreCase("Guest")){
-			userName  = "Guest";
-			return true;
-		} else {
-			if(login.login(user, password)){					
-				userName = user;
-				return true;				
-			}else{						
-				return false;
-			}
-		}	
 	}
 	
 	
