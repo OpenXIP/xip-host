@@ -613,30 +613,15 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	
 	List<Application> activeApplications;
 	public void runHostShutdownSequence(){		
-		activeApplications = new ArrayList<Application>();
 		//TODO
 		//Modify runHostShutdownSequence. Hosted application tabs are not removed, host terminates first, or could terminate first before hosted applications have a chance to terminate first
 		//Host can terminate only if no applications are running (verify applications are not running)
-		List<Application> applications = appMgr.getApplications();
-		synchronized(activeApplications){
-			for(Application app : applications){			
-				State state = app.getState();			
-				if(state != null && state.equals(State.EXIT) == false ){
-					activeApplications.add(app);
-					app.shutDown();
-				}
-			}
-			while(activeApplications.size() != 0){
-				try {
-					activeApplications.wait();
-				} catch (InterruptedException e) {
-					logger.error(e,  e);
-				}
-			}
-		}		
+		activeApplications = getActiveApplications();
+		terminateActiveApplications(activeApplications);
 		logger.info("Shutting down XIP Host.");
 		//Store Host configuration parameters
 		storeHostConfigParameters(hostConfig);
+		List<Application> applications = appMgr.getApplications();
 		List<Application> notValidApplications = appMgr.getNotValidApplications();
 		List<Application> appsToStore = new ArrayList<Application>();
 		appsToStore.addAll(applications);
@@ -665,28 +650,22 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		//Run DICOM shutdown sequence
 		//dicomMgr.runDicomShutDownSequence("jdbc:hsqldb:./pixelmed-server-hsqldb/hsqldb/data/ws1db", "sa", "");
 		logger.info("XIPHost exits. Thank you for using XIP Host.");
-		
-		
-		/*ThreadGroup root = Thread.currentThread().getThreadGroup().getParent(); 
-    	while (root.getParent() != null) {
-    		root = root.getParent();
-        }*/
-        // Visit each thread group  
         System.exit(0);	
 	}
 	
-	public void terminateActiveApplications(){
-		List<Application> applications = getActiveApplications();
+	public void terminateActiveApplications(List<Application> applications){
 		for(Application app : applications){			
 			app.shutDown();
 		}
-		while(activeApplications.size() != 0){
-			try {
-				activeApplications.wait();
-			} catch (InterruptedException e) {
-				logger.error(e,  e);
-			}
-		}	
+		synchronized(activeApplications) {
+			while(activeApplications.size() != 0){
+				try {
+					activeApplications.wait();
+				} catch (InterruptedException e) {
+					logger.error(e,  e);
+				}
+			}	
+		}
 	}
 	
 	public List<Application> getActiveApplications(){
@@ -707,7 +686,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	@Override
 	public void applicationTerminated(ApplicationTerminationEvent event) {
 		Application application = (Application)event.getSource();
-		activeApplications = getActiveApplications();
 		synchronized(activeApplications){
 			activeApplications.remove(application);
 			activeApplications.notify();
