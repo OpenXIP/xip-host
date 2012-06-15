@@ -303,9 +303,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
     	List<Application> activeApps = hostConfig.getActiveApplications();
     	int numOfActiveApplications = activeApps.size();
-    	if(numOfActiveApplications != 0) {
-    		//Inform user about active applications that need to be manually closed
-    		//If users chooses to proceed then
+    	if(numOfActiveApplications != 0 && hostConfig.getUser().equals("Guest") == false) {
     		switchUserDialog = new SwitchUserDialog(new Frame(), activeApps);
     	} else {
     		HostConfigurator.getHostConfigurator().logNewUser();
