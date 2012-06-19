@@ -29,7 +29,6 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 	JPanel btnPanel = new JPanel();
 	JButton btnSearch = new JButton("Search");
 	JButton btnCancel = new JButton("Cancel");
-	//FilterPanel panel;
 	AttributePanel panel;	
 	JScrollPane attEntryPanel;
 	Color xipColor = new Color(51, 51, 102);
@@ -121,5 +120,15 @@ public class SearchCriteriaPanel extends JPanel implements ActionListener{
 	}
 	public JButton getQueryButton(){
 		return btnSearch;
+	}
+	
+	public void resetCriteriaPanel(){
+		remove(attEntryPanel);
+		AttributeList list = DicomUtil.constructEmptyAttributeList();	
+		panel = new AttributePanel(list);
+		attEntryPanel = new JScrollPane(panel);
+		attEntryPanel.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));		
+		add(attEntryPanel);
+		repaint();
 	}
 }

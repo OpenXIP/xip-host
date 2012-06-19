@@ -37,7 +37,6 @@ public class SearchCriteriaPanelAVT extends JPanel implements ActionListener{
 	JPanel btnPanel = new JPanel();
 	JButton btnSearch = new JButton("Search");
 	JButton btnCancel = new JButton("Cancel");
-	//FilterPanel panel;
 	AttributePanelAIM panelAVT;
 	AttributePanel panelDICOM;
 	AttributePanelPrivateTag panelPrivateTag;
@@ -45,6 +44,7 @@ public class SearchCriteriaPanelAVT extends JPanel implements ActionListener{
 	Color xipColor = new Color(51, 51, 102);
 	Color xipBtn = new Color(56, 73, 150);
 	GridBagLayout layout = new GridBagLayout();
+	JPanel panel = new JPanel();
 	
 	public SearchCriteriaPanelAVT(){
 		panelAVT = new AttributePanelAIM();
@@ -59,7 +59,6 @@ public class SearchCriteriaPanelAVT extends JPanel implements ActionListener{
 		panelDICOM.setForeground(Color.WHITE);
 		panelPrivateTag.setBackground(new Color(156, 162, 189));
 		panelPrivateTag.setForeground(Color.WHITE);
-		JPanel panel = new JPanel();
 		buildAttributePanelLayout();
 		panel.setLayout(layout);
 		panel.add(panelAVT);
@@ -186,6 +185,22 @@ public class SearchCriteriaPanelAVT extends JPanel implements ActionListener{
 	
 	public AttributeList getFilterList(){
 		return panelDICOM.getFilterList();
+	}
+	
+	public void resetCriteriaPanel(){	
+		panel.remove(panelAVT);
+		panelAVT = new AttributePanelAIM();
+		panel.add(panelAVT);
+		panel.remove(panelDICOM);
+		AttributeList list = DicomUtil.constructEmptyAttributeList();	
+		panelDICOM = new AttributePanel(list);
+		panel.add(panelDICOM);
+		panel.remove(panelPrivateTag);
+		panelPrivateTag = new AttributePanelPrivateTag();
+		panel.add(panelPrivateTag);
+		buildAttributePanelLayout();
+		panel.repaint();
+		attEntryPanel.getVerticalScrollBar().setValue(0);
 	}
 	
 }
