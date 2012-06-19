@@ -297,18 +297,26 @@ public class HostMainWindow extends JFrame implements ActionListener {
     	return tabPaneCenter.getSelectedComponent();
     }
     
-    SwitchUserDialog switchUserDialog;
-   
+    
     void performSwitchUserTasks() {
     	HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
     	List<Application> activeApps = hostConfig.getActiveApplications();
     	int numOfActiveApplications = activeApps.size();
     	if(numOfActiveApplications != 0 && hostConfig.getUser().equals("Guest") == false) {
-    		switchUserDialog = new SwitchUserDialog(new Frame(), activeApps);
-    	} else {
+    		new SwitchUserDialog(new Frame(), activeApps);
+    	} else if (numOfActiveApplications == 0 && hostConfig.getUser().equals("Guest") == false) {
+    		resetPanels();
+    		HostConfigurator.getHostConfigurator().logNewUser();
+    	} else if (hostConfig.getUser().equals("Guest")){
     		HostConfigurator.getHostConfigurator().logNewUser();
     	}
-    	//Clear criteria panels
-    	//Clear JTree results
+    }
+    
+    public void resetPanels(){
+    	avt2extPanel.resetPanel();
+    	dicomPanel.resetPanel();
+    	gridPanel.resetPanel();
+    	localFileSystemPanel.resetPanel();
+    	//TODO: reset XSDPanel, GlobalPanel and Worklist
     }
 }

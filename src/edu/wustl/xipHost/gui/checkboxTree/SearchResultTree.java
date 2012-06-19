@@ -54,6 +54,7 @@ public class SearchResultTree extends JTree implements NodeSelectionListener {
 	public void updateNodes(SearchResult result) {					    			
 		firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, !isRootVisible(), isRootVisible());
 		if(result == null){			
+			rootNode.removeAllChildren();
 			treeModel.reload(rootNode);
 			return;
 		}else if(result.getPatients().size() == 0 && result.getItems().size() == 0){
