@@ -707,5 +707,11 @@ public class GridPanel extends JPanel implements ActionListener, ApplicationList
 		}
 	}*/
 	
+	public void resetPanel(){
+		criteriaPanel.resetCriteriaPanel();
+		resultTree.updateNodes(null);
+		selectedDataSearchResult = new SearchResult();
+		resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
+	}
 }
 

@@ -80,6 +80,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 	JPanel btnSelectionPanel = new JPanel();
 	JButton btnSelectAll = new JButton("Select All");
 	JButton btnDeselectAll = new JButton("Deselect All");
+	File defaultDirectory = new File("./dicom-dataset-demo");
 	
 	public LocalFileSystemPanel() {
 		searchResult = new SearchResult("Local File System");
@@ -87,7 +88,7 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 		setBackground(xipColor);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
 	    treeView.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution() + 10));
-        fileChooser = new HostFileChooser(true, new File("./dicom-dataset-demo"));
+        fileChooser = new HostFileChooser(true, defaultDirectory);
         fileChooser.setPreferredSize(new Dimension(500, HostConfigurator.adjustForResolution()));
         fileChooser.addActionListener(this);
 		//leftPanel.setBackground(xipColor);
@@ -408,5 +409,12 @@ public class LocalFileSystemPanel extends JPanel implements ApplicationListener,
 				}
 			}
 		}
+	}
+	
+	public void resetPanel(){
+		fileChooser.setCurrentDirectory(defaultDirectory);
+		resultTree.updateNodes(null);
+		selectedDataSearchResult = new SearchResult();
+		resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 	}
 }

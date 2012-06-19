@@ -149,6 +149,7 @@ public class SwitchUserDialog extends JDialog implements ActionListener {
 		} else if (event.getSource() == btnSwitch) {
 			dispose();
 			HostConfigurator hostConfig = HostConfigurator.getHostConfigurator();
+			hostConfig.resetPanels();
 			hostConfig.terminateActiveApplications(hostConfig.getActiveApplications());
 			Login login = HostConfigurator.getLogin();
     		login.invalidateSecuredConnection();

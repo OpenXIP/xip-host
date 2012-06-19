@@ -75,9 +75,9 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 public class AVTPanel extends JPanel implements ActionListener, ItemListener, QueryListener, ApplicationListener, DataSelectionListener {
 	final static Logger logger = Logger.getLogger(AVTPanel.class);
-	SearchCriteriaPanelAVT criteriaPanel = new SearchCriteriaPanelAVT();	
-	SearchResultTreeProgressive resultTree = new SearchResultTreeProgressive();
-	JScrollPane treeView = new JScrollPane(resultTree);
+	SearchCriteriaPanelAVT criteriaPanel;	
+	SearchResultTreeProgressive resultTree;
+	JScrollPane treeView;
 	JPanel leftPanel = new JPanel();
 	JPanel rightPanel = new JPanel();
 	ApplicationBar appBar = new ApplicationBar();
@@ -101,9 +101,12 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Qu
 	public AVTPanel(){
 		l = this;
 		setBackground(xipColor);				
+		criteriaPanel = new SearchCriteriaPanelAVT();	
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search AD");
-		leftPanel.add(criteriaPanel);			    
+		leftPanel.add(criteriaPanel);	
+		resultTree = new SearchResultTreeProgressive();
+		treeView = new JScrollPane(resultTree);
 		resultTree.addMouseListener(ml);
 		resultTree.addDataSelectionListener(this);
 		HostMainWindow.getHostIconBar().getApplicationBar().addApplicationListener(this);
@@ -692,5 +695,12 @@ public class AVTPanel extends JPanel implements ActionListener, ItemListener, Qu
 				}
 			}
 		}
+	}
+	
+	public void resetPanel(){
+		criteriaPanel.resetCriteriaPanel();
+		resultTree.updateNodes(null);
+		selectedDataSearchResult = new SearchResult();
+		resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 	}
 }

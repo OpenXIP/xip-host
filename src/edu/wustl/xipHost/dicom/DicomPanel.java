@@ -549,6 +549,12 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	@Override
 	public void notifyException(String message) {
 		// TODO Auto-generated method stub
-		
+	}
+	
+	public void resetPanel(){
+		criteriaPanel.resetCriteriaPanel();
+		resultTree.updateNodes(null);
+		selectedDataSearchResult = new SearchResult();
+		resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
 	}
 }
