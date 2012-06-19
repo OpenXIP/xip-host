@@ -801,4 +801,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		}
 	}
 	
+	public void resetPanels(){
+		mainWindow.resetPanels();
+	}
 }
