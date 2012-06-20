@@ -40,11 +40,13 @@ public class SwitchUserDialog extends JDialog implements ActionListener {
         
         panelActiveApps = new JPanel(new GridLayout(activeApps.size(), 1));
         panelActiveApps.setBackground(xipColor);    
+        int i = 1;
         for(Application activeApp : activeApps){
-        	 JLabel lblActiveApp = new JLabel(activeApp.getName() + " ID: " + activeApp.getID().toString());
+        	 JLabel lblActiveApp = new JLabel(i + ". " + activeApp.getName());
         	 lblActiveApp.setFont(font_1);        
         	 lblActiveApp.setForeground(Color.WHITE);
         	 panelActiveApps.add(lblActiveApp);
+        	 i++;
         }
         
         
