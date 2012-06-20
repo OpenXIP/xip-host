@@ -306,9 +306,9 @@ public class HostMainWindow extends JFrame implements ActionListener {
     		new SwitchUserDialog(new Frame(), activeApps);
     	} else if (numOfActiveApplications == 0 && hostConfig.getUser().equals("Guest") == false) {
     		resetPanels();
-    		HostConfigurator.getHostConfigurator().logNewUser();
+    		HostConfigurator.getHostConfigurator().logNewUser(false);
     	} else if (hostConfig.getUser().equals("Guest")){
-    		HostConfigurator.getHostConfigurator().logNewUser();
+    		HostConfigurator.getHostConfigurator().logNewUser(false);
     	}
     }
     

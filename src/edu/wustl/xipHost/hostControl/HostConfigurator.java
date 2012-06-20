@@ -148,8 +148,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			}
 		};
 		t.start();    	    	
-
-		logNewUser();
+		logNewUser(true);
 
 		//run GridManagerImpl startup
 		gridMgr = GridManagerFactory.getInstance();
@@ -783,7 +782,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	boolean useXUA;
 	boolean useNBIASecur;
 	boolean useSTS;
-	public void logNewUser(){
+	public void logNewUser(boolean enableExitOnEsc){
 		if(useXUA) {
 			login = new XUALogin(stsURL, trustStoreLoc, trustStorePswd);
 		} else if (useNBIASecur) {
@@ -792,6 +791,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 			login = new STSLogin(stsURL, trustStoreLoc, trustStorePswd);
 		}
 		LoginDialog loginDialog = new LoginDialog();
+		loginDialog.setEnableExitOnEsc(enableExitOnEsc);
 		loginDialog.setLogin(login);
 		loginDialog.setModal(true);
 		loginDialog.setVisible(true);

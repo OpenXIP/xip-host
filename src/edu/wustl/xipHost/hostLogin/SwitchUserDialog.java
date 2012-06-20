@@ -155,7 +155,7 @@ public class SwitchUserDialog extends JDialog implements ActionListener {
 			hostConfig.terminateActiveApplications(hostConfig.getActiveApplications());
 			Login login = HostConfigurator.getLogin();
     		login.invalidateSecuredConnection();
-    		HostConfigurator.getHostConfigurator().logNewUser();
+    		HostConfigurator.getHostConfigurator().logNewUser(false);
 		}
 		
 	}

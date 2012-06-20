@@ -99,6 +99,11 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 		}	
 	}
 
+    boolean enableExitOnEsc = true;
+    public void setEnableExitOnEsc(boolean enableExitOnEsc){
+    	this.enableExitOnEsc = enableExitOnEsc;
+    }
+    
     public void keyPressed(KeyEvent arg0) {
 		if(arg0.getSource() == loginPanel.txtUser || arg0.getSource() == loginPanel.txtPass ){
 			int nKeyCode = arg0.getKeyCode();
@@ -107,7 +112,9 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 				String password = new String(loginPanel.txtPass.getPassword());	
 				resetLoginDialog(user, password);			
 			} else if(nKeyCode == 27){
-				System.exit(0);
+				if(enableExitOnEsc){
+					System.exit(0);
+				}
 			}
 		}		
 	}
