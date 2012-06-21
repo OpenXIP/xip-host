@@ -216,10 +216,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	String parentOfOutDir;	
 	Boolean displayStartup;
 	String aeTitle;
-	String dicomStoragePort;
-	String dicomStorageSecurePort;
-	String dicomCommitPort;
-	String dicomCommitSecurePort;
 	String pdqSendFacilityOID;
 	String pdqSendApplicationOID;
 	String auditRepositoryURL;
@@ -285,38 +281,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 					aeTitle = "";
 				}else{					
 					aeTitle = root.getChild("AETitle").getValue();																
-				}
-
-				if(root.getChild("DicomStoragePort") == null){
-					dicomStoragePort = "";
-				}else if(root.getChild("DicomStoragePort").getValue().trim().isEmpty()){
-					dicomStoragePort = "";
-				}else{					
-					dicomStoragePort = root.getChild("DicomStoragePort").getValue();																
-				}
-
-				if(root.getChild("DicomStorageSecurePort") == null){
-					dicomStorageSecurePort = "";
-				}else if(root.getChild("DicomStorageSecurePort").getValue().trim().isEmpty()){
-					dicomStorageSecurePort = "";
-				}else{					
-					dicomStorageSecurePort = root.getChild("DicomStorageSecurePort").getValue();																
-				}
-
-				if(root.getChild("DicomCommitPort") == null){
-					dicomCommitPort = "";
-				}else if(root.getChild("DicomCommitPort").getValue().trim().isEmpty()){
-					dicomCommitPort = "";
-				}else{					
-					dicomCommitPort = root.getChild("DicomCommitPort").getValue();																
-				}
-
-				if(root.getChild("DicomCommitSecurePort") == null){
-					dicomCommitSecurePort = "";
-				}else if(root.getChild("DicomCommitSecurePort").getValue().trim().isEmpty()){
-					dicomCommitSecurePort = "";
-				}else{					
-					dicomCommitSecurePort = root.getChild("DicomCommitSecurePort").getValue();																
 				}
 				
 				if(root.getChild("AuditRepositoryURL") == null){
@@ -440,38 +404,6 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	
 	public String getAETitle(){
 		return aeTitle;
-	}
-	
-	public String getDicomStoragePort(){
-		return dicomStoragePort;
-	}
-
-	public void setDicomStoragePort(String dicomStoragePortIn){
-		dicomStoragePort = dicomStoragePortIn;
-	}
-	
-	public String getDicomStorageSecurePort(){
-		return dicomStorageSecurePort;
-	}
-
-	public void setDicomStorageSecurePort(String dicomStorageSecurePortIn){
-		dicomStorageSecurePort = dicomStorageSecurePortIn;
-	}
-	
-	public String getDicomCommitPort(){
-		return dicomCommitPort;
-	}
-
-	public void setDicomCommitPort(String dicomCommitPortIn){
-		dicomCommitPort = dicomCommitPortIn;
-	}
-	
-	public String getDicomCommitSecurePort(){
-		return dicomCommitSecurePort;
-	}
-
-	public void setDicomCommitSecurePort(String dicomCommitSecurePortIn){
-		dicomCommitSecurePort = dicomCommitSecurePortIn;
 	}
 	
 	public String getAuditRepositoryURL(){
@@ -685,6 +617,9 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	@Override
 	public void applicationTerminated(ApplicationTerminationEvent event) {
 		Application application = (Application)event.getSource();
+		if(activeApplications == null) {
+			activeApplications = getActiveApplications();
+		}
 		synchronized(activeApplications){
 			activeApplications.remove(application);
 			activeApplications.notify();
