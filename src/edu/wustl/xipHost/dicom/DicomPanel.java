@@ -100,7 +100,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	
 	public DicomPanel(){
 		setBackground(xipColor);
-		DicomManager dicomMgr = DicomManagerFactory.getInstance();
+		dicomMgr = DicomManagerFactory.getInstance();
 		try {
 			dicomMgr.loadPacsLocations(xmlPacsLocFile);		
 		} catch (IOException e) {		
@@ -111,7 +111,6 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		resultTree.addDataSelectionListener(this);
 		comboModel = new DefaultComboBoxModel();
 		listCalledLocations = new JComboBox(comboModel);
-		dicomMgr = DicomManagerFactory.getInstance();
 		List<PacsLocation> pacsLocs = dicomMgr.getPacsLocations();
 		for(int i = 0; i < pacsLocs.size(); i++){
 			comboModel.addElement(pacsLocs.get(i));
