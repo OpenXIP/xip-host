@@ -26,7 +26,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -159,7 +158,7 @@ public class ConfigPanel extends JDialog implements ActionListener, KeyListener{
 		configPanel.setBackground(xipLightBlue);
 		btnPanel.add(btnOK);
 		btnOK.setBackground(xipBtn);
-		btnOK.setForeground(Color.WHITE);
+		btnOK.setForeground(Color.BLACK);
 		btnPanel.setBackground(xipColor);
 		add(scrollPane);
 		add(cbxStartup);
@@ -421,10 +420,5 @@ public class ConfigPanel extends JDialog implements ActionListener, KeyListener{
 
 	public void keyTyped(KeyEvent arg0) {
 		
-	}	
-	
-	public static void main (String [] args) {					
-		ConfigPanel lp = new ConfigPanel(new JFrame());
-		lp.display();				
 	}	
 }

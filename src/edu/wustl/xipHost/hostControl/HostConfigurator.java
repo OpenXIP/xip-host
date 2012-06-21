@@ -783,12 +783,15 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	boolean useNBIASecur;
 	boolean useSTS;
 	public void logNewUser(boolean enableExitOnEsc){
-		if(useXUA) {
+		if(useXUA == false && useNBIASecur == false && useSTS == false){
+			useSTS = true;
+		}
+		if (useSTS) {
+			login = new STSLogin(stsURL, trustStoreLoc, trustStorePswd);
+		} else if(useXUA) {
 			login = new XUALogin(stsURL, trustStoreLoc, trustStorePswd);
 		} else if (useNBIASecur) {
 			login = new GridLogin();
-		} else if (useSTS) {
-			login = new STSLogin(stsURL, trustStoreLoc, trustStorePswd);
 		}
 		LoginDialog loginDialog = new LoginDialog();
 		loginDialog.setEnableExitOnEsc(enableExitOnEsc);

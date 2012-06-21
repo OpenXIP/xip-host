@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.WindowConstants;
 
 public class HelpManager extends JDialog {	
 	JLabel lblTitle = new JLabel("XIPHost Help Contents");
@@ -84,7 +85,9 @@ public class HelpManager extends JDialog {
 	}
 	
 	public static void main(String[] args){
-		new HelpManager(new JFrame());
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		new HelpManager(frame);
 
 	}
 
