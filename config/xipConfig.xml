@@ -5,10 +5,6 @@
 	<displayStartup>false</displayStartup>
 
 	<AETitle>WS_XIP</AETitle>
-	<DicomStoragePort>11112</DicomStoragePort>
-	<DicomStorageSecurePort>2762</DicomStorageSecurePort>
-	<DicomCommitPort>3001</DicomCommitPort>
-	<DicomCommitSecurePort>2761</DicomCommitSecurePort>
 
 	<!-- Uncomment the following line, and set the URL, to turn on auditing per the IHE ATNA profile -->	
 	<!-- <AuditRepositoryURL>tls://129.6.24.109:8087</AuditRepositoryURL> -->
@@ -21,7 +17,7 @@
 	<HostTrustStorePswd>123456</HostTrustStorePswd>
 	
 	<!-- Choose one of the security modules -->
-	<useXUA>false</useXUA>
+	<useXUA>true</useXUA>
 	<useNBIASecur>false</useNBIASecur>
 	<useSTS>true</useSTS>
 </host>
