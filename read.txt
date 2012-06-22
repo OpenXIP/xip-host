@@ -1,4 +1,4 @@
-XIP Host Reference Implementation - June 25, 2012
+XIP Host Reference Implementation - release June 25, 2012
 Copyright (c) 2007-2012 Washington University in St. Louis. All Rights Reserved.
 
 
@@ -10,8 +10,8 @@ XIP Host’s primary responsibility is DICOM and non-DICOM data query and retrie
 from different data sources. Non-DICOM data example includes AIM XML annotation objects. 
 Data sources currently supported by XIP Host include: local file system, AVT AD, DICOM PACS
 and NBIA. XIP Host manages and invokes image rendering and processing applications compatible 
-with DICOM Supplement 118 Application Hosting interface. This interface is and underlining 
-communication channel between XIP Host and hosted applications.
+with DICOM Supplement 118 Application Hosting interface. This web services based interface 
+is used to exchange data between XIP Host and hosted applications.
 XIP Host Reference Implementation is compliant with "File Access" and "Native Model" defined in DICOM Supplement 118.
  
    
@@ -29,6 +29,10 @@ The following is the list of XIP Host configuration files:
 <outDir> directory used to store output data received from XIP Hosted Applications. The content of outDir 
          is preserved between XIP Host subsequent launches. REQUIRED.
 
+<AETitle> XIP Host DICOM default AETitle. OPTIONAL
+
+<PdqSendFacilityOID> and <PdqSendApplicationOID> PDQ specific parameters. OPTIONAL
+
 <StsUrl> URL address of the Secured Token Service (STS) used to validate user credentials and issue SAML
          assertions used across different data sources for authentication. OPTIONAL. 
          If STS parameters are not set, Host will allow Guest User login, and determine if communication
@@ -42,7 +46,41 @@ The following is the list of XIP Host configuration files:
 <useXUA>, <useNBIASecur>, <useSTS> only one of the three parameters must be set to true. Defines XIP Host 
          authentication module, used to verify and assign security credentials.
 
-   
+2. XIPHost/config/applications.xml - configuration file used to define hosted applications. Users can manually 
+   modify the content of this file. Hosted applications can also be defined and registered with XIP Host 
+   via GUI Options/Add Application. If manually entered hosted application parameters are determined not valid, 
+   that particular application will be added to the list of not valid applications (Options/View Applications). 
+   Application marked as not valid, can be right-clicked to edit. 
+
+3. XIPHost/config/grid_locations.xml – file used to define NBIA and Grid data sources.
+4. XIPHost/config/pacs_locations.xml – file used to define DICOM data sources.
+5. XIPHost/connection.properties - file used to define AVT AD connection.
+
+***************************************
+Running XIP Host
+***************************************
+
+XIP Host is a standalone Java based application.
+1. The first step is to compile the XIP Host source code. 
+   To do so: using Terminal navigate to XIPHost directory and type "ant". 
+
+   Compilation step is required only once, before XIP Host is launched for the first time.
+
+2. To launch XIP Host type: "ant run" in /XIPHost directory or double-click on either XIPHostRun.sh (Mac OS X) 
+   or XIPHostRun.bat (Windows). If double click doesn’t run XIPHost ensure that XIPHostRun.sh is an executable file. 
+   If not, change file mode/permissionwith :      sudo chmod u+x XIPHostRun.sh
+                           
+3. As an alternative, user can compile and run XIPHost all in one step.
+    To do so either type: "ant clean all run" or double click XIPHostCompileRun.sh (Mac OS X) 
+    or XIPHostCompileRun.bat (Windows).
+
+
+***************************************
+Working with hosted applications
+***************************************
+
+
+
 
 2. Data must be selected prior to any application launch. End user can select
    data from the local file system, query/retrieve data from the DICOM repository,
@@ -54,29 +92,9 @@ The following is the list of XIP Host configuration files:
    XIP Host allows also to run more than one instance of the same application at
    the same time. 
 
-4. Worklist
-   XIP Host Reference Implementation comes with a simple worklist functionality.
-   The definition of each worklist entry can be found in:
 
-         ..\xip-referenceimpl\XIP\config\worklist.xml
-   
-   Application assigned to worklist entry should be first added/registered with
-   the host before executing worklist entry.
 
-   To execute worklist item, click twice on a worklist entry. 
-   Steps that follow:
-        - DICOM and AIM data is retrieved from caGrid repository 
-          and stored in TmpXIP directory
-        - application is automatically launched, and dataset used for display or to be processed.
 
-   Note: depending on the quality of the network connection and the volume of the
-   data being retrieved, time to download data may take few minutes. 
-
-5. To add XIP Application
-      - 'Options / Add application' or
-      - modify ..\xip-referenceimpl\XIP\config\applications.xml
-      Note: Name and Path attributes are required. Path should point to the application
-      executable file (.bat, .exe, .sh).
 
 6. To terminate XIP application
       - select application's tab
@@ -89,5 +107,5 @@ The following is the list of XIP Host configuration files:
       
 ***************************************
 For more information contact: 
-      Jaroslaw Krych - Developer (314-747-1728)
+      Jaroslaw Krych - Developer (719-323-0857)
       Lawrence Tarbox - Project Lead (314-362-6965)
