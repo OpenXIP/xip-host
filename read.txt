@@ -2,9 +2,9 @@ XIP Host Reference Implementation - release June 25, 2012
 Copyright (c) 2007-2012 Washington University in St. Louis. All Rights Reserved.
 
 
-***************************************
+*********************************************************
 Overview
-***************************************
+*********************************************************
 XIP Host is a data access and manipulation component of Extensible Imaging Platform. 
 XIP Host’s primary responsibility is DICOM and non-DICOM data query and retrieval 
 from different data sources. Non-DICOM data example includes AIM XML annotation objects. 
@@ -15,9 +15,9 @@ is used to exchange data between XIP Host and hosted applications.
 XIP Host Reference Implementation is compliant with "File Access" and "Native Model" defined in DICOM Supplement 118.
  
    
-***************************************
+*********************************************************
 XIP Host Configuration
-***************************************
+*********************************************************
 The following is the list of XIP Host configuration files:
 
 1. XIPHost/config/xipconfig.xml – core XIP Host configuration file.
@@ -56,13 +56,13 @@ The following is the list of XIP Host configuration files:
 4. XIPHost/config/pacs_locations.xml – file used to define DICOM data sources.
 5. XIPHost/connection.properties - file used to define AVT AD connection.
 
-***************************************
+*********************************************************
 Running XIP Host
-***************************************
+*********************************************************
 
 XIP Host is a standalone Java based application.
 1. The first step is to compile the XIP Host source code. 
-   To do so: using Terminal navigate to XIPHost directory and type "ant". 
+   To do so: using Terminal navigate to /XIPHost directory and type "ant". 
 
    Compilation step is required only once, before XIP Host is launched for the first time.
 
@@ -74,38 +74,48 @@ XIP Host is a standalone Java based application.
     To do so either type: "ant clean all run" or double click XIPHostCompileRun.sh (Mac OS X) 
     or XIPHostCompileRun.bat (Windows).
 
-
-***************************************
-Working with hosted applications
-***************************************
+Additional information: To be able to use AVT AD data source, IBM DB2 database must be pre-installed, separately from XIP Host.
 
 
+*********************************************************
+Working with XIP Host and XIP Hosted Applications
+*********************************************************
 
+The typical XIP Host workflow steps include: 
 
-2. Data must be selected prior to any application launch. End user can select
-   data from the local file system, query/retrieve data from the DICOM repository,
-   caGrid or AVT AD repository.
+1. Data source selection (select data source tab)
+2. Query – returned query results are displayed in a tree structure. Some data sources support progressive query (e.g. NBIA, AVT AD). 
+   Once first data nodes are returned, user can double-click on one of the displayed nodes to perform sub-query.
+3. Data selection – user has to select at least one node before application launch.
+   Right-clik on the node, expands the node.
+4. Application launch – once data nodes are selected, user can click on any application displayed in XIP Host application bar. 
+   If no application is displayed, user had to "add/register" new hosted applications manually (Options/Add Application). 
+   When hosted application is started, communication process begins between XIP Host and hosted applications. Both components exchange 
+   state notifications an references to data sets. Hosted applications can be rendering applications that require user input but they also can 
+   perform analytical tasks and work independently from user input.
+5. Application termination – some applications may terminate automatically after analytical tasks are completed. 
+   Rendering application need to be terminated manually. User should select rendering application tab first and then click "Exit" button 
+   found in XIP Host bar.
+6. If XIP Host tab is selected and "Exit" button is clicked, all running hosted applications will be terminated first,
+   and then XIP Host will exit.
 
-3. XIP Host supports multi application management. More than one application can be
-   ran at the same time. To switch between running application use tabs located on
-   the right site of the host. 
-   XIP Host allows also to run more than one instance of the same application at
-   the same time. 
+7. XIP Host supports multi-application management. More than one hosted application can be run at the same time. 
+   To switch between running application use tabs located on the right site of the XIP Host. 
+   XIP Host also allows to run more than one instance of the same application in parallel.
 
+*********************************************************
+User login and switch user
+*********************************************************
 
+1. Login dialog is presented at the XIP Host startup.
+2. User may choose to login as a "Guest User" (no authentication is performed). Guest user may only utilize unsecured connections.
+3. When user name and password are entered, system will verify user credentials.
+4. To switch user, click on "Switch User" button found in XIP Host bar. When switching from logged user to guest user, 
+   all running hosted applications will be terminated, query criteria panels and result trees reset. User credentials would be invalidated.
 
-
-
-6. To terminate XIP application
-      - select application's tab
-      - select 'Exit' from the tool bar
-
-7. To add/modify/remove grid and pacs location
-      - modify grid_locations.xml or pacs_locations.xml accordingly
-      Note: host verifies location parameters. If location does not pass validation test 
-      it is not loaded at host startup.
-      
-***************************************
-For more information contact: 
+*********************************************************
+Contact
+*********************************************************
+For more information contact:
       Jaroslaw Krych - Developer (719-323-0857)
       Lawrence Tarbox - Project Lead (314-362-6965)
