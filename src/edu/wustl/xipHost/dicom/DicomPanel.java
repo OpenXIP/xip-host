@@ -67,7 +67,7 @@ import edu.wustl.xipHost.hostControl.HostConfigurator;
  * @author Jaroslaw Krych
  *
  */
-public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener {
+public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener, DicomServerStartupListener {
 	final static Logger logger = Logger.getLogger(DicomPanel.class);
 	JPanel calledLocationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select Called DICOM Service Location:");		
@@ -97,8 +97,13 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	JButton btnSelectAll = new JButton("Select All");
 	JButton btnDeselectAll = new JButton("Deselect All");
 	File xmlPacsLocFile = new File("./config/pacs_locations.xml");
+	Boolean isDicomServerReady = false;
 	
 	public DicomPanel(){
+		DicomServerStartup dicomStartUp = new DicomServerStartup();
+		dicomStartUp.addDicomServerStartupListener(this);
+		Thread t = new Thread(dicomStartUp);
+		t.start();
 		setBackground(xipColor);
 		dicomMgr = DicomManagerFactory.getInstance();
 		try {
@@ -385,6 +390,15 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
 			callingPacsLocation = (PacsLocation)item;
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){
+			synchronized(isDicomServerReady){
+				while(!isDicomServerReady){
+					try {
+						isDicomServerReady.wait();
+					} catch (InterruptedException e1) {
+						logger.error(e1,  e1);
+					}
+				}
+			}
 			resultTree.rootNode.removeAllChildren();
 			selectedDataSearchResult = new SearchResult();
 			resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
@@ -408,7 +422,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			resultTree.selectAll(false);
 		}	
 	}
-
+	
 	AttributeList criteria;	
 	void setCriteriaList(AttributeList criteria){
 		this.criteria = criteria;
@@ -555,5 +569,14 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 		resultTree.updateNodes(null);
 		selectedDataSearchResult = new SearchResult();
 		resultTree.setSelectedDataSearchResult(selectedDataSearchResult);
+	}
+
+
+	@Override
+	public void dicomServerOn(DicomServerStartupEvent event) {
+		synchronized(isDicomServerReady){
+			isDicomServerReady = true;
+			isDicomServerReady.notify();
+		}
 	}
 }
