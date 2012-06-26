@@ -187,7 +187,7 @@ public class DicomManagerImpl implements DicomManager{
 	public SearchResult query(AttributeList criteria, PacsLocation location) {										 
 	    if(criteria == null || location == null){
 	    	return null;
-	    }		
+	    }
 	    //Connecting to the server
 	    logger.debug("Queried source: " + location.toString());
 		String hostName = location.getAddress();
@@ -406,6 +406,7 @@ public class DicomManagerImpl implements DicomManager{
 		return true;
 	}
 
+	Boolean isServerReady = false;
 	File xmlPacsLocFile = new File("./config/pacs_locations.xml");
 	public void runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp) {
 		startHSQLDB(hsqldbServerConfigFilePath);		
