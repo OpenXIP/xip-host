@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2012 Washington University in St. Louis. All Rights Reserved.
  */
-package edu.wustl.xipHost.dicom;
+package edu.wustl.xipHost.hostControl;
 
 import java.util.EventObject;
 
@@ -9,9 +9,9 @@ import java.util.EventObject;
  * @author Jarek Krych
  *
  */
-public class DicomServerStartupEvent extends EventObject {
+public class StartupEvent extends EventObject {
 
-	public DicomServerStartupEvent(DicomServerStartup source){
+	public StartupEvent(StartupRunner source){
 		super(source);
 	}
 }
