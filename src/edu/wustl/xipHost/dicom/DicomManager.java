@@ -25,7 +25,6 @@ public interface DicomManager {
 	public abstract boolean removePacsLocation(PacsLocation pacsLocation);
 	public abstract boolean storePacsLocations(List<PacsLocation> locations, File file) throws FileNotFoundException;
 	public abstract SearchResult query(AttributeList criteria, PacsLocation location);
-	//public abstract List<URI> retrieve(AttributeList criteria, PacsLocation called, PacsLocation calling);
 	public abstract boolean submit(File[] dicomFiles, PacsLocation location);
 	public abstract List<PacsLocation> getPacsLocations();	
 	public abstract void runDicomStartupSequence(String hsqldbServerConfigFilePath, Properties pixelmedProp);

@@ -61,13 +61,16 @@ import edu.wustl.xipHost.gui.checkboxTree.DataSelectionEvent;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionListener;
 import edu.wustl.xipHost.gui.checkboxTree.DataSelectionValidator;
 import edu.wustl.xipHost.gui.checkboxTree.SearchResultTree;
+import edu.wustl.xipHost.hostControl.StartupEvent;
+import edu.wustl.xipHost.hostControl.StartupListener;
+import edu.wustl.xipHost.hostControl.StartupRunner;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 
 /**
  * @author Jaroslaw Krych
  *
  */
-public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener, DicomServerStartupListener {
+public class DicomPanel extends JPanel implements ActionListener, ApplicationListener, QueryListener, DataSelectionListener, StartupListener {
 	final static Logger logger = Logger.getLogger(DicomPanel.class);
 	JPanel calledLocationSelectionPanel = new JPanel();
 	JLabel lblTitle = new JLabel("Select Called DICOM Service Location:");		
@@ -100,7 +103,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 	Boolean isDicomServerReady = false;
 	
 	public DicomPanel(){
-		DicomServerStartup dicomStartUp = new DicomServerStartup();
+		StartupRunner dicomStartUp = new StartupRunner();
 		dicomStartUp.addDicomServerStartupListener(this);
 		Thread t = new Thread(dicomStartUp);
 		t.start();
@@ -390,10 +393,10 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
 			callingPacsLocation = (PacsLocation)item;
 		}else if(e.getSource() == criteriaPanel.getQueryButton()){
-			synchronized(isDicomServerReady){
+			synchronized(this){
 				while(!isDicomServerReady){
 					try {
-						isDicomServerReady.wait();
+						this.wait();
 					} catch (InterruptedException e1) {
 						logger.error(e1,  e1);
 					}
@@ -406,7 +409,7 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();	
 			setCriteriaList(criteriaPanel.getFilterList());				
-			Boolean bln = criteriaPanel.verifyCriteria(criteria);						
+			Boolean bln = criteriaPanel.verifyCriteria(criteria);
 			if(bln && calledPacsLocation != null){
 				DicomQuery dicomQuery = new DicomQuery(criteria, calledPacsLocation);
 				dicomQuery.addQueryListener(this);
@@ -573,10 +576,10 @@ public class DicomPanel extends JPanel implements ActionListener, ApplicationLis
 
 
 	@Override
-	public void dicomServerOn(DicomServerStartupEvent event) {
-		synchronized(isDicomServerReady){
+	public void startupTasksCompleted(StartupEvent event) {
+		synchronized(this){
 			isDicomServerReady = true;
-			isDicomServerReady.notify();
+			this.notify();
 		}
 	}
 }
