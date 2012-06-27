@@ -91,7 +91,7 @@ The typical XIP Host workflow steps include:
 4. Application launch – once data nodes are selected, user can click on any application displayed in XIP Host application bar. 
    If no application is displayed, user had to "add/register" new hosted applications manually (Options/Add Application). 
    When hosted application is started, communication process begins between XIP Host and hosted applications. Both components exchange 
-   state notifications an references to data sets. Hosted applications can be rendering applications that require user input but they also can 
+   state notifications and references to data sets. Hosted applications can be rendering applications that require user input but they also can 
    perform analytical tasks and work independently from user input.
 5. Application termination – some applications may terminate automatically after analytical tasks are completed. 
    Rendering application need to be terminated manually. User should select rendering application tab first and then click "Exit" button 

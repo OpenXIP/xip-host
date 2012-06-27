@@ -10,8 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.nema.dicom.wg23.State;
-import org.openhealthtools.ihe.atna.auditor.IHEAuditor;
 import org.xmldb.api.base.XMLDBException;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.application.ApplicationManager;
@@ -43,8 +40,6 @@ import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.dicom.DicomManager;
-import edu.wustl.xipHost.dicom.DicomManagerFactory;
-import edu.wustl.xipHost.dicom.DicomServerStartup;
 import edu.wustl.xipHost.gui.ConfigPanel;
 import edu.wustl.xipHost.gui.ExceptionDialog;
 import edu.wustl.xipHost.gui.HostMainWindow;
@@ -97,81 +92,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		hostTmpDir = createSubTmpDir(getParentOfTmpDir());		
 		hostOutDir = createSubOutDir(getParentOfOutDir());
 		prop.setProperty("Application.SavedImagesFolderName", getPixelmedSavedImagesFolder());		
-		/*
-		try {
-			prop.store(new FileOutputStream(serverConfig), "Updated Application.SavedImagesFolderName");			
-		} catch (FileNotFoundException e1) {
-			System.exit(0);
-		} catch (IOException e1) {
-			System.exit(0);
-		}
-		dicomMgr = DicomManagerFactory.getInstance();
-		final Properties workstation1Prop = new Properties();
-		try {
-			workstation1Prop.load(new FileInputStream("./pixelmed-server-hsqldb/workstation1.properties"));
-		} catch (FileNotFoundException e1) {
-			logger.error(e1, e1);
-			System.exit(0);
-		} catch (IOException e1) {
-			logger.error(e1, e1);
-			System.exit(0);
-		}
-		Thread t = new Thread(){
-			public void run(){
-				dicomMgr.runDicomStartupSequence("./pixelmed-server-hsqldb/server", workstation1Prop);
-				// Set up default certificates for security.  Must be done after starting dicom, but before login.
-				//TODO Move code to the configuration file, read entries from the configuration file, and move files to an XIP location.
-				System.setProperty("javax.net.ssl.keyStore","/MESA/certificates/XIPkeystore.jks");
-				System.setProperty("javax.net.ssl.keyStorePassword","caBIG2011");
-				System.setProperty("javax.net.ssl.trustStore","/MESA/runtime/certs-ca-signed/2011_CA_Cert.jks");
-				System.setProperty("javax.net.ssl.trustStorePassword","connectathon");
-				System.setProperty("https.ciphersuites","TLS_RSA_WITH_AES_128_CBC_SHA");
-				//System.setProperty("javax.net.debug","all");
-
-				// Set up audit configuration.  Must be done before login.
-				// TODO Get URI and possibly other parameters from the config file
-				IHEAuditor.getAuditor().getConfig().setAuditorEnabled(false);
-				if (auditRepositoryURL != ""){
-					try {
-						IHEAuditor.getAuditor().getConfig().setAuditRepositoryUri(new URI(auditRepositoryURL));
-					} catch (URISyntaxException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					    System.out.println("URI to auditor improperly formed");
-					}
-					IHEAuditor.getAuditor().getConfig().setAuditSourceId(aeTitle);
-					IHEAuditor.getAuditor().getConfig().setAuditorEnabled(true);
-					// TODO figure out what should go here, or get from configuration
-					IHEAuditor.getAuditor().getConfig().setAuditEnterpriseSiteId("IHE ERL");
-					IHEAuditor.getAuditor().getConfig().setHumanRequestor("ltarbox");
-					IHEAuditor.getAuditor().getConfig().setSystemUserId(userName);
-					IHEAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
-				}
-			}
-		};
-		t.start(); */
-		System.setProperty("javax.net.ssl.keyStore","/MESA/certificates/XIPkeystore.jks");
-		System.setProperty("javax.net.ssl.keyStorePassword","caBIG2011");
-		System.setProperty("javax.net.ssl.trustStore","/MESA/runtime/certs-ca-signed/2011_CA_Cert.jks");
-		System.setProperty("javax.net.ssl.trustStorePassword","connectathon");
-		System.setProperty("https.ciphersuites","TLS_RSA_WITH_AES_128_CBC_SHA");
-		IHEAuditor.getAuditor().getConfig().setAuditorEnabled(false);
-		if (auditRepositoryURL != ""){
-			try {
-				IHEAuditor.getAuditor().getConfig().setAuditRepositoryUri(new URI(auditRepositoryURL));
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			    System.out.println("URI to auditor improperly formed");
-			}
-			IHEAuditor.getAuditor().getConfig().setAuditSourceId(aeTitle);
-			IHEAuditor.getAuditor().getConfig().setAuditorEnabled(true);
-			// TODO figure out what should go here, or get from configuration
-			IHEAuditor.getAuditor().getConfig().setAuditEnterpriseSiteId("IHE ERL");
-			IHEAuditor.getAuditor().getConfig().setHumanRequestor("ltarbox");
-			IHEAuditor.getAuditor().getConfig().setSystemUserId(userName);
-			IHEAuditor.getAuditor().getConfig().setSystemUserName("Wash. Univ.");
-		}
+		
 		logNewUser(true);
 
 		//run GridManagerImpl startup
