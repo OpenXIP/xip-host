@@ -13,7 +13,6 @@ import edu.wustl.xipHost.globalSearch.GlobalSearchPanel;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.hostLogin.SwitchUserDialog;
 import edu.wustl.xipHost.localFileSystem.LocalFileSystemPanel;
-import edu.wustl.xipHost.nbia.DataSourcePanel;
 import edu.wustl.xipHost.worklist.WorklistPanel;
 import edu.wustl.xipHost.xds.XDSPanel;
 import java.awt.*;
@@ -47,7 +46,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
 	XDSPanel xdsPanel;
 	AVTPanel avt2extPanel;
 	LocalFileSystemPanel localFileSystemPanel;
-	DataSourcePanel nbiaPanel;
 	
 	static Dimension screenSize;	
 	
@@ -60,7 +58,6 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		avt2extPanel = new AVTPanel();
 		xdsPanel = new XDSPanel();
 		localFileSystemPanel = new LocalFileSystemPanel();
-		nbiaPanel = new DataSourcePanel();
 		if(HostConfigurator.OS.contains("Windows")){
 			setUndecorated(true);
 		}else{
