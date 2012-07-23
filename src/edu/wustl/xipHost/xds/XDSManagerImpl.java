@@ -74,6 +74,7 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.pdq.PDQLocation;
+import edu.wustl.xipHost.xds.XDSRegistryLocation;
 
 /**
  * @author Jaroslaw Krych (stubs, tree display of results), Lawrence Tarbox (OHT implementation)
@@ -85,6 +86,9 @@ public class XDSManagerImpl implements XDSManager{
 	Element rootPdq;
 	SAXBuilder builder = new SAXBuilder();
 	List<PDQLocation> pdqLocations = new ArrayList<PDQLocation>();
+	Document documentXds;
+	Element rootXds;
+	List<XDSRegistryLocation> xdsRegistryLocations = new ArrayList<XDSRegistryLocation>();
 	
 	/* (non-Javadoc)
 	 * @see edu.wustl.xipHost.xds.XDSManager#loadPDQLocations(java.io.File)
@@ -593,7 +597,7 @@ public class XDSManagerImpl implements XDSManager{
 		if ((patientAddress != null) && ( ! patientAddress.isEmpty())){
 			//TODO:Divide into constituent parts:
 			// streetAddress, city, county, state, country, zip, otherDesignation, type
-			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "");
+			pdqQuery.addPatientAddress(patientAddress, "", "", "", "", "", "", "");
 		}
 		//pdqQuery.addPatientAddress("10 PINETREE", "", "", "", "", "", "");
 		//pdqQuery.addPatientAddress(addressStreetAddress, addressCity, addressCounty, addressState, addressCountry, addressZip, addressOtherDesignation, addressType)
@@ -731,8 +735,111 @@ public class XDSManagerImpl implements XDSManager{
 
 	B_Consumer c = null;
 	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#loadPDQLocations(java.io.File)
+	 */
+	public boolean loadXDSRegistryLocations(File file) throws IOException, JDOMException {				
+		documentXds = builder.build(file);
+		rootXds = documentXds.getRootElement();										
+		List<?> children = rootXds.getChildren("xds_registry_location");				
+		for (int i = 0; i < children.size(); i++){
+			String address = (((Element)children.get(i)).getChildText("XDSRegistryURL"));
+			String shortName = (((Element)children.get(i)).getChildText("ShortName"));
+			try {
+				XDSRegistryLocation loc = new XDSRegistryLocation(address, shortName);
+				xdsRegistryLocations.add(loc);
+			} catch (URISyntaxException e) {
+				System.out.println("Unable to load: " + address + " " + shortName + " - invalid location.");				
+			}																									
+		}
+		return true;							
+	}
+	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#storeXDSLocations(java.util.List, java.io.File)
+	 */
+	public boolean storeXDSRegistryLocations(List<XDSRegistryLocation> locations, File file) throws FileNotFoundException {					
+		Element rootSave = new Element("locations");
+		Document document = new Document();
+		document.setRootElement(rootSave);		
+		if(locations == null){return false;}
+		for(int i = 0; i < locations.size(); i++){						
+			Element xdsRegistryElem = new Element("xds_registry_location");
+			Element registryURL = new Element("XDSRegistryURL");
+			Element shortNameElem = new Element("ShortName");
+			xdsRegistryElem.addContent(registryURL);
+			xdsRegistryElem.addContent(shortNameElem);
+			rootSave.addContent(xdsRegistryElem);
+			registryURL.addContent(locations.get(i).getXDSRegistryURL());
+			shortNameElem.addContent(locations.get(i).getShortName());
+		}
+		try {
+			FileOutputStream outStream = new FileOutputStream(file);
+			XMLOutputter outToXMLFile = new XMLOutputter();
+			outToXMLFile.setFormat(Format.getPrettyFormat());
+	    	outToXMLFile.output(document, outStream);
+	    	outStream.flush();
+	    	outStream.close();                       
+		} catch (IOException e) {
+			return false;
+		} 
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#addXDSRegistryLocation(edu.wustl.xipHost.globalSearch.XDSRegistryLocation)
+	 */
+	public boolean addXDSRegistryLocation(XDSRegistryLocation xdsRegistryLocation){		
+		try {
+			if(!xdsRegistryLocations.contains(xdsRegistryLocation)){
+				return xdsRegistryLocations.add(xdsRegistryLocation);
+			} else {
+				return false;
+			}
+		} catch (IllegalArgumentException e){
+			return false;
+		}								
+	}	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#modifyXDSRegistryLocation(edu.wustl.xipHost.globalSearch.PDQLocation, edu.wustl.xipHost.globalSearch.XDSRegistryLocation)
+	 */
+	public boolean modifyXDSRegistryLocation(XDSRegistryLocation oldXDSRegistryLocation, XDSRegistryLocation newXDSRegistryLocation) {
+		//validate method is used to check if parameters are valid, are notmissing, 
+		//do not contain empty strings or do not start from white spaces		
+		try {
+			int i = xdsRegistryLocations.indexOf(oldXDSRegistryLocation);
+			if (i != -1){
+				xdsRegistryLocations.set(i, newXDSRegistryLocation);
+				return true;
+			} else{
+				return false;
+			}
+		} catch (IllegalArgumentException e){
+			return false;
+		}
+	}	
+	
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#removeXDSRegistryLocation(edu.wustl.xipHost.globalSearch.XDSRegistryLocation)
+	 */
+	public boolean removeXDSRegistryLocation(XDSRegistryLocation xdsRegistryLocation){
+		//System.out.println(PDQLocations.indexOf(PDQLocation));
+		try {
+			return xdsRegistryLocations.remove(xdsRegistryLocation);
+		} catch (IllegalArgumentException e){
+			return false;
+		}		
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.wustl.xipHost.xds.XDSManager#getXDSRegistryLocations()
+	 */
+	public List<XDSRegistryLocation> getXDSRegistryLocations(){
+		return xdsRegistryLocations;
+	}	
+
 	//public XDSQueryResponseType queryDocuments(String [] patientIDin) {		
-	public	SearchResult queryDocuments(String [] patientIDin) {
+	public	SearchResult queryDocuments(String [] patientIDin, XDSRegistryLocation xdsRegistry) {
 		if (patientIDin == null){
 			return null;
 		}
@@ -752,13 +859,14 @@ public class XDSManagerImpl implements XDSManager{
 		//If an instance does not already exist, create an instance of the XDS Consumer
 		//and provide the XDS Registry url and port.
 		////////////////////////////////////////////////////////////////////////////////
+		String registryURL = xdsRegistry.getXDSRegistryURL();
 		//String registryURL = "http://hxti1:8080/ihe/registry";
 		//String registryURL = "http://hcxw2k1.nist.gov:8080/xdsServices2/registry/soap/portals/yr3a/storedquery";
 		//String registryURL = "http://129.6.24.109:9080/axis2/services/xdsregistrya";
 		//String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistrya"; // 9085 for tls, swap a for b for XDS.b
 		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistrya";
 
-		String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xdsregistryb"; // NIST on net; 2010, 2011
+		//String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xdsregistryb"; // NIST on net; 2010, 2011
 		//String registryURL = "https://ihexds.nist.gov:9085/tf6/services/xdsregistryb";
 		//String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xcaregistry";
 		//String registryURL = "https://ihexds.nist.gov:9085/tf6/services/xcaregistry";
@@ -1268,6 +1376,7 @@ public class XDSManagerImpl implements XDSManager{
 	}
 
 	File xmlPDQLocFile = new File("./config/pdq_locations.xml");
+	File xmlXDSRegistryLocFile = new File("./config/xds_registry_locations.xml");
 	public boolean runStartupSequence() {
 		if(xmlPDQLocFile == null ){return false;}
 		try {
@@ -1281,6 +1390,21 @@ public class XDSManagerImpl implements XDSManager{
 			// TODO Auto-generated catch block
 			System.out.println("XDS startup sequence error. " + 
 			"Error when processing pdq_locations.xml");
+			return false;
+		}
+
+		if(xmlXDSRegistryLocFile == null ){return false;}
+		try {
+			loadXDSRegistryLocations(xmlXDSRegistryLocFile);				
+		} catch (IOException e) {
+			// TODO Auto-generated catch block				
+			System.out.println("XDS module startup sequence error. " + 
+			"System could not find: xds_registry_locations.xml");
+			return false;
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			System.out.println("XDS startup sequence error. " + 
+			"Error when processing xds_registry_locations.xml");
 			return false;
 		}
 		return true;

@@ -13,6 +13,7 @@ import edu.wustl.xipHost.globalSearch.GlobalSearchPanel;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.hostLogin.SwitchUserDialog;
 import edu.wustl.xipHost.localFileSystem.LocalFileSystemPanel;
+import edu.wustl.xipHost.pdq.PDQPanel;
 import edu.wustl.xipHost.worklist.WorklistPanel;
 import edu.wustl.xipHost.xds.XDSPanel;
 import java.awt.*;
@@ -44,6 +45,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 	GridPanel gridPanel;
 	GlobalSearchPanel globalSearchPanel;
 	XDSPanel xdsPanel;
+	PDQPanel pdqPanel;
 	AVTPanel avt2extPanel;
 	LocalFileSystemPanel localFileSystemPanel;
 	
@@ -56,6 +58,7 @@ public class HostMainWindow extends JFrame implements ActionListener {
 		gridPanel = new GridPanel();
 		globalSearchPanel = new GlobalSearchPanel();
 		avt2extPanel = new AVTPanel();
+		pdqPanel = new PDQPanel();
 		xdsPanel = new XDSPanel();
 		localFileSystemPanel = new LocalFileSystemPanel();
 		if(HostConfigurator.OS.contains("Windows")){
@@ -84,11 +87,12 @@ public class HostMainWindow extends JFrame implements ActionListener {
         //Add tabs        
         ImageIcon icon = null;
         tabPaneCenter.addTab("Local File System", icon, localFileSystemPanel, null);
-        tabPaneCenter.addTab("AVT AD", icon, avt2extPanel, null);
+        tabPaneCenter.addTab("Local Database (AVT AD)", icon, avt2extPanel, null);
         tabPaneCenter.addTab("NBIA/caGrid", icon, gridPanel, null);                      	   
         tabPaneCenter.addTab("PACS", icon, dicomPanel, null);	   
         tabPaneCenter.addTab("GlobalSearch", icon, globalSearchPanel, null);        
-        tabPaneCenter.addTab("XDS", icon, xdsPanel, null);
+        tabPaneCenter.addTab("Pat. ID Lookup (PDQ)", icon, pdqPanel, null);
+        tabPaneCenter.addTab("Document Search (XDS)", icon, xdsPanel, null);
         tabPaneCenter.addTab("Worklist", icon, worklistPanel, null);
         tabPaneCenter.setFont(font);
         tabPaneCenter.setSelectedComponent(localFileSystemPanel);
