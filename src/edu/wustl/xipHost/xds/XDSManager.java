@@ -23,9 +23,15 @@ import edu.wustl.xipHost.pdq.PDQLocation;
 public interface XDSManager {
 	public abstract List<XDSPatientIDResponse> queryPatientIDs(AttributeList queryKeys, PDQLocation pdqSupplier);
 	//public abstract XDSQueryResponseType queryDocuments(String [] patientID);
-	public abstract SearchResult queryDocuments(String [] patientID);
+	public abstract SearchResult queryDocuments(String [] patientID, XDSRegistryLocation xdsRegistry);
 	public abstract boolean retrieveDocuemnts();
 	public abstract File retrieveDocument(DocumentEntryType docEntryDetails, CX patientId, String homeCommunityId);
+	public abstract boolean loadXDSRegistryLocations(File file) throws IOException, JDOMException;
+	public abstract boolean addXDSRegistryLocation(XDSRegistryLocation xdsRegistryLocation);
+	public abstract boolean modifyXDSRegistryLocation(XDSRegistryLocation oldXDSRegistryLocation, XDSRegistryLocation newXDSRegistryLocation);
+	public abstract boolean removeXDSRegistryLocation(XDSRegistryLocation xdsRegistryLocation);
+	public abstract boolean storeXDSRegistryLocations(List<XDSRegistryLocation> locations, File file) throws FileNotFoundException;
+	public abstract List<XDSRegistryLocation> getXDSRegistryLocations();	
 	public abstract boolean loadPDQLocations(File file) throws IOException, JDOMException;
 	public abstract boolean addPDQLocation(PDQLocation pdqLocation);
 	public abstract boolean modifyPDQLocation(PDQLocation oldPDQLocation, PDQLocation newPDQLocation);

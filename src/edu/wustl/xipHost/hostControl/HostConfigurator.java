@@ -37,6 +37,8 @@ import edu.wustl.xipHost.hostLogin.LoginDialog;
 import edu.wustl.xipHost.hostLogin.STSLogin;
 import edu.wustl.xipHost.hostLogin.XUALogin;
 import edu.wustl.xipHost.iterator.IterationTarget;
+import edu.wustl.xipHost.pdq.PDQManager;
+import edu.wustl.xipHost.pdq.PDQManagerFactory;
 import edu.wustl.xipHost.caGrid.GridManager;
 import edu.wustl.xipHost.caGrid.GridManagerFactory;
 import edu.wustl.xipHost.dicom.DicomManager;
@@ -59,6 +61,7 @@ public class HostConfigurator implements ApplicationTerminationListener {
 	GridManager gridMgr;
 	DicomManager dicomMgr;		
 	ApplicationManager appMgr;
+	PDQManager pdqMgr;
 	XDSManager xdsMgr;
 	File xipApplicationsConfig;	
 	public static final String OS = System.getProperty("os.name");
@@ -101,7 +104,11 @@ public class HostConfigurator implements ApplicationTerminationListener {
 		//test for gridMgr == null				
         gridMgr.setImportDirectory(hostTmpDir);		
 
-        //run XDSManager startup
+        //run PDQManager startup
+		pdqMgr = PDQManagerFactory.getInstance();
+		pdqMgr.runStartupSequence();		    	    	
+
+		//run XDSManager startup
 		xdsMgr = XDSManagerFactory.getInstance();
 		xdsMgr.runStartupSequence();		    	    	
 				

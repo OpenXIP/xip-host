@@ -1,0 +1,10 @@
+<locations>
+  <xds_registry_location>
+    <XDSRegistryURL>test://localhost:2011</XDSRegistryURL>
+    <ShortName>Test 1</ShortName>
+  </xds_registry_location>
+  <xds_registry_location>
+    <XDSRegistryURL>test://localhost:2011</XDSRegistryURL>
+    <ShortName>Test 2</ShortName>
+  </xds_registry_location>
+</locations>

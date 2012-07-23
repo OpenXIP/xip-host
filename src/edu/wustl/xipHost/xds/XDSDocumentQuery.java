@@ -18,6 +18,7 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 public class XDSDocumentQuery implements Query {
 	XDSManager xdsMgr;
 	String [] patientID;
+	XDSRegistryLocation xdsRegistry;
 
 	Map<Integer, Object> dicomCriteria;
 	Map<String, Object> aimCriteria;
@@ -29,8 +30,9 @@ public class XDSDocumentQuery implements Query {
 		xdsMgr = XDSManagerFactory.getInstance();
 	}
 	
-	public XDSDocumentQuery(String [] patientID){
+	public XDSDocumentQuery(String [] patientID, XDSRegistryLocation xdsRegistry){
 		this.patientID = patientID;
+		this.xdsRegistry = xdsRegistry;
 		xdsMgr = XDSManagerFactory.getInstance();
 	}
 	
@@ -50,7 +52,7 @@ public class XDSDocumentQuery implements Query {
 	
 	SearchResult searchResult;
 	public void run() {			
-		searchResult = xdsMgr.queryDocuments(patientID);				
+		searchResult = xdsMgr.queryDocuments(patientID, xdsRegistry);				
 		fireUpdateUI();
 	}
 

@@ -62,6 +62,7 @@ import edu.wustl.xipHost.gui.checkboxTree.StudyNode;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.pdq.PDQLocation;
+import edu.wustl.xipHost.xds.XDSRegistryLocation;
 
 /**
  * @author Jaroslaw Krych
@@ -76,6 +77,14 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	JLabel lblGlobus = new JLabel(iconGlobus, JLabel.CENTER);		
     DefaultComboBoxModel pdqComboModel;	
 	JComboBox pdqList;	
+
+	JPanel xdsRegistryLocationSelectionPanel = new JPanel();
+	JLabel lblXDSRegistryTitle = new JLabel("Select XDS Registry:");		
+	ImageIcon iconGlobusXDSRegistry = new ImageIcon("./gif/applications-internet.png");	
+	JLabel lblGlobusXDSRegistry = new JLabel(iconGlobus, JLabel.CENTER);		
+	DefaultComboBoxModel xdsRegistryComboModel;	
+	JComboBox xdsRegistryList;	
+
 	XDSManager xdsManager;
 
 	XDSSearchCriteriaPanel criteriaPanel = new XDSSearchCriteriaPanel();	
@@ -94,9 +103,10 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	
 	public XDSPanel(){
 		setBackground(xipColor);		
+		xdsManager = XDSManagerFactory.getInstance();
+
 		pdqComboModel = new DefaultComboBoxModel();
 		pdqList = new JComboBox(pdqComboModel);
-		xdsManager = XDSManagerFactory.getInstance();
 		List<PDQLocation> pdqLocations = xdsManager.getPDQLocations();
 		for(int i = 0; i < pdqLocations.size(); i++){
 			pdqComboModel.addElement(pdqLocations.get(i));
@@ -129,6 +139,40 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 		pdqLocationSelectionPanel.setBackground(xipColor);
 		buildLayoutPDQLocationSelectionPanel();
 
+		xdsRegistryComboModel = new DefaultComboBoxModel();
+		xdsRegistryList = new JComboBox(xdsRegistryComboModel);
+		List<XDSRegistryLocation> xdsRegistryLocations = xdsManager.getXDSRegistryLocations();
+		for(int i = 0; i < xdsRegistryLocations.size(); i++){
+			xdsRegistryComboModel.addElement(xdsRegistryLocations.get(i));
+		}
+		ComboBoxRendererXDSRegistry xdsRegistryListRenderer = new ComboBoxRendererXDSRegistry();		
+		xdsRegistryList.setRenderer(xdsRegistryListRenderer);
+		xdsRegistryList.setMaximumRowCount(10);
+		xdsRegistryList.setSelectedIndex(0);
+		XDSRegistryLocation itemXDSRegistry = (XDSRegistryLocation)xdsRegistryList.getSelectedItem();
+		selectedXDSRegistryLocation = (XDSRegistryLocation)itemXDSRegistry;
+		xdsRegistryList.setPreferredSize(new Dimension(465, 25));
+		xdsRegistryList.setFont(font_2);
+		xdsRegistryList.setEditable(false);		
+		xdsRegistryList.addActionListener(this);
+		lblXDSRegistryTitle.setForeground(Color.WHITE);
+		xdsRegistryLocationSelectionPanel.add(lblXDSRegistryTitle);		
+		xdsRegistryLocationSelectionPanel.add(xdsRegistryList);
+		lblGlobusXDSRegistry.setToolTipText("XDS Registries");
+		lblGlobusXDSRegistry.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		lblGlobusXDSRegistry.addMouseListener(
+			new MouseAdapter(){
+				public void mouseClicked(MouseEvent e){																
+					//System.out.println("Display locations");
+					//displayLocations();
+					new UnderDevelopmentDialog(lblGlobusXDSRegistry.getLocationOnScreen());
+				}
+			}
+		);
+		xdsRegistryLocationSelectionPanel.add(lblGlobusXDSRegistry);		
+		xdsRegistryLocationSelectionPanel.setBackground(xipColor);
+		buildLayoutXDSRegistryLocationSelectionPanel();
+
 		criteriaPanel.btnSearchPatientID.addActionListener(this);
 		criteriaPanel.getQueryButton().addActionListener(this);
 		criteriaPanel.setQueryButtonText("Search XDS");	
@@ -158,8 +202,13 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 	}
 
 	PDQLocation selectedPDQLocation;
+	XDSRegistryLocation selectedXDSRegistryLocation;
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == pdqList){
+			Object item = ((JComboBox)e.getSource()).getSelectedItem();
+			selectedXDSRegistryLocation = (XDSRegistryLocation)item;
+		}
+		else if(e.getSource() == xdsRegistryList){
 			Object item = ((JComboBox)e.getSource()).getSelectedItem();
 			selectedPDQLocation = (PDQLocation)item;
 		}
@@ -182,7 +231,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			progressBar.setString("Processing search request ...");
 			progressBar.setIndeterminate(true);
 			progressBar.updateUI();	
-			XDSDocumentQuery xsdQuery = new XDSDocumentQuery(selectedID.getPatID());
+			XDSDocumentQuery xsdQuery = new XDSDocumentQuery(selectedID.getPatID(), selectedXDSRegistryLocation);
 			xsdQuery.addQueryListener(this);
 			Thread t = new Thread(xsdQuery);
 			t.start();
@@ -250,7 +299,17 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         constraints.insets.right = 10;
         constraints.insets.bottom = 5;        
         constraints.anchor = GridBagConstraints.CENTER;
-        layout.setConstraints(pdqLocationSelectionPanel, constraints);
+        /*layout.setConstraints(pdqLocationSelectionPanel, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 1;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 5;
+        constraints.insets.right = 10;
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.CENTER;*/
+        layout.setConstraints(xdsRegistryLocationSelectionPanel, constraints);
         
         constraints.fill = GridBagConstraints.NONE;        
         constraints.gridx = 0;
@@ -312,6 +371,39 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
         layout.setConstraints(lblGlobus, constraints);                
 	}
 
+	void buildLayoutXDSRegistryLocationSelectionPanel(){
+		GridBagLayout layout = new GridBagLayout();
+        GridBagConstraints constraints = new GridBagConstraints();
+        xdsRegistryLocationSelectionPanel.setLayout(layout);         
+                       
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 0;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 20;        
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(lblXDSRegistryTitle, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 0;
+        constraints.gridy = 1;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 20;        
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(xdsRegistryList, constraints);
+        
+        constraints.fill = GridBagConstraints.NONE;        
+        constraints.gridx = 1;
+        constraints.gridy = 1;        
+        constraints.insets.top = 10;
+        constraints.insets.left = 20;        
+        constraints.insets.bottom = 5;        
+        constraints.anchor = GridBagConstraints.WEST;
+        layout.setConstraints(lblGlobusXDSRegistry, constraints);                
+	}
+
 	class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 		DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 		Dimension preferredSize = new Dimension(440, 15);
@@ -321,6 +413,30 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			        isSelected, cellHasFocus);
 			    if (value instanceof PDQLocation) {
 			    	renderer.setText(((PDQLocation)value).getShortName());
+			    	renderer.setBackground(Color.WHITE);
+			    }
+			    if(cellHasFocus || isSelected){
+			    	renderer.setBackground(xipLightBlue);
+			    	renderer.setForeground(Color.WHITE);
+			    	renderer.setBorder(new LineBorder(Color.DARK_GRAY));
+			    }else{
+			    	renderer.setBorder(null);
+			    }			    
+			    renderer.setPreferredSize(preferredSize);
+			    return renderer;
+			  }
+		
+	}
+
+	class ComboBoxRendererXDSRegistry extends JLabel implements ListCellRenderer {
+		DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+		Dimension preferredSize = new Dimension(440, 15);
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+			      boolean isSelected, boolean cellHasFocus) {
+			    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
+			        isSelected, cellHasFocus);
+			    if (value instanceof XDSRegistryLocation) {
+			    	renderer.setText(((XDSRegistryLocation)value).getShortName());
 			    	renderer.setBackground(Color.WHITE);
 			    }
 			    if(cellHasFocus || isSelected){
@@ -516,7 +632,7 @@ public class XDSPanel extends JPanel implements ActionListener, XDSSearchListene
 			//Check if application to be launched is not running.
 			//If yes, create new application instance
 			State state = app.getState();
-			Query query = new XDSDocumentQuery(selectedID.getPatID());
+			Query query = new XDSDocumentQuery(selectedID.getPatID(), selectedXDSRegistryLocation);
 			File tmpDir = ApplicationManagerFactory.getInstance().getTmpDir();
 			/*
 			List<XDSDocumentItem> selectedItems = resultTree.getSelectedItems();
