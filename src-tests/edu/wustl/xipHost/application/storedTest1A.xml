@@ -5,6 +5,30 @@
     <exePath>./src-tests/edu/wustl/xipHost/application/test.bat</exePath>
     <vendor />
     <version />
+    <iconFile>/Users/krych/Documents/workspace2/XIPHost/src-tests/edu/wustl/xipHost/application/test.png</iconFile>
+    <type>rendering</type>
+    <requiresGUI>true</requiresGUI>
+    <wg23DataModelType>files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>Application1</name>
+    <exePath>./src-tests/edu/wustl/xipHost/application/test.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile>/Users/krych/Documents/workspace2/XIPHost/src-tests/edu/wustl/xipHost/application/test.png</iconFile>
+    <type>rendering</type>
+    <requiresGUI>true</requiresGUI>
+    <wg23DataModelType>files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>Application1</name>
+    <exePath>./src-tests/edu/wustl/xipHost/application/test.bat</exePath>
+    <vendor />
+    <version />
     <iconFile>src-tests/edu/wustl/xipHost/application/test.png</iconFile>
     <type>rendering</type>
     <requiresGUI>true</requiresGUI>

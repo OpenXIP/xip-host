@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <applications>
   <application>
+    <name>WashU</name>
+    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\wustl\XIPApplication_WashU_2.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>SiemensConeDemo</name>
+    <exePath>C:\WUSTL\XIP\xip-reference-impl\XIPApp\bin\SiemensConeDemo.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>1</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
     <name />
     <exePath />
     <vendor />

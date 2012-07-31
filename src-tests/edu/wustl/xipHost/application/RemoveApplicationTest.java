@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 
 public class RemoveApplicationTest extends TestCase {
 	ApplicationManager mgr;
+	Application app;
 	String exePath;
 	String iconFile;
 	protected void setUp() throws Exception {
@@ -16,10 +17,14 @@ public class RemoveApplicationTest extends TestCase {
 		exePath = new String("./src-tests/edu/wustl/xipHost/application/test.bat");
 		iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png").getAbsolutePath();
 	}
+	
+	protected void tearDown() throws Exception {
+		
+	}
 
 	//ApplicationManager 1A - basic flow. Application UUID found, State = null.
 	public void testRemoveApplication1A() {						
-		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
+		app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);		
 		UUID uuid = app.getID();
 		mgr.addApplication(app);		
 		boolean btnRemove = mgr.removeApplication(uuid);
@@ -31,7 +36,7 @@ public class RemoveApplicationTest extends TestCase {
 	
 	//ApplicationManager 1Ba - alternative flow. Application UUID not found, State = null.
 	public void testRemoveApplication1Ba() {
-		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);				
+		app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);				
 		mgr.addApplication(app);		
 		boolean btnRemove = mgr.removeApplication(UUID.randomUUID());
 		assertFalse("UUID not found but system did not report problem.", btnRemove);		
@@ -39,19 +44,9 @@ public class RemoveApplicationTest extends TestCase {
 
 	//ApplicationManager 1Bb - alternative flow. Application UUID is null, State = null.
 	public void testRemoveApplication1Bb() {
-		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);				
+		app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);				
 		mgr.addApplication(app);		
 		boolean btnRemove = mgr.removeApplication(null);
 		assertFalse("UUID is null but system did not report problem.", btnRemove);		
-	}
-	
-	//ApplicationManager 1C - alternative flow. Application UUID is valid and found, State <> null and EXIT.
-	public void testRemoveApplication1C() {
-		Application app = new Application("Application1", exePath, "", "", iconFile, "rendering", true, "files", 1, IterationTarget.SERIES);
-		UUID uuid = app.getID();
-		mgr.addApplication(app);
-		app.setState(State.INPROGRESS);
-		boolean btnRemove = mgr.removeApplication(uuid);
-		assertFalse("Application 'State'<>null and EXIT but system removed application.", btnRemove);		
 	}
 }
