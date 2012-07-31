@@ -6,11 +6,11 @@ package edu.wustl.xipHost.dicom;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -191,7 +191,20 @@ public class QueryPacsLocationTest {
 	
 	static void prelaodDataToWorkstation2(){
 		logger.debug("Preloading WORKSTATION2 data source");
-		DcmFileFilter dcmFilter = new DcmFileFilter();
+		DcmFileFilter dcmFilter = new DcmFileFilter(){
+			@Override
+			public boolean accept(File file) {
+				try {
+					if(DicomUtil.mimeType(file).equalsIgnoreCase("application/dicom")){
+						return true;
+					} else {
+						return false;
+					}
+				} catch (IOException e) {
+					return false;
+				}
+			}
+		};
 		File file = new File("./dicom-dataset-demo");
 		File[] files = file.listFiles(dcmFilter);
 		if(files == null){
@@ -200,4 +213,5 @@ public class QueryPacsLocationTest {
 		PacsLocation loc = new PacsLocation("127.0.0.1", 3002, "WORKSTATION2", "WashU WS2");		;
 		dicomMgr.submit(files, loc);
 	}
+	
 }

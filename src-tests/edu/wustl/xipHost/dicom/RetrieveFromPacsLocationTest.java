@@ -299,7 +299,20 @@ public class RetrieveFromPacsLocationTest implements RetrieveListener {
 
 	static void prelaodDataToWorkstation4(){
 		logger.debug("Preloading WORKSTATION4 data source");
-		DcmFileFilter dcmFilter = new DcmFileFilter();
+		DcmFileFilter dcmFilter = new DcmFileFilter(){
+			@Override
+			public boolean accept(File file) {
+				try {
+					if(DicomUtil.mimeType(file).equalsIgnoreCase("application/dicom")){
+						return true;
+					} else {
+						return false;
+					}
+				} catch (IOException e) {
+					return false;
+				}
+			}
+		};
 		File file = new File("./dicom-dataset-demo");
 		File[] files = file.listFiles(dcmFilter);
 		if(files == null){
