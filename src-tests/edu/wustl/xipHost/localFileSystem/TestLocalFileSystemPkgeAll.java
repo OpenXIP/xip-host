@@ -13,7 +13,6 @@ import junit.framework.TestSuite;
 public class TestLocalFileSystemPkgeAll {
 	public static Test suite(){
 		TestSuite suite = new TestSuite("Running all tests from localFileSystem package.");
-		suite.addTestSuite(MakeWG23DataModelTest.class);
 		suite.addTestSuite(RunFileRunnerTest.class);
 		return suite;		
 	}
