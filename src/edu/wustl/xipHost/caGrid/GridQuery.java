@@ -204,13 +204,18 @@ public class GridQuery implements Query {
 		}else if(location != null && location.getProtocolVersion().equalsIgnoreCase("NBIA-5.0")){
 			nbiaClient = new NCIACoreServiceClient(location.getAddress());
 			Login login = HostConfigurator.getLogin();
-			boolean isConnSecured = login.isConnectionSecured();
-			if (isConnSecured == false || login.getGlobusCredential() == null) {
-				nbiaClient = new NCIACoreServiceClient(location.getAddress());
+			if(login != null){
+				boolean isConnSecured = login.isConnectionSecured();
+				if (isConnSecured == false || login.getGlobusCredential() == null) {
+					nbiaClient = new NCIACoreServiceClient(location.getAddress());
+				} else {
+					nbiaClient = new NCIACoreServiceClient(location.getAddress(), login.getGlobusCredential());
+					nbiaClient.setAnonymousPrefered(false);
+				}
 			} else {
-				nbiaClient = new NCIACoreServiceClient(location.getAddress(), login.getGlobusCredential());
-				nbiaClient.setAnonymousPrefered(false);
+				nbiaClient = new NCIACoreServiceClient(location.getAddress());
 			}
+			
 		}else{
 			return null;
 		}

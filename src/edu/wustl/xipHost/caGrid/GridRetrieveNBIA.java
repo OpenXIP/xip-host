@@ -72,20 +72,28 @@ public class GridRetrieveNBIA implements Retrieve {
 				}
 			}			
 			Login login = HostConfigurator.getLogin();
-			boolean isConnSecured = login.isConnectionSecured();
-			GlobusCredential globusCred = login.getGlobusCredential();
-			if (isConnSecured == false || globusCred == null) {
+			if(login != null){
+				boolean isConnSecured = login.isConnectionSecured();
+				GlobusCredential globusCred = login.getGlobusCredential();
+				if (isConnSecured == false || globusCred == null) {
+					client = new NCIACoreServiceClient(gridLocation.getAddress());
+					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
+					tclient = new TransferServiceContextClient(tscr.getEndpointReference());
+					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
+				} else {
+					client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
+					client.setAnonymousPrefered(false);
+					tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
+					tclient = new TransferServiceContextClient(tscr.getEndpointReference(), globusCred);
+					istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor(), globusCred);
+				}	
+			} else {
 				client = new NCIACoreServiceClient(gridLocation.getAddress());
 				tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
 				tclient = new TransferServiceContextClient(tscr.getEndpointReference());
 				istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor());
-			} else {
-				client = new NCIACoreServiceClient(gridLocation.getAddress(), globusCred);
-				client.setAnonymousPrefered(false);
-				tscr = client.retrieveDicomDataBySeriesUID(seriesInstanceUID);
-				tclient = new TransferServiceContextClient(tscr.getEndpointReference(), globusCred);
-				istream = TransferClientHelper.getData(tclient.getDataTransferDescriptor(), globusCred);
-			}			
+			}
+					
 		} catch (Exception e) {
 			logger.error(e, e);
 		}					
