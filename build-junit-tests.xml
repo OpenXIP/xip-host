@@ -1,0 +1,94 @@
+<project name="XIPHost" default="compile" basedir=".">
+   <description>
+      JUnit tests for the XIP Host Reference Implementation, Washington University in St. Louis, 2008-2011
+   </description>
+   
+   <!-- set global properties for this build -->
+   <property name="src" location="src" />
+   <property name="src-tests" location="src-tests" />
+   <property name="build" location="build" />
+   <property name="build.lib" location="${build}/lib" />
+   <property name="build.classes" location="${build}/classes" />	
+   <property name="resources" location="resources" />
+   <property name="lib" location="lib" />
+   <property name="lib.xip" location="lib/xip" />
+   <property name="lib.Xindice" location="lib/Xindice" />
+   <property name="lib.OHT" location="lib/OHT" />
+   <property name="lib.AVT" location="lib/AVT" />
+   <property name="lib.NBIA" location="lib/NBIA" />
+   <property name="lib.pixelmed" location="lib/pixelmed" />
+   <property name="ext.lib" location="ext/lib"/>   
+   <property name="endorsed" location="endorsed"/>
+   <property name="reports" location="reports"/>
+	      
+   <target name="init">
+      <mkdir dir="${build}" />
+      <mkdir dir="${build.lib}" />
+      <mkdir dir="${build.classes}" />     
+   </target>
+	
+   <target name="clean" description="clean up">
+      <delete dir="${build}" />
+   </target>
+   
+   <path id="sourcepath">      
+      <pathelement location="${src}" />
+   	  <pathelement location="${src-tests}" />     
+   </path>
+         
+   <path id="classpath">
+   		<!-- order matters! -->         
+	    <fileset dir="${lib.xip}" includes="**/*.jar" /> 
+   		<fileset dir="${lib.pixelmed}" includes="**/*.jar" /> 
+	    <fileset dir="${ext.lib}" includes="**/*.jar" />     
+	    <fileset dir="${lib.Xindice}" includes="**/*.jar" />     
+	    <fileset dir="${lib.OHT}" includes="**/*.jar" />     
+	    <fileset dir="${lib.AVT}" includes="**/*.jar" />     
+        <fileset dir="${lib.NBIA}" includes="**/*.jar" />     
+	    <fileset dir="${lib}" />
+   </path>
+	
+   <target name="compile" depends="init" description="compile the source ">
+      <javac srcdir="${src}" destdir="${build.classes}" debug="on" classpathref="classpath" includeantruntime="false"></javac>
+      <javac srcdir="${src-tests}" destdir="${build.classes}" debug="on" classpathref="classpath" includeantruntime="false"></javac>
+   </target>  	
+	
+	<target name="run-tests" depends="compile" description="run junit test suites" >			
+		<junit printsummary="yes" haltonfailure="no" showoutput="yes" >
+		   <classpath>
+		   	<path refid="classpath"/> 
+		   	<pathelement location="${build.classes}"/>		
+		   </classpath>
+		
+ 		  <batchtest fork="no" todir="${reports}">
+		  	<formatter type="xml"/>
+		    <fileset dir="${src-tests}">
+		      	
+		    	<include name="edu/wustl/xipHost/application/Test*.java"/>
+		      	<include name="edu/wustl/xipHost/avt2ext/Test*.java"/>
+		      	<include name="edu/wustl/xipHost/caGrid/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/dicom/TestDicom*.java"/>
+		    	<include name="edu/wustl/xipHost/globalSearch/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/gui/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/hostControl/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/localFileSystem/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/wg23/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/worklist/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/xds/Test*.java"/>
+		    	<include name="edu/wustl/xipHost/xua/Test*.java"/>
+		    </fileset>
+		  </batchtest>
+		</junit>	
+	</target>
+		
+	  <target name ="test" depends="run-tests">
+			<junitreport todir="${reports}">
+			  <fileset dir="${reports}">
+			    <include name="TEST-*.xml"/>
+			  </fileset>
+			  <report format="frames" todir="${reports}"/>
+			</junitreport>
+	  </target>
+   
+
+</project>

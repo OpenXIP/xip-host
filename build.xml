@@ -1,6 +1,6 @@
 <project name="XIPHost" default="all" basedir=".">
    <description>
-      XIP Host Reference Implementation, Washington University in Saint Louis, 2008-2011
+      XIP Host Reference Implementation, Washington University in St. Louis, 2008-2011
    </description>
    
    <!-- set global properties for this build -->
