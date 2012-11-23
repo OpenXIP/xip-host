@@ -1,0 +1,5 @@
+Patient (DOB, Sex, ID, AssigningAuth)
+status (mapping info)
+objectlocator (Length, Offset, TransferSyntax, Locator, Source, no UUID)
+objectdescrip (not different, but don't forget classUID, MimeType, Modality, TransferSyntax)
+ModelSetDescriptor (add infosettype)
