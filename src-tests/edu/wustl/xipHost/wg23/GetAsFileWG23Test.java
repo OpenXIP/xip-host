@@ -3,10 +3,14 @@ package edu.wustl.xipHost.wg23;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.ArrayOfUUID;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ArrayOfObjectLocator;
+import org.nema.dicom.PS3_19.ArrayOfUID;
+import org.nema.dicom.PS3_19.ArrayOfUUID;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.UID;
+import org.nema.dicom.PS3_19.UUID;
+
+import edu.wustl.xipHost.wg23.Uuid;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.wg23.HostImpl;
@@ -45,24 +49,28 @@ public class GetAsFileWG23Test extends TestCase {
 	public void testGetAsFile1A() {								
 		ObjectLocator[] objLocs = dm.getObjectLocators();
 		ArrayOfUUID uuids = new ArrayOfUUID();
-		List<Uuid> listUUIDs = uuids.getUuid();						
+		List<UUID> listUUIDs = uuids.getUUID();						
 		for(int i = 0; i < 2; i++){
 			ObjectLocator obj = objLocs[i];
-			listUUIDs.add(obj.getUuid());
+			listUUIDs.add(obj.getSource());
 		}
-		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getDataAsFile(uuids, true);
+		UID tsUID = new UID();
+		tsUID.setUid("1.2.840.10008.1.2.1"); // default explicit little endian
+		ArrayOfUID tsUIDArray = new ArrayOfUID();
+		tsUIDArray.getUID().add(tsUID);
+		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getData(uuids, tsUIDArray, true);
 		//Verify number of returned ObjLocs equals number of supplied UUIDs
 		int numOfObjLocs = arrayOfObjLocs.getObjectLocator().size();
-		assertEquals("Number of returned ObjLocs should be equal to the number of supplied UUIDs", uuids.getUuid().size(), numOfObjLocs);
+		assertEquals("Number of returned ObjLocs should be equal to the number of supplied UUIDs", uuids.getUUID().size(), numOfObjLocs);
 		//Verrify if values are as expected
 		List<ObjectLocator> returnedListObjLocs = arrayOfObjLocs.getObjectLocator();
 		int numOfGoodURIs = 0;
 		for(int i = 0; i < returnedListObjLocs.size(); i++){
-			Uuid retUUID = returnedListObjLocs.get(i).getUuid();
-			String retURI = returnedListObjLocs.get(i).getUri();
+			UUID retUUID = returnedListObjLocs.get(i).getLocator();
+			String retURI = returnedListObjLocs.get(i).getURI();
 			for(int j = 0; j < objLocs.length; j++){
-				if(objLocs[j].getUuid().equals(retUUID)){
-					if(objLocs[j].getUri().equalsIgnoreCase(retURI)){
+				if(objLocs[j].getLocator().equals(retUUID)){
+					if(objLocs[j].getURI().equalsIgnoreCase(retURI)){
 						numOfGoodURIs++;
 					}					
 				}
@@ -74,7 +82,11 @@ public class GetAsFileWG23Test extends TestCase {
 	//Application 1B - alternative flow. ArrayOfUUID (incoming) is null.
 	//Result: Return empty ArrayOfObjectLocator
 	public void testGetAsFile1B() {
-		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getDataAsFile(null, true);
+		UID tsUID = new UID();
+		tsUID.setUid("1.2.840.10008.1.2.1"); // default explicit little endian
+		ArrayOfUID tsUIDArray = new ArrayOfUID();
+		tsUIDArray.getUID().add(tsUID);
+		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getData(null, tsUIDArray, true);
 		int numOfObjLocs = arrayOfObjLocs.getObjectLocator().size();
 		assertEquals("Number of returned ObjLocs should be zero", 0, numOfObjLocs);
 	}
@@ -83,7 +95,11 @@ public class GetAsFileWG23Test extends TestCase {
 	//Result: Return empty ArrayOfObjectLocator
 	public void testGetAsFile1C() {
 		ArrayOfUUID uuids = new ArrayOfUUID();
-		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getDataAsFile(uuids, true);
+		UID tsUID = new UID();
+		tsUID.setUid("1.2.840.10008.1.2.1"); // default explicit little endian
+		ArrayOfUID tsUIDArray = new ArrayOfUID();
+		tsUIDArray.getUID().add(tsUID);
+		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getData(uuids, tsUIDArray, true);
 		int numOfObjLocs = arrayOfObjLocs.getObjectLocator().size();
 		assertEquals("Number of returned ObjLocs should be zero", 0, numOfObjLocs);
 	}
@@ -94,14 +110,18 @@ public class GetAsFileWG23Test extends TestCase {
 	//UUIDs which cannot be found will be ignored
 	public void testGetAsFile1Da() {
 		ArrayOfUUID uuids = new ArrayOfUUID();
-		List<Uuid> listUUIDs = uuids.getUuid();
+		List<UUID> listUUIDs = uuids.getUUID();
 		Uuid uuid1 = new Uuid();
 		uuid1.setUuid("1234-Test");
 		listUUIDs.add(uuid1);
 		ObjectLocator[] objLocs = dm.getObjectLocators();
-		Uuid uuid2 = objLocs[0].getUuid();
+		UUID uuid2 = objLocs[0].getSource();
 		listUUIDs.add(uuid2);
-		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getDataAsFile(uuids, true);
+		UID tsUID = new UID();
+		tsUID.setUid("1.2.840.10008.1.2.1"); // default explicit little endian
+		ArrayOfUID tsUIDArray = new ArrayOfUID();
+		tsUIDArray.getUID().add(tsUID);
+		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getData(uuids, tsUIDArray, true);
 		int numOfObjLocs = arrayOfObjLocs.getObjectLocator().size();
 		assertEquals("Number of returned ObjLocs should be one", 1, numOfObjLocs);
 	}
@@ -110,11 +130,15 @@ public class GetAsFileWG23Test extends TestCase {
 	//Result: Return empty ArrayOfObjectLocator
 	public void testGetAsFile1Db() {
 		ArrayOfUUID uuids = new ArrayOfUUID();
-		List<Uuid> listUUIDs = uuids.getUuid();
+		List<UUID> listUUIDs = uuids.getUUID();
 		Uuid uuid1 = new Uuid();
 		uuid1.setUuid("1234-Test");
 		listUUIDs.add(uuid1);
-		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getDataAsFile(uuids, true);
+		UID tsUID = new UID();
+		tsUID.setUid("1.2.840.10008.1.2.1"); // default explicit little endian
+		ArrayOfUID tsUIDArray = new ArrayOfUID();
+		tsUIDArray.getUID().add(tsUID);
+		ArrayOfObjectLocator arrayOfObjLocs = hostImpl.getData(uuids, tsUIDArray, true);
 		int numOfObjLocs = arrayOfObjLocs.getObjectLocator().size();
 		assertEquals("Number of returned ObjLocs should be zero", 0, numOfObjLocs);
 	}

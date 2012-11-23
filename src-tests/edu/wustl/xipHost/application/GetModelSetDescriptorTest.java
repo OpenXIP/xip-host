@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.nema.dicom.wg23.ModelSetDescriptor;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ModelSetDescriptor;
+import org.nema.dicom.PS3_19.UUID;
+import edu.wustl.xipHost.wg23.Uuid;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.XindiceManager;
 import edu.wustl.xipHost.hostControl.XindiceManagerFactory;
@@ -24,7 +25,7 @@ public class GetModelSetDescriptorTest extends TestCase {
 	XindiceManager xm;
 	String collectionName; 
 	Application app;
-	List<Uuid> objUUIDs;
+	List<UUID> objUUIDs;
 	File exePath = new File("./src-tests/edu/wustl/xipHost/application/test.bat");
 	File iconFile = new File("src-tests/edu/wustl/xipHost/application/test.png");
 	
@@ -47,7 +48,7 @@ public class GetModelSetDescriptorTest extends TestCase {
 		elem.setText("test");
 		root.addContent(elem);
 		xm.addDocument(doc, collectionName, uuid1);		
-		objUUIDs = new ArrayList<Uuid>();
+		objUUIDs = new ArrayList<UUID>();
 		Uuid uuid2 = new Uuid();
 		uuid2.setUuid("2345");
 		objUUIDs.add(uuid1);
@@ -66,9 +67,9 @@ public class GetModelSetDescriptorTest extends TestCase {
 	//Application 1A - basic flow. Objects uuids are valid.
 	public void testGetModelSetDescriptor1A() {	
 		ModelSetDescriptor msd = app.getModelSetDescriptor(objUUIDs);
-		List<Uuid> models = msd.getModels().getUuid();
+		List<UUID> models = msd.getModels().getUUID();
 		int num1 = models.size();
-		List<Uuid> failedObjs = msd.getFailedSourceObjects().getUuid();
+		List<UUID> failedObjs = msd.getFailedSourceObjects().getUUID();
 		int num2 = failedObjs.size();
 		assertEquals("Number of models uuid should be 1.", 1, num1);
 		assertEquals("Number of faile source objects should be 1.", 1, num2);		
@@ -79,9 +80,9 @@ public class GetModelSetDescriptorTest extends TestCase {
 		Uuid uuid3 = null;
 		objUUIDs.add(uuid3);
 		ModelSetDescriptor msd = app.getModelSetDescriptor(objUUIDs);
-		List<Uuid> models = msd.getModels().getUuid();
+		List<UUID> models = msd.getModels().getUUID();
 		int num1 = models.size();
-		List<Uuid> failedObjs = msd.getFailedSourceObjects().getUuid();
+		List<UUID> failedObjs = msd.getFailedSourceObjects().getUUID();
 		int num2 = failedObjs.size();
 		assertEquals("Number of models uuid should be 1.", 1, num1);
 		assertEquals("Number of faile source objects should be 1.", 1, num2);
@@ -92,9 +93,9 @@ public class GetModelSetDescriptorTest extends TestCase {
 		Uuid uuid3 = new Uuid();
 		objUUIDs.add(uuid3);
 		ModelSetDescriptor msd = app.getModelSetDescriptor(objUUIDs);
-		List<Uuid> models = msd.getModels().getUuid();
+		List<UUID> models = msd.getModels().getUUID();
 		int num1 = models.size();
-		List<Uuid> failedObjs = msd.getFailedSourceObjects().getUuid();
+		List<UUID> failedObjs = msd.getFailedSourceObjects().getUUID();
 		int num2 = failedObjs.size();
 		assertEquals("Number of models uuid should be 1.", 1, num1);
 		assertEquals("Number of faile source objects should be 1.", 1, num2);

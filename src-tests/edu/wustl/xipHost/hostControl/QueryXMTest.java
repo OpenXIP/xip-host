@@ -6,7 +6,7 @@ package edu.wustl.xipHost.hostControl;
 import java.io.File;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
-import org.nema.dicom.wg23.Uuid;
+import edu.wustl.xipHost.wg23.Uuid;
 import junit.framework.TestCase;
 
 /**
@@ -71,8 +71,8 @@ public class QueryXMTest extends TestCase {
 		//System.out.println(totalTime);
 		assertNotNull("Perfect condictions but system did not return query results.", results);
 		assertTrue("Number of returned results shoul de greater than zero.", results.length > 0);
-		Boolean bln = totalTime < new Double(80.0);
-		assertTrue("Query did not run in less than 80 ms.", bln);
+		Boolean bln = totalTime < new Double(120.0);
+		assertTrue("Query did not run in less than 120 ms.", bln);
 	}
 	
 	

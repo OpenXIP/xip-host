@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import edu.wustl.xipHost.wg23.Uuid;
 
 import junit.framework.TestCase;
 
@@ -42,10 +42,13 @@ public class StoreAimObjectsTest extends TestCase {
 		ObjectLocator objLoc = new ObjectLocator();
 		Uuid objUUID = new Uuid();
 		objUUID.setUuid(UUID.randomUUID().toString());
-		objLoc.setUuid(objUUID);
+		objLoc.setLocator(objUUID);
+		Uuid srcUUID = new Uuid();
+		srcUUID.setUuid(UUID.randomUUID().toString());
+		objLoc.setSource(srcUUID);
 		File file = new File("./test-content/AIM_2/Vasari-TCGA6330140190470283886.xml");
 		String uri = file.toURI().toURL().toExternalForm();
-		objLoc.setUri(uri);
+		objLoc.setURI(uri);
 		objLocs.add(objLoc);
 		AimStore aimStore = new AimStore(objLocs, null);
 		//Thread t = new Thread(aimStore);

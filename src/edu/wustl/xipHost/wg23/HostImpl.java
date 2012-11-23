@@ -5,25 +5,29 @@ package edu.wustl.xipHost.wg23;
 
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.jws.WebService;
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.ArrayOfQueryResult;
-import org.nema.dicom.wg23.ArrayOfString;
-import org.nema.dicom.wg23.ArrayOfUUID;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.Host;
-import org.nema.dicom.wg23.ModelSetDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.QueryResult;
-import org.nema.dicom.wg23.Rectangle;
-import org.nema.dicom.wg23.State;
-import org.nema.dicom.wg23.Status;
-import org.nema.dicom.wg23.Uid;
-import org.nema.dicom.wg23.Uuid;
+import org.dcm4che2.util.UIDUtils;
+import org.nema.dicom.PS3_19.ArrayOfMimeType;
+import org.nema.dicom.PS3_19.ArrayOfObjectLocator;
+import org.nema.dicom.PS3_19.ArrayOfQueryResult;
+import org.nema.dicom.PS3_19.ArrayOfQueryResultInfoSet;
+import org.nema.dicom.PS3_19.ArrayOfUID;
+import org.nema.dicom.PS3_19.ArrayOfUUID;
+import org.nema.dicom.PS3_19.ArrayOfstring;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.IHostService20100825;
+import org.nema.dicom.PS3_19.ModelSetDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.QueryResult;
+import org.nema.dicom.PS3_19.Rectangle;
+import org.nema.dicom.PS3_19.State;
+import org.nema.dicom.PS3_19.Status;
+import org.nema.dicom.PS3_19.UID;
+import org.nema.dicom.PS3_19.UUID;
+
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.hostControl.DataStore;
 
@@ -33,11 +37,11 @@ import edu.wustl.xipHost.hostControl.DataStore;
  *
  */
 @WebService(
-		serviceName = "HostService",
-        portName="HostPort",
-        targetNamespace = "http://wg23.dicom.nema.org/",
-        endpointInterface = "org.nema.dicom.wg23.Host")
-public class HostImpl implements Host{	
+		serviceName = "HostService-20100825",
+        portName="HostServiceBinding",
+        targetNamespace = "http://dicom.nema.org/PS3.19/HostService-20100825",
+        endpointInterface = "org.nema.dicom.PS3_19.IHostService20100825")
+public class HostImpl implements IHostService20100825{	
 	final static Logger logger = Logger.getLogger(HostImpl.class);
 	Application app;
 	List<ObjectLocator> objLocs;	
@@ -47,70 +51,28 @@ public class HostImpl implements Host{
 		app = application;		
 	}
 	
-	public Uid generateUID() {
-		Uid uid = new Uid();
-		UUID id = UUID.randomUUID();
-		uid.setUid(id.toString());
+	@Override
+	public UID generateUID() {
+		UID uid = new UID();
+		uid.setUid(UIDUtils.createUID());
 		return uid;
 	}
 
-	public ModelSetDescriptor getAsModels(ArrayOfUUID uuids, Uid classUID, Uid transferSyntaxUID) {	
-		//TODO make use of transfersyntaxUID is not empty
-		List<Uuid> objUUIDs = uuids.getUuid();		
-		return  app.getModelSetDescriptor(objUUIDs);		
-	}
-
+	@Override
 	public Rectangle getAvailableScreen(Rectangle appPreferredScreen) {
 		Rectangle size = app.getApplicationPreferredSize();		
 		return size;
 	}
 
-	public ArrayOfObjectLocator getDataAsFile(ArrayOfUUID uuids, boolean includeBulkData){ 			
-		// Get corresponding object locators for uuids 
-		//TODO make use of includeBulkData
-		ArrayOfObjectLocator arrayObjLoc = new ArrayOfObjectLocator();
-		List<Uuid> listUUIDs = uuids.getUuid();
-		objLocs = app.retrieveAndGetLocators(listUUIDs);
-		arrayObjLoc.getObjectLocator().addAll(objLocs);				
-		return arrayObjLoc;
-	}
-
-	public ArrayOfObjectLocator getDataAsSpecificTypeFile(ArrayOfUUID objectUUIDs, String mimeType, Uid transferSyntaxUID, boolean includeBulkData) {
+	@Override
+	public String getOutputLocation(ArrayOfstring preferredProtocols) {
 		// TODO Auto-generated method stub
 		return null;
-	}	
-
-	public String getOutputDir() {
-		String appOutDir = null;		
-		try {
-			appOutDir = app.getApplicationOutputDir().toURI().toURL().toExternalForm();
-			//appOutDir = app.getApplicationOutputDir().getCanonicalPath();
-		} catch (MalformedURLException e) {
-
-		}		
-		return appOutDir;
 	}
-
-	public String getTmpDir() {
-		String appTmpDir = null;;
-		try {
-			appTmpDir = app.getApplicationTmpDir().toURI().toURL().toExternalForm();
-			//appTmpDir = app.getApplicationTmpDir().getCanonicalPath();
-		} catch (MalformedURLException e) {
-			
-		}		
-		return appTmpDir;				
-	}
-
-	public boolean notifyDataAvailable(AvailableData availableData, boolean lastData) {				
-		DataStore ds = new DataStore(availableData, app);
-		Thread t = new Thread(ds);
-		t.start();		
-		return true;
-	}
-
 
 	ExecutorService stateExeService = Executors.newFixedThreadPool(1);
+
+	@Override
 	public void notifyStateChanged(State newState) {		
 		logger.debug("Requested state change to " + newState.toString() + " of \"" + app.getName() + "\"");
 		try {
@@ -126,10 +88,14 @@ public class HostImpl implements Host{
 	 * Method is an implementation of WG23Listener
 	 * It changes application state. Each state change results in new action.
 	 * Allowable changes: 
-	 * null -> IDLE, COMPLETED -> IDLE,
-	 * IDLE -> INPROGRESS, SUSPENDED -> INPROGRESS,
+	 * null -> IDLE, 
+	 * COMPLETED -> IDLE,
+	 * CANCELED -> IDLE,
+	 * IDLE -> INPROGRESS, 
+	 * SUSPENDED -> INPROGRESS,
 	 * INPROGRESS -> COMPLETED,
-	 * INPROGRESS -> CANCELED, SUSPENDED -> CANCELED,
+	 * INPROGRESS -> CANCELED, 
+	 * SUSPENDED -> CANCELED,
 	 * INPROGRESS -> SUSPENDED,
 	 * IDLE -> EXIT 
 	 * @throws StateChangeException 
@@ -191,19 +157,63 @@ public class HostImpl implements Host{
 	}
 	
 
+	@Override
 	public void notifyStatus(Status newStatus) {
+		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public Boolean notifyDataAvailable(AvailableData data, Boolean lastData) {
+		DataStore ds = new DataStore(data, app);
+		Thread t = new Thread(ds);
+		t.start();		
+		return true;
+	}
+
+	@Override
+	public ArrayOfObjectLocator getData(ArrayOfUUID objects,
+			ArrayOfUID acceptableTransferSyntaxes, Boolean includeBulkData) {
+		// TODO Auto-generated method stub
+		// Get corresponding object locators for uuids 
+		//TODO make use of includeBulkData and acceptableTransferSyntaxes
+		ArrayOfObjectLocator arrayObjLoc = new ArrayOfObjectLocator();
+		List<UUID> listUUIDs = objects.getUUID();
+		objLocs = app.retrieveAndGetLocators(listUUIDs);
+		arrayObjLoc.getObjectLocator().addAll(objLocs);				
+		return arrayObjLoc;
+	}
+
+	@Override
+	public void releaseData(ArrayOfUUID objects) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public ArrayOfQueryResult queryModel(ArrayOfUUID objUUIDs, ArrayOfString modelXpaths, boolean includeBulkDataPointers) {
-		//TODO make use of includeBulkDataPointers
-		List<Uuid> modelUUIDs = objUUIDs.getUuid();
+	@Override
+	public ModelSetDescriptor getAsModels(ArrayOfUUID objects, UID classUID,
+			ArrayOfMimeType supportedInfoSetTypes) {
+		// TODO make use of supportedInfoSetTypes
+		List<UUID> objUUIDs = objects.getUUID();		
+		return  app.getModelSetDescriptor(objUUIDs);		
+	}
+
+	@Override
+	public void releaseModels(ArrayOfUUID models) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ArrayOfQueryResult queryModel(ArrayOfUUID models,
+			ArrayOfstring xPaths) {
+		// TODO Auto-generated method stub
+		List<UUID> modelUUIDs = models.getUUID();
 		/*for(int i = 0; i < modelUUIDs.size(); i++){
 			System.out.println(modelUUIDs.get(i).getUuid());
 		}
 		System.out.println("------------------------------------");*/
-		List<String> listXPaths = modelXpaths.getString();				
+		List<String> listXPaths = xPaths.getString();				
 		List<QueryResult> results = app.queryModel(modelUUIDs, listXPaths);		
 		ArrayOfQueryResult arrayResults = new ArrayOfQueryResult();		
 		List<QueryResult> listResults = arrayResults.getQueryResult();
@@ -212,4 +222,34 @@ public class HostImpl implements Host{
 		}		
 		return arrayResults;
 	}
+
+	@Override
+	public ArrayOfQueryResultInfoSet queryInfoSet(ArrayOfUUID models,
+			ArrayOfstring xPaths) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getOutputDir() {
+		String appOutDir = null;		
+		try {
+			appOutDir = app.getApplicationOutputDir().toURI().toURL().toExternalForm();
+			//appOutDir = app.getApplicationOutputDir().getCanonicalPath();
+		} catch (MalformedURLException e) {
+
+		}		
+		return appOutDir;
+	}
+
+	public String getTmpDir() {
+		String appTmpDir = null;;
+		try {
+			appTmpDir = app.getApplicationTmpDir().toURI().toURL().toExternalForm();
+			//appTmpDir = app.getApplicationTmpDir().getCanonicalPath();
+		} catch (MalformedURLException e) {
+			
+		}		
+		return appTmpDir;				
+	}
+
 }

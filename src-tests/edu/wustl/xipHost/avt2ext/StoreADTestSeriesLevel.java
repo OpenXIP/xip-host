@@ -10,18 +10,19 @@ import java.util.UUID;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.jdom.JDOMException;
-import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
-import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.ArrayOfPatient;
-import org.nema.dicom.wg23.ArrayOfSeries;
-import org.nema.dicom.wg23.ArrayOfStudy;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Patient;
-import org.nema.dicom.wg23.Series;
-import org.nema.dicom.wg23.Study;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ArrayOfObjectDescriptor;
+import org.nema.dicom.PS3_19.ArrayOfObjectLocator;
+import org.nema.dicom.PS3_19.ArrayOfPatient;
+import org.nema.dicom.PS3_19.ArrayOfSeries;
+import org.nema.dicom.PS3_19.ArrayOfStudy;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.MimeType;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.Patient;
+import org.nema.dicom.PS3_19.Series;
+import org.nema.dicom.PS3_19.Study;
+import edu.wustl.xipHost.wg23.Uuid;
 import org.xml.sax.SAXException;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
@@ -71,20 +72,24 @@ public class StoreADTestSeriesLevel extends TestCase {
 		ObjectDescriptor objDesc1 = new ObjectDescriptor();					
 		Uuid objDescUUID1 = new Uuid();
 		objDescUUID1.setUuid(UUID.randomUUID().toString());
-		objDesc1.setUuid(objDescUUID1);													
-		objDesc1.setMimeType("text/xml");																						
+		objDesc1.setDescriptorUuid(objDescUUID1);
+		MimeType xmlMimeType = new MimeType();
+		xmlMimeType.setType("text/xml");
+		objDesc1.setMimeType(xmlMimeType);																						
 		listObjectDescs.add(objDesc1);
 		//ObjectDescriptor for DICOM SEG
 		ObjectDescriptor objDesc2 = new ObjectDescriptor();					
 		Uuid objDescUUID2 = new Uuid();
 		objDescUUID2.setUuid(UUID.randomUUID().toString());
-		objDesc2.setUuid(objDescUUID2);													
-		objDesc2.setMimeType("application/dicom");																							
+		objDesc2.setDescriptorUuid(objDescUUID2);													
+		MimeType dicomMimeType = new MimeType();
+		dicomMimeType.setType("application/dicom");
+		objDesc2.setMimeType(dicomMimeType);																							
 		listObjectDescs.add(objDesc2);
 		ObjectDescriptor objDesc3 = new ObjectDescriptor();					
 		Uuid objDescUUID3 = new Uuid();
 		objDescUUID3.setUuid(UUID.randomUUID().toString());
-		objDesc3.setUuid(objDescUUID2);																																				
+		objDesc3.setDescriptorUuid(objDescUUID2);																																				
 		listObjectDescs.add(objDesc3);
 				
 		series.setObjectDescriptors(arrayOfObjectDescSeries);
@@ -97,30 +102,33 @@ public class StoreADTestSeriesLevel extends TestCase {
 		ArrayOfObjectLocator arrayObjLocs = new ArrayOfObjectLocator();
 		List<ObjectLocator> objLocs = arrayObjLocs.getObjectLocator();
 		ObjectLocator objLoc1 = new ObjectLocator();
-		objLoc1.setUuid(objDescUUID1);
+		objLoc1.setLocator(objDescUUID1);
+		objLoc1.setSource(objDescUUID1);
 		File file1 = new File("./test-content/AIM_2PlusDICOMSeg/AVT_AIM_RECIST_1.3.6.1.4.1.5962.99.1.2924451380.256323981.1269939836468.1.0.xml");
 		String uri1 = file1.toURI().toURL().toExternalForm();
-		objLoc1.setUri(uri1);
+		objLoc1.setURI(uri1);
 		objLocs.add(objLoc1);
 		
 		ImageAnnotation annotation = AnnotationIO.loadAnnotationFromFile(file1);
 		String annotationUID = annotation.getDescriptor().getUID();
 		
 		ObjectLocator objLoc2 = new ObjectLocator();
-		objLoc2.setUuid(objDescUUID2);
+		objLoc2.setLocator(objDescUUID2);
+		objLoc2.setSource(objDescUUID2);
 		File file2 = new File("./test-content/AIM_2PlusDICOMSeg/nodule_1.3.6.1.4.1.5962.99.1.2924451380.256323981.1269939836468.1.0.dcm");
 		String uri2 = file2.toURI().toURL().toExternalForm();
-		objLoc2.setUri(uri2);
+		objLoc2.setURI(uri2);
 		objLocs.add(objLoc2);
 		DicomObject seg = DicomParser.read(file2);
 		String dicomSegSOPInstanceUID = seg.getString(Tag.SOPInstanceUID);
 		
 		//Locator for testObject.txt file
 		ObjectLocator objLoc3 = new ObjectLocator();
-		objLoc3.setUuid(objDescUUID3);
+		objLoc3.setLocator(objDescUUID3);
+		objLoc3.setSource(objDescUUID3);
 		File file3 = new File("./src-tests/edu/wustl/xipHost/avt/testObject.txt");
 		String uri3 = file3.toURI().toURL().toExternalForm();
-		objLoc3.setUri(uri3);
+		objLoc3.setURI(uri3);
 		objLocs.add(objLoc3);
 		
 		ApplicationStub appStub = new ApplicationStub("TestApp", new File("./src-tests/edu/wustl/xipHost/avt/applicationStub.bat"), "VendorTest", "", null, 

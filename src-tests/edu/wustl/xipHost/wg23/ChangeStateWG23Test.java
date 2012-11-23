@@ -1,7 +1,7 @@
 package edu.wustl.xipHost.wg23;
 
 import java.io.File;
-import org.nema.dicom.wg23.State;
+import org.nema.dicom.PS3_19.State;
 
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.iterator.IterationTarget;

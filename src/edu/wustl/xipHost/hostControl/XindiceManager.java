@@ -4,7 +4,7 @@
 package edu.wustl.xipHost.hostControl;
 
 import org.jdom.Document;
-import org.nema.dicom.wg23.Uuid;
+import edu.wustl.xipHost.wg23.Uuid;
 import org.xmldb.api.base.XMLDBException;
 
 /**

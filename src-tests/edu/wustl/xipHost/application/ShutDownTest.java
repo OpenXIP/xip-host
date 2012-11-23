@@ -4,7 +4,7 @@
 package edu.wustl.xipHost.application;
 
 import java.io.File;
-import org.nema.dicom.wg23.State;
+import org.nema.dicom.PS3_19.State;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import junit.framework.TestCase;
 

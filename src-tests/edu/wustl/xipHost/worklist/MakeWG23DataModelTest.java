@@ -3,14 +3,16 @@ package edu.wustl.xipHost.worklist;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Patient;
-import org.nema.dicom.wg23.Series;
-import org.nema.dicom.wg23.Study;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ArrayOfObjectDescriptor;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.Patient;
+import org.nema.dicom.PS3_19.Series;
+import org.nema.dicom.PS3_19.Study;
+import org.nema.dicom.PS3_19.UUID;
+
+import edu.wustl.xipHost.wg23.Uuid;
 import edu.wustl.xipHost.wg23.WG23DataModel;
 import junit.framework.TestCase;
 
@@ -76,15 +78,15 @@ public class MakeWG23DataModelTest extends TestCase {
 				blnObjDescsg1 = true;
 				//ObjectDesc UUID must be <> empty
 				for(int i = 0; i < 2; i++){
-					if(listObjDescsG1.get(i).getUuid() != null){
-						if(listObjDescsG1.get(i).getUuid().toString().isEmpty()){
+					if(listObjDescsG1.get(i).getDescriptorUuid() != null){
+						if(listObjDescsG1.get(i).getDescriptorUuid().toString().isEmpty()){
 							blnUUIDObjDescsg1 = false;
 						}
 					}else{
 						blnUUIDObjDescsg1 = false;
 					}
 					if(listObjDescsG1.get(i).getMimeType() != null){
-						if(listObjDescsG1.get(i).getMimeType().isEmpty()){
+						if(listObjDescsG1.get(i).getMimeType().getType().isEmpty()){
 							blnMimeTypeObjDescsg1 = false;
 						}
 					}else{
@@ -122,15 +124,15 @@ public class MakeWG23DataModelTest extends TestCase {
 				blnObjDescsg2 = true;
 				//ObjectDesc UUID must be <> empty
 				for(int i = 0; i < 2; i++){
-					if(listObjDescsG2.get(i).getUuid() != null){
-						if(listObjDescsG2.get(i).getUuid().toString().isEmpty()){
+					if(listObjDescsG2.get(i).getDescriptorUuid() != null){
+						if(listObjDescsG2.get(i).getDescriptorUuid().getUuid().isEmpty()){
 							blnUUIDObjDescsg2 = false;
 						}
 					}else{
 						blnUUIDObjDescsg2 = false;
 					}
 					if(listObjDescsG2.get(i).getMimeType() != null){
-						if(listObjDescsG2.get(i).getMimeType().isEmpty()){
+						if(listObjDescsG2.get(i).getMimeType().getType().isEmpty()){
 							blnMimeTypeObjDescsg2 = false;
 						}
 					}else{
@@ -161,17 +163,17 @@ public class MakeWG23DataModelTest extends TestCase {
 			ObjectLocator[] objLocs = dm.getObjectLocators();
 			
 			for(int i = 0; i < listObjDescsG1.size(); i++){
-				Uuid uuid = listObjDescsG1.get(i).getUuid();
+				UUID uuid = listObjDescsG1.get(i).getDescriptorUuid();
 				for(int j = 0; j < objLocs.length; j++){
-					if(objLocs[j].getUuid().equals(uuid)){
+					if(objLocs[j].getSource().equals(uuid)){
 						blnUUIDMatched = true;
 					}
 				}
 			}
 			for(int i = 0; i < listObjDescsG2.size(); i++){
-				Uuid uuid = listObjDescsG2.get(i).getUuid();
+				UUID uuid = listObjDescsG2.get(i).getDescriptorUuid();
 				for(int j = 0; j < objLocs.length; j++){
-					if(objLocs[j].getUuid().equals(uuid)){
+					if(objLocs[j].getSource().equals(uuid)){
 						blnUUIDMatched = true;
 					}
 				}
@@ -216,7 +218,7 @@ public class MakeWG23DataModelTest extends TestCase {
 		assertNotNull("System failed to produce a valid data model when set of files contain non dicom items", dm);
 		//check if dm contains an item with the mime type text/xml
 		List<ObjectDescriptor> listDescs = group.getObjectDescriptors().getObjectDescriptor();
-		String mime = listDescs.get(0).getMimeType();
+		String mime = listDescs.get(0).getMimeType().getType();
 		assertEquals("System was unable to determine mime type for the xml file.", "text/xml", mime);
 	}
 	

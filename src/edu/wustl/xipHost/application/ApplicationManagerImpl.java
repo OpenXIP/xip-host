@@ -21,7 +21,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.nema.dicom.wg23.State;
+import org.nema.dicom.PS3_19.State;
 import edu.wustl.xipHost.iterator.IterationTarget;
 
 public class ApplicationManagerImpl implements ApplicationManager{		
@@ -235,11 +235,11 @@ public class ApplicationManagerImpl implements ApplicationManager{
 		
     
 	public URL generateNewApplicationServiceURL(){
-		//"http://localhost:8060/ApplicationInterface?wsdl"
+		//"http://localhost:8060/IApplicationService20100825?wsdl"
 		int portNum = 8060;
 		String str1 = "http://localhost:";
-		//String str2 = "/ApplicationInterface?wsdl";		
-		String str2 = "/ApplicationInterface";
+		//String str2 = "/IApplicationService20100825?wsdl";		
+		String str2 = "/IApplicationService20100825";
 		while(checkPort(portNum) == false){
 			portNum++;			 			
 		}
@@ -255,8 +255,8 @@ public class ApplicationManagerImpl implements ApplicationManager{
 	public URL generateNewHostServiceURL(){
 		int portNum = 8090;
 		String str1 = "http://localhost:";
-		//String str2 = "/HostInterface?wsdl";		
-		String str2 = "/HostInterface";
+		//String str2 = "/IHostService20100825?wsdl";		
+		String str2 = "/IHostService20100825";
 		while(checkPort(portNum) == false){
 			portNum++;			 			
 		}

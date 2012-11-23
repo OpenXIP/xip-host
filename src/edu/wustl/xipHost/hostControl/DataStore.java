@@ -6,18 +6,21 @@ package edu.wustl.xipHost.hostControl;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.ArrayOfUUID;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Patient;
-import org.nema.dicom.wg23.Series;
-import org.nema.dicom.wg23.Study;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ArrayOfObjectLocator;
+import org.nema.dicom.PS3_19.ArrayOfUUID;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.Patient;
+import org.nema.dicom.PS3_19.Series;
+import org.nema.dicom.PS3_19.Study;
+import org.nema.dicom.PS3_19.UUID;
+
+import edu.wustl.xipHost.wg23.Uuid;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.avt2ext.AVTStore;
 import edu.wustl.xipHost.caGrid.AimStore;
+import edu.wustl.xipHost.dicom.DICOMStore;
 
 /**
  * @author Jaroslaw Krych
@@ -44,13 +47,13 @@ public class DataStore implements Runnable {
 	public void run() {
 		// Parse AvailableData for AIM and DICOM descriptors at all levels	
 		ArrayOfUUID arrayUUIDs = new ArrayOfUUID();
-		List<Uuid> listUUIDs = arrayUUIDs.getUuid();		
+		List<UUID> listUUIDs = arrayUUIDs.getUUID();		
 		
 		if(availableData.getObjectDescriptors() != null){
 			List<ObjectDescriptor> descs = availableData.getObjectDescriptors().getObjectDescriptor();
 			for(int i = 0; i < descs.size(); i++){
 				ObjectDescriptor desc = availableData.getObjectDescriptors().getObjectDescriptor().get(i);		
-				listUUIDs.add(desc.getUuid());
+				listUUIDs.add(desc.getDescriptorUuid());
 			}
 		}
 		if (availableData.getPatients() != null){
@@ -61,7 +64,7 @@ public class DataStore implements Runnable {
 					List<ObjectDescriptor> patientDescs = patient.getObjectDescriptors().getObjectDescriptor();
 					for(int j = 0; j < patientDescs.size(); j++){
 						ObjectDescriptor patientDesc = patientDescs.get(j);
-						listUUIDs.add(patientDesc.getUuid());
+						listUUIDs.add(patientDesc.getDescriptorUuid());
 					}
 				}
 				if(patient.getStudies() != null){
@@ -72,7 +75,7 @@ public class DataStore implements Runnable {
 							List<ObjectDescriptor> studyDescs = study.getObjectDescriptors().getObjectDescriptor();
 							for(int k = 0; k < studyDescs.size(); k++){
 								ObjectDescriptor studyDesc = studyDescs.get(k);
-								listUUIDs.add(studyDesc.getUuid());
+								listUUIDs.add(studyDesc.getDescriptorUuid());
 							}
 						}						
 						if(study.getSeries() != null){
@@ -82,7 +85,7 @@ public class DataStore implements Runnable {
 								List<ObjectDescriptor> seriesDescs = oneSeries.getObjectDescriptors().getObjectDescriptor();
 								for(int m = 0; m < seriesDescs.size(); m++){
 									ObjectDescriptor seriesDesc = seriesDescs.get(m);
-									listUUIDs.add(seriesDesc.getUuid());
+									listUUIDs.add(seriesDesc.getDescriptorUuid());
 								}
 							}
 						}						
@@ -96,6 +99,7 @@ public class DataStore implements Runnable {
 			return;
 		}else{
 			List<ObjectLocator> objLocs = arrayOfObjectLocator.getObjectLocator();
+			//TODO: Get the storage options from some config file, instead of being hardcoded
 			boolean submitToAVT2EXT = true;
 			if(submitToAVT2EXT){
 				logger.info("Starting 'store to AD'");
@@ -108,6 +112,13 @@ public class DataStore implements Runnable {
 				logger.info("Starting 'store to AIME'");
 				AimStore aimStore = new AimStore(objLocs, null);
 				Thread t2 = new Thread(aimStore);
+				t2.start();
+			}			
+			boolean submitToDICOM = true;
+			if(submitToDICOM){
+				logger.info("Starting 'store to DICOM'");
+				DICOMStore dicomStore = new DICOMStore(objLocs);
+				Thread t2 = new Thread(dicomStore);
 				t2.start();
 			}			
 		}		

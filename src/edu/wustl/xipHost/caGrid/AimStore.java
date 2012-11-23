@@ -6,7 +6,7 @@ package edu.wustl.xipHost.caGrid;
 import java.io.File;
 import java.net.URI;
 import java.util.List;
-import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.PS3_19.ObjectLocator;
 import edu.wustl.xipHost.caGrid.GridLocation.Type;
 import gov.nih.nci.ivi.helper.AIMTCGADataServiceHelper;
 
@@ -31,7 +31,7 @@ public class AimStore implements Runnable{
 	public void run() {				
 		try {
 			for(int i = 0; i < aimObjectLocs.size(); i++){								
-				URI uri = new URI(aimObjectLocs.get(i).getUri());
+				URI uri = new URI(aimObjectLocs.get(i).getURI());
 				File file = new File(uri);
 				//helper.submitAnnotations(file.getCanonicalPath(), aimServiceURL);
 				tcgaAIMHelper.submitAnnotations(file.getCanonicalPath(), aimServiceURL);

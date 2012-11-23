@@ -12,10 +12,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.Modality;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.Uid;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.MimeType;
+import org.nema.dicom.PS3_19.Modality;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.UID;
+import edu.wustl.xipHost.wg23.Uuid;
 
 import edu.wustl.xipHost.dataModel.AIMItem;
 import edu.wustl.xipHost.dataModel.ImageItem;
@@ -118,16 +119,17 @@ public class AVTUtil {
 				ObjectDescriptor objDesc = new ObjectDescriptor();
 				Uuid objDescUUID = new Uuid();
 				objDescUUID.setUuid(UUID.randomUUID().toString());
-				objDesc.setUuid(objDescUUID);
+				objDesc.setDescriptorUuid(objDescUUID);
 				if(obj instanceof com.siemens.scr.avt.ad.dicom.GeneralImage){
 					com.siemens.scr.avt.ad.dicom.GeneralImage itemAD = com.siemens.scr.avt.ad.dicom.GeneralImage.class.cast(obj);
 					String itemSOPInstanceUID = itemAD.getSOPInstanceUID();
 					if(itemSOPInstanceUID == null){itemSOPInstanceUID = "";} 				
 					if(seriesFromAD.contains(itemSOPInstanceUID) == false){
 						itemFromAD = new ImageItem(itemSOPInstanceUID);														
-						String mimeType = "application/dicom";
+						MimeType mimeType = new MimeType();
+						mimeType.setType("application/dicom");
 						objDesc.setMimeType(mimeType);			
-						Uid uid = new Uid();
+						UID uid = new UID();
 						String sopClassUID = "";
 						uid.setUid(sopClassUID);
 						objDesc.setClassUID(uid);				
@@ -142,9 +144,10 @@ public class AVTUtil {
 					String authorName = "";
 					String aimUID = String.class.cast(obj);
 					itemFromAD = new AIMItem(imageAnnotationType, dateTime, authorName, aimUID);					
-					String mimeType = "text/xml";
+					MimeType mimeType = new MimeType();
+					mimeType.setType("text/xml");
 					objDesc.setMimeType(mimeType);			
-					Uid uid = new Uid();
+					UID uid = new UID();
 					String sopClassUID = "";
 					uid.setUid(sopClassUID);
 					objDesc.setClassUID(uid);				

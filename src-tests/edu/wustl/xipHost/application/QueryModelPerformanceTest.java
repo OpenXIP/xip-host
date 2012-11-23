@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
-import org.nema.dicom.wg23.QueryResult;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.QueryResult;
+import org.nema.dicom.PS3_19.UUID;
+import edu.wustl.xipHost.wg23.Uuid;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.XindiceManager;
 import edu.wustl.xipHost.hostControl.XindiceManagerFactory;
@@ -27,7 +28,7 @@ public class QueryModelPerformanceTest extends TestCase {
 	SAXBuilder builder = new SAXBuilder();
 	Document doc;
 	File nativeModelFile;
-	List<Uuid> modelUUIDs;
+	List<UUID> modelUUIDs;
 	List<String> xpaths;
 	Application app;
 	/* (non-Javadoc)
@@ -39,7 +40,7 @@ public class QueryModelPerformanceTest extends TestCase {
 		xpath = "/";		
 		nativeModelFile = new File("./src-tests/edu/wustl/xipHost/hostControl/testQuery.xml");
 		doc = builder.build(nativeModelFile);
-		modelUUIDs = new ArrayList<Uuid>();
+		modelUUIDs = new ArrayList<UUID>();
 		xpaths = new ArrayList<String>();
 		app = new Application("Application1", new File("./src-tests/edu/wustl/xipHost/application/test.bat"), "", "", new File("src-tests/edu/wustl/xipHost/application/test.png"),
 				"rendering", true, "files", 1, IterationTarget.SERIES);

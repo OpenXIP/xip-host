@@ -12,8 +12,8 @@ import java.util.List;
 
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import edu.wustl.xipHost.wg23.Uuid;
 
 import com.pixelmed.dicom.DicomInputStream;
 
@@ -53,10 +53,11 @@ public class MakeNativeModelTest extends TestCase implements NativeModelListener
 		ObjectLocator objLoc = new ObjectLocator();
 		Uuid uuid = new Uuid();
 		uuid.setUuid("1");
-		objLoc.setUuid(uuid);
+		objLoc.setLocator(uuid);
+		objLoc.setSource(uuid);
 		file = new File("./src-tests/edu/wustl/xipHost/wg23/dcm_with_SQ.dcm");
 		String strFileURL = file.toURI().toURL().toExternalForm();
-		objLoc.setUri(strFileURL);		
+		objLoc.setURI(strFileURL);		
 		nmRunner = new NativeModelRunner(objLoc);		
 		nmRunner.addNativeModelListener(this);
 		nmRunner.run();			
@@ -96,8 +97,9 @@ public class MakeNativeModelTest extends TestCase implements NativeModelListener
 		ObjectLocator objLoc = new ObjectLocator();
 		Uuid uuid = new Uuid();
 		uuid.setUuid("1");
-		objLoc.setUuid(uuid);		
-		objLoc.setUri("");		
+		objLoc.setLocator(uuid);		
+		objLoc.setSource(uuid);		
+		objLoc.setURI("");		
 		try{
 			nmRunner = new NativeModelRunner(objLoc);
 			fail("ObjectLocator's URI was empty.");
@@ -112,8 +114,9 @@ public class MakeNativeModelTest extends TestCase implements NativeModelListener
 		ObjectLocator objLoc = new ObjectLocator();
 		Uuid uuid = new Uuid();
 		uuid.setUuid("1");
-		objLoc.setUuid(uuid);		
-		objLoc.setUri("./src-tests/edu/wustl/xipHost/wg23/nonexistingFile.txt");	
+		objLoc.setLocator(uuid);		
+		objLoc.setSource(uuid);		
+		objLoc.setURI("./src-tests/edu/wustl/xipHost/wg23/nonexistingFile.txt");	
 		try{
 			nmRunner = new NativeModelRunner(objLoc);
 			fail("ObjectLocator's URI points to nonexisting file.");
@@ -128,8 +131,9 @@ public class MakeNativeModelTest extends TestCase implements NativeModelListener
 		ObjectLocator objLoc = new ObjectLocator();
 		Uuid uuid = new Uuid();
 		uuid.setUuid("1");
-		objLoc.setUuid(uuid);		
-		objLoc.setUri("./src-tests/edu/wustl/xipHost/wg23/nondcm.txt");			
+		objLoc.setLocator(uuid);		
+		objLoc.setSource(uuid);		
+		objLoc.setURI("./src-tests/edu/wustl/xipHost/wg23/nondcm.txt");			
 		try{
 			nmRunner = new NativeModelRunner(objLoc);
 			fail("ObjectLocator points to non DCM.");

@@ -3,6 +3,6 @@
 	<serverName>127.0.0.1</serverName>
 	<serverPort>50000</serverPort>
 	<databaseName>AD</databaseName>
-	<userName>db2user</userName>
-	<password>123</password>
+	<userName>db2admin</userName>
+	<password>wakawaka624</password>
 </ad>

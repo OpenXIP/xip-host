@@ -14,7 +14,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.DicomObject;
 import org.jdom.JDOMException;
-import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.PS3_19.ObjectLocator;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import com.siemens.scr.avt.ad.api.User;
@@ -48,10 +48,10 @@ public class AVTStore implements Runnable {
 		aimToStore = new ArrayList<File>();
 		for(ObjectLocator objLoc : objectLocs){						
 			if(logger.isDebugEnabled()){
-				logger.debug(objLoc.getUuid().getUuid() + " " + objLoc.getUri());
+				logger.debug(objLoc.getSource().getUuid() + " " + objLoc.getURI());
 			}
 			try {
-				URI uri = new URI(objLoc.getUri());
+				URI uri = new URI(objLoc.getURI());
 				File file = new File(uri);
 				String mimeType;
 				mimeType = DicomUtil.mimeType(file);

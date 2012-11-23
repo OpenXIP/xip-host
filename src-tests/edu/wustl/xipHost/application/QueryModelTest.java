@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
-import org.nema.dicom.wg23.QueryResult;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.QueryResult;
+import org.nema.dicom.PS3_19.UUID;
+import edu.wustl.xipHost.wg23.Uuid;
 import edu.wustl.xipHost.iterator.IterationTarget;
 import edu.wustl.xipHost.hostControl.XindiceManager;
 import edu.wustl.xipHost.hostControl.XindiceManagerFactory;
@@ -26,7 +27,7 @@ public class QueryModelTest extends TestCase {
 	SAXBuilder builder = new SAXBuilder();
 	Document doc;
 	File nativeModelFile;
-	List<Uuid> modelUUIDs;
+	List<UUID> modelUUIDs;
 	List<String> xpaths;
 	Application app;
 	/* (non-Javadoc)
@@ -37,7 +38,7 @@ public class QueryModelTest extends TestCase {
 		objUUID = new Uuid();				
 		nativeModelFile = new File("./src-tests/edu/wustl/xipHost/application/testQuery.xml");
 		doc = builder.build(nativeModelFile);
-		modelUUIDs = new ArrayList<Uuid>();
+		modelUUIDs = new ArrayList<UUID>();
 		xpaths = new ArrayList<String>();
 		xpaths.add("/DICOM_DATASET/ELEMENT[@name=\"SOPInstanceUID\"]/value[@number=\"1\"]/text()");
 		//xpaths.add("//ELEMENT");
@@ -77,7 +78,7 @@ public class QueryModelTest extends TestCase {
 		assertEquals("Number of QueryResults is invalid.", modelUUIDs.size() * xpaths.size(), n);
 		boolean bln = true;
 		for(int i = 0; i < results.size(); i++){
-			int numOfResultsInQueryResult = results.get(i).getResults().getString().size();
+			int numOfResultsInQueryResult = results.get(i).getResult().getXPathNode().size();
 			if (numOfResultsInQueryResult != 0 && numOfResultsInQueryResult != 2){
 				System.out.println(numOfResultsInQueryResult);
 				bln = false;
@@ -85,7 +86,7 @@ public class QueryModelTest extends TestCase {
 		}
 		assertTrue("QueryResults do not have a right number of returned Strings. It should be one for each QueryResult.", bln);
 		//Check if return result string has a right value
-		boolean blnIsNotEmpty = results.get(0).getResults().getString().get(0).isEmpty(); 
+		boolean blnIsNotEmpty = results.get(0).getResult().getXPathNode().get(0).getValue().isEmpty(); 
 		assertFalse("Returned value should not be empty.", blnIsNotEmpty);
 		
 	}

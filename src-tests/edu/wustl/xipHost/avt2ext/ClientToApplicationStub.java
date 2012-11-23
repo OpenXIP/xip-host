@@ -3,8 +3,8 @@
  */
 package edu.wustl.xipHost.avt2ext;
 
-import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.ArrayOfUUID;
+import org.nema.dicom.PS3_19.ArrayOfObjectLocator;
+import org.nema.dicom.PS3_19.ArrayOfUUID;
 import edu.wustl.xipHost.wg23.ClientToApplication;
 
 /**

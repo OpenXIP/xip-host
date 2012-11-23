@@ -24,7 +24,7 @@ import org.xmldb.api.modules.XMLResource;
 import org.xmldb.api.modules.XPathQueryService;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
-import org.nema.dicom.wg23.Uuid;
+import edu.wustl.xipHost.wg23.Uuid;
 
 /**
  * @author Jaroslaw Krych

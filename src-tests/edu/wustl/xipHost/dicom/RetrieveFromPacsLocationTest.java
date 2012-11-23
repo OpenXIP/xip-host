@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.PS3_19.ObjectLocator;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;

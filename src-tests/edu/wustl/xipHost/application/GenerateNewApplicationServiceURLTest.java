@@ -28,7 +28,7 @@ public class GenerateNewApplicationServiceURLTest extends TestCase {
 		}
 		assertTrue(mgr.checkPort(port));
 		URL url = mgr.generateNewApplicationServiceURL();		
-		assertEquals("", "http://localhost:" + port + "/ApplicationInterface?wsdl", url.toExternalForm());
+		assertEquals("", "http://localhost:" + port + "/IApplicationService20100825?wsdl", url.toExternalForm());
 	}
 	
 	//ApplicationManager 1B - alternative flow. Port is unavailable.

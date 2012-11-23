@@ -23,17 +23,20 @@ import javax.xml.ws.Endpoint;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.Tag;
 import org.jdom.Document;
-import org.nema.dicom.wg23.ArrayOfString;
-import org.nema.dicom.wg23.ArrayOfUUID;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.Host;
-import org.nema.dicom.wg23.ModelSetDescriptor;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.QueryResult;
-import org.nema.dicom.wg23.Rectangle;
-import org.nema.dicom.wg23.State;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ArrayOfXPathNode;
+import org.nema.dicom.PS3_19.ArrayOfUUID;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.IHostService20100825;
+import org.nema.dicom.PS3_19.ModelSetDescriptor;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.QueryResult;
+import org.nema.dicom.PS3_19.Rectangle;
+import org.nema.dicom.PS3_19.State;
+import org.nema.dicom.PS3_19.XPathNode;
+import org.nema.dicom.PS3_19.XPathNodeType;
+
+import edu.wustl.xipHost.wg23.Uuid;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Query;
@@ -251,7 +254,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	
 	//Implementation HostImpl is used to be able to add WG23Listener
 	//It is eventually casted to Host type
-	Host host;
+	IHostService20100825 host;
 			
 	//All loaded application by default will be saved again.
 	//New instances of an application will be saved only when the save checkbox is selected
@@ -536,7 +539,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			for (int i = 0; i < objLocs.length; i++){										
 				boolean isDICOM = false;
 				try {
-					isDICOM = DicomUtil.isDICOM(new File(new URI(objLocs[i].getUri())));
+					isDICOM = DicomUtil.isDICOM(new File(new URI(objLocs[i].getURI())));
 				} catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -560,7 +563,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	 * Adds JDOM Document to Xindice collection.
 	 * Only valid documents (e.g. not null, with root element) will be added
 	 * (non-Javadoc)
-	 * @see edu.wustl.xipHost.wg23.NativeModelListener#nativeModelAvailable(org.jdom.Document, org.nema.dicom.wg23.Uuid)
+	 * @see edu.wustl.xipHost.wg23.NativeModelListener#nativeModelAvailable(org.jdom.Document, org.nema.dicom.PS3_19.Uuid)
 	 */
 	public void nativeModelAvailable(Document doc, Uuid objUUID) {				
 		XindiceManagerFactory.getInstance().addDocument(doc, getID().toString(), objUUID);		
@@ -578,14 +581,14 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	 * @param objUUIDs
 	 * @return
 	 */	
-	 public ModelSetDescriptor getModelSetDescriptor(List<Uuid> objUUIDs){				
+	 public ModelSetDescriptor getModelSetDescriptor(List<org.nema.dicom.PS3_19.UUID> objUUIDs){				
 		String[] models = XindiceManagerFactory.getInstance().getModelUUIDs(getID().toString());							
 		List<String> listModels = Arrays.asList(models);
 		ModelSetDescriptor msd = new ModelSetDescriptor();
 		ArrayOfUUID uuidsModels = new ArrayOfUUID();
-		List<Uuid> listUUIDs = uuidsModels.getUuid();
+		List<org.nema.dicom.PS3_19.UUID> listUUIDs = uuidsModels.getUUID();
 		ArrayOfUUID uuidsFailed = new ArrayOfUUID();
-		List<Uuid> listUUIDsFailed = uuidsFailed.getUuid();
+		List<org.nema.dicom.PS3_19.UUID> listUUIDsFailed = uuidsFailed.getUUID();
 		for(int i = 0; i < objUUIDs.size(); i++){
 			Uuid uuid = new Uuid();
 			if(objUUIDs.get(i) == null || objUUIDs.get(i).getUuid() == null){
@@ -610,7 +613,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 	 * queryResults list hold teh values from queryResultAvailable
 	 */
 	List<QueryResult> queryResults;
-	public List<QueryResult> queryModel(List<Uuid> modelUUIDs, List<String> listXPaths){
+	public List<QueryResult> queryModel(List<org.nema.dicom.PS3_19.UUID> modelUUIDs, List<String> listXPaths){
 		queryResults = new ArrayList<QueryResult>();
 		if(modelUUIDs == null || listXPaths == null){
 			return queryResults;
@@ -620,16 +623,20 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		for(int i = 0; i < listXPaths.size(); i++){
 			for(int j = 0; j < modelUUIDs.size(); j++){
 				//String[] results = xm.query(service, collectionName, modelUUIDs.get(j), listXPaths.get(i));
-				String[] results = xm.query(collectionName, modelUUIDs.get(j), listXPaths.get(i));
+				String[] results = xm.query(collectionName, (Uuid)(modelUUIDs.get(j)), listXPaths.get(i));
 				QueryResult queryResult = new QueryResult();
 				queryResult.setModel(modelUUIDs.get(j));
-				queryResult.setXpath(listXPaths.get(i));
-				ArrayOfString arrayOfString = new ArrayOfString();
-				List<String> listString = arrayOfString.getString();
-				for(int k = 0; k < results.length; k++){							
-					listString.add(results[k]);
-				}		
-				queryResult.setResults(arrayOfString);	
+				queryResult.setXPath(listXPaths.get(i));
+				ArrayOfXPathNode resultXPathNodeArray = new ArrayOfXPathNode();
+				List<XPathNode> resultXPathNodes = resultXPathNodeArray.getXPathNode();
+				for(int k = 0; k < results.length; k++){
+					XPathNode resultXPathNode = new XPathNode();
+					// TODO Figure out how to handle the XPathNodeType.  ALL is a placeholder.
+					resultXPathNode.setNodeType(XPathNodeType.ALL);
+					resultXPathNode.setValue(results[k]);
+					resultXPathNodes.add(resultXPathNode);
+				}
+				queryResult.setResult(resultXPathNodeArray);	
 				queryResults.add(queryResult);
 			}
 		}				
@@ -670,16 +677,16 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		this.retrieveTarget = retrieveTarget;
 	}
 	
-	public List<ObjectLocator> retrieveAndGetLocators(List<Uuid> listUUIDs){
+	public List<ObjectLocator> retrieveAndGetLocators(List<org.nema.dicom.PS3_19.UUID> listUUIDs){
 		//First check if data was already retrieved
 		boolean retrieveComplete = true;
 		List<ObjectLocator> listObjLocs = new ArrayList<ObjectLocator>();		
 		if(!retrievedData.isEmpty()){
-			for(Uuid uuid : listUUIDs){
+			for(org.nema.dicom.PS3_19.UUID uuid : listUUIDs){
 				String strUuid = uuid.getUuid();
 				ObjectLocator objLoc = retrievedData.get(strUuid);
 				if(objLoc != null){
-					logger.debug(strUuid + " " + objLoc.getUri());
+					logger.debug(strUuid + " " + objLoc.getURI());
 					listObjLocs.add(objLoc);
 				} else {					
 					retrieveComplete = false;
@@ -729,7 +736,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 								String value = (String) aimCriteria.get(key);
 								if(!value.isEmpty()){
 									logger.debug("Key: " + key + " Value: " + value);
-								}					
+		}			
 							}				
 						}
 						List<ObjectDescriptor> objectDescriptors = new ArrayList<ObjectDescriptor>();
@@ -752,8 +759,8 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 								List<ObjectDescriptor> objectDesc = new ArrayList<ObjectDescriptor>();
 								objectDesc.add(item.getObjectDescriptor());
 								retrieve.setObjectDescriptors(objectDesc);
-								Thread t = new Thread(retrieve);
-								t.start();
+		Thread t = new Thread(retrieve);
+		t.start();
 								//dicomCriteria.remove(Tag.SOPInstanceUID);
 								try {
 									t.join();
@@ -805,14 +812,14 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 		if(listUUIDs == null){
 			return new ArrayList<ObjectLocator>();
 		} else {		
-			for(Uuid uuid : listUUIDs){
+			for(org.nema.dicom.PS3_19.UUID uuid : listUUIDs){
 				String strUuid = uuid.getUuid();
 				ObjectLocator objLoc = retrievedData.get(strUuid);				
-				logger.debug(strUuid + " " + objLoc.getUri());
+				logger.debug(strUuid + " " + objLoc.getURI());
 				listObjLocs.add(objLoc);			
 			}
 			return listObjLocs;
-		}			
+		}		
 	}
 	
 	
@@ -842,7 +849,7 @@ public class Application implements NativeModelListener, TargetIteratorListener,
 			while(keySet.hasNext()){
 				String uuid = keySet.next();
 				ObjectLocator objLoc = objectLocators.get(uuid);
-				logger.debug("UUID: " + uuid + " Item location: " + objLoc.getUri());
+				logger.debug("UUID: " + uuid + " Item location: " + objLoc.getURI());
 			}		
 			retrievedData.notify();
 		}

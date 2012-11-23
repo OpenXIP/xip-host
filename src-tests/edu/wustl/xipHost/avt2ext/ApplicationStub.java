@@ -4,7 +4,7 @@
 package edu.wustl.xipHost.avt2ext;
 
 import java.io.File;
-import org.nema.dicom.wg23.ArrayOfObjectLocator;
+import org.nema.dicom.PS3_19.ArrayOfObjectLocator;
 import edu.wustl.xipHost.application.Application;
 import edu.wustl.xipHost.iterator.IterationTarget;
 

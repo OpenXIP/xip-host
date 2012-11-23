@@ -42,7 +42,7 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.globus.wsrf.encoding.ObjectSerializer;
 import org.globus.wsrf.encoding.SerializationException;
-import org.nema.dicom.wg23.State;
+import org.nema.dicom.PS3_19.State;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;

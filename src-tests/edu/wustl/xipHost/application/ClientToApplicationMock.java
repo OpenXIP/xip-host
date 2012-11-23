@@ -1,6 +1,6 @@
 package edu.wustl.xipHost.application;
 
-import org.nema.dicom.wg23.State;
+import org.nema.dicom.PS3_19.State;
 import edu.wustl.xipHost.wg23.ClientToApplication;
 
 public class ClientToApplicationMock extends ClientToApplication{
@@ -11,7 +11,7 @@ public class ClientToApplicationMock extends ClientToApplication{
 		super();		
 	}
 	
-	public boolean setState(State newState) {
+	public Boolean setState(State newState) {
 		if(newState.equals(State.CANCELED)){
 			app.setState(State.CANCELED);
 			app.setState(State.IDLE);

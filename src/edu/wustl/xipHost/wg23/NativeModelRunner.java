@@ -25,8 +25,8 @@ import org.apache.axis.types.HexBinary;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import edu.wustl.xipHost.wg23.Uuid;
 import com.mycompany.dicom.metadata.BulkData;
 import com.mycompany.dicom.metadata.DicomAttribute;
 import com.mycompany.dicom.metadata.DicomDataSet;
@@ -55,7 +55,7 @@ public class NativeModelRunner implements Runnable {
 		if(objLocator == null){throw new IllegalArgumentException("Null ObjectLocator.");}
 		this.objLoc = objLocator;		
 		try {
-			File file = new File(new URI(objLoc.getUri()));			
+			File file = new File(new URI(objLoc.getURI()));			
 			inputStream = new FileInputStream(file);
 			dicomInputStream = new DicomInputStream(inputStream);
 		} catch (FileNotFoundException e) {
@@ -167,7 +167,7 @@ public class NativeModelRunner implements Runnable {
 	public void run() {		
 		if(objLoc != null){			
 			Document doc = makeDOMNativeModel(dicomInputStream);
-			notifyNativeModelAvailable(doc, objLoc.getUuid());
+			notifyNativeModelAvailable(doc, (Uuid) objLoc.getLocator());
 		}else if (objLoc == null){
 			String xml = makeXMLNativeModel(dicomInputStream);
 			notifyNativeModelAvailable(xml);
@@ -242,7 +242,7 @@ public class NativeModelRunner implements Runnable {
 				Long length = attribute.getVL();							
 				bulkData.setLength(length);
 				if(objLoc != null){
-					bulkData.setPath(objLoc.getUri());
+					bulkData.setPath(objLoc.getURI());
 				}else{
 					bulkData.setPath("");
 				}

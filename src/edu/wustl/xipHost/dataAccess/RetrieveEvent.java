@@ -6,7 +6,7 @@ package edu.wustl.xipHost.dataAccess;
 import java.util.EventObject;
 import java.util.Map;
 
-import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.PS3_19.ObjectLocator;
 /**
  * @author Jaroslaw Krych
  *

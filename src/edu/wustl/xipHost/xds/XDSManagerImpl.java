@@ -26,10 +26,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.nema.dicom.wg23.Modality;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.Uid;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.MimeType;
+import org.nema.dicom.PS3_19.Modality;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.UID;
 import org.openhealthtools.ihe.atna.auditor.PDQConsumerAuditor;
 import org.openhealthtools.ihe.common.ebxml._3._0.rim.ObjectRefType;
 import org.openhealthtools.ihe.common.hl7v2.CX;
@@ -75,6 +75,7 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.XDSDocumentItem;
 import edu.wustl.xipHost.hostControl.HostConfigurator;
 import edu.wustl.xipHost.pdq.PDQLocation;
+import edu.wustl.xipHost.wg23.Uuid;
 
 /**
  * @author Jaroslaw Krych (stubs, tree display of results), Lawrence Tarbox (OHT implementation)
@@ -759,7 +760,7 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "http://ihexds.nist.gov:9080/tf5/services/xdsregistrya"; // 9085 for tls, swap a for b for XDS.b
 		//String registryURL = "https://ihexds.nist.gov:9085/tf5/services/xdsregistrya";
 
-		String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xdsregistryb"; // NIST on net; 2010, 2011
+		//String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xdsregistryb"; // NIST on net; 2010, 2011
 		//String registryURL = "https://ihexds.nist.gov:9085/tf6/services/xdsregistryb";
 		//String registryURL = "http://ihexds.nist.gov:9080/tf6/services/xcaregistry";
 		//String registryURL = "https://ihexds.nist.gov:9085/tf6/services/xcaregistry";
@@ -792,6 +793,7 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "http://174.129.27.111/InteropSandbox/IheAdapter/XdsRegistryService/XdsRegistryService"; //CareEvolution
 		//String registryURL = "http://xds-ibm.lgs.com:9080/IBMXDSRegistry/XDSb/SOAP12/Registry"; //IBM
 		//String registryURL = "http://72.248.114.66:8010/axis2/services/xdsregistryb"; //eCW
+		String registryURL = "http://61.8.147.106:1025/XDSService/xdsregistry"; //Microsoft
 		
 		// TLS 2011 Internet Testing
 		//String registryURL = ""; //GE
@@ -800,6 +802,7 @@ public class XDSManagerImpl implements XDSManager{
 		//String registryURL = "https://174.129.27.111:8080/InteropSandbox/IheAdapter/XdsRegistryService/XdsRegistryService"; //CareEvolution
 		//String registryURL = "https://xds-ibm.lgs.com:9443/IBMXDSRegistry/XDSb/SOAP12/Registry"; //IBM
 		//String registryURL = "https://72.248.114.66:8011/axis2/services/xdsregistryb"; //eCW
+		//String registryURL = "https://61.8.147.106:9080/XDSService/xdsregistry"; //Microsoft
 		
 		// 2011 NA Connectathon
 		//String registryURL = "https://tiani-cisco6:8443/SpiritProxy/registry"; // Tiani-XUA
@@ -818,7 +821,7 @@ public class XDSManagerImpl implements XDSManager{
 
 		//((B_Consumer)c).setPrimaryRepositoryURI(primaryRepositoryURI); //only if repos supports consolidation
 		//String NIST_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2008.1.2.701";
-		String XDS_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5"; // NIST per web site
+		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1.5"; // NIST per web site
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1"; // NIST per stored doc
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "2.16.840.1.113662.2.1.53"; // Spirit
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.2009.1.2.1030"; // IBM
@@ -839,6 +842,7 @@ public class XDSManagerImpl implements XDSManager{
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1050";//EMC_IIG
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1030";//CareFx
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1150";//MOSS
+		String XDS_B_REPOSITORY_UNIQUE_ID = "1.19.6.24.109.42.1";//Microsoft
 		
 		// 2011 NA Connectationg
 		//String XDS_B_REPOSITORY_UNIQUE_ID = "1.3.6.1.4.1.21367.13.1180"; // Tiani
@@ -858,7 +862,7 @@ public class XDSManagerImpl implements XDSManager{
 			// 2011 NA Connectathon
 			//XDS_B_REPOSITORY_URI = new URI("https://tiani-cisco6:8443/SpiritProxy/repository"); // Spirit XUA
 
-			XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb"); // NIST net; 2010, 2011
+			//XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb"); // NIST net; 2010, 2011
 			//XDS_B_REPOSITORY_URI = new URI("http://ihexds.nist.gov:9080/tf6/services/xcarepository");
 			//XDS_B_REPOSITORY_URI = new URI("https://ihexds.nist.gov:9085/tf6/services/xdsrepositoryb");
 			//XDS_B_REPOSITORY_URI = new URI("https://ihexds.nist.gov:9085/tf6/services/xcarepository");
@@ -897,6 +901,7 @@ public class XDSManagerImpl implements XDSManager{
 			//XDS_B_REPOSITORY_URI = new URI("http://204.236.129.242:9190/xds-iti43"); // EMC_IG
 			//XDS_B_REPOSITORY_URI = new URI("http://xdstest.carefx.com:8080/axis2/services/DocumentRepositoryService"); // carefx
 			//XDS_B_REPOSITORY_URI = new URI("http://198.160.211.53:8010/openxds/services/DocumentRepository"); // MOSS
+			XDS_B_REPOSITORY_URI = new URI("http://61.8.147.106:1025/XDSService/xdsepository"); // Microsoft
 				// TLS 2011 Internet Testing
 			//XDS_B_REPOSITORY_URI = new URI("https://68.179.255.83:9092/mosaix-iti43"); // EMC secure
 			//XDS_B_REPOSITORY_URI = new URI("https://208.81.185.143:8181/axis2/services/xdsrepositoryb"); // Vangent
@@ -904,6 +909,7 @@ public class XDSManagerImpl implements XDSManager{
 			//XDS_B_REPOSITORY_URI = new URI("https://204.236.129.242:9191/xds-iti43"); // EMC_IG
 			//XDS_B_REPOSITORY_URI = new URI("https://xdstest.carefx.com:8443/axis2/services/DocumentRepositoryService"); // carefx
 			//XDS_B_REPOSITORY_URI = new URI("https://198.160.211.53:8011/openxds/services/DocumentRepository"); // MOSS
+			//XDS_B_REPOSITORY_URI = new URI("https://61.8.147.106:9081/XDSService/xdsepository"); // Microsoft
 
 		} catch (URISyntaxException e4) {
 			// TODO Auto-generated catch block
@@ -1082,7 +1088,8 @@ public class XDSManagerImpl implements XDSManager{
 		}
 		int numOfResponses = response.getDocumentEntryResponses().size();
 		SearchResult searchResult = new SearchResult("XDS Repository: " + registryURI.toString());
-		Patient patient = new Patient("", patIDString, "");
+		// TODO find real patient name and birthdate
+		Patient patient = new Patient("Foo", patIDString, "20010101");
 		Timestamp lastUpdated = new Timestamp(Calendar.getInstance().getTime().getTime());
 		patient.setLastUpdated(lastUpdated);
 		searchResult.addPatient(patient);		
@@ -1100,9 +1107,11 @@ public class XDSManagerImpl implements XDSManager{
 			ObjectDescriptor objDesc = new ObjectDescriptor();
 			Uuid objDescUUID = new Uuid();
 			objDescUUID.setUuid(UUID.randomUUID().toString());
-			objDesc.setUuid(objDescUUID);
-			objDesc.setMimeType(mime);			
-			Uid uid = new Uid();
+			objDesc.setDescriptorUuid(objDescUUID);
+			MimeType objDescMimeType = new MimeType();
+			objDescMimeType.setType(mime);
+			objDesc.setMimeType(objDescMimeType);			
+			UID uid = new UID();
 			String sopClassUID = "";
 			uid.setUid(sopClassUID);
 			objDesc.setClassUID(uid);				

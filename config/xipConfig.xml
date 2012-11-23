@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <host>
-	<tmpDir>C:\TmpXIP</tmpDir>
-	<outputDir>C:\OutXIP</outputDir>
+	<tmpDir>L:\AVTinstallation\XIPHost\TmpXIP</tmpDir>
+	<outputDir>L:\AVTinstallation\XIPHost\OutXIP</outputDir>
 	<displayStartup>false</displayStartup>
 
 	<AETitle>WS_XIP</AETitle>
@@ -10,8 +10,8 @@
 	<DicomCommitPort>3001</DicomCommitPort>
 	<DicomCommitSecurePort>2761</DicomCommitSecurePort>
 
-	<!-- Uncomment the following line, and set the URL, to turn on auditing per the IHE ATNA profile -->	
-	<!-- <AuditRepositoryURL>tls://129.6.24.109:8087</AuditRepositoryURL> -->
+	<!-- Uncomment the following line, and set the URL, to turn on auditing per the IHE ATNA profile	
+	<AuditRepositoryURL>tls://ibm0:4450</AuditRepositoryURL> -->
 
 	<PdqSendFacilityOID>1.3.6.1.4.1.21367.13.10.5420</PdqSendFacilityOID>
 	<PdqSendApplicationOID>1.3.6.1.4.1.21367.13.50.420</PdqSendApplicationOID>

@@ -7,12 +7,41 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XIP"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/EXT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XINDICE"/>
+	<classpathentry kind="lib" path="L:/XIP/dcm4che-2.0.26-SNAPSHOT/lib/dcm4che-tool-dcmsnd-2.0.26-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="L:/XIP/dcm4che-2.0.26-SNAPSHOT/lib/dcm4che-net-2.0.26-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="L:/XIP/dcm4che-2.0.26-SNAPSHOT/lib/dcm4che-iod-2.0.26-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="L:/XIP/dcm4che-2.0.26-SNAPSHOT/lib/dcm4che-core-2.0.26-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="endorsed/resolver.jar"/>
 	<classpathentry kind="lib" path="endorsed/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="endorsed/xml-apis.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/AVT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/NBIA"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ad-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.emf.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.emf.ecore"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.emf.ecore.xmi"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.ohf.hl7v2.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.atna.auditor"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.atna.context"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.atna.nodeauth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.common.ebXML._3._0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.common.hl7v2"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.common.hl7v2.client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.common.hl7v3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.common.hl7v3.client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.common.hl7v3.soap"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.common.mllp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.pdq.consumer"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.pdq.consumer.v3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.utils"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xds"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xds.consumer"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xds.metadata"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xds.soap"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xua"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xds.metadata.extract"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xds.metadata.extract.cdar2"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openhealthtools.ihe.xds.metadata.transform"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/NBIAHelper"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OHT"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

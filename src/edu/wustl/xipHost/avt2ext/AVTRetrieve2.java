@@ -25,9 +25,12 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.UID;
+import org.nema.dicom.PS3_19.UUID;
+
+import edu.wustl.xipHost.wg23.Uuid;
 import com.siemens.scr.avt.ad.annotation.ImageAnnotation;
 import com.siemens.scr.avt.ad.api.ADFacade;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
@@ -142,9 +145,15 @@ public class AVTRetrieve2 implements Retrieve {
 										dout.writeDicomFile(dicom);
 										dout.close();
 										ObjectLocator objLoc = new ObjectLocator();				
-										Uuid itemUUID = item.getObjectDescriptor().getUuid();
-										objLoc.setUuid(itemUUID);				
-										objLoc.setUri(file.getAbsolutePath()); 
+										UUID itemUUID = item.getObjectDescriptor().getDescriptorUuid();
+										objLoc.setLocator(itemUUID);				
+										objLoc.setSource(itemUUID);
+										objLoc.setLength(file.length());
+										objLoc.setOffset(0L);
+										UID tsUID = new UID();
+										tsUID.setUid(dout.getTransferSyntax().uid());
+										objLoc.setTransferSyntax(tsUID);
+										objLoc.setURI(file.getAbsolutePath()); 
 										item.setObjectLocator(objLoc);
 										objectLocators.put(itemUUID.getUuid(), objLoc);
 									} catch (IOException e) {
@@ -174,9 +183,12 @@ public class AVTRetrieve2 implements Retrieve {
 							    	outStream.close();
 							    	//retrievedFiles.add(outFile);
 							    	ObjectLocator objLoc = new ObjectLocator();				
-									Uuid itemUUID = item.getObjectDescriptor().getUuid();
-									objLoc.setUuid(itemUUID);				
-									objLoc.setUri(outFile.getAbsolutePath()); 
+									UUID itemUUID = item.getObjectDescriptor().getDescriptorUuid();
+									objLoc.setLocator(itemUUID);				
+									objLoc.setSource(itemUUID);
+									objLoc.setLength(outFile.length());
+									objLoc.setOffset(0L);
+									objLoc.setURI(outFile.getAbsolutePath()); 
 									item.setObjectLocator(objLoc);
 									objectLocators.put(itemUUID.getUuid(), objLoc);
 							    	//Retrieve DICOM SEG
@@ -205,9 +217,13 @@ public class AVTRetrieve2 implements Retrieve {
 					    						//retrievedFiles.add(outDicomSegFile);
 					    						ObjectLocator dicomSegObjLoc = new ObjectLocator();				
 												Item itemDicomSeg = items.get(i);
-												Uuid dicomSegItemUUID = itemDicomSeg.getObjectDescriptor().getUuid();
-												dicomSegObjLoc.setUuid(dicomSegItemUUID);				
-												dicomSegObjLoc.setUri(outDicomSegFile.getAbsolutePath()); 
+												UUID dicomSegItemUUID = itemDicomSeg.getObjectDescriptor().getDescriptorUuid();
+												dicomSegObjLoc.setLocator(dicomSegItemUUID);				
+												dicomSegObjLoc.setSource(dicomSegItemUUID);
+												dicomSegObjLoc.setLength(outDicomSegFile.length());
+												dicomSegObjLoc.setOffset(0L);
+												dicomSegObjLoc.setTransferSyntax(itemDicomSeg.getObjectDescriptor().getTransferSyntaxUID());
+												dicomSegObjLoc.setURI(outDicomSegFile.getAbsolutePath()); 
 												item.setObjectLocator(dicomSegObjLoc);
 												objectLocators.put(dicomSegItemUUID.getUuid(), dicomSegObjLoc);										
 							    			}
@@ -235,9 +251,15 @@ public class AVTRetrieve2 implements Retrieve {
 									dout.close();
 									ObjectLocator objLoc = new ObjectLocator();				
 									Item item = items.get(i);
-									Uuid itemUUID = item.getObjectDescriptor().getUuid();
-									objLoc.setUuid(itemUUID);				
-									objLoc.setUri(file.getAbsolutePath()); 
+									UUID itemUUID = item.getObjectDescriptor().getDescriptorUuid();
+									objLoc.setLocator(itemUUID);				
+									objLoc.setSource(itemUUID);
+									objLoc.setLength(file.length());
+									objLoc.setOffset(0L);
+									UID tsUID = new UID();
+									tsUID.setUid(dout.getTransferSyntax().uid());
+									objLoc.setTransferSyntax(tsUID);
+									objLoc.setURI(file.getAbsolutePath()); 
 									item.setObjectLocator(objLoc);
 									objectLocators.put(itemUUID.getUuid(), objLoc);
 								} catch (IOException e) {
@@ -269,9 +291,12 @@ public class AVTRetrieve2 implements Retrieve {
 						    	//retrievedFiles.add(outFile);
 						    	ObjectLocator objLoc = new ObjectLocator();				
 								Item item = items.get(i);
-								Uuid itemUUID = item.getObjectDescriptor().getUuid();
-								objLoc.setUuid(itemUUID);				
-								objLoc.setUri(outFile.getAbsolutePath()); 
+								Uuid itemUUID = (Uuid) item.getObjectDescriptor().getDescriptorUuid();
+								objLoc.setSource(itemUUID);
+								objLoc.setLocator(itemUUID); // TODO generate a new UUID?  Maybe not.		
+								objLoc.setOffset(0L);
+								objLoc.setLength(outFile.length());
+								objLoc.setURI(outFile.getAbsolutePath()); 
 								item.setObjectLocator(objLoc);
 								objectLocators.put(itemUUID.getUuid(), objLoc);
 						    	//Retrieve DICOM SEG
@@ -290,7 +315,8 @@ public class AVTRetrieve2 implements Retrieve {
 						    			if(dicomSeg == null){			    				
 						    				throw new FileNotFoundException(message);
 						    			} else {					 
-						    				//TODO DICOM SEG tmp file not found e.g. DICOM SEG belongs to not specified Study for which TargetIteratorRunner was not requested					 					    			
+						    				//TODO DICOM SEG tmp file not found e.g. DICOM SEG belongs to not specified Study for which TargetIteratorRunner was not requested	
+						    				//TODO make sure the transfer syntax is on the requested transfer syntax list
 					    					File outDicomSegFile = new File(dirPath + File.separator + sopInstanceUID);
 				    						FileOutputStream fos = new FileOutputStream(outDicomSegFile);
 				    						BufferedOutputStream bos = new BufferedOutputStream(fos);
@@ -300,9 +326,15 @@ public class AVTRetrieve2 implements Retrieve {
 				    						//retrievedFiles.add(outDicomSegFile);
 				    						ObjectLocator dicomSegObjLoc = new ObjectLocator();				
 											Item itemDicomSeg = items.get(i);
-											Uuid dicomSegItemUUID = itemDicomSeg.getObjectDescriptor().getUuid();
-											dicomSegObjLoc.setUuid(dicomSegItemUUID);				
-											dicomSegObjLoc.setUri(outDicomSegFile.getAbsolutePath()); 
+											UUID dicomSegItemUUID = itemDicomSeg.getObjectDescriptor().getDescriptorUuid();
+											dicomSegObjLoc.setLocator(itemUUID);				
+											dicomSegObjLoc.setSource(itemUUID);
+											dicomSegObjLoc.setLength(outDicomSegFile.length());
+											dicomSegObjLoc.setOffset(0L);
+											UID tsUID = new UID();
+											tsUID.setUid(dout.getTransferSyntax().uid());
+											objLoc.setTransferSyntax(tsUID);
+											dicomSegObjLoc.setURI(outDicomSegFile.getAbsolutePath()); 
 											item.setObjectLocator(dicomSegObjLoc);
 											objectLocators.put(dicomSegItemUUID.getUuid(), dicomSegObjLoc);										
 						    			}

@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
 import edu.wustl.xipHost.dataAccess.DataSource;
 import edu.wustl.xipHost.dataAccess.Retrieve;
@@ -56,7 +56,7 @@ public class LocalFileSystemRetrieve implements Retrieve {
 
 	@Override
 	public void setDataSource(DataSource dataSource) {
-				
+	
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class LocalFileSystemRetrieve implements Retrieve {
 				for(Series oneSeries : series){
 					List<Item> items = oneSeries.getItems();
 					for(Item item : items){
-						String uuid = item.getObjectLocator().getUuid().getUuid();
+						String uuid = item.getObjectLocator().getLocator().getUuid();
 						ObjectLocator objLoc = item.getObjectLocator();
 						objectLocs.put(uuid, objLoc);
 					}

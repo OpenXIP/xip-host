@@ -6,16 +6,21 @@ package edu.wustl.xipHost.wg23;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.xml.namespace.QName;
-import org.nema.dicom.wg23.Application;
-import org.nema.dicom.wg23.ApplicationService;
-import org.nema.dicom.wg23.ArrayOfObjectLocator;
-import org.nema.dicom.wg23.ArrayOfQueryResult;
-import org.nema.dicom.wg23.ArrayOfString;
-import org.nema.dicom.wg23.ArrayOfUUID;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.ModelSetDescriptor;
-import org.nema.dicom.wg23.State;
-import org.nema.dicom.wg23.Uid;
+
+import org.nema.dicom.PS3_19.ApplicationService20100825;
+import org.nema.dicom.PS3_19.ArrayOfMimeType;
+import org.nema.dicom.PS3_19.ArrayOfObjectLocator;
+import org.nema.dicom.PS3_19.ArrayOfQueryResult;
+import org.nema.dicom.PS3_19.ArrayOfQueryResultInfoSet;
+import org.nema.dicom.PS3_19.ArrayOfUID;
+import org.nema.dicom.PS3_19.ArrayOfUUID;
+import org.nema.dicom.PS3_19.ArrayOfstring;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.IApplicationService20100825;
+import org.nema.dicom.PS3_19.ModelSetDescriptor;
+import org.nema.dicom.PS3_19.Rectangle;
+import org.nema.dicom.PS3_19.State;
+import org.nema.dicom.PS3_19.UID;
 
 /**
  * <font  face="Tahoma" size="2">
@@ -24,9 +29,9 @@ import org.nema.dicom.wg23.Uid;
  * @author Jaroslaw Krych
  * </font>
  */
-public class ClientToApplication implements Application {		
-	ApplicationService service;  
-	Application appProxy;
+public class ClientToApplication implements IApplicationService20100825 {		
+	ApplicationService20100825 service;  
+	IApplicationService20100825 appProxy;
 
 	public ClientToApplication() {}
 	
@@ -38,45 +43,71 @@ public class ClientToApplication implements Application {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		service = new ApplicationService(wsdlLocation, new QName("http://wg23.dicom.nema.org/", "ApplicationService"));
-		appProxy = service.getApplicationPort();
+		service = new ApplicationService20100825(wsdlLocation, new QName("http://dicom.nema.org/PS3.19/ApplicationService-20100825", "ApplicationService-20100825"));
+		appProxy = service.getApplicationServiceBinding();
 		/*((BindingProvider)appProxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
         appServiceURL.toExternalForm() + "?wsdl");*/		
 	}	
 
-	public boolean bringToFront() {		
-		return appProxy.bringToFront();
-	}	
-
-	public ModelSetDescriptor getAsModels(ArrayOfUUID uuids, Uid classUID, Uid transferSyntaxUID) {
-		// TODO Auto-generated method stub
-		return null;
+	@Override
+	public State getState() {
+		return appProxy.getState();
 	}
-	
-	public ArrayOfObjectLocator getDataAsFile(ArrayOfUUID uuids, boolean includeBulkData) {		
-		return appProxy.getDataAsFile(uuids, includeBulkData);
-	}	
 
-	public ArrayOfObjectLocator getDataAsSpecificTypeFile(ArrayOfUUID objectUUIDs, String mimeType, Uid transferSyntaxUID, boolean includeBulkData) {
-		// TODO Auto-generated method stub
-		return null;
-	}	
-
-	public boolean notifyDataAvailable(AvailableData availableData, boolean lastData) {
-		return appProxy.notifyDataAvailable(availableData, lastData);		 
-	}
-	
-	public ArrayOfQueryResult queryModel(ArrayOfUUID objUUIDs, ArrayOfString modelXpaths, boolean includeBulkDataPointers) {
-		// TODO Auto-generated method stub
-		return null;
-	}	
-
-	public boolean setState(State newState) {		
+	@Override
+	public Boolean setState(State newState) {		
 		//make sure State is not null
 		return appProxy.setState(newState);
 	}
 
-	public State getState() {
-		return appProxy.getState();
+	@Override
+	public Boolean bringToFront(Rectangle location) {
+		return appProxy.bringToFront(location);
+	}
+	public boolean bringToFront() {		
+		return bringToFront(null);
+	}	
+
+	@Override
+	public Boolean notifyDataAvailable(AvailableData data, Boolean lastData) {
+		return appProxy.notifyDataAvailable(data, lastData);		 
+	}
+	
+	@Override
+	public ArrayOfObjectLocator getData(ArrayOfUUID objects,
+			ArrayOfUID acceptableTransferSyntaxes, Boolean includeBulkData) {
+		return appProxy.getData(objects, acceptableTransferSyntaxes, includeBulkData);
+	}
+	public ArrayOfObjectLocator getDataAsFile(ArrayOfUUID uuids, boolean includeBulkData) {
+		// TODO fill in the null with the default transfer syntax
+		return getData(uuids, null, includeBulkData);
+	}	
+
+	@Override
+	public void releaseData(ArrayOfUUID objects) {
+		appProxy.releaseData(objects);
+	}
+
+	@Override
+	public ModelSetDescriptor getAsModels(ArrayOfUUID objects, UID classUID,
+			ArrayOfMimeType supportedInfoSetTypes) {
+		return appProxy.getAsModels(objects, classUID, supportedInfoSetTypes);
+	}
+
+	@Override
+	public void releaseModels(ArrayOfUUID models) {
+		appProxy.releaseModels(models);	
+	}
+
+	@Override
+	public ArrayOfQueryResult queryModel(ArrayOfUUID models,
+			ArrayOfstring xPaths) {
+		return appProxy.queryModel(models, xPaths);
+	}
+
+	@Override
+	public ArrayOfQueryResultInfoSet queryInfoSet(ArrayOfUUID models,
+			ArrayOfstring xPaths) {
+		return appProxy.queryInfoSet(models, xPaths);
 	}
 }

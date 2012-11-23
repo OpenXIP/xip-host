@@ -261,7 +261,7 @@ public class DicomUtil {
 		String protocolName = criteria.get(TagFromName.ProtocolName).getDelimitedStringValuesOrEmptyString();
 		if(!protocolName.isEmpty()){adCriteria.put(Tag.ProtocolName, protocolName);}
 		String operatorName = criteria.get(TagFromName.OperatorsName).getDelimitedStringValuesOrEmptyString();
-		if(!operatorName.isEmpty()){adCriteria.put(Tag.OperatorName, operatorName);}
+		if(!operatorName.isEmpty()){adCriteria.put(Tag.OperatorsName, operatorName);}
 		String laterality = criteria.get(TagFromName.Laterality).getDelimitedStringValuesOrEmptyString();
 		if(!laterality.isEmpty()){adCriteria.put(Tag.Laterality, laterality);}
 		String bodyPartExamined = criteria.get(TagFromName.BodyPartExamined).getDelimitedStringValuesOrEmptyString();
@@ -450,9 +450,9 @@ public class DicomUtil {
 			if(protocolName != null){
 				{ AttributeTag t = TagFromName.ProtocolName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(protocolName); criteria.put(t,a); }
 			}
-			String operatorName = (String)dicomCriteria.get(Tag.OperatorName);
-			if(operatorName != null){
-				{ AttributeTag t = TagFromName.OperatorsName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(operatorName); criteria.put(t,a); }
+			String operatorsName = (String)dicomCriteria.get(Tag.OperatorsName);
+			if(operatorsName != null){
+				{ AttributeTag t = TagFromName.OperatorsName; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue(operatorsName); criteria.put(t,a); }
 			}
 			String laterality = (String)dicomCriteria.get(Tag.Laterality);
 			if(laterality != null){

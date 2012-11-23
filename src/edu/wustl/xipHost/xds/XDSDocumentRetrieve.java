@@ -7,10 +7,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import edu.wustl.xipHost.wg23.Uuid;
 import org.openhealthtools.ihe.common.hl7v2.CX;
 import org.openhealthtools.ihe.xds.metadata.DocumentEntryType;
 import edu.wustl.xipHost.dataAccess.DataAccessListener;
@@ -70,9 +69,9 @@ public class XDSDocumentRetrieve implements Retrieve {
 		homeCommunityId = item.getHomeCommunityId();
 		xdsRetrievedFile = xdsMgr.retrieveDocument(docEntryDetails, patientId, homeCommunityId);				
 		ObjectLocator objLoc = new ObjectLocator();				
-		Uuid itemUUID = item.getObjectDescriptor().getUuid();
-		objLoc.setUuid(itemUUID);				
-		objLoc.setUri(xdsRetrievedFile.getAbsolutePath()); 
+		Uuid itemUUID = (Uuid) item.getObjectDescriptor().getDescriptorUuid();
+		objLoc.setSource(itemUUID);				
+		objLoc.setURI(xdsRetrievedFile.getAbsolutePath()); 
 		item.setObjectLocator(objLoc);
 		objectLocators.put(itemUUID.getUuid(), objLoc);
 		fireResultsAvailable(targetElement.getId());

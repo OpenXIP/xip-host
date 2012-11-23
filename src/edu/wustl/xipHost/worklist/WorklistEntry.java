@@ -8,18 +8,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
-import org.nema.dicom.wg23.ArrayOfPatient;
-import org.nema.dicom.wg23.ArrayOfSeries;
-import org.nema.dicom.wg23.ArrayOfStudy;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.Modality;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Patient;
-import org.nema.dicom.wg23.Study;
-import org.nema.dicom.wg23.Uid;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ArrayOfObjectDescriptor;
+import org.nema.dicom.PS3_19.ArrayOfPatient;
+import org.nema.dicom.PS3_19.ArrayOfSeries;
+import org.nema.dicom.PS3_19.ArrayOfStudy;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.MimeType;
+import org.nema.dicom.PS3_19.Modality;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.Patient;
+import org.nema.dicom.PS3_19.Study;
+import org.nema.dicom.PS3_19.UID;
+import edu.wustl.xipHost.wg23.Uuid;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -416,48 +417,60 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 		Study study2 = null;
 		if(getStudyInstanceUIDPrev() == null  && getStudyInstanceUIDCurr() != null){
 			study = new Study();
-			study.setStudyUID(getStudyInstanceUIDCurr());
+			UID studyUID = new UID();
+			studyUID.setUid(getStudyInstanceUIDCurr());
+			study.setStudyUID(studyUID);
 			arrayOfStudy.getStudy().add(study);
 		}else if(getStudyInstanceUIDPrev() != null && getStudyInstanceUIDCurr() != null && 
 				getStudyInstanceUIDPrev().equalsIgnoreCase(getStudyInstanceUIDCurr())){
 			study = new Study();
-			study.setStudyUID(getStudyInstanceUIDCurr());
+			UID studyUID = new UID();
+			studyUID.setUid(getStudyInstanceUIDCurr());
+			study.setStudyUID(studyUID);
 			arrayOfStudy.getStudy().add(study);
 		}else if (getStudyInstanceUIDPrev() != null && getStudyInstanceUIDCurr() != null
 				&& !getStudyInstanceUIDPrev().equalsIgnoreCase(getStudyInstanceUIDCurr())){
 			study1 = new Study();
-			study1.setStudyUID(getStudyInstanceUIDPrev());
+			UID study1UID = new UID();
+			study1UID.setUid(getStudyInstanceUIDPrev());
+			study.setStudyUID(study1UID);
 			arrayOfStudy.getStudy().add(study1);
 			study2 = new Study();
-			study2.setStudyUID(getStudyInstanceUIDCurr());
+			UID study2UID = new UID();
+			study2UID.setUid(getStudyInstanceUIDCurr());
+			study2.setStudyUID(study2UID);
 			arrayOfStudy.getStudy().add(study2);
 		}				
 		patient.setStudies(arrayOfStudy);
-		org.nema.dicom.wg23.Series seriesPrev = new org.nema.dicom.wg23.Series();		
-		seriesPrev.setSeriesUID(getSeriesInstanceUIDPrev());
-		org.nema.dicom.wg23.Series seriesCurr = new org.nema.dicom.wg23.Series();				
-		seriesCurr.setSeriesUID(getSeriesInstanceUIDCurr());
+		org.nema.dicom.PS3_19.Series seriesPrev = new org.nema.dicom.PS3_19.Series();
+		UID seriesPrevUID = new UID();
+		seriesPrevUID.setUid(getSeriesInstanceUIDPrev());
+		seriesPrev.setSeriesUID(seriesPrevUID);
+		org.nema.dicom.PS3_19.Series seriesCurr = new org.nema.dicom.PS3_19.Series();				
+		UID seriesCurrUID = new UID();
+		seriesCurrUID.setUid(getSeriesInstanceUIDCurr());
+		seriesCurr.setSeriesUID(seriesCurrUID);
 		
 		if(getStudyInstanceUIDPrev() == null  && getStudyInstanceUIDCurr() != null && study != null){
 			ArrayOfSeries arraySeries = new ArrayOfSeries();
-			List<org.nema.dicom.wg23.Series> listOfSeries = arraySeries.getSeries();
+			List<org.nema.dicom.PS3_19.Series> listOfSeries = arraySeries.getSeries();
 			listOfSeries.add(seriesPrev);
 			listOfSeries.add(seriesCurr);
 			study.setSeries(arraySeries);
 		}else if(getStudyInstanceUIDPrev() != null && getStudyInstanceUIDCurr() != null &&
 				getStudyInstanceUIDPrev().equalsIgnoreCase(getStudyInstanceUIDCurr()) && study != null){
 			ArrayOfSeries arraySeries = new ArrayOfSeries();
-			List<org.nema.dicom.wg23.Series> listOfSeries = arraySeries.getSeries();
+			List<org.nema.dicom.PS3_19.Series> listOfSeries = arraySeries.getSeries();
 			listOfSeries.add(seriesPrev);
 			listOfSeries.add(seriesCurr);
 			study.setSeries(arraySeries);
 		}else if(getStudyInstanceUIDPrev() != null && getStudyInstanceUIDCurr() != null &&
 				!getStudyInstanceUIDPrev().equalsIgnoreCase(getStudyInstanceUIDCurr()) && study1 != null && study2 != null){
 			ArrayOfSeries arraySeriesPrev = new ArrayOfSeries();
-			List<org.nema.dicom.wg23.Series> listOfSeriesPrev = arraySeriesPrev.getSeries();
+			List<org.nema.dicom.PS3_19.Series> listOfSeriesPrev = arraySeriesPrev.getSeries();
 			listOfSeriesPrev.add(seriesPrev);
 			ArrayOfSeries arraySeriesCurr = new ArrayOfSeries();
-			List<org.nema.dicom.wg23.Series> listOfSeriesCurr = arraySeriesCurr.getSeries();
+			List<org.nema.dicom.PS3_19.Series> listOfSeriesCurr = arraySeriesCurr.getSeries();
 			listOfSeriesCurr.add(seriesCurr);
 			study1.setSeries(arraySeriesPrev);
 			study2.setSeries(arraySeriesCurr);
@@ -472,14 +485,14 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 				//set objDesc
 				Uuid objDescUUID = new Uuid();
 				objDescUUID.setUuid(UUID.randomUUID().toString());
-				objDesc.setUuid(objDescUUID);				
-				String mimeType;			
-				mimeType = DicomUtil.mimeType(filesPrev.get(i));
+				objDesc.setDescriptorUuid(objDescUUID);				
+				MimeType mimeType = new MimeType();
+				mimeType.setType(DicomUtil.mimeType(filesPrev.get(i)));
 				objDesc.setMimeType(mimeType);
-				if(mimeType.equalsIgnoreCase("application/dicom")){
+				if(mimeType.getType().equalsIgnoreCase("application/dicom")){
 					dicomParser.parse(filesPrev.get(i));
 					String classUID = dicomParser.getSOPClassUID();
-					Uid uid = new Uid();
+					UID uid = new UID();
 					uid.setUid(classUID);
 					objDesc.setClassUID(uid);
 					String modCode = dicomParser.getModality();						
@@ -488,7 +501,7 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 					objDesc.setModality(modality);
 					listObjectDescriptorsPrev.add(objDesc);	
 				}else{
-					Uid uid = new Uid();
+					UID uid = new UID();
 					uid.setUid("");
 					objDesc.setClassUID(uid);
 					String modCode = "";						
@@ -498,8 +511,15 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 					listObjectDescriptorsAvailableData.add(objDesc);
 				}										
 				ObjectLocator objLoc = new ObjectLocator();				
-				objLoc.setUuid(objDescUUID);				
-				objLoc.setUri(filesPrev.get(i).toURI().toURL().toExternalForm());
+				objLoc.setSource(objDescUUID);				
+				objLoc.setLocator(objDescUUID); // TODO generate a new UUID?  Maybe not.		
+				objLoc.setOffset(0L);
+				objLoc.setLength(filesPrev.get(i).length());
+				// TODO Find transfer syntax
+				//UID tsUID = new UID();
+				//tsUID.setUid(dout.getTransferSyntax().uid());
+				//objLoc.setTransferSyntax(tsUID);
+				objLoc.setURI(filesPrev.get(i).toURI().toURL().toExternalForm());
 				objLocators.add(objLoc);
 			} catch (IOException e) {				
 				return null;
@@ -514,13 +534,15 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 				ObjectDescriptor objDesc = new ObjectDescriptor();
 				Uuid objDescUUID = new Uuid();
 				objDescUUID.setUuid(UUID.randomUUID().toString());
-				objDesc.setUuid(objDescUUID);
-				String mimeType = DicomUtil.mimeType(filesCurr.get(i));
+				objDesc.setDescriptorUuid(objDescUUID);
+				MimeType mimeType = new MimeType();
+				mimeType.setType(DicomUtil.mimeType(filesCurr.get(i)));
 				objDesc.setMimeType(mimeType);
-				if(mimeType.equalsIgnoreCase("application/dicom")){
+				objDesc.setMimeType(mimeType);
+				if(mimeType.getType().equalsIgnoreCase("application/dicom")){
 					dicomParser.parse(filesCurr.get(i));
 					String classUID = dicomParser.getSOPClassUID();
-					Uid uid = new Uid();
+					UID uid = new UID();
 					uid.setUid(classUID);
 					objDesc.setClassUID(uid);
 					String modCode = dicomParser.getModality();						
@@ -529,7 +551,7 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 					objDesc.setModality(modality);
 					listObjectDescriptorsCurr.add(objDesc);		
 				}else{
-					Uid uid = new Uid();
+					UID uid = new UID();
 					uid.setUid("");
 					objDesc.setClassUID(uid);
 					String modCode = "";						
@@ -539,8 +561,15 @@ public class WorklistEntry implements Runnable, DataAccessListener {
 					listObjectDescriptorsAvailableData.add(objDesc);
 				}													
 				ObjectLocator objLoc = new ObjectLocator();				
-				objLoc.setUuid(objDescUUID);				
-				objLoc.setUri(filesCurr.get(i).toURI().toURL().toExternalForm());
+				objLoc.setSource(objDescUUID);				
+				objLoc.setLocator(objDescUUID); // TODO generate a new UUID?  Maybe not.		
+				objLoc.setOffset(0L);
+				objLoc.setLength(filesCurr.get(i).length());
+				// TODO Find transfer syntax
+				//UID tsUID = new UID();
+				//tsUID.setUid(dout.getTransferSyntax().uid());
+				//objLoc.setTransferSyntax(tsUID);
+				objLoc.setURI(filesCurr.get(i).toURI().toURL().toExternalForm());
 				objLocators.add(objLoc);
 			} catch (IOException e) {				
 				return null;

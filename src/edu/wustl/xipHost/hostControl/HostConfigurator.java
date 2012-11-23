@@ -27,7 +27,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.nema.dicom.wg23.State;
+import org.nema.dicom.PS3_19.State;
 import org.openhealthtools.ihe.atna.auditor.IHEAuditor;
 import org.xmldb.api.base.XMLDBException;
 import edu.wustl.xipHost.application.Application;

@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
 
 import edu.wustl.xipHost.iterator.TargetElement;
 

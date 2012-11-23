@@ -29,8 +29,8 @@ import org.globus.wsrf.encoding.ObjectSerializer;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
 
 
 /**
@@ -151,7 +151,7 @@ public class AimRetrieve implements Retrieve{
 	@Override
 	public void addRetrieveListener(RetrieveListener l) {
 		// TODO Auto-generated method stub
-		
+	
 	}
 
 	@Override

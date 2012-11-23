@@ -5,12 +5,18 @@ package edu.wustl.xipHost.iterator;
 
 import java.util.List;
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.ArrayOfObjectDescriptor;
-import org.nema.dicom.wg23.ArrayOfPatient;
-import org.nema.dicom.wg23.ArrayOfSeries;
-import org.nema.dicom.wg23.ArrayOfStudy;
-import org.nema.dicom.wg23.AvailableData;
-import org.nema.dicom.wg23.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ArrayOfObjectDescriptor;
+import org.nema.dicom.PS3_19.ArrayOfPatient;
+import org.nema.dicom.PS3_19.ArrayOfSeries;
+import org.nema.dicom.PS3_19.ArrayOfStudy;
+import org.nema.dicom.PS3_19.AvailableData;
+import org.nema.dicom.PS3_19.MimeType;
+import org.nema.dicom.PS3_19.Modality;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.UID;
+import edu.wustl.xipHost.wg23.Uuid;
+
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
 import edu.wustl.xipHost.dataModel.SearchResult;
@@ -28,12 +34,12 @@ public class IteratorUtil {
 		SearchResult subSearchResult = targetElement.getSubSearchResult();
 		AvailableData availableData = new AvailableData();		
 		ArrayOfPatient arrayOfPatient = new ArrayOfPatient();
-		List<org.nema.dicom.wg23.Patient> listOfPatients = arrayOfPatient.getPatient();
+		List<org.nema.dicom.PS3_19.Patient> listOfPatients = arrayOfPatient.getPatient();
 		List<Patient> searchResultPatients = subSearchResult.getPatients();
 		for(int i = 0; i < searchResultPatients.size(); i++){
 			Patient searchResultPatient = searchResultPatients.get(i);
 			String patientName = searchResultPatient.getPatientName();			
-			org.nema.dicom.wg23.Patient patient = new org.nema.dicom.wg23.Patient();
+			org.nema.dicom.PS3_19.Patient patient = new org.nema.dicom.PS3_19.Patient();
 			patient.setName(patientName);
 			ArrayOfObjectDescriptor arrayOfObjectDescPatient = new ArrayOfObjectDescriptor();
 			List<ObjectDescriptor> listObjectDescsPatient = arrayOfObjectDescPatient.getObjectDescriptor();
@@ -46,12 +52,14 @@ public class IteratorUtil {
 			listOfPatients.add(patient);
 			List<Study> searchResultStudies = searchResultPatient.getStudies();
 			ArrayOfStudy arrayOfStudy = new ArrayOfStudy();
-			List<org.nema.dicom.wg23.Study> listOfStudies = arrayOfStudy.getStudy();
+			List<org.nema.dicom.PS3_19.Study> listOfStudies = arrayOfStudy.getStudy();
 			for(int j = 0; j < searchResultStudies.size(); j++){
 				Study searchResultStudy = searchResultStudies.get(j);							
 				String studyInstanceUID = searchResultStudy.getStudyInstanceUID();
-				org.nema.dicom.wg23.Study study = new org.nema.dicom.wg23.Study();
-				study.setStudyUID(studyInstanceUID);
+				org.nema.dicom.PS3_19.Study study = new org.nema.dicom.PS3_19.Study();
+				UID studyUID = new UID();
+				studyUID.setUid(studyInstanceUID);
+				study.setStudyUID(studyUID);
 				ArrayOfObjectDescriptor arrayOfObjectDescStudy = new ArrayOfObjectDescriptor();
 				List<ObjectDescriptor> listObjectDescsStudy = arrayOfObjectDescStudy.getObjectDescriptor();
 				List<Item> studyItems = searchResultStudy.getItems();
@@ -64,12 +72,14 @@ public class IteratorUtil {
 				patient.setStudies(arrayOfStudy);
 				List<Series> searchResultSeries = searchResultStudy.getSeries();
 				ArrayOfSeries arrayOfSeries = new ArrayOfSeries();
-				List<org.nema.dicom.wg23.Series> listOfSeries = arrayOfSeries.getSeries();
+				List<org.nema.dicom.PS3_19.Series> listOfSeries = arrayOfSeries.getSeries();
 				for(int k = 0; k < searchResultSeries.size(); k++){
 					Series oneSeries = searchResultSeries.get(k);
 					String seriesInstanceUID = oneSeries.getSeriesInstanceUID();
-					org.nema.dicom.wg23.Series series = new org.nema.dicom.wg23.Series();
-					series.setSeriesUID(seriesInstanceUID);
+					org.nema.dicom.PS3_19.Series series = new org.nema.dicom.PS3_19.Series();
+					UID seriesUID = new UID();
+					seriesUID.setUid(seriesInstanceUID);
+					series.setSeriesUID(seriesUID);
 					ArrayOfObjectDescriptor arrayOfObjectDescSeries = new ArrayOfObjectDescriptor();
 					List<ObjectDescriptor> listObjectDescsSeries = arrayOfObjectDescSeries.getObjectDescriptor();
 					List<Item> seriesItems = oneSeries.getItems();

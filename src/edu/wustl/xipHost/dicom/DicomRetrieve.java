@@ -11,9 +11,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.ObjectDescriptor;
-import org.nema.dicom.wg23.ObjectLocator;
-import org.nema.dicom.wg23.Uuid;
+import org.nema.dicom.PS3_19.ObjectDescriptor;
+import org.nema.dicom.PS3_19.ObjectLocator;
+import org.nema.dicom.PS3_19.UID;
+import org.nema.dicom.PS3_19.UUID;
+
+import edu.wustl.xipHost.wg23.Uuid;
+
 import com.pixelmed.database.StudySeriesInstanceModel;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
@@ -195,9 +199,10 @@ public class DicomRetrieve implements Retrieve {
 							logger.debug("Dicom file: " + x.getFileName());			    														
 							String fileURI = (new File(x.getFileName()).toURI()).toURL().toExternalForm();
 							ObjectLocator objLoc = new ObjectLocator();														
-							Uuid itemUUID = objectDescriptors.get(i).getUuid();
-							objLoc.setUuid(itemUUID);				
-							objLoc.setUri(fileURI); 
+							UUID itemUUID = objectDescriptors.get(i).getDescriptorUuid();
+							objLoc.setSource(itemUUID);
+							//TODO: add locator UUID, TS, etc.
+							objLoc.setURI(fileURI); 
 							objectLocators.put(itemUUID.getUuid(), objLoc);
 							i++;
 						}		
@@ -287,12 +292,18 @@ public class DicomRetrieve implements Retrieve {
 											Iterator<?> it = dicomFiles.iterator();			  						
 											while (it.hasNext() ) {
 												SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
-												logger.debug("Dicom file: " + x.getFileName());			    														
-												String fileURI = (new File(x.getFileName()).toURI()).toURL().toExternalForm();
+												logger.debug("Dicom file: " + x.getFileName());
+												File dicomFile = new File(x.getFileName());
+												String fileURI = (dicomFile.toURI()).toURL().toExternalForm();
+												Long fileSize = dicomFile.length();
 												ObjectLocator objLoc = new ObjectLocator();														
-												Uuid itemUUID = item.getObjectDescriptor().getUuid();
-												objLoc.setUuid(itemUUID);				
-												objLoc.setUri(fileURI); 
+												Uuid itemUUID = (Uuid) item.getObjectDescriptor().getDescriptorUuid();
+												objLoc.setSource(itemUUID);				
+												objLoc.setLocator(itemUUID); // TODO generate a new UUID?  Maybe not.		
+												objLoc.setOffset(0L);
+												objLoc.setLength(fileSize);
+												objLoc.setTransferSyntax(item.getObjectDescriptor().getTransferSyntaxUID());
+												objLoc.setURI(fileURI); 
 												item.setObjectLocator(objLoc);
 												objectLocators.put(itemUUID.getUuid(), objLoc);
 												retrievedFilesURIs.add(fileURI);							
@@ -315,15 +326,18 @@ public class DicomRetrieve implements Retrieve {
 									mQueryResponseGenerator.performQuery("1.2.840.10008.5.1.4.1.2.2.1", criteria, true);	// Study Root						
 									AttributeList localResults = mQueryResponseGenerator.next();			
 									List<String> retrievedFilesURIs = new ArrayList<String>();
+									List<Long> retrievedFilesSizes = new ArrayList<Long>();
 									while(localResults != null) {							 					
 										mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
 										SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
 										Iterator<?> it = dicomFiles.iterator();			  						
 										while (it.hasNext() ) {
 											SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
-											logger.debug("Dicom file: " + x.getFileName());			    														
-											String fileURI = (new File(x.getFileName()).toURI()).toURL().toExternalForm();										
+											logger.debug("Dicom file: " + x.getFileName());
+											File dicomFile = new File(x.getFileName());
+											String fileURI = (dicomFile.toURI()).toURL().toExternalForm();										
 											retrievedFilesURIs.add(fileURI);							
+											retrievedFilesSizes.add(dicomFile.length());
 										}		
 										localResults = mQueryResponseGenerator.next();
 									}									
@@ -341,9 +355,13 @@ public class DicomRetrieve implements Retrieve {
 													for(int m = 0; m < seriesItems.size(); m++){
 														Item updateItem = seriesItems.get(m);
 														ObjectLocator objLoc = new ObjectLocator();														
-														Uuid itemUUID = updateItem.getObjectDescriptor().getUuid();
-														objLoc.setUuid(itemUUID);				
-														objLoc.setUri(retrievedFilesURIs.get(m)); 
+														UUID itemUUID = updateItem.getObjectDescriptor().getDescriptorUuid();
+														objLoc.setSource(itemUUID);				
+														objLoc.setLocator(itemUUID); // TODO generate a new UUID?  Maybe not.		
+														objLoc.setOffset(0L);
+														objLoc.setLength(retrievedFilesSizes.get(m));
+														objLoc.setTransferSyntax(updateItem.getObjectDescriptor().getTransferSyntaxUID());
+														objLoc.setURI(retrievedFilesURIs.get(m)); 
 														updateItem.setObjectLocator(objLoc);
 														objectLocators.put(itemUUID.getUuid(), objLoc);
 													}
@@ -398,6 +416,79 @@ public class DicomRetrieve implements Retrieve {
 					Integer key = iter.next();
 					Object value = dicomCriteria.get(key);
 					logger.debug("Key: " + key + " Value: " +  value);
+				}			    	    		    	    		        
+		        try {	        	
+		        	StudyRootQueryInformationModel mModel = new StudyRootQueryInformationModel(hostName, port, calledAETitle, callingAETitle, 0);	        		        	
+		        	mModel.performHierarchicalMoveTo(criteria, calling.getAETitle());			
+				} catch (IOException e) {
+					logger.error(e, e);
+				} catch (DicomException e) {
+					logger.error(e, e);
+				} catch (DicomNetworkException e) {						
+					logger.error(e, e);
+				}        	        	    	    						
+				try {						    		
+					//System.out.println("Local server is: " + getDBFileName());
+					StudySeriesInstanceModel mDatabase = new StudySeriesInstanceModel(dicomMgr.getDBFileName());			
+		    		//RetrieveResposeGeneratorFactory provides access to files URLs stored in hsqldb    		    	
+		    		RetrieveResponseGeneratorFactory mRetrieveResponseGeneratorFactory = mDatabase.getRetrieveResponseGeneratorFactory(0);
+		    		QueryResponseGeneratorFactory mQueryResponseGeneratorFactory = mDatabase.getQueryResponseGeneratorFactory(0);			
+		    		RetrieveResponseGenerator mRetrieveResponseGenerator = mRetrieveResponseGeneratorFactory.newInstance();
+					QueryResponseGenerator mQueryResponseGenerator = mQueryResponseGeneratorFactory.newInstance();						
+					mQueryResponseGenerator.performQuery("1.2.840.10008.5.1.4.1.2.2.1", criteria, true);	// Study Root						
+					AttributeList localResults = mQueryResponseGenerator.next();			
+					List<String> retrievedFilesURIs = new ArrayList<String>();
+					List<Long> retrievedFilesSizes = new ArrayList<Long>();
+					while(localResults != null) {							 					
+						mRetrieveResponseGenerator.performRetrieve("1.2.840.10008.5.1.4.1.2.2.3", localResults, true);	// Study Root		
+						SetOfDicomFiles dicomFiles = mRetrieveResponseGenerator.getDicomFiles();
+						Iterator<?> it = dicomFiles.iterator();			  						
+						while (it.hasNext() ) {
+							SetOfDicomFiles.DicomFile x  = (SetOfDicomFiles.DicomFile)it.next();
+							logger.debug("Dicom file: " + x.getFileName());
+							File dFile = new File(x.getFileName());
+							String fileURI = (dFile.toURI()).toURL().toExternalForm();
+							retrievedFilesURIs.add(fileURI);
+							retrievedFilesSizes.add(dFile.length());
+						}		
+						localResults = mQueryResponseGenerator.next();
+					}
+					SearchResult subSearchResult = targetElement.getSubSearchResult();
+					List<Patient> searchResultPatients = subSearchResult.getPatients();
+					for(int i = 0; i < searchResultPatients.size(); i++){
+						Patient searchResultPatient = searchResultPatients.get(i);						
+						List<Study> searchResultStudies = searchResultPatient.getStudies();
+						for(int j = 0; j < searchResultStudies.size(); j++){
+							Study searchResultStudy = searchResultStudies.get(j);								
+							List<Series> searchResultSeries = searchResultStudy.getSeries();
+							for(int k = 0; k < searchResultSeries.size(); k++){
+								Series series = searchResultSeries.get(k);
+								List<Item> seriesItems = series.getItems();
+								if(seriesItems.size() == retrievedFilesURIs.size()){
+									for(int m = 0; m < seriesItems.size(); m++){
+										Item item = seriesItems.get(m);
+										ObjectLocator objLoc = new ObjectLocator();														
+										Uuid itemUUID = (Uuid) item.getObjectDescriptor().getDescriptorUuid();
+										objLoc.setSource(itemUUID);				
+										objLoc.setLocator(itemUUID); // TODO generate a new UUID?  Maybe not.		
+										objLoc.setOffset(0L);
+										objLoc.setLength(retrievedFilesSizes.get(m));
+										objLoc.setTransferSyntax(item.getObjectDescriptor().getTransferSyntaxUID());
+										objLoc.setURI(retrievedFilesURIs.get(m)); 
+										item.setObjectLocator(objLoc);
+										objectLocators.put(itemUUID.getUuid(), objLoc);
+									}
+								} else {
+									logger.warn("Number of expected DICOM objects: " + seriesItems.size() + ". Actual number: " + retrievedFilesURIs.size() + ".");									
+								}
+								
+							}
+						}
+					}
+		    	} catch (Exception e) {
+		    		logger.error(e, e);
+		    	} 		    	
+			}
 				}*/			    	    		    	    		        	    	
 		}		
 	}

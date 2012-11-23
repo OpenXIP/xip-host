@@ -34,7 +34,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
-import org.nema.dicom.wg23.State;
+import org.nema.dicom.PS3_19.State;
 import com.pixelmed.dicom.AttributeList;
 import edu.wustl.xipHost.application.AppButton;
 import edu.wustl.xipHost.application.Application;

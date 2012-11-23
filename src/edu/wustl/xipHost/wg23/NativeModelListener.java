@@ -6,7 +6,7 @@ package edu.wustl.xipHost.wg23;
 import java.util.EventListener;
 
 import org.jdom.Document;
-import org.nema.dicom.wg23.Uuid;
+import edu.wustl.xipHost.wg23.Uuid;
 
 /**
  * @author Jaroslaw Krych

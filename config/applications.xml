@@ -1,3 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<applications />
+<applications>
+  <application>
+    <name>Sample App</name>
+    <exePath>L:\XIP\xip-workspace\XipHostedApp\bin\XipHostedApp.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>IA</name>
+    <exePath>L:\XIP\xip-workspace\CMIV\IA\bin\ImageAnnotation.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>TCGA</name>
+    <exePath>L:\XIP\xip-workspace\CMIV\Vasari\bin\ImageAnnotation.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>RECIST</name>
+    <exePath>L:\XIP\xip-workspace\XIPApp\bin\RECISTFollowUpAdjudicator.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>ImageJ Viewer</name>
+    <exePath>L:\XIP\xip-workspace\XipHostedAppCmdExec\bin\XipHostedAppCmdExecImageJ.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>SR Viewer</name>
+    <exePath>L:\XIP\xip-workspace\XipHostedAppCmdExec\bin\XipHostedAppCmdExecSRBrowse.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>STUDY</iterationTarget>
+  </application>
+  <application>
+    <name>Editor</name>
+    <exePath>L:\XIP\xip-workspace\XipHostedAppCmdExec\bin\XipHostedAppCmdExecSc178.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>STUDY</iterationTarget>
+  </application>
+  <application>
+    <name>CTK Sample App</name>
+    <exePath>L:\commontk\ctkHostedAppStartup.bat</exePath>
+    <vendor />
+    <version />
+    <iconFile />
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>SERIES</iterationTarget>
+  </application>
+  <application>
+    <name>Lazy Retrive Test</name>
+    <exePath>L:\XIP\xip-workspace\XIPApp\bin\edu\wustl\xipApplication\samples\XIPAppLazyRetrieveTest.bat</exePath>
+    <vendor>wustl</vendor>
+    <version>1</version>
+    <iconFile>L:\XIP\xip-workspace\XIPApp\bin\edu\wustl\xipApplication\samples\ApplicationIcon-16x16.png</iconFile>
+    <type>Rendering</type>
+    <requiresGUI>false</requiresGUI>
+    <wg23DataModelType>Files</wg23DataModelType>
+    <concurrentInstances>2</concurrentInstances>
+    <iterationTarget>STUDY</iterationTarget>
+  </application>
+</applications>
 
