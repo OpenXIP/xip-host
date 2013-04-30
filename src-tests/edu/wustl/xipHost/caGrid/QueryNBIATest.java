@@ -9,11 +9,13 @@ import gov.nih.nci.cagrid.cqlresultset.CQLQueryResults;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
 import gov.nih.nci.cagrid.ncia.client.NCIACoreServiceClient;
+
 import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
 import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
 import gov.nih.nci.ncia.domain.Series;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,12 +72,13 @@ public class QueryNBIATest {
 			queryHashMap.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", "1.3.6.1.4.1.9328.50.1.4717");
 			//queryHashMap.put("gov.nih.nci.ncia.domain.Series.instanceUID", "1.3.6.1.4.1.9328.50.1.4435");
 			//queryHashMap.put("gov.nih.nci.ncia.domain.Image.sopInstanceUID", "1.3.6.1.4.1.9328.50.1.4433");  
+			queryHashMap.put("gov.nih.nci.ncia.domain.Image.acquisitionDatetime", "test");  
 		} else {
  
 		}
 		HashmapToCQLQuery h2cql;
 		try {
-			h2cql = new HashmapToCQLQuery(new ModelMap());
+			h2cql = new HashmapToCQLQuery(new ModelMap(new File("./resources/NCIAModelMap.properties")));
 			
 			try {
 				cqlQuery = h2cql.makeCQLQuery(queryHashMap);

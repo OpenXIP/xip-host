@@ -21,7 +21,7 @@ public class MakeCQLTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		gridUtil = new GridUtil();
-		FileInputStream fis = new FileInputStream("./src-tests/edu/wustl/xipHost/caGrid/NCIAModelMap.properties");
+		FileInputStream fis = new FileInputStream("resources/NCIAModelMap.properties");
 		gridUtil.loadNCIAModelMap(fis);
 	}
 

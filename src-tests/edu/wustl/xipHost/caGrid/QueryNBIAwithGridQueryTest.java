@@ -64,6 +64,8 @@ public class QueryNBIAwithGridQueryTest implements QueryListener {
 		SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);
 		{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("1.3.6.1.4.1.9328.50.1.0009"); criteria.put(t,a); }
 		cql = gridUtil.convertToCQLStatement(criteria, CQLTargetName.PATIENT);
+		System.err.print(cql);
+		
 		Query gridQuery = new GridQuery(cql, criteria, nbiaLocation, null, null);				
 		gridQuery.addQueryListener(this);
 		Thread t = new Thread(gridQuery); 					
