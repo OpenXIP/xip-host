@@ -1,7 +1,6 @@
-package edu.wustl.xipHost.caGrid;
+package edu.wustl.xipHost.osu;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,12 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-
-import javax.xml.namespace.QName;
-
 import org.apache.log4j.Logger;
-import org.globus.wsrf.encoding.ObjectSerializer;
-import org.globus.wsrf.encoding.SerializationException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -118,7 +112,7 @@ public class GridUtil {
 			}							
 		}								
 		try {
-			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap(new File("resources/NCIAModelMap.properties")));
+			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap());
 			if (query.isEmpty()) {					
 				logger.warn("Query was empty");
 				query = new HashMap<String, String>();
@@ -130,14 +124,8 @@ public class GridUtil {
 				queryModifier.setCountOnly(true);
 				cqlq.setQueryModifier(queryModifier);
 			}
-			try {
-				System.out.println(cqlq.toString());
-				System.err.println(ObjectSerializer.toString(cqlq, 
-						new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));
-			} catch (SerializationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			/*System.err.println(ObjectSerializer.toString(cqlq, 
+					new QName("http://CQL.caBIG/1/gov.nih.nci.cagrid.CQLQuery", "CQLQuery")));*/
 			/*if(numOfSeriesTargetsPassed > 0){
 				applyQueryModifier = true;
 			}*/
