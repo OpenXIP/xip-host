@@ -17,7 +17,7 @@ NBIA and the AIM Data Services, and includes access to the
 [IHE] (http://www.ihe.net) profiles, including the
 [Patient Demographic Query (PDQ)] (http://wiki.ihe.net/index.php?title=Patient_Demographics_Query) and
 [Cross Enterprise Document Sharing (XDS)] (http://wiki.ihe.net/index.php?title=Cross_Enterprise_Document_Sharing) 
-with [Image Sharing] (http://wiki.ihe.net/index.php?title=Cross-enterprise_Document_Sharing_for_Imaging) profiles.
+with [Image Sharing (XDS-I)] (http://wiki.ihe.net/index.php?title=Cross-enterprise_Document_Sharing_for_Imaging) profiles.
 The XIP Host is written in Java using Swing and JAX-WS.
 
 The ultimate goals of the project include:
@@ -29,8 +29,8 @@ XIP&trade;, including the XIP Host&trade; is distributed under the Apache 2.0 Li
 Please see the NOTICE and LICENSE files for details.
 
 You will find more details about XIP&trade; in the following links:
-    *  [Home Page] (http://www.OpenXIP.org)
-    *  [Forum/Mailing List] (https://groups.google.com/forum/?fromgroups#!forum/openxip)
-    *  [Issue tracker] (https://plans.imphub.org/browse/XIP)
-    *  [Documentation] (https://docs.imphub.org/display/XIP)
-    *  [Git code repository] (https://github.com/OpenXIP/xip-host)
+  *  [Home Page] (http://www.OpenXIP.org)
+  *  [Forum/Mailing List] (https://groups.google.com/forum/?fromgroups#!forum/openxip)
+  *  [Issue tracker] (https://plans.imphub.org/browse/XIP)
+  *  [Documentation] (https://docs.imphub.org/display/XIP)
+  *  [Git code repository] (https://github.com/OpenXIP/xip-host)

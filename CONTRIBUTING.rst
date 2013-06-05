@@ -1,8 +1,8 @@
-=================
+==============
 How to Contribute
-=================
+==============
 
-We welcome community contributions to the XIP(tm) project.
+We welcome community contributions to the XIP&trade; project.
 Your contributions back to XIP will allow the broader
 community to benefit from your work and will allow your
 enhancements to be integrated with those of others.  There are a few
@@ -17,13 +17,14 @@ Getting Started
 
 * Fork the repository on GitHub to publish any proposed changes.
 
-* Optionally submit a ticket for your issue at <https://plans.imphub.org/browse/XIP>,
+* Optionally submit a ticket for your issue at https://plans.imphub.org/browse/XIP,
   or add a comment to an existing one.
 
-  - Get an _`imphub Account` to create or edit an issue.
-  - Clearly describe the issue including steps to reproduce when it is a bug.
+  - Get an `impub Account`_ to create or edit an issue.
+  - Clearly describe the issue including steps to reproduce if it is a bug.
   - Make sure you fill in the earliest version that you know has the issue.
-  - Include a comment indicating that you would like to work on the issue.
+  - Include a comment indicating that you would like to work on the issue,
+    referring to your fork.
 
 .. _`GitHub Account`: https://github.com/signup/free
 .. _`imphub Account`: https://plans.imphub.org/secure/Signup!default.jspa
@@ -35,8 +36,8 @@ Making Changes
 * Create a topic branch from where you want to base your work.
 
   - This is usually the master branch.
-  - Only target release branches if you are certain your fix must be
-    on that branch.
+  - Only target release or other branches if you are certain your fix must be
+    on a non-master branch.
   - To quickly create a topic branch based on master::
 
      git checkout -b fix/master/my_contribution master
@@ -69,7 +70,7 @@ Submitting Changes
 
 * Submit a pull request to the repository in the OpenXIP organization.
 
-* Update your <https://plans.imphub.org/browse/XIP> ticket to mark that you have submitted
+* Update your https://plans.imphub.org/browse/XIP ticket to mark that you have submitted
   code and are ready for it to be reviewed.
 
   - Include a link to the pull request in the ticket
@@ -86,14 +87,14 @@ Members of the XIP Committers team will review your proposed changes, and possib
 changes or improvements.  They will pull accepted changes back into the master XIP repository
 on `imphub`_, which will automatically mirror the changes onto GitHub.
 
-.._`imphub`: https://code.imphub.org/projects/XIP
+.. _`imphub`: https://code.imphub.org/projects/XIP
 
 ---------------------------------
 How Do I Become an XIP Committer?
 ---------------------------------
 
 Just ask!  We are always looking for good people who are willing to dedicate some time 
-towards improving XIP(tm).  Since a majority vote of the existing XIP committers is needed
+towards improving XIP&trade;.  Since a majority vote of the existing XIP committers is needed
 to become a committer, you may need to prove your worth first, e.g. by contributing a few 
 changes or enhancements using the above process.
 
