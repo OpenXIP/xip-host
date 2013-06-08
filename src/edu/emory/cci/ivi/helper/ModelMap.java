@@ -1,7 +1,8 @@
 /**
  *
  */
-package gov.nih.nci.ivi.dicom.modelmap;
+package edu.emory.cci.ivi.helper;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -177,9 +178,9 @@ public class ModelMap {
 
 	public ModelMap() throws FileNotFoundException, ModelMapException, IOException, ClassNotFoundException {
 		ClassLoader cl = ModelMap.class.getClassLoader();
-		InputStream is = cl.getResourceAsStream("resources/NCIAModelMap.properties");
+		InputStream is = cl.getResourceAsStream("resources/modelmap/NCIAModelMap.properties");
 
-		InputStream is2 = cl.getResourceAsStream("resources/NCIAModelHierarchy.properties");
+		InputStream is2 = cl.getResourceAsStream("resources/modelmap/NCIAModelHierarchy.properties");
 
 		fieldToDicomTagMap.load(is);
 

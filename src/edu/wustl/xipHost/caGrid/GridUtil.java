@@ -32,6 +32,10 @@ import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomDictionary;
+
+import edu.emory.cci.ivi.helper.HashmapToCQLQuery;
+import edu.emory.cci.ivi.helper.ModelMap;
+import edu.emory.cci.ivi.helper.ModelMapException;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -39,12 +43,10 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.cagrid.cqlquery.QueryModifier;
+//import gov.nih.nci.cagrid.cqlquery.QueryModifier;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
-import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
+
 
 
 public class GridUtil {
@@ -118,7 +120,7 @@ public class GridUtil {
 			}							
 		}								
 		try {
-			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap(new File("resources/NCIAModelMap.properties")));
+			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap(new File("resources/modelmap/NCIAModelMap.properties")));
 			if (query.isEmpty()) {					
 				logger.warn("Query was empty");
 				query = new HashMap<String, String>();
@@ -126,9 +128,9 @@ public class GridUtil {
 			}
 			cqlq = h2cql.makeCQLQuery(query);
 			if(value == CQLTargetName.IMAGE){
-				QueryModifier queryModifier = new QueryModifier();
-				queryModifier.setCountOnly(true);
-				cqlq.setQueryModifier(queryModifier);
+				//QueryModifier queryModifier = new QueryModifier();
+				//queryModifier.setCountOnly(true);
+				//cqlq.setQueryModifier(queryModifier);
 			}
 			try {
 				System.out.println(cqlq.toString());

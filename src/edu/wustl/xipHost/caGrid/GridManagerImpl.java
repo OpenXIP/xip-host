@@ -204,7 +204,7 @@ public class GridManagerImpl implements GridManager {
 	GridUtil util = new GridUtil();
 	//If startup sequence files are not set explicitly the following default values are used 	
 	File xmlGridLocFile = new File("./config/grid_locations.xml");
-	File nciaModelMapFile = new File("./resources/NCIAModelMap.properties");
+	File nciaModelMapFile = new File("./resources/modelmap/NCIAModelMap.properties");
 	/* (non-Javadoc)
 	 * @see edu.wustl.xipHost.caGrid.GridManager#runGridStartupSequence()
 	 */

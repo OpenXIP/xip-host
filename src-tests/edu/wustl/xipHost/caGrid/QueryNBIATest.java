@@ -78,7 +78,7 @@ public class QueryNBIATest {
 		}
 		HashmapToCQLQuery h2cql;
 		try {
-			h2cql = new HashmapToCQLQuery(new ModelMap(new File("./resources/NCIAModelMap.properties")));
+			h2cql = new HashmapToCQLQuery(new ModelMap(new File("./resources/modelmap/NCIAModelMap.properties")));
 			
 			try {
 				cqlQuery = h2cql.makeCQLQuery(queryHashMap);

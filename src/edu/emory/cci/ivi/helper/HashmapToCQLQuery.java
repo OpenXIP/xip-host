@@ -1,15 +1,14 @@
+package edu.emory.cci.ivi.helper;
 /**
  *
  */
-package gov.nih.nci.ivi.dicom;
+
 
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
-//import gov.nih.nci.cagrid.data.MalformedQueryException;
-import gov.nih.nci.ivi.dicom.modelmap.ModelDictionary;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
+//import gov.nih.nci.ivi.dicom.modelmap.ModelDictionary;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -465,8 +464,10 @@ public class HashmapToCQLQuery {
 	public static void main(String [] args)
 	{
 		ModelMap map = null;
+		File modelMapFile = new File("resources/modelmap/NCIAModelMap.properties");
+		
 		try {
-			map = new ModelMap();
+			map = new ModelMap(modelMapFile);
 		} catch (FileNotFoundException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -494,7 +495,7 @@ public class HashmapToCQLQuery {
 			testQuery.put("TargetName", targets[i]);
 			testQuery.put("gov.nih.nci.ncia.domain.Series.seriesInstanceUID", "1.3.6.1.4.1.9328.50.1.1918");
 			testQuery.put("gov.nih.nci.ncia.domain.Study.studyInstanceUID", "1.3.6.1.4.1.9328.50.1.1832");
-			testQuery.put("gov.nih.nci.ncia.domain.Patient.patientId", "SOMETHING*");
+			testQuery.put("gov.nih.nci.ncia.domain.Patient.patientId", "SOMETHING");
 
 
 			CQLQuery newQuery = new CQLQuery();
@@ -513,6 +514,26 @@ public class HashmapToCQLQuery {
 			} catch (SerializationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			}
+
+			CQL2DICOM cql2 = null;
+			try {
+				cql2 = new CQL2DICOM(map);
+			} catch (ModelMapException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	 		try {
+				AttributeList newfilter = cql2.cqlToPixelMed(newQuery);
+				System.out.println("xpath =\n" + newfilter.toString(dict));
+			}
+			catch (DicomException e) {
+				e.printStackTrace();
+			} catch (MalformedQueryException e) {
+				e.printStackTrace();
+			} catch (ModelMapException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 

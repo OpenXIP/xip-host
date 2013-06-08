@@ -1,7 +1,7 @@
 /**
  * 
  */
-package gov.nih.nci.ivi.dicom.modelmap;
+package edu.emory.cci.ivi.helper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,7 +74,7 @@ public class ModelDictionary {
 	// if both are false and null (or empty), then no hierarchy information is generated.
 	public ModelDictionary() throws ModelMapException, IOException {
 		ClassLoader cl = ModelDictionary.class.getClassLoader();
-		InputStream is = cl.getResourceAsStream("resources/NCIAModelHierarchy.properties");
+		InputStream is = cl.getResourceAsStream("resources/modelmap/NCIAModelHierarchy.properties");
 		
 		loadDictionaryFromStream(is);
 	}

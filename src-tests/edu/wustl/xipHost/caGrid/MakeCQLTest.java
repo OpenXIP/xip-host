@@ -21,7 +21,7 @@ public class MakeCQLTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		gridUtil = new GridUtil();
-		FileInputStream fis = new FileInputStream("resources/NCIAModelMap.properties");
+		FileInputStream fis = new FileInputStream("resources/modelmap/NCIAModelMap.properties");
 		gridUtil.loadNCIAModelMap(fis);
 	}
 
@@ -32,7 +32,8 @@ public class MakeCQLTest extends TestCase {
 		try {
 			String[] characterSets = { "ISO_IR 100" };
 			SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet(characterSets);			
-			{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("TCGA-08-0514"); attList.put(t,a); }
+			{ AttributeTag t = TagFromName.PatientID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("1.3.6.1.4.1.9328.50.1.0019"); attList.put(t,a); }
+			{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); a.addValue("1.3.6.1.4.1.9328.50.1.8858"); attList.put(t,a); }
 			{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); a.addValue(characterSets[0]); attList.put(t,a); }			
 		}
 		catch (Exception e) {

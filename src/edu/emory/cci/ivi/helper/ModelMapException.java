@@ -1,7 +1,7 @@
 /**
  * 
  */
-package gov.nih.nci.ivi.dicom.modelmap;
+package edu.emory.cci.ivi.helper;
 
 /**
  * @author tpan
