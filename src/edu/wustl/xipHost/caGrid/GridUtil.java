@@ -1,3 +1,19 @@
+/*
+Copyright (c) 2013, Washington University in St.Louis.
+All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package edu.wustl.xipHost.caGrid;
 
 import java.io.ByteArrayInputStream;
@@ -32,6 +48,10 @@ import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.DicomDictionary;
+
+import edu.emory.cci.ivi.helper.HashmapToCQLQuery;
+import edu.emory.cci.ivi.helper.ModelMap;
+import edu.emory.cci.ivi.helper.ModelMapException;
 import edu.wustl.xipHost.dataModel.ImageItem;
 import edu.wustl.xipHost.dataModel.Item;
 import edu.wustl.xipHost.dataModel.Patient;
@@ -39,12 +59,10 @@ import edu.wustl.xipHost.dataModel.SearchResult;
 import edu.wustl.xipHost.dataModel.Series;
 import edu.wustl.xipHost.dataModel.Study;
 import gov.nih.nci.cagrid.cqlquery.CQLQuery;
-import gov.nih.nci.cagrid.cqlquery.QueryModifier;
+//import gov.nih.nci.cagrid.cqlquery.QueryModifier;
 import gov.nih.nci.cagrid.data.MalformedQueryException;
 import gov.nih.nci.cagrid.data.utilities.CQLQueryResultsIterator;
-import gov.nih.nci.ivi.dicom.HashmapToCQLQuery;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMap;
-import gov.nih.nci.ivi.dicom.modelmap.ModelMapException;
+
 
 
 public class GridUtil {
@@ -118,7 +136,7 @@ public class GridUtil {
 			}							
 		}								
 		try {
-			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap(new File("resources/NCIAModelMap.properties")));
+			HashmapToCQLQuery h2cql = new HashmapToCQLQuery(new ModelMap(new File("resources/modelmap/NCIAModelMap.properties")));
 			if (query.isEmpty()) {					
 				logger.warn("Query was empty");
 				query = new HashMap<String, String>();
@@ -126,9 +144,9 @@ public class GridUtil {
 			}
 			cqlq = h2cql.makeCQLQuery(query);
 			if(value == CQLTargetName.IMAGE){
-				QueryModifier queryModifier = new QueryModifier();
-				queryModifier.setCountOnly(true);
-				cqlq.setQueryModifier(queryModifier);
+				//QueryModifier queryModifier = new QueryModifier();
+				//queryModifier.setCountOnly(true);
+				//cqlq.setQueryModifier(queryModifier);
 			}
 			try {
 				System.out.println(cqlq.toString());
