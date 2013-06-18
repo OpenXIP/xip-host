@@ -12,15 +12,18 @@ chance of keeping on top of things.
 Getting Started
 ---------------
 
-* Make sure you have an account on one of the OpenXIP git repository mirrors, such as [GitHub](https://github.com/signup/free) or [*imp*hub](https://plans.imphub.org/secure/Signup!default.jspa).
+* Make sure you have an account on one of the OpenXIP git repository mirrors, such as
+   [GitHub](https://github.com/signup/free) or
+   [*imp* hub](https://plans.imphub.org/secure/Signup!default.jspa).
 
-* Fork the repository on your chosen mirror (i.e. GitHub or *imp*hub) so that you can publish any proposed changes.
+* Fork the repository on your chosen mirror (i.e. GitHub or *imp* hub) so that you can
+   publish any proposed changes.
 
 * Optionally submit a ticket for your issue or new feature to the
-  [XIP planning and tracking tool on *imp*hub](https://plans.imphub.org/browse/XIP),
+  [XIP planning and tracking tool on *imp* hub](https://plans.imphub.org/browse/XIP),
   or add a comment to an existing ticket, to let the world know you are working on the issue.
 
-  - Get an [*imp*hub Account](https://plans.imphub.org/secure/Signup!default.jspa) to create or edit an issue.
+  - Get an [*imp* hub Account](https://plans.imphub.org/secure/Signup!default.jspa) to create or edit an issue.
   - Search for your issue, to see if anyone else might be working on it. If not found, please create a new one.
   - Clearly describe the issue including steps to reproduce if it is a bug.
   - Make sure you fill in the earliest version that you know has the issue.
@@ -67,8 +70,8 @@ Submitting Changes
 
 * Submit a pull request to the repository in the OpenXIP organization.
 
-* Update your [XIP planning and tracking tool](https://plans.imphub.org/browse/XIP) ticket to mark that you have submitted
-  code and are ready for it to be reviewed.
+* Update your [XIP planning and tracking tool](https://plans.imphub.org/browse/XIP) ticket to
+  indicate that you have submitted code and are ready for it to be reviewed.
 
   - Include a link to the pull request in the ticket
   - It would be nice, but very optional, if you also recorded the time you spent on the issue

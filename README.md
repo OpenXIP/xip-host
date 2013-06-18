@@ -21,16 +21,16 @@ with [Image Sharing (XDS-I)] (http://wiki.ihe.net/index.php?title=Cross-enterpri
 The XIP Host is written in Java using Swing and JAX-WS.
 
 The ultimate goals of the project include:
-  * Be a 'reference implementation' of a [DICOM Hosting System] (http://medical.nema.org/Dicom/2011/11_19pu.pdf)
-  * Provide access to repositories of images and related data, with an emphasis on research workflows,
+* Be a 'reference implementation' of a [DICOM Hosting System] (http://medical.nema.org/Dicom/2011/11_19pu.pdf)
+* Provide access to repositories of images and related data, with an emphasis on research workflows,
      instead of clinical workflows, the focus of most medical imaging (PACS) workstations
 
-XIP&trade;, including the XIP Host&trade; is distributed under the Apache 2.0 License.
+XIP&trade;, including the XIP Host&trade; is distributed under the [Apache 2.0 License](http://opensource.org/licenses/Apache-2.0).
 Please see the NOTICE and LICENSE files for details.
 
 You will find more details about XIP&trade; in the following links:
-  *  [Home Page] (http://www.OpenXIP.org)
-  *  [Forum/Mailing List] (https://groups.google.com/forum/?fromgroups#!forum/openxip)
-  *  [Issue tracker] (https://plans.imphub.org/browse/XIP)
-  *  [Documentation] (https://docs.imphub.org/display/XIP)
-  *  [Git code repository] (https://github.com/OpenXIP/xip-host)
+*  [Home Page] (http://www.OpenXIP.org)
+*  [Forum/Mailing List] (https://groups.google.com/forum/?fromgroups#!forum/openxip)
+*  [Issue tracker] (https://plans.imphub.org/browse/XIP)
+*  [Documentation] (https://docs.imphub.org/display/XIP)
+*  [Git code repository] (https://github.com/OpenXIP/xip-host)
