@@ -1,4 +1,3 @@
-==============
 How to Contribute
 ==============
 
@@ -9,38 +8,38 @@ enhancements to be integrated with those of others.  There are a few
 guidelines that we ask contributors to follow so that we can have a
 chance of keeping on top of things.
 
----------------
+
 Getting Started
 ---------------
 
-* Make sure you have a `GitHub Account`_.
+* Make sure you have an account on one of the OpenXIP git repository mirrors, such as [GitHub](https://github.com/signup/free) or [*imp*hub](https://plans.imphub.org/secure/Signup!default.jspa).
 
-* Fork the repository on GitHub to publish any proposed changes.
+* Fork the repository on your chosen mirror (i.e. GitHub or *imp*hub) so that you can publish any proposed changes.
 
-* Optionally submit a ticket for your issue at https://plans.imphub.org/browse/XIP,
-  or add a comment to an existing one.
+* Optionally submit a ticket for your issue or new feature to the
+  [XIP planning and tracking tool on *imp*hub](https://plans.imphub.org/browse/XIP),
+  or add a comment to an existing ticket, to let the world know you are working on the issue.
 
-  - Get an `impub Account`_ to create or edit an issue.
+  - Get an [*imp*hub Account](https://plans.imphub.org/secure/Signup!default.jspa) to create or edit an issue.
+  - Search for your issue, to see if anyone else might be working on it. If not found, please create a new one.
   - Clearly describe the issue including steps to reproduce if it is a bug.
   - Make sure you fill in the earliest version that you know has the issue.
   - Include a comment indicating that you would like to work on the issue,
     referring to your fork.
+  - If others are interested in the issue, please feel free to coordinate 
+    with them, to spread the load and minimize duplication of effort.
 
-.. _`GitHub Account`: https://github.com/signup/free
-.. _`imphub Account`: https://plans.imphub.org/secure/Signup!default.jspa
 
---------------
 Making Changes
 --------------
 
 * Create a topic branch from where you want to base your work.
 
   - This is usually the master branch.
-  - Only target release or other branches if you are certain your fix must be
-    on a non-master branch.
-  - To quickly create a topic branch based on master::
+  - Only target release or other branches if you are certain your fix must be on a non-master branch.
+  - To quickly create a topic branch based on master:
 
-     git checkout -b fix/master/my_contribution master
+     `git checkout -b fix/master/my_contribution master`
 
     Please avoid working directly on the master branch.
 
@@ -48,19 +47,17 @@ Making Changes
 
 * Please provide tests and documentation with your changes.
 
-* Check for unnecessary whitespace with ``git diff --check`` before committing.
+* Check for unnecessary whitespace with `git diff --check` before committing.
 
-* Follow the `NCIP Good Practices for Commit Messages`_.
+* Follow the [NCIP Good Practices for Commit Messages](https://github.com/NCIP/ncip.github.com/wiki/Good-Practices#wiki-commit-messages).
   Start with a one-line summary followed by a blank line followed by a
   detailed free-form description.
 
-.. _`NCIP Good Practices for Commit Messages`: https://github.com/NCIP/ncip.github.com/wiki/Good-Practices#wiki-commit-messages
 
-------------------
 Submitting Changes
 ------------------
 
-* In general, we require that the OSI-approved `Apache 2.0 License`_
+* In general, we require that the OSI-approved [Apache 2.0 License](http://opensource.org/licenses/Apache-2.0)
   be applied to code contributions.  There may be cases, however, that
   warrant the use of an alternate OSI-approved license and we will
   evaluate this situations case-by-case.
@@ -70,26 +67,21 @@ Submitting Changes
 
 * Submit a pull request to the repository in the OpenXIP organization.
 
-* Update your https://plans.imphub.org/browse/XIP ticket to mark that you have submitted
+* Update your [XIP planning and tracking tool](https://plans.imphub.org/browse/XIP) ticket to mark that you have submitted
   code and are ready for it to be reviewed.
 
   - Include a link to the pull request in the ticket
-
   - It would be nice, but very optional, if you also recorded the time you spent on the issue
 
-.. _`Apache 2.0 License`: http://opensource.org/licenses/Apache-2.0
 
-------------------
 What Happens Next?
 ------------------
 
 Members of the XIP Committers team will review your proposed changes, and possibly suggest 
 changes or improvements.  They will pull accepted changes back into the master XIP repository
-on `imphub`_, which will automatically mirror the changes onto GitHub.
+on [*imp*hub](https://code.imphub.org/projects/XIP), which will automatically mirror the changes onto GitHub.
 
-.. _`imphub`: https://code.imphub.org/projects/XIP
 
----------------------------------
 How Do I Become an XIP Committer?
 ---------------------------------
 
@@ -98,10 +90,7 @@ towards improving XIP&trade;.  Since a majority vote of the existing XIP committ
 to become a committer, you may need to prove your worth first, e.g. by contributing a few 
 changes or enhancements using the above process.
 
---------------------
 Additional Resources
 --------------------
 
-For help learning Git and Github, see the `NCIP Learning Resources`_.
-
-.. _`NCIP Learning Resources`: https://github.com/NCIP/ncip.github.com/wiki/Learning-Resources
+For help learning Git and Github, see the [NCIP Learning Resources](https://github.com/NCIP/ncip.github.com/wiki/Learning-Resources).
