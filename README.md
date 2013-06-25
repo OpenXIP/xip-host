@@ -1,10 +1,10 @@
 Welcome to the XIP Host&trade; Project!
-===============================
+=======================================
 
-The eXtensible Imaging Platform&trade; (XIP&trade;) is an Open Source project the
-provides a framework for developing image processing and visualization applications.
-While XIP's emphasis is medical applications, it can be used for other types of
-applications.
+The [eXtensible Imaging Platform&trade; (XIP&trade;)](http://www.OpenXIP.org) is an
+Open Source project that provides a framework for developing image processing and
+visualization applications.  While XIP's emphasis is medical applications, it can be 
+used for other types of applications.
 
 The XIP Host&trade; component of XIP&trade; performs the role of a
 [DICOM Hosting System] (http://medical.nema.org/Dicom/2011/11_19pu.pdf).  It provides the
@@ -31,8 +31,9 @@ Please see the NOTICE and LICENSE files for details.
 
 You will find more details about XIP&trade; in the following links:
 
-*  [Home Page] (http://www.OpenXIP.org)
-*  [Forum/Mailing List] (https://groups.google.com/forum/?fromgroups#!forum/openxip)
-*  [Issue tracker] (https://plans.imphub.org/browse/XIP)
-*  [Documentation] (https://docs.imphub.org/display/XIP)
-*  [Git code repository] (https://github.com/OpenXIP/xip-host)
+*  [Home Page](http://www.OpenXIP.org)
+*  [Forum/Mailing List](https://groups.google.com/forum/?fromgroups#!forum/openxip)
+*  [Issue tracker](https://plans.imphub.org/browse/XIP)
+*  [Documentation](https://docs.imphub.org/display/XIP)
+*  [Git code repository](https://github.com/OpenXIP/xip-host)
+*  [Installers for Windows](https://mirgforge.wustl.edu/gf/project/xip/frs/)
